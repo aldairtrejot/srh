@@ -71,12 +71,17 @@ class CloudC extends Controller
             $tamanoArchivoMB = $tamanoArchivoBytes / 1024 / 1024; // Convertir a MB
 
             // Aquí puedes hacer cualquier acción adicional, como guardar el archivo
-            $path = $archivo->store('uploads');  // Almacenar el archivo
-
+           
+            $ch = curl_init();
             // Log de la información obtenida
             Log::info("Nombre: $nombreArchivo, Extensión: $extensionArchivo, Tamaño: $tamanoArchivoMB MB");
 
-            
+
+
+
+
+
+
             $message = "Success";
         } else {
             $message = "Error: No file uploaded or invalid file.";
@@ -84,10 +89,7 @@ class CloudC extends Controller
 
         return response()->json([
             'message' => $message,
-            'status' => $message === 'Success',  // Esto devuelve un status booleano basado en el resultado
-            'file_name' => $nombreArchivo,
-            'file_extension' => $extensionArchivo,
-            'file_size_mb' => $tamanoArchivoMB,
+            'status' => true,
         ]);
     }
 }
