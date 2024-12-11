@@ -73,7 +73,7 @@ class CloudC extends Controller
             $tamanoArchivoMB = $tamanoArchivoBytes / 1024 / 1024; // Convertir a MB
             $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
 
-            $alfrescoC->addFile($file, $iud);
+            $a = $alfrescoC->addFile($file, $iud);
             // Aquí puedes hacer cualquier acción adicional, como guardar el archivo
 
             $message = "Sucess";
@@ -82,7 +82,7 @@ class CloudC extends Controller
         }
 
         return response()->json([
-            'message' => $message,
+            'message' => $a,
             'status' => true,
         ]);
     }
