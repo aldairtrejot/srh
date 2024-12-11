@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Cloud\ConnectionC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
 use App\Http\Controllers\Letter\Office\CloudC;
 use App\Http\Controllers\Letter\Office\OfficeC;
@@ -64,4 +63,3 @@ Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.clo
 
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');
-Route::get('/oficio/cloud/list', [ConnectionC::class, 'list']);

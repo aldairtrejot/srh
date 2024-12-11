@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Letter\Office;
+use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Letter\Collection\CollectionConfigCloudM;
 use App\Models\Letter\Office\CloudM;
 use App\Models\Letter\Office\OfficeM;
@@ -51,6 +52,7 @@ class CloudC extends Controller
 
     public function upload(Request $request)
     {
+        $alfrescoC = new AlfrescoC();
         Log::info('Este es un mensaje informativo');
 
         // Verificar si el archivo ha sido cargado correctamente
@@ -69,20 +71,81 @@ class CloudC extends Controller
 
             // Convertir el tamaño a megabytes (MB)
             $tamanoArchivoMB = $tamanoArchivoBytes / 1024 / 1024; // Convertir a MB
+            $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
 
+            $alfrescoC->addFile($archivo, $iud);
             // Aquí puedes hacer cualquier acción adicional, como guardar el archivo
-           
+
+            /*
             $ch = curl_init();
             // Log de la información obtenida
             Log::info("Nombre: $nombreArchivo, Extensión: $extensionArchivo, Tamaño: $tamanoArchivoMB MB");
 
 
 
+            // Nombre del archivo
+            $fileName = $archivo->getClientOriginalName();
+
+            // Ruta del archivo temporal
+            $filePath = $archivo->getRealPath();
+
+            // Credenciales para la autenticación básica
+            $username = 'admin';
+            $password = 'admin';
+
+            // Codificar las credenciales en base64
+            $credentials = base64_encode("{$username}:{$password}");
+
+            // ID de la carpeta de destino en Alfresco (cambia esto por el ID de tu carpeta)
+            $folderId = '61a24bc5-7569-4dcb-83d4-3055c289d8ea'; // Cambiar con el UID de la carpeta destino
+
+            // URL de la API de Alfresco para subir el archivo
+            $url = "http://172.16.17.12:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{$folderId}/children";
+
+            // Configuración de las cabeceras HTTP
+            $headers = [
+                "Authorization: Basic {$credentials}"
+            ];
+
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configurar la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+
+            // Enviar el archivo como parte de la solicitud
+            curl_setopt($ch, CURLOPT_POSTFIELDS, [
+                'filedata' => new \CURLFile($filePath, $archivo->getMimeType(), $fileName)
+            ]);
+
+            // Agregar las cabeceras a la solicitud
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+            // Ejecutar la solicitud
+            $response = curl_exec($ch);
+
+            // Verificar si hubo un error durante la ejecución de cURL
+            if (curl_errno($ch)) {
+                // Si hay un error, devolver el error
+                // curl_close($ch);
+
+            }
+
+            // Cerrar la conexión cURL
+            curl_close($ch);
+
+            // Decodificar la respuesta de Alfresco (si es en formato JSON)
+
+
+            // Verificar si el archivo se subió correctamente
 
 
 
+*/
 
-            $message = "Success";
+            $message = "Sucess";
         } else {
             $message = "Error: No file uploaded or invalid file.";
         }
