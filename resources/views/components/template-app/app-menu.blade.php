@@ -42,7 +42,7 @@
                         <li class="nav-item"><a class="nav-link" href="#">Expedientes</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Ciculares</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Interno</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Oficios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
                     </ul>
                 </div>
             </li>

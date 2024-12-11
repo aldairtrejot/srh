@@ -21,4 +21,17 @@ class CollectionTramiteM extends Model
         // Retornar el resultado
         return $result;
     }
+
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_tramite')
+            ->select([
+                'correspondencia.cat_tramite.id_cat_tramite AS id', // Eliminar la coma aquí
+                DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS descripcion')
+            ])
+            ->where('correspondencia.cat_tramite.id_cat_tramite', '=', $id);
+
+        $result = $query->first();
+        return $result;
+    }
 }

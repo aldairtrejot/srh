@@ -33,4 +33,17 @@ class CollectionRelEnlaceM extends Model
             ->where('correspondencia.rel_enlace_usuario.estatus', true)
             ->get();
     }
+
+    public function idUsuarioByAreaEdit($idUsuario)
+    {
+        $query = DB::table('administration.users')
+            ->select([
+                'administration.users.id AS id',
+                DB::raw('UPPER(administration.users.name) AS descripcion')
+            ])
+            ->where('administration.users.id', '=', $idUsuario);
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
 }

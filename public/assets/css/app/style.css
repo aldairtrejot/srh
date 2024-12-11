@@ -49567,3 +49567,327 @@ div.tagsinput span.tag a {
         grid-template-columns: 1fr; /* En pantallas pequeñas, las columnas se apilan en una sola */
     }
 }
+
+input[type="text"],
+input[type="number"],
+textarea {
+    text-transform: uppercase;
+}
+
+/* Estilo para los inputs deshabilitados */
+input:disabled {
+    background-color: white;
+    /* Fondo gris claro */
+    border: 2.8px dotted #ccc;
+    /* Líneas punteadas */
+    color: #d7d8da;
+    /* Texto más tenue */
+    cursor: not-allowed;
+    /* Cursor tipo "no permitido" */
+    opacity: 0;
+    /* Opacidad para dar un aspecto más apagado */
+}
+
+select:disabled {
+    background-color: #cecece; /* Fondo gris claro */
+    border: 2.8px dotted #ccc; /* Líneas punteadas */
+    color: #454545; /* Texto más tenue */
+    cursor: not-allowed; /* Cursor tipo "no permitido" */
+    opacity: 0.6; /* Opacidad para dar un aspecto más apagado */
+}
+
+.form-control:disabled,
+.asColorPicker-input:disabled,
+.dataTables_wrapper select:disabled,
+.jsgrid .jsgrid-table .jsgrid-filter-row input:disabled[type="text"],
+.jsgrid .jsgrid-table .jsgrid-filter-row select:disabled,
+.jsgrid .jsgrid-table .jsgrid-filter-row input:disabled[type="number"],
+.select2-container--default .select2-selection--single:disabled,
+.select2-container--default
+    .select2-selection--single
+    .select2-search__field:disabled,
+.typeahead:disabled,
+.tt-query:disabled,
+.tt-hint:disabled,
+.form-control[readonly],
+.asColorPicker-input[readonly],
+.dataTables_wrapper select[readonly],
+.jsgrid .jsgrid-table .jsgrid-filter-row input[readonly][type="text"],
+.jsgrid .jsgrid-table .jsgrid-filter-row select[readonly],
+.jsgrid .jsgrid-table .jsgrid-filter-row input[readonly][type="number"],
+.select2-container--default .select2-selection--single[readonly],
+.select2-container--default
+    .select2-selection--single
+    .select2-search__field[readonly],
+.typeahead[readonly],
+.tt-query[readonly],
+.tt-hint[readonly] {
+    background-color: #ffffff;
+    opacity: 1;
+}
+
+.rectangulo {
+    width: 120px;
+    /* Ancho ajustable */
+    height: 150px;
+    /* Alto ajustable */
+    background-color: white;
+    border: 2px dotted gray;
+    /* Bordes punteados de color gris */
+    border-radius: 10px;
+    /* Redondea los bordes */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    /* Tamaño de la fuente ajustable */
+    color: gray;
+    text-align: center;
+    cursor: not-allowed;
+    /* Cambia el cursor alicono de inhabilitado */
+}
+
+/* Estilos generales */
+.custom-file-container {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos del icono de archivo con borde gris y fondo blanco */
+.custom-file-icon-container {
+    position: relative;
+    display: inline-block;
+    font-size: 80px;
+    color: white;
+    background-color: #f5f5f5;
+    border: 2px solid #ccc;
+    padding: 30px;
+    width: 120px;
+    height: 150px;
+    text-align: center;
+    box-sizing: border-box;
+    position: relative;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+/* Líneas como si estuviera escrito en el papel */
+.custom-file-icon-container::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        #e0e0e0 2px,
+        #e0e0e0 4px
+    );
+    z-index: 1;
+}
+
+/* Contenedor de los botones dentro del ícono */
+.custom-button-container {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    z-index: 2;
+}
+
+/* Estilos de los botones */
+.custom-button {
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Cambio de color al pasar el ratón sobre los botones */
+.custom-button:hover {
+    background-color: #0056b3;
+}
+
+/* Nombre del archivo debajo del ícono */
+.custom-file-name p {
+    font-size: 13px;
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+/* Estilo del tooltip (leyenda) que aparece al pasar el mouse */
+.custom-button[title]:hover::after {
+    content: attr(title);
+    /* Muestra el texto del atributo title */
+    position: absolute;
+    top: -30px;
+    /* Posiciona el tooltip arriba del botón */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 1;
+    z-index: 3;
+    /* Asegura que el tooltip esté por encima de los botones */
+}
+
+.archivo-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    /* Espacio entre los elementos */
+}
+
+.custom-file-container {
+    width: 18%;
+    /* Ajusta el porcentaje según el número de archivos por fila */
+    min-width: 150px;
+    box-sizing: border-box;
+}
+
+/* Aseguramos que en pantallas pequeñas se acomode adecuadamente */
+@media (max-width: 768px) {
+    .custom-file-container {
+        width: 48%;
+        /* 2 elementos por fila en pantallas pequeñas */
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-container {
+        width: 100%;
+        /* 1 elemento por fila en pantallas muy pequeñas */
+    }
+}
+
+/* Estilo para el contenedor de los anexos */
+#anexos-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se muevan a la siguiente fila cuando sea necesario */
+    gap: 20px;
+    /* Espacio entre los elementos */
+    justify-content: flex-start;
+    /* Alinea los elementos al inicio */
+}
+
+/* Aseguramos que cada contenedor de archivo tenga un ancho adecuado */
+.custom-file-container {
+    width: calc(20% - 20px);
+    /* 5 elementos por fila, teniendo en cuenta el espacio de gap */
+    min-width: 150px;
+    /* Ancho mínimo para cada contenedor */
+    margin-bottom: 20px;
+    /* Espacio inferior para cada archivo */
+    box-sizing: border-box;
+    /* Incluye padding y border en el cálculo del tamaño */
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 1200px) {
+    .custom-file-container {
+        width: calc(33.33% - 20px);
+        /* 3 elementos por fila en pantallas grandes */
+    }
+}
+
+@media (max-width: 800px) {
+    .custom-file-container {
+        width: calc(50% - 20px);
+        /* 2 elementos por fila en pantallas medianas */
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-container {
+        width: 100%;
+        /* 1 elemento por fila en pantallas pequeñas */
+    }
+}
+
+#container_anexo_entrada {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se distribuyan en varias filas */
+    gap: 15px;
+    /* Espacio entre los elementos */
+}
+
+.custom-file-container {
+    width: 200px;
+    /* Ajusta el ancho del contenedor de cada elemento */
+    margin-bottom: 20px;
+    /* Espacio entre filas */
+    flex-grow: 0;
+}
+
+/* Establecemos el contenedor principal para usar Flexbox */
+.main-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se ajusten en nuevas líneas si es necesario */
+    gap: 20px;
+    /* Espacio entre las columnas */
+    justify-content: space-between;
+}
+
+/* Lado izquierdo y derecho se comportan igual */
+.left-side,
+.right-side {
+    flex: 1;
+    /* Hace que cada lado ocupe la misma cantidad de espacio */
+    min-width: 300px;
+    /* Asegura que cada lado no se haga más pequeño que 300px */
+}
+
+/* Los títulos de las secciones tienen un estilo común */
+.card-description {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #bc955c;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+/* Estilo básico para los rectángulos donde se muestra el contenido */
+.rectangulo {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+/* Media Queries para hacerlo responsivo */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        /* En pantallas pequeñas, ponemos los elementos en una columna */
+        align-items: center;
+        /* Centramos el contenido */
+    }
+
+    .left-side,
+    .right-side {
+        min-width: 100%;
+        /* Los lados ocupan el 100% del ancho en pantallas pequeñas */
+    }
+}

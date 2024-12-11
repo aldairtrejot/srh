@@ -34,7 +34,6 @@ class CollectionAreaM extends Model
 
         // Usar first() para obtener un único resultado
         $result = $query->first();
-
         return $result;
     }
 }

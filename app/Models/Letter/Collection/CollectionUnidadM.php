@@ -18,4 +18,18 @@ class CollectionUnidadM extends Model
 
         return $result;
     }
+
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_unidad')
+            ->select([
+                'correspondencia.cat_unidad.id_cat_unidad AS id',
+                DB::raw('UPPER(correspondencia.cat_unidad.descripcion) AS descripcion')
+            ])
+            ->where('correspondencia.cat_unidad.id_cat_unidad', '=', $id);
+
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
 }

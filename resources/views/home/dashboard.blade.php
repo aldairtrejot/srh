@@ -36,7 +36,7 @@
                         <!-- item menu administracion-->
 
                         @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="correspondencia"
+                            <x-template-button-dash class="card card-correspondencia" title="Correspondencia"
                                 field="CORRESPONDENCIA" href="{{ route('letter.list') }}" value="0"
                                 description="Correspondencia" />
                         @endif
@@ -67,7 +67,7 @@
                         <!-- item menu oficios-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Oficios"
-                                field="CORRESPONDENCIA" href="" value="0" description="Oficios" />
+                                field="CORRESPONDENCIA" href="{{ route('office.list') }}" value="0" description="Oficios" />
                         @endif
                     </div>
 

@@ -30,13 +30,13 @@
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Nombre" type="text"
                                         name="userName" placeholder="Nombre"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                         value="{{optional($item)->name ?? '' }}" />
 
                                     <x-template-form.template-form-input-required label="Email" type="text"
                                         name="userEmail" placeholder="Correo electrónico"
                                         value="{{ optional($item)->email ?? '' }}" autocomplete=""
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
                                 </div>
 
                                 @if (!isset($item->id)) <!-- Ocultar contenido en caso de modificar-->

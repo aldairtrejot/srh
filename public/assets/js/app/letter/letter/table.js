@@ -15,9 +15,6 @@ function searchInit() {
         searchValue: searchValue
     }, function (response) {
 
-        console.log('success');
-        console.log(response);
-
 
         const tbody = $('#template-table tbody');
         tbody.empty(); // Limpiar la tabla
@@ -25,6 +22,7 @@ function searchInit() {
         if (response.value && response.value.length > 0) {
             response.value.forEach(function (object) {
                 const finalUrl = `/srh/public/letter/edit/${object.id}`;
+                const urlReport = `/srh/public/letter/generate-pdf/correspondencia/${object.id}`;
 
                 // Generar el HTML con template literals
                 const rowHTML = `
@@ -44,15 +42,15 @@ function searchInit() {
                                         </span>
                                         Modificar
                                     </a>
-                                    <button class="dropdown-item" onclick="showModalTempleta(${object.id})">
+                                     <a class="dropdown-item" href="${urlReport}">
                                         <span style="background:#707070" class="icon-container-template">
                                             <div style="text-align: center;">
-                                                <i class="fa fa-unlock item-icon-menu"></i>
+                                                <i class="fa fa-print item-icon-menu"></i>
                                             </div>
                                         </span>
-                                        Cloud
-                                    </button>
-                                    <a class="dropdown-item" href="#">
+                                        Reporte
+                                    </a>
+                                    <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
                                         <span style="background:#003366" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-user item-icon-menu"></i>
@@ -60,7 +58,7 @@ function searchInit() {
                                         </span>
                                         Usuario
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" style="pointer-events: none; color: grey;">
                                         <span style="background:#6A1B3D" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-trash item-icon-menu"></i>
