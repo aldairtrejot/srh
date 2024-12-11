@@ -69,8 +69,14 @@ function getDataCloud() {
 //La funcion sube el archivo que el usuario esta seleccionando
 document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
     if (event.target.files.length > 0) {
+        sendFile(event.target.files[0]); // Pasa el archivo real a la función
+    }
+});
+
+function sendFile(file) {
+    if (file) {
         let data = new FormData();// Crear el objeto FormData
-        data.append('file', event.target.files[0]);
+        data.append('file', file);
         $.ajax({
             url: "/srh/public/office/cloud/upload",
             type: 'POST',
@@ -81,14 +87,11 @@ document.getElementById('file_oficio_entrada').addEventListener('change', functi
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
-                console.log('Respuesta del servidor:', response);
+                console.log(response);
             },
-            error: function (xhr, status, error) {
-                console.error('Error al subir el archivo:', error);
-            }
         });
     }
-});
+}
 
 
 function download(uid) {

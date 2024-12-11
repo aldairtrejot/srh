@@ -53,28 +53,15 @@ class CloudC extends Controller
     public function upload(Request $request)
     {
         $alfrescoC = new AlfrescoC();
-        Log::info('Este es un mensaje informativo');
+        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
+            $file = $request->file('file');// Obtener el archivo cargado
 
-        // Verificar si el archivo ha sido cargado correctamente
-        if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            // Obtener el archivo cargado
-            $file = $request->file('file');
-
-            // Obtener el nombre del archivo
-            $nombreArchivo = $file->getClientOriginalName();
-
-            // Obtener la extensión del archivo
-            $extensionArchivo = $file->getClientOriginalExtension();
-
-            // Obtener el tamaño del archivo en bytes
-            $tamanoArchivoBytes = $file->getSize();
-
-            // Convertir el tamaño a megabytes (MB)
-            $tamanoArchivoMB = $tamanoArchivoBytes / 1024 / 1024; // Convertir a MB
+            $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
+            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a M
             $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
 
-            $a = $alfrescoC->addFile($file, $iud);
-            // Aquí puedes hacer cualquier acción adicional, como guardar el archivo
+            $status = $alfrescoC->addFile($file, $iud);
+
 
             $message = "Sucess";
         } else {
@@ -82,7 +69,7 @@ class CloudC extends Controller
         }
 
         return response()->json([
-            'message' => $a,
+            'message' => $status,
             'status' => true,
         ]);
     }
