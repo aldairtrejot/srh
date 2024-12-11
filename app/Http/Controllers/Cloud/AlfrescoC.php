@@ -14,16 +14,13 @@ class AlfrescoC extends Controller
         $filePath = $archivo->getRealPath();// Ruta del archivo temporal
 
         // Credenciales para la autenticación básica
-        $username = 'admin';
-        $password = 'admin';
+        $username = env('ALFRESCO_USER');
+        $password = env('ALFRESCO_PASS');
+        $url = "http://172.16.17.12:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{$folderId}/children";
 
         $credentials = base64_encode("{$username}:{$password}");// Codificar las credenciales en base64
 
-        // URL de la API de Alfresco para subir el archivo
-        $url = "http://172.16.17.12:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{$folderId}/children";
-
-        // Configuración de las cabeceras HTTP
-        $headers = [
+        $headers = [// Configuración de las cabeceras HTTP
             "Authorization: Basic {$credentials}"
         ];
 
