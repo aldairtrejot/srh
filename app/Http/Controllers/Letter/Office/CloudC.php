@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Letter\Office;
 use App\Http\Controllers\Cloud\AlfrescoC;
+use App\Models\Letter\Cloud\CloudConfigM;
 use App\Models\Letter\Collection\CollectionConfigCloudM;
 use App\Models\Letter\Office\CloudM;
 use App\Models\Letter\Office\OfficeM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use App\Http\Controllers\Admin\MessagesC;
 class CloudC extends Controller
 {
     //La funcion obtiene datos para el ebcabezado de la vista cloud
@@ -52,25 +53,44 @@ class CloudC extends Controller
 
     public function upload(Request $request)
     {
-        $alfrescoC = new AlfrescoC();
+        //$alfrescoC = new AlfrescoC();
+        $cloudConfigM = new CloudConfigM();
+        $status = false;
+        $messages = 'ok';
+
         if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
             $file = $request->file('file');// Obtener el archivo cargado
 
             $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
-            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a M
-            $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
-
-            $status = $alfrescoC->addFile($file, $iud);
+            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a MB
 
 
-            $message = "Sucess";
-        } else {
-            $message = "Error: No file uploaded or invalid file.";
+            $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+
+
+            if (34 > $maxSize) {
+                //return $messagesC->messageErrorBack('Tamaño máximo de archivo admitido: $maxSize MB.');
+                $messages = 'Tamaño máximo de archivo admitido:';//. $maxSize . ' MB.';
+            } else {
+                //return $messagesC->messageErrorBack('Tamaño máximo de archivo admitido: $maxSize MB.');
+                /*
+                                $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
+
+                                $status = $alfrescoC->addFile($file, $iud);
+                                */
+
+
+            }
         }
 
         return response()->json([
-            'message' => $status,
-            'status' => true,
+            'messages' => $maxSize,
+            'status' => $status,
         ]);
+    }
+
+    public function saveDocument()
+    {
+
     }
 }

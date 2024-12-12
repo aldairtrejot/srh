@@ -25,6 +25,19 @@
                             <x-template-form.template-form-input-hidden name="id_tbl_oficio"
                                 value="{{  $id_tbl_oficio }}" />
 
+                            <x-template-form.template-form-input-hidden name="id_cat_area"
+                                value="{{  $item->id_cat_area }}" />
+
+                            <x-template-form.template-form-input-hidden name="id_cat_salida"
+                                value="{{  config('custom_config.CONFIG_CLOUD_SALIDA') }}" />
+
+                            <x-template-form.template-form-input-hidden name="id_cat_entrada"
+                                value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
+
+                            <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
+                                value="{{  config('custom_config.CLOUD_ALFRESCO_OFICIO') }}" />
+
+
                             <x-template-tittle.tittle-caption-secon tittle="Oficio seleccionado" />
                             <div class="contenedor">
                                 <div class="item">

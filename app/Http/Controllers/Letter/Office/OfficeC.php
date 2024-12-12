@@ -25,7 +25,9 @@ class OfficeC extends Controller
 
     public function cloud($id_tbl_oficio)
     {
-        return view('letter/office/cloud', compact('id_tbl_oficio'));
+        $officeM = new OfficeM();
+        $item = $officeM->edit($id_tbl_oficio);
+        return view('letter/office/cloud', compact('item', 'id_tbl_oficio'));
 
     }
 

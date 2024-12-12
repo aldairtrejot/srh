@@ -3,6 +3,10 @@
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 var id_tbl_oficio = $('#id_tbl_oficio').val();//Obtener elemento
+var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
+var id_cat_salida = $('#id_cat_salida').val(); //Se obtiene el id de la area
+var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
+var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de la area
 
 //Inicio de variables
 $(document).ready(function () {
@@ -68,12 +72,13 @@ function getDataCloud() {
 
 //La funcion sube el archivo que el usuario esta seleccionando
 document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
+    //Archivo, (entrada/salida), (Area), carpeta(Nombre:Oficio,Circular, expedientes) 
     if (event.target.files.length > 0) {
-        sendFile(event.target.files[0]); // Pasa el archivo real a la función
+        sendFile(event.target.files[0],1); // Pasa el archivo real a la función
     }
 });
 
-function sendFile(file) {
+function sendFile(file, id_entrada_salida) {
     if (file) {
         let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
@@ -84,6 +89,10 @@ function sendFile(file) {
             processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
             contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
             headers: {
+                'id_cat_tipo_oficio': id_cat_tipo_oficio, //Variable de nombre de oficio
+                'id_cat_area': id_cat_area,//Valor de area
+                'id_tbl_oficio': id_tbl_oficio,//Valor de id de oficio seleccionado
+                'id_entrada_salida': id_entrada_salida, //Valor de entrada y salida
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
