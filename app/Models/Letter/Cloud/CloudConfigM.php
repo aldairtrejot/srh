@@ -16,4 +16,16 @@ class CloudConfigM extends Model
             ->first();
         return $query ?? null;
     }
+
+    //La funcion trae el uid, que sirve como referencia para la inserccion
+    public function getUid($id_cat_area, $id_cat_tipo_doc_cloud, $id_cat_nombre_oficio)
+    {
+        $uid = DB::table('correspondencia.cat_config_cloud')
+            ->where('estatus', true)
+            ->where('id_cat_area', $id_cat_area)
+            ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
+            ->where('id_cat_nombre_oficio', $id_cat_nombre_oficio)
+            ->value('uid');
+        return $uid;
+    }
 }

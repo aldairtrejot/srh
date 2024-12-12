@@ -66,12 +66,15 @@ class CloudC extends Controller
 
 
             $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $validExtensions = explode(',', $fileExtension->valor);// Convertimos la cadena de extensiones válidas en un array
 
-
-            if (34 > $maxSize) {
-                //return $messagesC->messageErrorBack('Tamaño máximo de archivo admitido: $maxSize MB.');
-                $messages = 'Tamaño máximo de archivo admitido:';//. $maxSize . ' MB.';
+            if ($tamanoArchivoMB > $maxSize->valor) { //Validacion por tamaño maximo de archivo
+                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';//. $maxSize . ' MB.';
+            } else if (!in_array($extensionArchivo, $validExtensions)) { //Validacion de extensiones
+                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
             } else {
+                
                 //return $messagesC->messageErrorBack('Tamaño máximo de archivo admitido: $maxSize MB.');
                 /*
                                 $iud = '61a24bc5-7569-4dcb-83d4-3055c289d8ea';
@@ -84,7 +87,7 @@ class CloudC extends Controller
         }
 
         return response()->json([
-            'messages' => $maxSize,
+            'messages' => $messages,
             'status' => $status,
         ]);
     }
