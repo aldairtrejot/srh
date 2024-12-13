@@ -63,6 +63,11 @@
                             </div>
                         </div>
 
+                        <!-- modal deelete -->
+                        <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
+                            confirmButton="confirmBtn" />
+
+
                         <!-- Contenedor principal con flexbox -->
                         <div class="main-container">
                             <!-- Lado izquierdo -->

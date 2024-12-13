@@ -57,6 +57,7 @@ class CloudM extends Model
                     '))
             ->where('id_tbl_oficio', $id_tbl_oficio)
             ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
+            ->where('estatus', true)
             ->first(); // Usamos 'first()' para obtener solo un resultado
 
         return $result;
@@ -75,6 +76,7 @@ class CloudM extends Model
                         '))
             ->where('id_tbl_oficio', $id_tbl_oficio)
             ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
+            ->where('estatus', true)
             ->first(); // Usamos 'first()' para obtener solo un resultado
 
         return $result;

@@ -15,7 +15,11 @@ $(document).ready(function () {
     getDataCloud();
     getDataDocument();
 
-
+    $(window).click(function (event) {
+        if ($(event.target).is('#modalBackdrop')) {
+            $('#modalBackdrop').fadeOut(); // Ocultar la ventana modal
+        }
+    });
 });
 
 //La funcion lista los documentos que existen en el cloud
@@ -139,10 +143,25 @@ function sendFile(file, id_entrada_salida, esOficio) {
     }
 }
 
-//Se utiliza la funcion para descargar archivos de alfresco
-function download(uid) {
+//La funcion elimina un documento
+function deleteDocument(uid) {
+
+    $('#modalBackdrop').fadeIn();//Iniciar ventana modal
+
+    $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar
+        $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
+    });
+
+    $('#confirmBtn').click(function () {///Se da click al boton de confirmar y se ejecuta el evento de eliminacion
+        deleteDocumenServer(uid);
+        $('#modalBackdrop').fadeOut(); // Cerrar modal después de confirmar
+    });
+}
+
+//La funcion elimina oficios del repositorio, solo de la base
+function deleteDocumenServer(uid) {
     $.ajax({
-        url: '/srh/public/cloud/download',
+        url: '/srh/public/office/cloud/delete',
         type: 'POST',
         data: {
             uid: uid,
@@ -150,12 +169,7 @@ function download(uid) {
         },
         success: function (response) {
             console.log(response);
-
-            
+            getDataDocument(); //Lista de nuevo e directorio
         },
     });
-}
-
-function deleteDocument(id) {
-    console.log(id);
 }

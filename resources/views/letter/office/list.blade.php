@@ -15,6 +15,12 @@
                 </div>
             </div>
 
+            <style>
+                .custom-button[disabled] {
+                    cursor: not-allowed;
+                }
+            </style>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -45,6 +51,7 @@
                                
                             }*/
                         </style>
+
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>

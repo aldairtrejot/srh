@@ -60,9 +60,12 @@ Route::post('/office/cloud/data', [CloudC::class, 'cloudData'])->name('office.cl
 Route::post('/office/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('office.cloud.anexos')->middleware('auth');
 Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('office.cloud.oficios')->middleware('auth');
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
+Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
 
-//ALFRESCO 
+//ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
+//ALFRESCO -> ver archivo
+Route::post('/cloud/see', [AlfrescoC::class, 'see'])->name('cloud.see')->middleware('auth');
 
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');

@@ -137,5 +137,31 @@ class CloudC extends Controller
         ]);
     }
 
+    //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
+    public function delete(Request $request)
+    {
+        $now = Carbon::now(); //Hora y fecha actual
+        $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
+        $cloudOficiosM = new CloudOficiosM();
+        $cloudAnexosM::where('uid', $request->uid)
+            ->update([
+                'estatus' => false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+        $cloudOficiosM::where('uid', $request->uid)
+            ->update([
+                'estatus' => false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+
+
+        return response()->json([
+            'messages' => $request->uid,
+            'status' => true,
+        ]);
+    }
+
 
 }
