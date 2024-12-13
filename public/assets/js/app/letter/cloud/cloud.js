@@ -49,3 +49,18 @@ function generateFileHTML(template) {
         </div>
     `;
 }
+
+//La funcion desabilita input tomando como parametro el nombre
+function disabledInput(idLabel, idIcon, idValue) {
+    $(idLabel).css('color', 'gray');  // Cambiar color del texto a gris
+    $(idIcon).css('color', 'gray');   // Cambiar color del ícono a gris
+    $(idValue).prop('disabled', true);  // Deshabilitar el input
+    $(idLabel).css('cursor', 'not-allowed');
+}
+
+function enableIput(idLabel, idIcon, idValue) {
+    $(idLabel).css('color', 'red');  // Restaurar color del texto
+    $(idIcon).css('color', '');      // Restaurar color del ícono
+    $(idValue).prop('disabled', false);  // Habilitar el input
+    $(idLabel).css('cursor', 'pointer');  // Restaurar el cursor normal
+}

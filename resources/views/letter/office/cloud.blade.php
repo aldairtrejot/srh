@@ -74,14 +74,13 @@
                                 </p>
 
                                 <div>
-                                    <br>
-
                                     <div style="display: flex; align-items: center;">
-                                        <x-template-tittle.tittle-caption-secon tittle="Oficios" />
-                                        <label for="file_oficio_entrada" style="background-color: white; color: red; font-weight: normal; font-size:
-                                            1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items:
-                                            center; text-decoration: none;">
-                                            <i class="fa fa-arrow-up" style="margin-right: 5px;"></i> Cargar
+                                        <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
+                                        <label for="file_oficio_entrada" id="label_oficio_entrada"
+                                            style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+                                            <i class="fa fa-arrow-up" id="icon_oficio_entrada"
+                                                style="margin-right: 5px;"></i>
+                                            Cargar
                                         </label>
                                         <input type="file" id="file_oficio_entrada" style="display: none;">
                                     </div>
@@ -93,8 +92,16 @@
                                 </div>
 
                                 <div>
-                                    <br>
-                                    <x-template-tittle.tittle-caption-secon tittle="Anexos" />
+                                    <div style="display: flex; align-items: center;">
+                                        <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
+                                        <label for="file_anexo_entrada" id="label_anexo_entrada"
+                                            style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada"
+                                                style="margin-right: 5px;"></i>
+                                            Cargar
+                                        </label>
+                                        <input type="file" id="file_anexo_entrada" style="display: none;">
+                                    </div>
                                     <div id="container_anexo_entrada_vacio" class="rectangulo">
                                         Sin contenido
                                     </div>
@@ -111,17 +118,35 @@
                                 </p>
 
                                 <div>
-                                    <br>
-                                    <x-template-tittle.tittle-caption-secon tittle="Oficios" />
-                                    <div id="container_oficio_salida_vacio" class="rectangulo">
-                                        Sin contenido
+                                    <div>
+                                        <div style="display: flex; align-items: center;">
+                                            <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
+                                            <label for="file_oficio_salida" id="label_oficio_salida"
+                                                style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+                                                <i class="fa fa-arrow-up" id="icon_oficio_salida"
+                                                    style="margin-right: 5px;"></i>
+                                                Cargar
+                                            </label>
+                                            <input type="file" id="file_oficio_salida" style="display: none;">
+                                        </div>
+                                        <div id="container_oficio_salida_vacio" class="rectangulo">
+                                            Sin contenido
+                                        </div>
+                                        <div id="container_oficio_salida"></div>
                                     </div>
-                                    <div id="container_oficio_salida"></div>
                                 </div>
 
                                 <div>
-                                    <br>
-                                    <x-template-tittle.tittle-caption-secon tittle="Anexos" />
+                                    <div style="display: flex; align-items: center;">
+                                        <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
+                                        <label for="file_anexo_salida" id="label_anexo_salida"
+                                            style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+                                            <i class="fa fa-arrow-up" id="icon_anexo_salida"
+                                                style="margin-right: 5px;"></i>
+                                            Cargar
+                                        </label>
+                                        <input type="file" id="file_anexo_salida" style="display: none;">
+                                    </div>
                                     <div id="container_anexo_salida_vacio" class="rectangulo">
                                         Sin contenido
                                     </div>

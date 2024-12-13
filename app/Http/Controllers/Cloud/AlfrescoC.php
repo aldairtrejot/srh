@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 class AlfrescoC extends Controller
 {
     //La funcion agrega un archivo a alfresco
-    public function addFile($archivo, $folderId)
+    public function addFile($archivo, $folderId, $esOficio)
     {
         $fileName = 'ANEXO_' . $archivo->getClientOriginalName(); // Nombre del archivo
+        if ($esOficio == 1) { //Validacion de archivo donde 1 se cambia el nombre por oficio si no es anexo
+            $fileName = 'OFICIO_' . $archivo->getClientOriginalName(); // Nombre del archivo
+        }
+
         $filePath = $archivo->getRealPath();// Ruta del archivo temporal
 
         $username = env('ALFRESCO_USER');// Credenciales para la autenticación básica
@@ -47,5 +51,16 @@ class AlfrescoC extends Controller
         } else {
             return false; //Retorno de falso si es que existe un error
         }
+    }
+
+    //La funcion descarga un documento de alfresco
+    public function download(Request $request)
+    {
+        $username = env('ALFRESCO_USER');// Credenciales para la autenticación básica
+        $password = env('ALFRESCO_PASS');// Credenciales para la autenticación básica
+
+        return response()->json([
+            'status' => true,
+        ]);
     }
 }

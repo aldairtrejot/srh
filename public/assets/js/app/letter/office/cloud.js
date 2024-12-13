@@ -7,11 +7,15 @@ var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
 var id_cat_salida = $('#id_cat_salida').val(); //Se obtiene el id de la area
 var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
 var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de la area
+var es_oficio = 1; //Identifica si es oficio
+var es_anexo = 0;//Identifca si es un anexo
 
 //Inicio de variables
 $(document).ready(function () {
     getDataCloud();
     getDataDocument();
+
+
 });
 
 //La funcion lista los documentos que existen en el cloud
@@ -37,6 +41,12 @@ function getDataDocument() {
             let oficosEntrada = response.oficosEntrada;
             let anexoSalida = response.anexoSalida;
             let oficosSalida = response.oficosSalida;
+
+            //Habilita o desabilita los botones de agregar
+            response.resultOficioEntrada ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+            response.resultOficioSalida ? disabledInput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida') : enableIput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida');
+            response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+            response.resultAnexosSalida ? disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida') : enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
 
             templateCloud(container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
             templateCloud(container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
@@ -72,39 +82,78 @@ function getDataCloud() {
 
 //La funcion sube el archivo que el usuario esta seleccionando
 document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
-    //Archivo, (entrada/salida), (Area), carpeta(Nombre:Oficio,Circular, expedientes) 
     if (event.target.files.length > 0) {
-        sendFile(event.target.files[0],1); // Pasa el archivo real a la función
+        sendFile(event.target.files[0], id_cat_entrada, es_oficio); // Pasa el archivo real a la función
     }
 });
 
-function sendFile(file, id_entrada_salida) {
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_anexo_entrada').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_entrada, es_anexo); // Pasa el archivo real a la función
+    }
+});
+
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_oficio_salida').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_salida, es_oficio); // Pasa el archivo real a la función
+    }
+});
+
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_anexo_salida').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_salida, es_anexo); // Pasa el archivo real a la función
+    }
+});
+
+function sendFile(file, id_entrada_salida, esOficio) {
     if (file) {
         let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
+        data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
+        data.append('id_cat_area', id_cat_area);
+        data.append('id_tbl_oficio', id_tbl_oficio);
+        data.append('id_entrada_salida', id_entrada_salida);
+        data.append('esOficio', esOficio);
         $.ajax({
             url: "/srh/public/office/cloud/upload",
             type: 'POST',
-            data: data, // Enviar directamente el FormData
+            data:
+                data, // Enviar directamente el FormData
             processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
             contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
             headers: {
-                'id_cat_tipo_oficio': id_cat_tipo_oficio, //Variable de nombre de oficio
-                'id_cat_area': id_cat_area,//Valor de area
-                'id_tbl_oficio': id_tbl_oficio,//Valor de id de oficio seleccionado
-                'id_entrada_salida': id_entrada_salida, //Valor de entrada y salida
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
-                console.log(response);
+                if (response.status) { //Validacion si es que los cambios se han agregado correctamente
+                    notyf.success("Documento agregado correctamente.");
+                } else {
+                    notyf.error(response.messages);
+                }
+                getDataDocument(); //Lista de nuevo e directorio
             },
         });
     }
 }
 
-
+//Se utiliza la funcion para descargar archivos de alfresco
 function download(uid) {
-    console.log(uid);
+    $.ajax({
+        url: '/srh/public/cloud/download',
+        type: 'POST',
+        data: {
+            uid: uid,
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            console.log(response);
+
+            
+        },
+    });
 }
 
 function deleteDocument(id) {

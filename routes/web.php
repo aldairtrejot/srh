@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
 use App\Http\Controllers\Letter\Office\CloudC;
 use App\Http\Controllers\Letter\Office\OfficeC;
@@ -60,6 +61,8 @@ Route::post('/office/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('offic
 Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('office.cloud.oficios')->middleware('auth');
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
 
+//ALFRESCO 
+Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
 
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');

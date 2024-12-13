@@ -21,11 +21,12 @@ class CloudConfigM extends Model
     public function getUid($id_cat_area, $id_cat_tipo_doc_cloud, $id_cat_nombre_oficio)
     {
         $uid = DB::table('correspondencia.cat_config_cloud')
+            ->select('uid')
             ->where('estatus', true)
             ->where('id_cat_area', $id_cat_area)
             ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
             ->where('id_cat_nombre_oficio', $id_cat_nombre_oficio)
-            ->value('uid');
-        return $uid;
+            ->first();
+        return $uid ?? null;
     }
 }

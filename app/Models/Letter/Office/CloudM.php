@@ -43,5 +43,41 @@ class CloudM extends Model
 
         return $query;
     }
+
+    //LA FUNCION RETORNA VERDADERO SI ES QUE EL RESULTADO ES MAYOR O IGUAL A LA CONDICION, FALSO SI AUN SE PUDEN AGREGAR
+    public function conditionOficios($limit, $id_tbl_oficio, $id_cat_tipo_doc_cloud)
+    {
+        // Consulta SQL utilizando el Query Builder de Laravel
+        $result = DB::table('correspondencia.ctrl_oficio_oficio')
+            ->select(DB::raw('
+                        CASE 
+                            WHEN COUNT(*) >= ' . (int) $limit . ' THEN TRUE
+                            ELSE FALSE
+                        END as valor
+                    '))
+            ->where('id_tbl_oficio', $id_tbl_oficio)
+            ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
+            ->first(); // Usamos 'first()' para obtener solo un resultado
+
+        return $result;
+    }
+
+    //LA FUNCION RETORNA VERDADERO SI ES QUE EL RESULTADO ES MAYOR O IGUAL A LA CONDICION, FALSO SI AUN SE PUDEN AGREGAR
+    public function conditioAnexos($limit, $id_tbl_oficio, $id_cat_tipo_doc_cloud)
+    {
+        // Consulta SQL utilizando el Query Builder de Laravel
+        $result = DB::table('correspondencia.ctrl_oficio_anexo')
+            ->select(DB::raw('
+                            CASE 
+                                WHEN COUNT(*) >= ' . (int) $limit . ' THEN TRUE
+                                ELSE FALSE
+                            END as valor
+                        '))
+            ->where('id_tbl_oficio', $id_tbl_oficio)
+            ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
+            ->first(); // Usamos 'first()' para obtener solo un resultado
+
+        return $result;
+    }
 }
 
