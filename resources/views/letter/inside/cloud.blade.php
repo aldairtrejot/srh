@@ -20,10 +20,10 @@
                     <div class="card-body">
 
                         <div>
-                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('office.list') }}" />
+                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('inside.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id_tbl_oficio"
-                                value="{{  $id_tbl_oficio }}" />
+                            <x-template-form.template-form-input-hidden name="id"
+                                value="{{  $id }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
                                 value="{{  $item->id_cat_area }}" />
@@ -38,10 +38,10 @@
                                 value="{{  config('custom_config.CLOUD_ALFRESCO_INTERNO') }}" />
 
 
-                            <x-template-tittle.tittle-caption-secon tittle="Oficio seleccionado" />
+                            <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />
                             <div class="contenedor">
                                 <div class="item">
-                                    <label class="etiqueta">No. Oficio:</label>
+                                    <label class="etiqueta">No. Turno:</label>
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">

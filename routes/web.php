@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
+use App\Http\Controllers\Letter\Inside\CloudInsideC;
 use App\Http\Controllers\Letter\Office\CloudC;
 use App\Http\Controllers\Letter\Inside\InsideC;
 use App\Http\Controllers\Letter\Office\OfficeC;
@@ -18,7 +19,6 @@ use App\Http\Controllers\Letter\Collection\CollectionAreaC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
@@ -71,11 +71,11 @@ Route::get('/inside/create', [InsideC::class, 'create'])->name('inside.create')-
 Route::get('/inside/edit/{id}', [InsideC::class, 'edit'])->name('inside.edit')->middleware('auth');
 Route::post('/inside/save', [InsideC::class, 'save'])->name('inside.save')->middleware('auth');
 Route::get('/inside/cloud/{id}', [InsideC::class, 'cloud'])->name('inside.cloud')->middleware('auth');
-Route::post('/inside/cloud/data', [CloudC::class, 'cloudData'])->name('inside.cloud.data')->middleware('auth');
-Route::post('/inside/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('inside.cloud.anexos')->middleware('auth');
-Route::post('/inside/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('inside.cloud.oficios')->middleware('auth');
-Route::post('/inside/cloud/upload', [CloudC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
-Route::post('/inside/cloud/delete', [CloudC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
+Route::post('/inside/cloud/data', [CloudInsideC::class, 'cloudData'])->name('inside.cloud.data')->middleware('auth');
+Route::post('/inside/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('inside.cloud.anexos')->middleware('auth');
+Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('inside.cloud.oficios')->middleware('auth');
+Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
+Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
 
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');

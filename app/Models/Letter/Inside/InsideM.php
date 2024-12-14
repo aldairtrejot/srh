@@ -90,17 +90,17 @@ class InsideM extends Model
     //La funcion retorna  los datos de encabezado de la vista cloud
     public function dataCloud($id)
     {
-        $query = DB::table('correspondencia.tbl_oficio')
-            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
-            ->join('correspondencia.cat_anio', 'correspondencia.tbl_oficio.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+        $query = DB::table('correspondencia.tbl_interno')
+            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_interno.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->join('correspondencia.cat_anio', 'correspondencia.tbl_interno.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->select(
-                'correspondencia.tbl_oficio.num_turno_sistema AS num_turno_sistema',
+                'correspondencia.tbl_interno.num_turno_sistema AS num_turno_sistema',
                 'correspondencia.tbl_correspondencia.num_turno_sistema AS num_turno_sistema_correspondencia',
-                DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
-                DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
+                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
+                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 'correspondencia.cat_anio.descripcion AS anio'
             )
-            ->where('correspondencia.tbl_oficio.id_tbl_oficio', $id)
+            ->where('correspondencia.tbl_interno.id_tbl_interno', $id)
             ->first(); // Usamos `first` para obtener solo un resultado
 
         return $query;

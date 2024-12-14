@@ -2,7 +2,7 @@
 //Scrip que se ejecuta con el formulario, para funciones u herramientas extras
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
-var id_tbl_oficio = $('#id_tbl_oficio').val();//Obtener elemento
+var id = $('#id').val();//Obtener elemento
 var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
 var id_cat_salida = $('#id_cat_salida').val(); //Se obtiene el id de la area
 var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
@@ -34,10 +34,10 @@ function getDataDocument() {
     let container_oficio_salida = $('#container_oficio_salida');
 
     $.ajax({
-        url: '/srh/public/office/cloud/anexos',
+        url: '/srh/public/inside/cloud/anexos',
         type: 'POST',
         data: {
-            id_tbl_oficio: id_tbl_oficio,
+            id_tbl_oficio: id,
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
@@ -68,7 +68,7 @@ function getDataCloud() {
         url: '/srh/public/inside/cloud/data',
         type: 'POST',
         data: {
-            id_tbl_oficio: id_tbl_oficio,
+            id: id,
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
@@ -118,11 +118,11 @@ function sendFile(file, id_entrada_salida, esOficio) {
         data.append('file', file);
         data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
         data.append('id_cat_area', id_cat_area);
-        data.append('id_tbl_oficio', id_tbl_oficio);
+        data.append('id', id);
         data.append('id_entrada_salida', id_entrada_salida);
         data.append('esOficio', esOficio);
         $.ajax({
-            url: "/srh/public/office/cloud/upload",
+            url: "/srh/public/inside/cloud/upload",
             type: 'POST',
             data:
                 data, // Enviar directamente el FormData

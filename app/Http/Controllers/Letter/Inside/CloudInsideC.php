@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers\Letter\Inside;
 use App\Http\Controllers\Cloud\AlfrescoC;
-use App\Models\Letter\Cloud\CloudAnexosM;
+use App\Models\Letter\Inside\CloudAnexosM;
 use App\Models\Letter\Cloud\CloudConfigM;
-use App\Models\Letter\Cloud\CloudOficiosM;
+use App\Models\Letter\Inside\CloudOficiosM;
 use App\Models\Letter\Collection\CollectionConfigCloudM;
-use App\Models\Letter\Office\CloudM;
-use App\Models\Letter\Office\OfficeM;
+use App\Models\Letter\Inside\InsideM;
+use App\Models\Letter\Inside\CloudM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class CloudC extends Controller
+class CloudInsideC extends Controller
 {
     //La funcion obtiene datos para el ebcabezado de la vista cloud
     public function cloudData(Request $request)
     {
-        $id_tbl_oficio = $request->id_tbl_oficio;
-        $officeM = new OfficeM();
-        $value = $officeM->dataCloud($id_tbl_oficio);
+        $id = $request->id;
+        $item = new InsideM();
+        $value = $item->dataCloud($id);
         return response()->json([
             'value' => $value,
             'status' => true,
