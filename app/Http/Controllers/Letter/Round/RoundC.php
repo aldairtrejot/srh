@@ -184,7 +184,7 @@ class RoundC extends Controller
             ]);
 
             //se itera el consevutivo
-            $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_INTERNO'));
+            $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
 
             return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
 
@@ -230,7 +230,7 @@ class RoundC extends Controller
                         'fecha_usuario' => $now,
                     ]);
 
-                return $messagesC->messageSuccessRedirect('inside.list', 'Elemento modificado con éxito.');
+                return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
             } else {
                 $request->validate([
                     'observaciones' => 'required|max:50',

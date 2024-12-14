@@ -31,8 +31,8 @@ class RoundM extends Model
     public function edit(string $id)
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
-        $query = DB::table('correspondencia.tbl_interno')
-            ->where('id_tbl_interno', $id)
+        $query = DB::table('correspondencia.tbl_circular')
+            ->where('id_tbl_circular', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
