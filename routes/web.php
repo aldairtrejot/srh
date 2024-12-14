@@ -18,6 +18,7 @@ use App\Http\Controllers\Home\DashboardC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
+use App\Http\Controllers\Letter\Round\RoundC;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
@@ -76,6 +77,20 @@ Route::post('/inside/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name(
 Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('inside.cloud.oficios')->middleware('auth');
 Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
 Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
+
+//ROUTE ROUND / CIRCULARES
+Route::get('/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
+Route::post('/round/table', [RoundC::class, 'table'])->name('round.table')->middleware('auth');
+Route::get('/round/create', [RoundC::class, 'create'])->name('round.create')->middleware('auth');
+Route::get('/round/edit/{id}', [RoundC::class, 'edit'])->name('round.edit')->middleware('auth');
+Route::post('/round/save', [RoundC::class, 'save'])->name('round.save')->middleware('auth');
+Route::get('/round/cloud/{id}', [RoundC::class, 'cloud'])->name('round.cloud')->middleware('auth');
+Route::post('/round/cloud/data', [CloudInsideC::class, 'cloudData'])->name('round.cloud.data')->middleware('auth');
+Route::post('/round/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('round.cloud.anexos')->middleware('auth');
+Route::post('/round/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('round.cloud.oficios')->middleware('auth');
+Route::post('/round/cloud/upload', [CloudInsideC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
+Route::post('/round/cloud/delete', [CloudInsideC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
+
 
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');

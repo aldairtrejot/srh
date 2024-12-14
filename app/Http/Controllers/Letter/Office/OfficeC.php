@@ -166,7 +166,7 @@ class OfficeC extends Controller
             //Agregar elementos
             $officeM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
-                'fecha_captura' => $request->fecha_captura,
+                'fecha_captura' => Carbon::createFromFormat('d/m/Y',$request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => $request->asunto,

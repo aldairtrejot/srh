@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Letter\Inside;
+namespace App\Http\Controllers\Letter\Round;
 use App\Models\Letter\Letter\LetterM;
-use App\Models\Letter\Inside\InsideM;
+use App\Models\Letter\Round\RoundM;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,19 +15,19 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 
-class InsideC extends Controller
+class RoundC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
     public function list()
     {
-        return view('letter/inside/list');
+        return view('letter/round/list');
     }
 
     public function cloud($id)
     {
-        $object = new InsideM();
+        $object = new RoundM();
         $item = $object->edit($id);
-        return view('letter/inside/cloud', compact('item', 'id'));
+        return view('letter/round/cloud', compact('item', 'id'));
 
     }
 
@@ -35,7 +35,7 @@ class InsideC extends Controller
     public function table(Request $request)
     {
         try {
-            $model = new InsideM();
+            $model = new RoundM();
             // Obtener valores de la solicitud
             $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue'); // Valor de búsqueda
@@ -71,7 +71,7 @@ class InsideC extends Controller
 
     public function create()
     {
-        $item = new InsideM();
+        $item = new RoundM();
         $collectionDateM = new CollectionDateM();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionAreaM = new CollectionAreaM();
@@ -79,7 +79,7 @@ class InsideC extends Controller
 
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
-        $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_INTERNO'));
+        $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
 
         $noLetter = "";//No de oficio se inicializa en vacio
         $selectArea = $collectionAreaM->list(); //Catalogo de area
@@ -94,12 +94,12 @@ class InsideC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter/inside/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        return view('letter/round/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function edit(string $id)
     {
-        $object = new InsideM();
+        $object = new RoundM();
         $collectionAreaM = new CollectionAreaM();
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
@@ -121,12 +121,12 @@ class InsideC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter/inside/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        return view('letter/round/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function save(Request $request)
     {
-        $object = new InsideM();
+        $object = new RoundM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $letterM = new LetterM();
@@ -140,7 +140,7 @@ class InsideC extends Controller
         //Validacion de documento unico
         $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
 
-        if (!isset($request->id_tbl_interno)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
+        if (!isset($request->id_tbl_circular)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
             $request->validate([
                 'num_correspondencia' => 'required|max:45',
@@ -186,7 +186,7 @@ class InsideC extends Controller
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_INTERNO'));
 
-            return $messagesC->messageSuccessRedirect('inside.list', 'Elemento agregado con éxito.');
+            return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
 
@@ -213,7 +213,7 @@ class InsideC extends Controller
                     return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
                 }
 
-                $object::where('id_tbl_interno', $request->id_tbl_interno)
+                $object::where('id_tbl_circular', $request->id_tbl_circular)
                     ->update([
                         'fecha_inicio' => $request->fecha_inicio,
                         'fecha_fin' => $request->fecha_fin,
@@ -242,7 +242,7 @@ class InsideC extends Controller
                     return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
                 }
 
-                $object::where('id_tbl_interno', $request->id_tbl_interno)
+                $object::where('id_tbl_circular', $request->id_tbl_circular)
                     ->update([
                         'observaciones' => $request->observaciones,
                         'id_tbl_correspondencia' => $id_tbl_correspondencia,
@@ -250,7 +250,7 @@ class InsideC extends Controller
                         'fecha_usuario' => $now,
                     ]);
 
-                return $messagesC->messageSuccessRedirect('inside.list', 'Elemento modificado con éxito.');
+                return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
             }
 
         }
