@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Letter\Office;
+namespace App\Http\Controllers\Letter\Inside;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Letter\Cloud\CloudAnexosM;
 use App\Models\Letter\Cloud\CloudConfigM;

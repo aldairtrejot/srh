@@ -18,7 +18,9 @@ return [
     /* VARIABLES PARA LA IDENTIFICACION DE TABLAS DE <CORRESPONDENCIA></CORRESPONDENCIA*/
     'CP_TABLE_CORRESPONDENCIA' => 1, //Hace referencia a la tabla principal de correspondencia para identificar su id en la tabla de consecutivo asi como la tabla correspondencia.cat_tipo_docuemnto
     'CP_TABLE_OFICIO' => 2, //Hace referencia a la tabla de oficio para identificar su id en la tabla de consecutivo asi como la tabla correspondencia.cat_tipo_docuemnto
-
+    'CP_TABLE_INTERNO' => 3,
+    'CP_TABLE_CIRCULAR' => 4,
+    'CP_TABLE_EXPEDIENTE' => 5,
     /*VARIABLES TIPO DE DOCUMENTO CLOUD ENTRADA Y SALIDA, HACE REFERENCIA A LA TABLA correspondencia.cat_tipo_doc_cloud */
     'CAT_TIPO_DOC_ENTRADA' => 1, //HACE REFERENCIA A EL ID DE ENTRADA DE LA TABLA
     'CAT_TIPO_DOC_SALIDA' => 2, //HACE REFERENCIA A EL ID DE SALIDA DE LA TABLA

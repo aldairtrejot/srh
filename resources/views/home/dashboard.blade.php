@@ -61,7 +61,7 @@
                         <!-- item menu Interno-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Interno"
-                                field="CORRESPONDENCIA" href="" value="0" description="Interno" />
+                                field="CORRESPONDENCIA" href="{{ route('inside.list') }}" value="0" description="Interno" />
                         @endif
 
                         <!-- item menu oficios-->

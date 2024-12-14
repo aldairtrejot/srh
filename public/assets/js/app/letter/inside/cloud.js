@@ -65,7 +65,7 @@ function getDataDocument() {
 function getDataCloud() {
 
     $.ajax({
-        url: '/srh/public/office/cloud/data',
+        url: '/srh/public/inside/cloud/data',
         type: 'POST',
         data: {
             id_tbl_oficio: id_tbl_oficio,
