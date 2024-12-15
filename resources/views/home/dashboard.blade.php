@@ -44,7 +44,7 @@
                         <!-- item menu administracion-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Expedientes"
-                                field="CORRESPONDENCIA" href="" value="" description="Expedientes" />
+                                field="CORRESPONDENCIA" href="{{ route(name: 'file.list') }}" value="" description="Expedientes" />
 
                         @endif
 

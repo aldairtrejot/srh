@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
+use App\Http\Controllers\Letter\File\FileC;
 use App\Http\Controllers\Letter\Inside\CloudInsideC;
 use App\Http\Controllers\Letter\Office\CloudC;
 use App\Http\Controllers\Letter\Inside\InsideC;
@@ -90,6 +91,19 @@ Route::post('/round/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('
 Route::post('/round/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('round.cloud.oficios')->middleware('auth');
 Route::post('/round/cloud/upload', [CloudInsideC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
 Route::post('/round/cloud/delete', [CloudInsideC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
+
+//ROUTE file / EXPEDIENTES
+Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');
+Route::post('/file/table', [FileC::class, 'table'])->name('file.table')->middleware('auth');
+Route::get('/file/create', [FileC::class, 'create'])->name('file.create')->middleware('auth');
+Route::get('/file/edit/{id}', [FileC::class, 'edit'])->name('file.edit')->middleware('auth');
+Route::post('/file/save', [FileC::class, 'save'])->name('file.save')->middleware('auth');
+Route::get('/file/cloud/{id}', [FileC::class, 'cloud'])->name('file.cloud')->middleware('auth');
+Route::post('/file/cloud/data', [CloudInsideC::class, 'cloudData'])->name('file.cloud.data')->middleware('auth');
+Route::post('/file/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('file.cloud.anexos')->middleware('auth');
+Route::post('/file/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('file.cloud.oficios')->middleware('auth');
+Route::post('/file/cloud/upload', [CloudInsideC::class, 'upload'])->name('file.cloud.upload')->middleware('auth');
+Route::post('/file/cloud/delete', [CloudInsideC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
 
 
 //ALFRESCO -> Descargar archivo
