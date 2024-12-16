@@ -57,7 +57,6 @@ Route::get('/letter/generate-pdf/correspondencia/{id}', [ReporteCorrespondenciaC
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
 Route::post('/letter/cloud/data', [CloudLetterC::class, 'cloudData'])->name('letter.cloud.data')->middleware('auth');
 Route::post('/letter/cloud/anexos', [CloudLetterC::class, 'cloudAnexos'])->name('letter.cloud.anexos')->middleware('auth');
-Route::post('/letter/cloud/oficios', [CloudLetterC::class, 'cloudOficios'])->name('letter.cloud.oficios')->middleware('auth');
 Route::post('/letter/cloud/upload', [CloudLetterC::class, 'upload'])->name('letter.cloud.upload')->middleware('auth');
 Route::post('/letter/cloud/delete', [CloudLetterC::class, 'delete'])->name('letter.cloud.delete')->middleware('auth');
 // --- -- --- - -- - -- --

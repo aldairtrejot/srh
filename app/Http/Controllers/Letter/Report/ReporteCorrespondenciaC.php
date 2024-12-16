@@ -15,19 +15,23 @@ class ReporteCorrespondenciaC extends Controller
         $data = $LetterM->getDataReport($id);
 
         $pdfPath = public_path('assets/documents/template-pdf/templateCorrespondencia.pdf'); // Ruta del archivo PDF existenteF
-        $pdf = new Fpdi(); // Instancia de FPDI (requiere TCPDF)
+        $pdf = new Fpdi(); // Instancia de FPDI (requiere TCPDF o FPDF)
         $pdf->setSourceFile($pdfPath); // Cargar la plantilla PDF existente
         $template = $pdf->importPage(1); // Importar la primera página del PDF existente
         $pdf->addPage(); // Agregar una página en blanco
         $pdf->useTemplate($template); // Usar la plantilla importada
         $fechaActual = Carbon::now(); //Fecha actual para el reporte
 
-        // Configurar la fuente para el texto
-        $pdf->SetFont('Arial', '', 9);
+        $pdf->AddFont('DejaVuSans', '', 'DejaVuSans.php');
+        $pdf->SetFont('DejaVuSans', '', 8); // Usar DejaVuSans para soportar caracteres especiales
+        
 
         //DATA DATE ACTUAL
-        $pdf->SetXY(182, 43); // Posición X, Y en el PDF
+        $pdf->SetXY(181, 42.5); // Posición X, Y en el PDF
         $pdf->Write(0, $fechaFormateada = now()->format('d/m/Y'));
+
+        // Configurar la fuente para el texto
+        $pdf->SetFont('DejaVuSans', '', 9);
 
         //DATA NO COPIAS
         $pdf->SetXY(170, 167.2); // Posición X, Y en el PDF
@@ -70,23 +74,23 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->Write(0, $data->tramite);
 
         //DATA AREA
-        $pdf->SetXY(35, 95); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 95.5); // Posición X, Y en el PDF
         $pdf->Write(0, $data->area);
 
         //DATA COORDINACION
-        $pdf->SetXY(35, 90); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 90.3); // Posición X, Y en el PDF
         $pdf->Write(0, $data->coordinacion);
 
         //DATA UNIDAD
-        $pdf->SetXY(35, 85); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->unidad);
+        $pdf->SetXY(40.5, 79); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, $data->unidad);
 
         //AÑO 
         $pdf->SetXY(147, 65); // Posición X, Y en el PDF
         $pdf->Write(0, $data->anio);
 
         //FECHA DE INICIO
-        $pdf->SetXY(42, 59); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 59); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_inicio);
 
         //FECHA DE FIN 
@@ -94,11 +98,11 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->Write(0, $data->fecha_fin);
 
         //DATA NUM TURNO
-        $pdf->SetXY(42, 65); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 65); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_turno_sistema);
 
         //DATA NUM DOCUMENTO
-        $pdf->SetXY(42, 71); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_documento);
 
         // Enviar el PDF generado al navegador
