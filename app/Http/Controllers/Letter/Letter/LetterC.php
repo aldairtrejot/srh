@@ -27,6 +27,14 @@ class LetterC extends Controller
         return view('letter/letter/list');
     }
 
+    public function cloud($id)
+    {
+        $object = new LetterM();
+        $item = $object->edit($id);
+        return view('letter/letter/cloud', compact('item'));
+
+    }
+
     public function create()
     {
         $item = new LetterM();
@@ -220,7 +228,7 @@ class LetterC extends Controller
             $letterM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
                 'num_documento' => $request->num_documento,
-                'fecha_captura' => Carbon::createFromFormat('d/m/Y',$request->fecha_captura)->format('Y-m-d'),
+                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'num_flojas' => $request->num_flojas,

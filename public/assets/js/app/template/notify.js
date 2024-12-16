@@ -1,4 +1,4 @@
-var notyf = new Notyf({
+var notyfEM = new Notyf({
     position: {
         x: 'right',
         y: 'top',

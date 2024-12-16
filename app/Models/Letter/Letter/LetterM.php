@@ -183,4 +183,22 @@ class LetterM extends Model
         // Si no se encuentra información, retornamos null
         return $turno ?: null;
     }
+
+    //La funcion retorna  los datos de encabezado de la vista cloud
+    public function dataCloud($id)
+    {
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->select(
+                'correspondencia.tbl_correspondencia.num_turno_sistema',
+                'correspondencia.tbl_correspondencia.num_documento',
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, 'DD/MM/YYYY') as fecha_inicio"),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') as fecha_fin"),
+                'correspondencia.cat_anio.descripcion as anio'
+            )
+            ->join('correspondencia.cat_anio', 'correspondencia.tbl_correspondencia.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+            ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
+            ->first();
+
+        return $query;
+    }
 }

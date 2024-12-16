@@ -22,6 +22,7 @@ function searchInit() {
         if (response.value && response.value.length > 0) {
             response.value.forEach(function (object) {
                 const finalUrl = `/srh/public/letter/edit/${object.id}`;
+                const finalCloud = `/srh/public/letter/cloud/${object.id}`;
                 const urlReport = `/srh/public/letter/generate-pdf/correspondencia/${object.id}`;
 
                 // Generar el HTML con template literals
@@ -42,6 +43,14 @@ function searchInit() {
                                         </span>
                                         Modificar
                                     </a>
+                                    <a class="dropdown-item" href="${finalCloud}">
+                                            <span style="background:#8a6f19" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-cloud item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Cloud
+                                        </a>
                                      <a class="dropdown-item" href="${urlReport}">
                                         <span style="background:#707070" class="icon-container-template">
                                             <div style="text-align: center;">
