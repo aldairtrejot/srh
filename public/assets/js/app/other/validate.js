@@ -14,24 +14,37 @@ function isInteger(value) {
     return (Number.isInteger(value) && value > 0) ? true : false;
 }
 
+// Funcion para validar el no maximo de caracteres
+function isLength(string, maxLength) {
+    return string.length > maxLength; //Devulve true si exede el limite de caracteres
+}
+
+// Funcion que retorna verdadero o falso con el mensaje de rror, si es que exede el limite de caracteres
+function isExceedingLength(field, nameFiel, maxLength) {
+    let bool = false;
+    if (isLength(field, maxLength)) {
+        bool = true;
+        notyfEM.error('Campo ' + nameFiel + '  tiene un límite máximo de ' + maxLength + ' caracteres');
+    }
+    return bool;
+}
 
 // FUNCION QUE RETORNA VERDADERO O FALSO CON EL MENSAJE DE ERROR, SI ES QUE NO ES UN NUMERO ENTERO POSITIVO
 function isPositiveInteger(filed, nameFiel) {
-    let boolean = false;
+    let bool = false;
     if (!isInteger(filed)) {
-        boolean = true;
+        bool = true;
         notyfEM.error('Campo ' + nameFiel + ' no es valido.');
     }
-    return boolean; // Retorna true si el campo esta vacio
+    return bool; // Retorna true si el campo es incorrecto
 }
-
 
 // FUNCION QUE RETORNA VERDADERO O FALSO CON EL MENSAJE DE ERROR, FIEL REQUIRED
 function isFieldEmpty(field, nameFiel) {
-    let boolean = false;
+    let bool = false;
     if (isEmpty(field)) {
-        boolean = true;
+        bool = true;
         notyfEM.error('Campo ' + nameFiel + ' es requerido.');
     }
-    return boolean; // Retorna true si el campo esta vacio
+    return bool; // Retorna true si el campo esta vacio
 }

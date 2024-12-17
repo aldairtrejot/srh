@@ -1,7 +1,8 @@
 // Validacion de fórmulario
 document.getElementById("myForm").addEventListener("submit", function (event) {
     if (
-        isPositiveInteger($('#num_flojas').val(), 'No. hojas')||
+        //isPositiveInteger($('#num_flojas').val(), 'No. hojas') ||
+        //isExceedingLength($('#num_documento').val(), 'No. Documento', 1) ||
         isFieldEmpty($('#num_documento').val(), 'No. Documento') ||
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
         isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
