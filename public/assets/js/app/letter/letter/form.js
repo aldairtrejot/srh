@@ -16,6 +16,7 @@ function getRole() {
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
     if (!new_variable) { //Condicion para inabilitar las opciones
         $('#num_documento').prop('disabled', true);
+        $('#num_copias').prop('disabled', true);
         $('#fecha_inicio').prop('disabled', true);
         $('#fecha_fin').prop('disabled', true);
         $('#num_flojas').prop('disabled', true);

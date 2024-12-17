@@ -8,7 +8,16 @@ $(document).ready(function () {
     //checkboxState();
     setData(); //Establecer las variables de informacion general
     getRole(); //Obtener y definir los roles para no tener los input
+    setCheckboxArea();
 });
+
+//La funcion activa o desactiva el valor de un checkbox de area
+function setCheckboxArea() {
+    if (!$('#es_por_area').val()) {
+        console.log('falso');
+    }
+}
+
 
 //La funcion desabilita los campos dependiendo del rol de usuario
 function getRole() {

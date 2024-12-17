@@ -89,10 +89,9 @@ $('#id_cat_clave').on('change', function () {
             success: function (response) {
                 let valueClave = response.valueOfClave;
 
-                $('#_labClave').text(valueClave.descripcion);
-                $('#_labClaveCodigo').text(valueClave.redaccion);
-                $('#_labClaveRedaccion').text(valueClave.codigo);
-
+                $('#_labClave').text(valueClave._labClave);
+                $('#_labClaveCodigo').text(valueClave._labClaveCodigo);
+                $('#_labClaveRedaccion').text(valueClave._labClaveRedaccion);
             },
         });
     } else {

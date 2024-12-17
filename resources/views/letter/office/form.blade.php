@@ -37,6 +37,9 @@
                                 <x-template-form.template-form-input-hidden name="num_turno_sistema"
                                     value="{{ optional($item)->num_turno_sistema ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="es_por_area"
+                                    value="{{ optional($item)->es_por_area ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">
@@ -59,7 +62,8 @@
 
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="No. Correspondencia Asoc."
-                                        type="text" name="num_correspondencia" placeholder="NO. CORRESPONDENCIA ASOCIADO"
+                                        type="text" name="num_correspondencia"
+                                        placeholder="NO. CORRESPONDENCIA ASOCIADO"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{$noLetter ?? '' }}" />
 
@@ -111,6 +115,11 @@
                                         grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
 
                                 </div>
+
+                                <x-template-tittle.tittle-caption-secon tittle="Otros" />
+
+
+
 
                                 <x-template-button.button-form-footer routeBack="{{ route('office.list') }}" />
 

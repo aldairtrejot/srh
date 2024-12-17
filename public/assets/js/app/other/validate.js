@@ -1,7 +1,5 @@
 /**
  * EL CODIGO PROPORCIONA FUNCIONES PARA LAS VALIDACIONES DE UN FORMULARIO
- * 
- * 
  */
 
 // Función que verifica si un campo está vacío mandando mensaje

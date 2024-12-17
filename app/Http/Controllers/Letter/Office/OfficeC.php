@@ -80,6 +80,7 @@ class OfficeC extends Controller
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+        $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
         $selectArea = $collectionAreaM->list(); //Catalogo de area
@@ -166,7 +167,7 @@ class OfficeC extends Controller
             //Agregar elementos
             $officeM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
-                'fecha_captura' => Carbon::createFromFormat('d/m/Y',$request->fecha_captura)->format('Y-m-d'),
+                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => $request->asunto,

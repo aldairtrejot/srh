@@ -26,6 +26,8 @@ class OfficeM extends Model
         'id_cat_anio',
         'id_cat_remitente',
         'id_tbl_correspondencia',
+        'es_por_area',
+        'num_documento_area',
     ];
 
     public function edit(string $id)

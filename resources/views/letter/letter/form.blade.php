@@ -41,6 +41,7 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_clave_aux"
                                     value="{{ optional($item)->id_cat_clave ?? '' }}" />
 
+
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
                                     <div class="item">
@@ -102,21 +103,28 @@
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_tomos ?? '' }}" />
 
+                                    <x-template-form.template-form-input-required label="No. Copias" type="integer"
+                                        name="num_copias" placeholder="NO. Copias"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->num_copias ?? '' }}" />
+
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-input-required label="Asunto" type="text"
+                                        name="asunto" placeholder="ASUNTO"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                        value="{{optional($item)->asunto ?? '' }}" />
+
                                     <x-template-form.template-form-input-required label="Lugar" type="text" name="lugar"
-                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4"
+                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"
                                         autocomplete="" value="{{optional($item)->lugar ?? '' }}" />
                                 </div>
 
                                 <div class="row">
-
-                                    <x-template-form.template-form-input-required label="Asunto" type="text"
-                                        name="asunto" placeholder="ASUNTO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->asunto ?? '' }}" />
-
                                     <x-template-form.template-form-input-required label="Observaciones" type="text"
                                         name="observaciones" placeholder="OBSERVACIONES"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
                                         value="{{optional($item)->observaciones ?? '' }}" />
                                 </div>
 
@@ -185,6 +193,6 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT-->
+<script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
