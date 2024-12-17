@@ -20,7 +20,7 @@
                             tittle="{{ isset($item->id_tbl_correspondencia) ? 'Modificar' : 'Agregar ' }} Correspondencia"
                             route="{{ route('letter.list') }}" />
                         <div>
-                            <form action="{{ route('letter.save') }}" method="POST" class="form-sample">
+                            <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample">
                                 @csrf
 
                                 <x-template-form.template-form-input-hidden name="bool_user_role"
@@ -187,3 +187,4 @@
 <!-- CODE SCRIPT-->
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
