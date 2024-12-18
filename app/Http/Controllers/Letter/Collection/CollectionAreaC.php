@@ -7,6 +7,7 @@ use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
+use App\Models\Letter\Letter\LetterM;
 use Illuminate\Http\Request;
 
 class CollectionAreaC extends Controller
@@ -15,8 +16,12 @@ class CollectionAreaC extends Controller
     // Function que valida que el no de correspondencia exista
     public function getletter(Request $request)
     {
+        $letterM = new LetterM();
+        $result = $letterM->validateNoTurno($request->value);
+        $status = $result ? false : true;
+
         return response()->json([
-            'status' => false,
+            'status' => $status,
         ]);
     }
 

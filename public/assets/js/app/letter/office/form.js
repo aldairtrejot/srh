@@ -25,6 +25,7 @@ function setCheckboxArea() {
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
     }
+    getRole(); //Validacion por roles
 }
 
 //Codigo para la ejecucion de un checkbox
@@ -41,19 +42,23 @@ function getRole() {
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
     if (!new_variable) { //Condicion para inabilitar las opciones
         $('#num_documento').prop('disabled', true);
+        $('#num_correspondencia').prop('disabled', true);
         $('#fecha_inicio').prop('disabled', true);
         $('#fecha_fin').prop('disabled', true);
         $('#asunto').prop('disabled', true);
+        $('#idcheckboxTemplate').prop('disabled', true);
 
         $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_usuario_area').prop('disabled', true);
         $('#id_usuario_enlace').prop('disabled', true);
         $('#id_cat_remitente').prop('disabled', true);
+        $('#id_cat_area_documento').prop('disabled', true);
 
         $('#id_cat_area').selectpicker('refresh'); //Refresh de select 
         $('#id_usuario_area').selectpicker('refresh');
         $('#id_usuario_enlace').selectpicker('refresh');
         $('#id_cat_remitente').selectpicker('refresh');
+        $('#id_cat_area_documento').selectpicker('refresh');
     }
 }
 

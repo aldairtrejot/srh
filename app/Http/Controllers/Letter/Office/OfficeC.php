@@ -181,27 +181,35 @@ class OfficeC extends Controller
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
+            //Validacion por roles
+            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
+                    ->update([
+                        'fecha_inicio' => $request->fecha_inicio,
+                        'fecha_fin' => $request->fecha_fin,
+                        'asunto' => $request->asunto,
+                        'observaciones' => $request->observaciones,
+                        'id_cat_area' => $request->id_cat_area,
+                        'id_usuario_area' => $request->id_usuario_area,
+                        'id_usuario_enlace' => $request->id_usuario_enlace,
+                        'id_cat_remitente' => $request->id_cat_remitente,
+                        'rfc_remitente_bool' => false,
+                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                        'es_por_area' => $es_por_area,
+                        'num_documento_area' => $request->num_documento_area,
+                        'id_cat_area_documento' => $request->id_cat_area_documento,
 
-            $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
-                ->update([
-                    'fecha_inicio' => $request->fecha_inicio,
-                    'fecha_fin' => $request->fecha_fin,
-                    'asunto' => $request->asunto,
-                    'observaciones' => $request->observaciones,
-                    'id_cat_area' => $request->id_cat_area,
-                    'id_usuario_area' => $request->id_usuario_area,
-                    'id_usuario_enlace' => $request->id_usuario_enlace,
-                    'id_cat_remitente' => $request->id_cat_remitente,
-                    'rfc_remitente_bool' => false,
-                    'id_tbl_correspondencia' => $id_tbl_correspondencia,
-                    'es_por_area' => $es_por_area,
-                    'num_documento_area' => $request->num_documento_area,
-                    'id_cat_area_documento' => $request->id_cat_area_documento,
-
-                    'id_usuario_sistema' => Auth::user()->id,
-                    'fecha_usuario' => $now,
-                ]);
-
+                        'id_usuario_sistema' => Auth::user()->id,
+                        'fecha_usuario' => $now,
+                    ]);
+            } else {
+                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
+                    ->update([
+                        'observaciones' => $request->observaciones,
+                        'id_usuario_sistema' => Auth::user()->id,
+                        'fecha_usuario' => $now,
+                    ]);
+            }
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
     }

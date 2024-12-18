@@ -173,6 +173,7 @@ class LetterM extends Model
         return $turno ?: null;
     }
 
+    //Valida el no de turno exista
     public function validateNoTurno($noTurno)
     {
         $turno = DB::table('correspondencia.tbl_correspondencia')

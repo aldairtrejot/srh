@@ -102,11 +102,14 @@ class OfficeM extends Model
     public function dataCloud($id)
     {
         $query = DB::table('correspondencia.tbl_oficio')
-            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->leftjoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
             ->join('correspondencia.cat_anio', 'correspondencia.tbl_oficio.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->select(
                 'correspondencia.tbl_oficio.num_turno_sistema AS num_turno_sistema',
-                'correspondencia.tbl_correspondencia.num_turno_sistema AS num_turno_sistema_correspondencia',
+                DB::raw('CASE WHEN correspondencia.tbl_oficio.es_por_area THEN 
+                                    correspondencia.tbl_oficio.num_documento_area ELSE 
+                                    correspondencia.tbl_correspondencia.num_turno_sistema 
+                                END AS num_turno_sistema_correspondencia'),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 'correspondencia.cat_anio.descripcion AS anio'

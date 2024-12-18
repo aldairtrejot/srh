@@ -41,11 +41,11 @@
                             <x-template-tittle.tittle-caption-secon tittle="Oficio seleccionado" />
                             <div class="contenedor">
                                 <div class="item">
-                                    <label class="etiqueta">No. Oficio:</label>
+                                    <label class="etiqueta">No. Turno:</label>
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Correspondencia:</label>
+                                    <label class="etiqueta">No. Turno Asoc.:</label>
                                     <label id="_noCorrespondencia" class="valor"></label>
                                 </div>
                                 <div class="item">

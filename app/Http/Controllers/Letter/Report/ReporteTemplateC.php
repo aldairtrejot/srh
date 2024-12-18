@@ -1,52 +1,35 @@
 <?php
 
 namespace App\Http\Controllers\Letter\Report;
-use App\Models\Letter\Letter\LetterM;
+
+use App\Models\Letter\Collection\CollectionReportM;
 use setasign\Fpdi\Fpdi;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class ReporteTemplateC extends Controller
 {
 
     public function office($id)
     {
-        /*
+        $collectionReportM = new CollectionReportM();
+        $reporteTemplateC = new ReporteTemplateC();
 
-
-        SELECT 
-            correspondencia.tbl_oficio.num_turno_sistema AS num_turno_sistema,
-            TO_CHAR(correspondencia.tbl_oficio.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio,
-            TO_CHAR(correspondencia.tbl_oficio.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio,
-            correspondencia.tbl_oficio.observaciones AS observaciones,
-            correspondencia.tbl_oficio.asunto AS asunto,
-            correspondencia.cat_area.descripcion AS area,
-            correspondencia.cat_anio.descripcion AS anio
-        FROM correspondencia.tbl_oficio
-        INNER JOIN correspondencia.cat_area
-            ON correspondencia.tbl_oficio.id_cat_area =
-                correspondencia.cat_area.id_cat_area
-        INNER JOIN correspondencia.cat_anio
-            ON correspondencia.tbl_oficio.id_cat_anio =
-                correspondencia.cat_anio.id_cat_anio
-
-        */
+        //Value
+        $tableName = 'correspondencia.tbl_oficio';
+        $idTable = 'id_tbl_oficio';
+        $data = $collectionReportM->templateReporte($id, $tableName, $idTable);
+        $reporteTemplateC->generatePdf($data);
     }
 
-    public function generatePdf($data)
+    //La funcion genera el reporte
+    private function generatePdf($data)
     {
-        /*
-        $LetterM = new LetterM();
-        $data = $LetterM->getDataReport($id);
-*/
-        $pdfPath = public_path('assets/documents/template-pdf/templateCorrespondencia.pdf'); // Ruta del archivo PDF existenteF
+        $pdfPath = public_path('assets/documents/template-pdf/templateCorrespondenciaDoc.pdf'); // Ruta del archivo PDF existenteF
         $pdf = new Fpdi(); // Instancia de FPDI (requiere TCPDF o FPDF)
         $pdf->setSourceFile($pdfPath); // Cargar la plantilla PDF existente
         $template = $pdf->importPage(1); // Importar la primera página del PDF existente
         $pdf->addPage(); // Agregar una página en blanco
         $pdf->useTemplate($template); // Usar la plantilla importada
-        $fechaActual = Carbon::now(); //Fecha actual para el reporte
 
         $pdf->SetFont('arial', '', 8); // Usar DejaVuSans para soportar caracteres especiales
 
@@ -58,57 +41,9 @@ class ReporteTemplateC extends Controller
         // Configurar la fuente para el texto
         $pdf->SetFont('arial', '', 9);
 
-        //DATA NO COPIAS
-        $pdf->SetXY(170, 177.4); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_copias);
-
-        //DATA NO TOMOS
-        $pdf->SetXY(103, 177.4); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_tomos);
-
-        //DATA O FOJAS
-        $pdf->SetXY(40.5, 177.4); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_flojas);
-
-        //DATA LUGAR
-        $pdf->SetXY(40.5, 161.7); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
-
-        //DATA LUGAR
-        $pdf->SetXY(40.5, 151.2); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->lugar));
-
-        //DATA ASUNTO
-        $pdf->SetXY(40.5, 141.2); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
-
-        //DATA REMITENTE
-        $pdf->SetXY(40.5, 131); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
-
-        //DATA DESCRIPCION
-        $pdf->SetXY(40.5, 113); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->clave));
-
-        //DATA CODIGO
-        $pdf->SetXY(40.5, 109.5); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->codigo);
-
-        //DATA TRAMITE
-        $pdf->SetXY(40.5, 104.5); // Posición X, Y en el PDF
-        $pdf->Write(0, utf8_decode($data->tramite));
-
-        //DATA AREA
-        $pdf->SetXY(40.5, 95.5); // Posición X, Y en el PDF
-        $pdf->Write(0, utf8_decode($data->area));
-
-        //DATA COORDINACION
-        $pdf->SetXY(40.5, 90.3); // Posición X, Y en el PDF
-        $pdf->Write(0, utf8_decode($data->coordinacion));
-
-        //DATA UNIDAD
-        $pdf->SetXY(40.5, 79); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->unidad));
+        //DATA NUM TURNO
+        $pdf->SetXY(40.5, 65); // Posición X, Y en el PDF
+        $pdf->Write(0, $data->num_turno_sistema);
 
         //AÑO 
         $pdf->SetXY(147, 65); // Posición X, Y en el PDF
@@ -122,13 +57,25 @@ class ReporteTemplateC extends Controller
         $pdf->SetXY(147, 59); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_fin);
 
-        //DATA NUM TURNO
-        $pdf->SetXY(40.5, 65); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_turno_sistema);
-
         //DATA NUM DOCUMENTO
         $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_documento);
+        $pdf->Write(0, $data->num_correspondencia);
+
+        //DATA AREA
+        $pdf->SetXY(40.5, 79.8); // Posición X, Y en el PDF
+        $pdf->Write(0, utf8_decode($data->area));
+
+        //DATA REMITENTE
+        $pdf->SetXY(40.5, 83); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
+
+        //DATA ASUNTO
+        $pdf->SetXY(40.5, 91.8); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
+
+        //DATA LUGAR
+        $pdf->SetXY(40.5, 102); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
         // Enviar el PDF generado al navegador
         return response($pdf->Output('I'), 200)
