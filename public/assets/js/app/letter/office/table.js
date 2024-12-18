@@ -65,6 +65,7 @@ function searchInit() {
                                             </span>
                                             Reporte
                                         </a>
+                                        <!--
                                         <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
                                             <span style="background:#003366" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -81,6 +82,7 @@ function searchInit() {
                                             </span>
                                             Eliminar
                                         </a>
+                                        -->
                                     </div>
                                 </div>
                             </td>

@@ -95,7 +95,10 @@ class OfficeC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter/office/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
+        $selectAreaEditAux = []; //catalogo de area null
+
+        return view('letter/office/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function edit(string $id)
@@ -130,6 +133,7 @@ class OfficeC extends Controller
         $officeM = new OfficeM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
+        $collectionAreaM = new CollectionAreaM();
         $letterM = new LetterM();
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
@@ -140,31 +144,18 @@ class OfficeC extends Controller
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
         $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
+        $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
+            //Agregar elementos
 
-            $request->validate([
-                'num_correspondencia' => 'required|max:45',
-                'fecha_inicio' => 'required',
-                'fecha_fin' => 'required',
-                'asunto' => 'required|max:80',
-                'observaciones' => 'max:80',
-                'id_cat_area' => 'required',
-                'id_usuario_area' => 'required',
-                'id_usuario_enlace' => 'required',
-                'id_cat_remitente' => 'required',
-            ]);
+            /*
 
-            if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
+             if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
                 return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
             }
+                */
 
-            //Validacion de fecha, de inicio y fin
-            if ($request->fecha_inicio >= $request->fecha_fin) {
-                return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-            }
-
-            //Agregar elementos
             $officeM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
@@ -179,6 +170,10 @@ class OfficeC extends Controller
                 'rfc_remitente_bool' => false,
                 'id_tbl_correspondencia' => $id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
+                'es_por_area' => $es_por_area,
+                'num_documento_area' => $request->num_documento_area,
+                'id_cat_area_documento' => $request->id_cat_area_documento,
+
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
@@ -186,23 +181,13 @@ class OfficeC extends Controller
 
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+            $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
 
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
 
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-                $request->validate([
-                    'num_correspondencia' => 'required|max:45',
-                    'fecha_inicio' => 'required',
-                    'fecha_fin' => 'required',
-                    'asunto' => 'required|max:80',
-                    'observaciones' => 'max:80',
-                    'id_cat_area' => 'required',
-                    'id_usuario_area' => 'required',
-                    'id_usuario_enlace' => 'required',
-                    'id_cat_remitente' => 'required',
-                ]);
 
                 //Validacion de documento unico
                 if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
@@ -233,10 +218,6 @@ class OfficeC extends Controller
 
                 return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
             } else {
-                $request->validate([
-                    'observaciones' => 'required|max:50',
-                    'num_correspondencia' => 'required|max:45',
-                ]);
 
                 //Validacion de documento unico
                 if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio

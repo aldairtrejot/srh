@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Collection;
 
+use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionRelEnlaceM;
@@ -10,6 +11,21 @@ use Illuminate\Http\Request;
 
 class CollectionAreaC extends Controller
 {
+
+    public function areaAutoincrement(Request $request)
+    {
+        $collectionAreaM = new CollectionAreaM();
+        $id_cat_anio = $request->id_cat_anio;
+        $id = $request->id;
+        $consecutivo = $collectionAreaM->noDocumento($id_cat_anio, $id);
+
+        return response()->json([
+            'consecutivo' => $consecutivo,
+            'status' => true,
+        ]);
+    }
+
+
     //Lafuncion obtiene los caralogos dependiendo de el area que el usuario seleccione
     public function collection(Request $request)
     {

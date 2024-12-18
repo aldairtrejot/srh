@@ -63,7 +63,7 @@
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Correspondencia Asoc.
+                                        No. Turno Asoc.
                                     </th>
                                     <th>
                                         Área

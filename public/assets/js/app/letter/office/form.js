@@ -4,6 +4,7 @@
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
 $(document).ready(function () {
+    $('#num_documento_area').prop('disabled', true); //Desabilitar input
     $('select').selectpicker(); //Iniciar los select
     //checkboxState();
     setData(); //Establecer las variables de informacion general
@@ -13,11 +14,26 @@ $(document).ready(function () {
 
 //La funcion activa o desactiva el valor de un checkbox de area
 function setCheckboxArea() {
-    if (!$('#es_por_area').val()) {
-        console.log('falso');
+    if ($('#es_por_area').val()) { //valor del  la variable check true
+        $('#idcheckboxTemplate').prop('checked', true); //Activar el checkk
+        showDiv('mostrar_ocultar_no_area'); //Mostrar contenido
+        $('#num_correspondencia').val('');// Limpiar input
+        $('#num_correspondencia').prop('disabled', true); // desabilitar no de documento por area
+    } else { //Valor de la variable check falso
+        hideDiv('mostrar_ocultar_no_area'); //Ocultar contenido
+        cleanSelect('#id_cat_area_documento'); // Limpiar select
+        $('#num_documento_area').val('');// Limpiar input
+        $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
     }
 }
 
+//Codigo para la ejecucion de un checkbox
+$('#idcheckboxTemplate').change(function () {
+    let bool = false; // Inicio de variable de checkbox de area
+    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
+    $('#es_por_area').val(bool); //Se asigna el valor
+    setCheckboxArea();//Se ejecuta la funcon
+});
 
 //La funcion desabilita los campos dependiendo del rol de usuario
 function getRole() {

@@ -4,6 +4,7 @@ namespace App\Models\Letter\Office;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Scalar\Encapsed;
 class OfficeM extends Model
 {
     protected $table = 'correspondencia.tbl_oficio';
@@ -28,6 +29,7 @@ class OfficeM extends Model
         'id_tbl_correspondencia',
         'es_por_area',
         'num_documento_area',
+        'id_cat_area_documento',
     ];
 
     public function edit(string $id)
@@ -49,16 +51,22 @@ class OfficeM extends Model
             ->select([
                 'correspondencia.tbl_oficio.id_tbl_oficio AS id',
                 DB::raw('correspondencia.tbl_oficio.num_turno_sistema AS num_turno_sistema'),
-                DB::raw('correspondencia.tbl_correspondencia.num_turno_sistema AS num_documento'),
+                DB::raw('
+                CASE 
+                    WHEN correspondencia.tbl_oficio.es_por_area THEN 
+                        correspondencia.tbl_oficio.num_documento_area 
+                    ELSE 
+                        correspondencia.tbl_correspondencia.num_turno_sistema 
+                END AS num_documento
+            '),
                 DB::raw('correspondencia.cat_area.descripcion AS area'),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
-                DB::raw("correspondencia.cat_anio.descripcion AS anio"),
+                DB::raw('correspondencia.cat_anio.descripcion AS anio'),
             ])
-            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
             ->join('correspondencia.cat_area', 'correspondencia.tbl_oficio.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->join('correspondencia.cat_anio', 'correspondencia.tbl_oficio.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio');
-
         // Filtrar por usuario si se proporciona el id
         if (!empty($idUser)) {
             $query->where('correspondencia.tbl_oficio.id_usuario_area', $idUser)
@@ -74,6 +82,7 @@ class OfficeM extends Model
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_oficio.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_oficio.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);

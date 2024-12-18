@@ -20,6 +20,7 @@ use App\Http\Controllers\Home\DashboardC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
+use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use Illuminate\Support\Facades\Route;
 
@@ -61,8 +62,6 @@ Route::post('/letter/cloud/upload', [CloudLetterC::class, 'upload'])->name('lett
 Route::post('/letter/cloud/delete', [CloudLetterC::class, 'delete'])->name('letter.cloud.delete')->middleware('auth');
 // --- -- --- - -- - -- --
 
-
-
 //ROUTE OFICIOS
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
 Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');
@@ -75,6 +74,7 @@ Route::post('/office/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('offic
 Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('office.cloud.oficios')->middleware('auth');
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
 Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
+Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
 
 //ROUTE INSIDE
 Route::get('/inside/list', [InsideC::class, 'list'])->name('inside.list')->middleware('auth');
@@ -116,10 +116,14 @@ Route::post('/file/cloud/upload', [CloudInsideC::class, 'upload'])->name('file.c
 Route::post('/file/cloud/delete', [CloudInsideC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
 
 
+/// GLOBAL DE CORRESPONDENCIA
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
 //ALFRESCO -> ver archivo
 Route::post('/cloud/see', [AlfrescoC::class, 'see'])->name('cloud.see')->middleware('auth');
-
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');
+// CONSECUTIVO DE AREA ->
+ROUTE::post('/collection/area/consecutivo', [CollectionAreaC::class, 'areaAutoincrement'])->middleware('auth');
+//GENERACION DE REPORTE
+Route::get('/other/generate-pdf/office/{id}', [ReporteCorrespondenciaC::class, 'generatePdf'])->middleware('auth');

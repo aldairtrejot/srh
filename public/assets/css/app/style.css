@@ -49989,3 +49989,23 @@ select:disabled {
     font-size: 16px;
     cursor: pointer;
 }
+
+/* Asegurarse de que el estilo tenga más especificidad */
+.form-check .form-check-input {
+    font-size: 1rem !important;
+    /* Forzar que el estilo se aplique */
+    color: #333 !important;
+    /* Forzar color con !important */
+}
+
+.form-check .form-check-label {
+    font-size: 1rem !important;
+    color: #555 !important;
+}
+
+.texto-centro {
+    text-align: center; /* Centra el texto */
+    font-size: 0.875rem; /* Hace la letra más pequeña */
+    font-style: italic; /* Aplica cursiva */
+    font-family: "Arial", sans-serif; /* Cambia el tipo de letra a Arial */
+}
