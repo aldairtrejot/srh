@@ -80,6 +80,7 @@ class RoundC extends Controller
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
+        $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
         $selectArea = $collectionAreaM->list(); //Catalogo de area
@@ -94,7 +95,10 @@ class RoundC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter/round/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
+        $selectAreaEditAux = []; //catalogo de area null
+
+        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function edit(string $id)
@@ -121,7 +125,10 @@ class RoundC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter/round/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
+        $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
+
+        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function save(Request $request)
@@ -130,6 +137,7 @@ class RoundC extends Controller
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $letterM = new LetterM();
+        $collectionAreaM = new CollectionAreaM();
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -139,30 +147,9 @@ class RoundC extends Controller
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
         $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
+        $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
 
         if (!isset($request->id_tbl_circular)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-
-            $request->validate([
-                'num_correspondencia' => 'required|max:45',
-                'fecha_inicio' => 'required',
-                'fecha_fin' => 'required',
-                'asunto' => 'required|max:80',
-                'observaciones' => 'max:80',
-                'id_cat_area' => 'required',
-                'id_usuario_area' => 'required',
-                'id_usuario_enlace' => 'required',
-                'id_cat_remitente' => 'required',
-            ]);
-
-            if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-            }
-
-            //Validacion de fecha, de inicio y fin
-            if ($request->fecha_inicio >= $request->fecha_fin) {
-                return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-            }
-
             //Agregar elementos
             $object::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
@@ -178,6 +165,9 @@ class RoundC extends Controller
                 'rfc_remitente_bool' => false,
                 'id_tbl_correspondencia' => $id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
+                'es_por_area' => $es_por_area,
+                'num_documento_area' => $request->num_documento_area,
+                'id_cat_area_documento' => $request->id_cat_area_documento,
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
@@ -185,34 +175,13 @@ class RoundC extends Controller
 
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
+            $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
 
             return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
 
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-                $request->validate([
-                    'num_correspondencia' => 'required|max:45',
-                    'fecha_inicio' => 'required',
-                    'fecha_fin' => 'required',
-                    'asunto' => 'required|max:80',
-                    'observaciones' => 'max:80',
-                    'id_cat_area' => 'required',
-                    'id_usuario_area' => 'required',
-                    'id_usuario_enlace' => 'required',
-                    'id_cat_remitente' => 'required',
-                ]);
-
-                //Validacion de documento unico
-                if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                    return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-                }
-
-                //Validacion de fecha, de inicio y fin
-                if ($request->fecha_inicio >= $request->fecha_fin) {
-                    return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-                }
-
                 $object::where('id_tbl_circular', $request->id_tbl_circular)
                     ->update([
                         'fecha_inicio' => $request->fecha_inicio,
@@ -225,6 +194,9 @@ class RoundC extends Controller
                         'id_cat_remitente' => $request->id_cat_remitente,
                         'rfc_remitente_bool' => false,
                         'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                        'es_por_area' => $es_por_area,
+                        'num_documento_area' => $request->num_documento_area,
+                        'id_cat_area_documento' => $request->id_cat_area_documento,
 
                         'id_usuario_sistema' => Auth::user()->id,
                         'fecha_usuario' => $now,
@@ -232,20 +204,9 @@ class RoundC extends Controller
 
                 return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
             } else {
-                $request->validate([
-                    'observaciones' => 'required|max:50',
-                    'num_correspondencia' => 'required|max:45',
-                ]);
-
-                //Validacion de documento unico
-                if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                    return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-                }
-
                 $object::where('id_tbl_circular', $request->id_tbl_circular)
                     ->update([
                         'observaciones' => $request->observaciones,
-                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
                         'id_usuario_sistema' => Auth::user()->id,
                         'fecha_usuario' => $now,
                     ]);

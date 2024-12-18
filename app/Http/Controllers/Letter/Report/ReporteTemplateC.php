@@ -9,6 +9,19 @@ use App\Http\Controllers\Controller;
 class ReporteTemplateC extends Controller
 {
 
+    //Generar el reporte de circulares
+    public function round($id)
+    {
+        $collectionReportM = new CollectionReportM();
+        $reporteTemplateC = new ReporteTemplateC();
+
+        //Value
+        $tableName = 'correspondencia.tbl_circular';
+        $idTable = 'id_tbl_circular';
+        $data = $collectionReportM->templateReporte($id, $tableName, $idTable);
+        $reporteTemplateC->generatePdf($data);
+    }
+
     //Generar el reporte de odicio
     public function office($id)
     {

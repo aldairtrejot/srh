@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Letter\Inside;
+namespace App\Models\Letter\Round;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,16 +9,16 @@ class CloudM extends Model
     //Lista los anexos
     public function listAnexos($idOficio, $limit, $idTipoDoc)
     {
-        $query = DB::table('correspondencia.ctrl_interno_anexo')
+        $query = DB::table('correspondencia.ctrl_circular_anexo')
             ->select(
-                'correspondencia.ctrl_interno_anexo.id_ctrl_interno_anexo AS id',
-                'correspondencia.ctrl_interno_anexo.uid AS uid',
-                'correspondencia.ctrl_interno_anexo.nombre AS nombre'
+                'correspondencia.ctrl_circular_anexo.id_ctrl_circular_anexo AS id',
+                'correspondencia.ctrl_circular_anexo.uid AS uid',
+                'correspondencia.ctrl_circular_anexo.nombre AS nombre'
             )
-            ->where('correspondencia.ctrl_interno_anexo.estatus', true)
-            ->where('correspondencia.ctrl_interno_anexo.id_ctrl_interno_anexo', $idOficio)
-            ->where('correspondencia.ctrl_interno_anexo.id_cat_tipo_doc_cloud', $idTipoDoc)
-            ->orderBy('correspondencia.ctrl_interno_anexo.nombre', 'asc')
+            ->where('correspondencia.ctrl_circular_anexo.estatus', true)
+            ->where('correspondencia.ctrl_circular_anexo.id_tbl_circular', $idOficio)
+            ->where('correspondencia.ctrl_circular_anexo.id_cat_tipo_doc_cloud', $idTipoDoc)
+            ->orderBy('correspondencia.ctrl_circular_anexo.nombre', 'asc')
             ->limit($limit)
             ->get();
 
@@ -28,16 +28,16 @@ class CloudM extends Model
     //Lista de oficios
     public function listOficios($idOficio, $limit, $idTipoDoc)
     {
-        $query = DB::table('correspondencia.ctrl_interno_oficio')
+        $query = DB::table('correspondencia.ctrl_circular_oficio')
             ->select(
-                'correspondencia.ctrl_interno_oficio.id_ctrl_interno_oficio AS id',
-                'correspondencia.ctrl_interno_oficio.uid AS uid',
-                'correspondencia.ctrl_interno_oficio.nombre AS nombre'
+                'correspondencia.ctrl_circular_oficio.id_ctrl_circular_oficio AS id',
+                'correspondencia.ctrl_circular_oficio.uid AS uid',
+                'correspondencia.ctrl_circular_oficio.nombre AS nombre'
             )
-            ->where('correspondencia.ctrl_interno_oficio.estatus', true)
-            ->where('correspondencia.ctrl_interno_oficio.id_ctrl_interno_oficio', $idOficio)
-            ->where('correspondencia.ctrl_interno_oficio.id_cat_tipo_doc_cloud', $idTipoDoc)
-            ->orderBy('correspondencia.ctrl_interno_oficio.nombre', 'asc')
+            ->where('correspondencia.ctrl_circular_oficio.estatus', true)
+            ->where('correspondencia.ctrl_circular_oficio.id_tbl_circular', $idOficio)
+            ->where('correspondencia.ctrl_circular_oficio.id_cat_tipo_doc_cloud', $idTipoDoc)
+            ->orderBy('correspondencia.ctrl_circular_oficio.nombre', 'asc')
             ->limit($limit)
             ->get();
 
@@ -48,14 +48,14 @@ class CloudM extends Model
     public function conditionOficios($limit, $id_tbl_oficio, $id_cat_tipo_doc_cloud)
     {
         // Consulta SQL utilizando el Query Builder de Laravel
-        $result = DB::table('correspondencia.ctrl_interno_oficio')
+        $result = DB::table('correspondencia.ctrl_circular_oficio')
             ->select(DB::raw('
                         CASE 
                             WHEN COUNT(*) >= ' . (int) $limit . ' THEN TRUE
                             ELSE FALSE
                         END as valor
                     '))
-            ->where('id_tbl_interno', $id_tbl_oficio)
+            ->where('id_tbl_circular', $id_tbl_oficio)
             ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
             ->where('estatus', true)
             ->first(); // Usamos 'first()' para obtener solo un resultado
@@ -67,14 +67,14 @@ class CloudM extends Model
     public function conditioAnexos($limit, $id_tbl_oficio, $id_cat_tipo_doc_cloud)
     {
         // Consulta SQL utilizando el Query Builder de Laravel
-        $result = DB::table('correspondencia.ctrl_interno_anexo')
+        $result = DB::table('correspondencia.ctrl_circular_anexo')
             ->select(DB::raw('
                             CASE 
                                 WHEN COUNT(*) >= ' . (int) $limit . ' THEN TRUE
                                 ELSE FALSE
                             END as valor
                         '))
-            ->where('id_tbl_interno', $id_tbl_oficio)
+            ->where('id_tbl_circular', $id_tbl_oficio)
             ->where('id_cat_tipo_doc_cloud', $id_cat_tipo_doc_cloud)
             ->where('estatus', true)
             ->first(); // Usamos 'first()' para obtener solo un resultado

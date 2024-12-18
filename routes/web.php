@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
 use App\Http\Controllers\Letter\File\FileC;
@@ -97,11 +98,12 @@ Route::get('/round/create', [RoundC::class, 'create'])->name('round.create')->mi
 Route::get('/round/edit/{id}', [RoundC::class, 'edit'])->name('round.edit')->middleware('auth');
 Route::post('/round/save', [RoundC::class, 'save'])->name('round.save')->middleware('auth');
 Route::get('/round/cloud/{id}', [RoundC::class, 'cloud'])->name('round.cloud')->middleware('auth');
-Route::post('/round/cloud/data', [CloudInsideC::class, 'cloudData'])->name('round.cloud.data')->middleware('auth');
-Route::post('/round/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('round.cloud.anexos')->middleware('auth');
-Route::post('/round/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('round.cloud.oficios')->middleware('auth');
-Route::post('/round/cloud/upload', [CloudInsideC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
-Route::post('/round/cloud/delete', [CloudInsideC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
+Route::post('/round/cloud/data', [CloudRoundC::class, 'cloudData'])->name('round.cloud.data')->middleware('auth');
+Route::post('/round/cloud/anexos', [CloudRoundC::class, 'cloudAnexos'])->name('round.cloud.anexos')->middleware('auth');
+Route::post('/round/cloud/oficios', [CloudRoundC::class, 'cloudOficios'])->name('round.cloud.oficios')->middleware('auth');
+Route::post('/round/cloud/upload', [CloudRoundC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
+Route::post('/round/cloud/delete', [CloudRoundC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
+Route::get('/round/generate-pdf/{id}', [ReporteTemplateC::class, 'round'])->middleware('auth');
 
 //ROUTE file / EXPEDIENTES
 Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');

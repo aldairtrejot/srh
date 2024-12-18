@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Letter\Inside;
+namespace App\Http\Controllers\Letter\Round;
 use App\Http\Controllers\Cloud\AlfrescoC;
-use App\Models\Letter\Inside\CloudAnexosM;
+use App\Models\Letter\Round\CloudAnexosM;
 use App\Models\Letter\Cloud\CloudConfigM;
-use App\Models\Letter\Inside\CloudOficiosM;
+use App\Models\Letter\Round\CloudOficiosM;
 use App\Models\Letter\Collection\CollectionConfigCloudM;
-use App\Models\Letter\Inside\InsideM;
-use App\Models\Letter\Inside\CloudM;
+use App\Models\Letter\Round\RoundM;
+use App\Models\Letter\Round\CloudM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class CloudInsideC extends Controller
+class CloudRoundC extends Controller
 {
     //La funcion obtiene datos para el ebcabezado de la vista cloud
     public function cloudData(Request $request)
     {
         $id = $request->id;
-        $item = new InsideM();
+        $item = new RoundM();
         $value = $item->dataCloud($id);
         return response()->json([
             'value' => $value,
@@ -111,7 +111,7 @@ class CloudInsideC extends Controller
                             'nombre' => $fileName,
                             'estatus' => true,
                             'fecha_usuario' => $now,
-                            'id_tbl_oficio' => $request->id_tbl_oficio,
+                            'id_tbl_circular' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ]);
@@ -121,7 +121,7 @@ class CloudInsideC extends Controller
                             'nombre' => $fileName,
                             'estatus' => true,
                             'fecha_usuario' => $now,
-                            'id_tbl_oficio' => $request->id_tbl_oficio,
+                            'id_tbl_circular' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ]);
