@@ -165,4 +165,5 @@
 <!-- CODE SCRIPT-->
 <script src="{{ asset('assets/js/app/letter/office/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/office/select.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/office/validate.js') }}"></script>

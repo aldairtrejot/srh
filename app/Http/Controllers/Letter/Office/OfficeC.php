@@ -125,7 +125,10 @@ class OfficeC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter/office/form', compact('noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
+        $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
+
+        return view('letter/office/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
     }
 
     public function save(Request $request)
@@ -147,14 +150,6 @@ class OfficeC extends Controller
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-            //Agregar elementos
-
-            /*
-
-             if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-            }
-                */
 
             $officeM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
@@ -187,54 +182,27 @@ class OfficeC extends Controller
 
         } else { //modificar elemento 
 
-            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+            $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
+                ->update([
+                    'fecha_inicio' => $request->fecha_inicio,
+                    'fecha_fin' => $request->fecha_fin,
+                    'asunto' => $request->asunto,
+                    'observaciones' => $request->observaciones,
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_usuario_area' => $request->id_usuario_area,
+                    'id_usuario_enlace' => $request->id_usuario_enlace,
+                    'id_cat_remitente' => $request->id_cat_remitente,
+                    'rfc_remitente_bool' => false,
+                    'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                    'es_por_area' => $es_por_area,
+                    'num_documento_area' => $request->num_documento_area,
+                    'id_cat_area_documento' => $request->id_cat_area_documento,
 
-                //Validacion de documento unico
-                if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                    return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-                }
+                    'id_usuario_sistema' => Auth::user()->id,
+                    'fecha_usuario' => $now,
+                ]);
 
-                //Validacion de fecha, de inicio y fin
-                if ($request->fecha_inicio >= $request->fecha_fin) {
-                    return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-                }
-
-                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
-                    ->update([
-                        'fecha_inicio' => $request->fecha_inicio,
-                        'fecha_fin' => $request->fecha_fin,
-                        'asunto' => $request->asunto,
-                        'observaciones' => $request->observaciones,
-                        'id_cat_area' => $request->id_cat_area,
-                        'id_usuario_area' => $request->id_usuario_area,
-                        'id_usuario_enlace' => $request->id_usuario_enlace,
-                        'id_cat_remitente' => $request->id_cat_remitente,
-                        'rfc_remitente_bool' => false,
-                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
-
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
-
-                return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
-            } else {
-
-                //Validacion de documento unico
-                if (!$id_tbl_correspondencia) { //Validacion para que exista un id o este vacio
-                    return $messagesC->messageErrorBack('El No de correspondencia no está asociado a un documento.');
-                }
-
-                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
-                    ->update([
-                        'observaciones' => $request->observaciones,
-                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
-
-                return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
-            }
-
+            return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
     }
 }

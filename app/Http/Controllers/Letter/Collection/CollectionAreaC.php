@@ -12,6 +12,14 @@ use Illuminate\Http\Request;
 class CollectionAreaC extends Controller
 {
 
+    // Function que valida que el no de correspondencia exista
+    public function getletter(Request $request)
+    {
+        return response()->json([
+            'status' => false,
+        ]);
+    }
+
     public function areaAutoincrement(Request $request)
     {
         $collectionAreaM = new CollectionAreaM();

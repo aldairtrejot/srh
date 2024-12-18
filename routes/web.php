@@ -127,3 +127,5 @@ Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.ge
 ROUTE::post('/collection/area/consecutivo', [CollectionAreaC::class, 'areaAutoincrement'])->middleware('auth');
 //GENERACION DE REPORTE
 Route::get('/other/generate-pdf/office/{id}', [ReporteCorrespondenciaC::class, 'generatePdf'])->middleware('auth');
+// VALIDACION DE NO DE CORRESPONDENCIA
+Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter'])->middleware('auth');
