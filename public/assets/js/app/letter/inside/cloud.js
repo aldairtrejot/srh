@@ -56,7 +56,6 @@ function getDataDocument() {
             templateCloud(container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
             templateCloud(container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
             templateCloud(container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
-
         },
     });
 }
@@ -133,9 +132,9 @@ function sendFile(file, id_entrada_salida, esOficio) {
             },
             success: function (response) {
                 if (response.status) { //Validacion si es que los cambios se han agregado correctamente
-                    notyf.success("Documento agregado correctamente.");
+                    notyfEM.success("Documento agregado correctamente.");
                 } else {
-                    notyf.error(response.messages);
+                    notyfEM.error(response.messages);
                 }
                 getDataDocument(); //Lista de nuevo e directorio
             },
@@ -161,7 +160,7 @@ function deleteDocument(uid) {
 //La funcion elimina oficios del repositorio, solo de la base
 function deleteDocumenServer(uid) {
     $.ajax({
-        url: '/srh/public/office/cloud/delete',
+        url: '/srh/public/inside/cloud/delete',
         type: 'POST',
         data: {
             uid: uid,
@@ -169,9 +168,9 @@ function deleteDocumenServer(uid) {
         },
         success: function (response) {
             if (response.messages) {
-                notyf.success("El archivo se eliminó correctamente.");
+                notyfEM.success("El archivo se eliminó correctamente.");
             } else {
-                notyf.error("Algo inesperado ocurrió al realizar la acción.");
+                notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
             getDataDocument(); //Lista de nuevo e directorio
         },

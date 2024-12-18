@@ -111,7 +111,7 @@ class CloudInsideC extends Controller
                             'nombre' => $fileName,
                             'estatus' => true,
                             'fecha_usuario' => $now,
-                            'id_tbl_oficio' => $request->id_tbl_oficio,
+                            'id_tbl_interno' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ]);
@@ -121,7 +121,7 @@ class CloudInsideC extends Controller
                             'nombre' => $fileName,
                             'estatus' => true,
                             'fecha_usuario' => $now,
-                            'id_tbl_oficio' => $request->id_tbl_oficio,
+                            'id_tbl_interno' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ]);

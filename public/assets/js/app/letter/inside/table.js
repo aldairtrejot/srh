@@ -28,7 +28,7 @@ function searchInit() {
                 response.value.forEach(function (object) {
                     const finalUrl = `/srh/public/inside/edit/${object.id}`;
                     const finalCloud = `/srh/public/inside/cloud/${object.id}`;
-                    const urlReport = `/srh/public/letter/generate-pdf/correspondencia/${object.id}`;
+                    const urlReport = `/srh/public/inside/generate-pdf/${object.id}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -65,6 +65,7 @@ function searchInit() {
                                             </span>
                                             Reporte
                                         </a>
+                                        <!--
                                         <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
                                             <span style="background:#003366" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -81,6 +82,7 @@ function searchInit() {
                                             </span>
                                             Eliminar
                                         </a>
+                                        -->
                                     </div>
                                 </div>
                             </td>

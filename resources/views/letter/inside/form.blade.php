@@ -19,7 +19,7 @@
                             tittle="{{ isset($item->id_tbl_interno) ? 'Modificar' : 'Agregar ' }} Interno"
                             route="{{ route('inside.list') }}" />
                         <div>
-                            <form action="{{ route('inside.save') }}" method="POST" class="form-sample">
+                            <form id="myForm" action="{{ route('inside.save') }}" method="POST" class="form-sample">
                                 @csrf
 
                                 <x-template-form.template-form-input-hidden name="bool_user_role"
@@ -37,8 +37,11 @@
                                 <x-template-form.template-form-input-hidden name="num_turno_sistema"
                                     value="{{ optional($item)->num_turno_sistema ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="es_por_area"
+                                    value="{{ optional($item)->es_por_area ?? '' }}" />
 
-                                <x-template-tittle.tittle-caption-secon tittle="Información de Interno" />
+
+                                <x-template-tittle.tittle-caption-secon tittle="Información de documento" />
                                 <div class="contenedor">
                                     <div class="item">
                                         <label class="etiqueta">No. Turno:</label>
@@ -113,7 +116,41 @@
 
                                 </div>
 
-                                <x-template-button.button-form-footer routeBack="{{ route('office.list') }}" />
+                                <x-template-tittle.tittle-caption-secon tittle="Otros" />
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="form-check form-check-flat form-check-primary">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
+                                                    title="Marca este checkbox si no tienes un número de correspondencia.">
+                                                ¿No tengo un No. de Correspondencia?
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div id="mostrar_ocultar_no_area">
+                                    <!--
+                                    <p class="texto-centro">
+                                        Si no cuentas con un número de correspondencia, selecciona el área
+                                        correspondiente para asignar uno en su lugar.
+                                    </p>
+-->
+                                    <div class="row">
+                                        <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
+                                            :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                                        <x-template-form.template-form-input-required label="No. Doc" type="text"
+                                            name="num_documento_area" placeholder="NO. DOCUMENTO"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                            value="{{optional($item)->num_documento_area ?? '' }}" />
+                                    </div>
+                                </div>
+
+                                <x-template-button.button-form-footer routeBack="{{ route('inside.list') }}" />
 
                             </form>
                         </div>
@@ -128,3 +165,5 @@
 <!-- CODE SCRIPT-->
 <script src="{{ asset('assets/js/app/letter/inside/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/inside/select.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/inside/validate.js') }}"></script>

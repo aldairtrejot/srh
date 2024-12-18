@@ -16,7 +16,7 @@ class CloudM extends Model
                 'correspondencia.ctrl_interno_anexo.nombre AS nombre'
             )
             ->where('correspondencia.ctrl_interno_anexo.estatus', true)
-            ->where('correspondencia.ctrl_interno_anexo.id_ctrl_interno_anexo', $idOficio)
+            ->where('correspondencia.ctrl_interno_anexo.id_tbl_interno', $idOficio)
             ->where('correspondencia.ctrl_interno_anexo.id_cat_tipo_doc_cloud', $idTipoDoc)
             ->orderBy('correspondencia.ctrl_interno_anexo.nombre', 'asc')
             ->limit($limit)
@@ -35,7 +35,7 @@ class CloudM extends Model
                 'correspondencia.ctrl_interno_oficio.nombre AS nombre'
             )
             ->where('correspondencia.ctrl_interno_oficio.estatus', true)
-            ->where('correspondencia.ctrl_interno_oficio.id_ctrl_interno_oficio', $idOficio)
+            ->where('correspondencia.ctrl_interno_oficio.id_tbl_interno', $idOficio)
             ->where('correspondencia.ctrl_interno_oficio.id_cat_tipo_doc_cloud', $idTipoDoc)
             ->orderBy('correspondencia.ctrl_interno_oficio.nombre', 'asc')
             ->limit($limit)

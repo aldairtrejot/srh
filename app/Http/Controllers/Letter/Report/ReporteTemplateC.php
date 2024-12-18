@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 class ReporteTemplateC extends Controller
 {
 
+    //Generar el reporte de odicio
     public function office($id)
     {
         $collectionReportM = new CollectionReportM();
@@ -17,6 +18,20 @@ class ReporteTemplateC extends Controller
         //Value
         $tableName = 'correspondencia.tbl_oficio';
         $idTable = 'id_tbl_oficio';
+        $data = $collectionReportM->templateReporte($id, $tableName, $idTable);
+        $reporteTemplateC->generatePdf($data);
+    }
+
+
+    //Reporte de interno
+    public function inside($id)
+    {
+        $collectionReportM = new CollectionReportM();
+        $reporteTemplateC = new ReporteTemplateC();
+
+        //Value
+        $tableName = 'correspondencia.tbl_interno';
+        $idTable = 'id_tbl_interno';
         $data = $collectionReportM->templateReporte($id, $tableName, $idTable);
         $reporteTemplateC->generatePdf($data);
     }
