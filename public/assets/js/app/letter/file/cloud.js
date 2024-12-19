@@ -34,7 +34,7 @@ function getDataDocument() {
     let container_oficio_salida = $('#container_oficio_salida');
 
     $.ajax({
-        url: '/srh/public/inside/cloud/anexos',
+        url: '/srh/public/file/cloud/anexos',
         type: 'POST',
         data: {
             id_tbl_oficio: id,
@@ -65,7 +65,7 @@ function getDataDocument() {
 function getDataCloud() {
 
     $.ajax({
-        url: '/srh/public/inside/cloud/data',
+        url: '/srh/public/file/cloud/data',
         type: 'POST',
         data: {
             id: id,
@@ -122,7 +122,7 @@ function sendFile(file, id_entrada_salida, esOficio) {
         data.append('id_entrada_salida', id_entrada_salida);
         data.append('esOficio', esOficio);
         $.ajax({
-            url: "/srh/public/inside/cloud/upload",
+            url: "/srh/public/file/cloud/upload",
             type: 'POST',
             data:
                 data, // Enviar directamente el FormData
@@ -133,9 +133,9 @@ function sendFile(file, id_entrada_salida, esOficio) {
             },
             success: function (response) {
                 if (response.status) { //Validacion si es que los cambios se han agregado correctamente
-                    notyf.success("Documento agregado correctamente.");
+                    notyfEM.success("Documento agregado correctamente.");
                 } else {
-                    notyf.error(response.messages);
+                    notyfEM.error(response.messages);
                 }
                 getDataDocument(); //Lista de nuevo e directorio
             },
@@ -161,7 +161,7 @@ function deleteDocument(uid) {
 //La funcion elimina oficios del repositorio, solo de la base
 function deleteDocumenServer(uid) {
     $.ajax({
-        url: '/srh/public/office/cloud/delete',
+        url: '/srh/public/file/cloud/delete',
         type: 'POST',
         data: {
             uid: uid,
@@ -169,9 +169,9 @@ function deleteDocumenServer(uid) {
         },
         success: function (response) {
             if (response.messages) {
-                notyf.success("El archivo se eliminó correctamente.");
+                notyfEM.success("El archivo se eliminó correctamente.");
             } else {
-                notyf.error("Algo inesperado ocurrió al realizar la acción.");
+                notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
             getDataDocument(); //Lista de nuevo e directorio
         },

@@ -9,6 +9,19 @@ use App\Http\Controllers\Controller;
 class ReporteTemplateC extends Controller
 {
 
+    //Generar el reporte de expedientes
+    public function file($id)
+    {
+        $collectionReportM = new CollectionReportM();
+        $reporteTemplateC = new ReporteTemplateC();
+
+        //Value
+        $tableName = 'correspondencia.tbl_expediente';
+        $idTable = 'id_tbl_expediente';
+        $data = $collectionReportM->templateReporte($id, $tableName, $idTable);
+        $reporteTemplateC->generatePdf($data);
+    }
+
     //Generar el reporte de circulares
     public function round($id)
     {

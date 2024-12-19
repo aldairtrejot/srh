@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
@@ -112,11 +113,12 @@ Route::get('/file/create', [FileC::class, 'create'])->name('file.create')->middl
 Route::get('/file/edit/{id}', [FileC::class, 'edit'])->name('file.edit')->middleware('auth');
 Route::post('/file/save', [FileC::class, 'save'])->name('file.save')->middleware('auth');
 Route::get('/file/cloud/{id}', [FileC::class, 'cloud'])->name('file.cloud')->middleware('auth');
-Route::post('/file/cloud/data', [CloudInsideC::class, 'cloudData'])->name('file.cloud.data')->middleware('auth');
-Route::post('/file/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name('file.cloud.anexos')->middleware('auth');
-Route::post('/file/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('file.cloud.oficios')->middleware('auth');
-Route::post('/file/cloud/upload', [CloudInsideC::class, 'upload'])->name('file.cloud.upload')->middleware('auth');
-Route::post('/file/cloud/delete', [CloudInsideC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
+Route::post('/file/cloud/data', [CloudFileC::class, 'cloudData'])->name('file.cloud.data')->middleware('auth');
+Route::post('/file/cloud/anexos', [CloudFileC::class, 'cloudAnexos'])->name('file.cloud.anexos')->middleware('auth');
+Route::post('/file/cloud/oficios', [CloudFileC::class, 'cloudOficios'])->name('file.cloud.oficios')->middleware('auth');
+Route::post('/file/cloud/upload', [CloudFileC::class, 'upload'])->name('file.cloud.upload')->middleware('auth');
+Route::post('/file/cloud/delete', [CloudFileC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
+Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middleware('auth');
 
 
 /// GLOBAL DE CORRESPONDENCIA

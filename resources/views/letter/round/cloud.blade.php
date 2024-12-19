@@ -35,7 +35,7 @@
                                 value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_INTERNO') }}" />
+                                value="{{  config('custom_config.CLOUD_ALFRESCO_CIRCULAR') }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />

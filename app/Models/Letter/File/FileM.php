@@ -26,6 +26,9 @@ class FileM extends Model
         'id_cat_anio',
         'id_cat_remitente',
         'id_tbl_correspondencia',
+        'es_por_area',
+        'num_documento_area',
+        'id_cat_area_documento',
     ];
 
     public function edit(string $id)
@@ -45,15 +48,22 @@ class FileM extends Model
         // Preparar la consulta base
         $query = DB::table('correspondencia.tbl_expediente')
             ->select([
-                    'correspondencia.tbl_expediente.id_tbl_expediente AS id',
-                    DB::raw('correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema'),
-                    DB::raw('correspondencia.tbl_correspondencia.num_turno_sistema AS num_documento'),
-                    DB::raw('correspondencia.cat_area.descripcion AS area'),
-                    DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
-                    DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
-                    DB::raw("correspondencia.cat_anio.descripcion AS anio"),
-                ])
-            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_expediente.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+                'correspondencia.tbl_expediente.id_tbl_expediente AS id',
+                DB::raw('
+                CASE 
+                    WHEN correspondencia.tbl_expediente.es_por_area THEN 
+                        correspondencia.tbl_expediente.num_documento_area 
+                    ELSE 
+                        correspondencia.tbl_correspondencia.num_turno_sistema 
+                END AS num_documento
+            '),
+                DB::raw('correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema'),
+                DB::raw('correspondencia.cat_area.descripcion AS area'),
+                DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
+                DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
+                DB::raw("correspondencia.cat_anio.descripcion AS anio"),
+            ])
+            ->leftJoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_expediente.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
             ->join('correspondencia.cat_area', 'correspondencia.tbl_expediente.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->join('correspondencia.cat_anio', 'correspondencia.tbl_expediente.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio');
 
@@ -73,6 +83,7 @@ class FileM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
@@ -90,17 +101,20 @@ class FileM extends Model
     //La funcion retorna  los datos de encabezado de la vista cloud
     public function dataCloud($id)
     {
-        $query = DB::table('correspondencia.tbl_interno')
-            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_interno.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
-            ->join('correspondencia.cat_anio', 'correspondencia.tbl_interno.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+        $query = DB::table('correspondencia.tbl_expediente')
+            ->leftjoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_expediente.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->join('correspondencia.cat_anio', 'correspondencia.tbl_expediente.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->select(
-                'correspondencia.tbl_interno.num_turno_sistema AS num_turno_sistema',
-                'correspondencia.tbl_correspondencia.num_turno_sistema AS num_turno_sistema_correspondencia',
-                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
-                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
+                'correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema',
+                DB::raw('CASE WHEN correspondencia.tbl_expediente.es_por_area THEN 
+                                    correspondencia.tbl_expediente.num_documento_area ELSE 
+                                    correspondencia.tbl_correspondencia.num_turno_sistema 
+                                END AS num_turno_sistema_correspondencia'),
+                DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
+                DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 'correspondencia.cat_anio.descripcion AS anio'
             )
-            ->where('correspondencia.tbl_interno.id_tbl_interno', $id)
+            ->where('correspondencia.tbl_expediente.id_tbl_expediente', $id)
             ->first(); // Usamos `first` para obtener solo un resultado
 
         return $query;

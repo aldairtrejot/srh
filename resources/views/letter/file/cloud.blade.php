@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Control de correspondencia</h3>
-                            <h5 class="font-weight-normal mb-0">Interno</h5>
+                            <h5 class="font-weight-normal mb-0">Expediente</h5>
                         </div>
                     </div>
                 </div>
@@ -20,10 +20,9 @@
                     <div class="card-body">
 
                         <div>
-                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('inside.list') }}" />
+                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('file.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id"
-                                value="{{  $id }}" />
+                            <x-template-form.template-form-input-hidden name="id" value="{{  $id }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
                                 value="{{  $item->id_cat_area }}" />
@@ -35,7 +34,7 @@
                                 value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_INTERNO') }}" />
+                                value="{{  config('custom_config.CLOUD_ALFRESCO_EXPEDIENTE') }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />
@@ -45,7 +44,7 @@
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Correspondencia:</label>
+                                    <label class="etiqueta">No. Turno Asoc.:</label>
                                     <label id="_noCorrespondencia" class="valor"></label>
                                 </div>
                                 <div class="item">
@@ -167,6 +166,6 @@
 
         <!-- CODE SCRIPT-->
         <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
-        <script src="{{ asset('assets/js/app/letter/inside/cloud.js') }}"></script>
+        <script src="{{ asset('assets/js/app/letter/file/cloud.js') }}"></script>
 
 </x-template-app.app-layout>
