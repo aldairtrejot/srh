@@ -17,12 +17,10 @@ class LetterM extends Model
         'fecha_fin',
         'num_flojas',
         'num_tomos',
-        'num_copias',
+        'horas_respuesta',
         'lugar',
         'asunto',
         'observaciones',
-        'rfc_remitente_aux',
-        'rfc_remitente_bool',
         'fecha_usuario',
         'id_cat_area',
         'id_usuario_area',
@@ -35,6 +33,7 @@ class LetterM extends Model
         'id_cat_unidad',
         'id_cat_coordinacion',
         'id_usuario_sistema',
+        'puesto_remitente',
     ];
 
     public function edit(string $id)
@@ -131,7 +130,7 @@ class LetterM extends Model
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
                 'correspondencia.tbl_correspondencia.num_flojas AS num_flojas',
                 'correspondencia.tbl_correspondencia.num_tomos AS num_tomos',
-                'correspondencia.tbl_correspondencia.num_copias AS num_copias',
+                'correspondencia.tbl_correspondencia.horas_respuesta AS num_copias',
                 'correspondencia.tbl_correspondencia.lugar AS lugar',
                 'correspondencia.tbl_correspondencia.asunto AS asunto',
                 'correspondencia.tbl_correspondencia.observaciones AS observaciones',

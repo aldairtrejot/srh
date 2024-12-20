@@ -48,6 +48,7 @@ class LetterC extends Controller
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+        $item->rfc_remitente_bool = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
@@ -178,67 +179,54 @@ class LetterC extends Controller
 
     public function save(Request $request)
     {
+        $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
+        $now = Carbon::now(); //Hora y fecha actual
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
         $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
         $COR_USUARIO = config('custom_config.COR_USUARIO'); // Acceso por área
-        $checkbox = $request->has('rfc_remitente_bool') == 1 ? 1 : 0; //Se condiciona el valor del check
+        $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0; //Se condiciona el valor del check
         //Autorizacion solo administracion
 
-        $now = Carbon::now(); //Hora y fecha actual
+        if ($rfc_remitente_bool) { //El usuario agrego un remitente
+            $collectionRemitenteM::create([
+                'nombre' => strtoupper($request->remitente_nombre),
+                'primer_apellido' => strtoupper($request->remitente_apellido_paterno),
+                'segundo_apellido' => strtoupper($request->remitente_apellido_materno),
+                'rfc' => strtoupper($request->remitente_rfc),
+                'estatus' => true,
+
+                //DATA_SYSTEM
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+            //Se obtiene el id del rfc ingresado
+            $request->id_cat_remitente = $collectionRemitenteM->getRfc($request->remitente_rfc);
+        }
+        /*
+        if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
+                        return $messagesC->messageErrorBack('El número de documento ya está registrado.');
+                    }
+                        */
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-
-
-            $request->validate([
-                'num_documento' => 'required|max:45',
-                'fecha_inicio' => 'required',
-                'num_flojas' => 'required|numeric|min:1',
-                'num_tomos' => 'required|numeric|min:1',
-                'lugar' => 'required|max:50',
-                'asunto' => 'required|max:50',
-                'observaciones' => 'max:50',
-                'id_cat_area' => 'required',
-                'id_usuario_area' => 'required',
-                'id_usuario_enlace' => 'required',
-                'id_cat_unidad' => 'required',
-                'id_cat_coordinacion' => 'required',
-                'id_cat_estatus' => 'required',
-                'id_cat_tramite' => 'required',
-                'id_cat_clave' => 'required',
-                'id_cat_remitente' => $checkbox != 1 ? 'required' : 'nullable',
-                'rfc_remitente_aux' => $checkbox == 1 ? 'required' : 'nullable',
-            ]);
-
-            //Validacion de documento unico
-            if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
-                return $messagesC->messageErrorBack('El número de documento ya está registrado.');
-            }
-
-            //Validacion de fecha, de inicio y fin
-            if ($request->fecha_inicio >= $request->fecha_fin) {
-                return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-            }
-
             //Agregar elementos
             $letterM::create([
-                'num_turno_sistema' => $request->num_turno_sistema,
-                'num_documento' => $request->num_documento,
+                'num_turno_sistema' => strtoupper($request->num_turno_sistema),
+                'num_documento' => strtoupper($request->num_documento),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'num_flojas' => $request->num_flojas,
                 'num_tomos' => $request->num_tomos,
-                'num_copias' => $request->num_copias,
-                'lugar' => $request->lugar,
-                'asunto' => $request->asunto,
-                'observaciones' => $request->observaciones,
-                'rfc_remitente_aux' => $request->rfc_remitente_aux,
-                'rfc_remitente_bool' => $checkbox,
+                'horas_respuesta' => $request->horas_respuesta,
+                'lugar' => strtoupper($request->lugar),
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
                 'id_cat_area' => $request->id_cat_area,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
@@ -249,6 +237,7 @@ class LetterC extends Controller
                 'id_cat_clave' => $request->id_cat_clave,
                 'id_cat_unidad' => $request->id_cat_unidad,
                 'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                'puesto_remitente' => strtoupper($request->puesto_remitente),
 
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -262,35 +251,6 @@ class LetterC extends Controller
         } else { //modificar elemento 
 
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-                $request->validate([
-                    'num_documento' => 'required|max:45',
-                    'fecha_inicio' => 'required',
-                    'num_flojas' => 'required|numeric|min:1',
-                    'num_tomos' => 'required|numeric|min:1',
-                    'lugar' => 'required|max:50',
-                    'asunto' => 'required|max:50',
-                    'observaciones' => 'max:50',
-                    'id_cat_area' => 'required',
-                    'id_usuario_area' => 'required',
-                    'id_usuario_enlace' => 'required',
-                    'id_cat_unidad' => 'required',
-                    'id_cat_coordinacion' => 'required',
-                    'id_cat_estatus' => 'required',
-                    'id_cat_tramite' => 'required',
-                    'id_cat_clave' => 'required',
-                    'id_cat_remitente' => $checkbox != 1 ? 'required' : 'nullable',
-                    'rfc_remitente_aux' => $checkbox == 1 ? 'required' : 'nullable',
-                ]);
-
-                //Validacion de documento unico
-                if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
-                    return $messagesC->messageErrorBack('El número de documento ya está registrado.');
-                }
-
-                //Validacion de fecha, de inicio y fin
-                if ($request->fecha_inicio >= $request->fecha_fin) {
-                    return $messagesC->messageErrorBack('La fecha de inicio no puede ser anterior a la fecha de finalización.');
-                }
 
                 $letterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
                     ->update([
@@ -299,12 +259,10 @@ class LetterC extends Controller
                         'fecha_fin' => $request->fecha_fin,
                         'num_flojas' => $request->num_flojas,
                         'num_tomos' => $request->num_tomos,
-                        'num_copias' => $request->num_copias,
-                        'lugar' => $request->lugar,
-                        'asunto' => $request->asunto,
-                        'observaciones' => $request->observaciones,
-                        'rfc_remitente_aux' => $request->rfc_remitente_aux,
-                        'rfc_remitente_bool' => $checkbox,
+                        'horas_respuesta' => $request->horas_respuesta,
+                        'lugar' => strtoupper($request->lugar),
+                        'asunto' => strtoupper($request->asunto),
+                        'observaciones' => strtoupper($request->observaciones),
                         'id_cat_area' => $request->id_cat_area,
                         'id_usuario_area' => $request->id_usuario_area,
                         'id_usuario_enlace' => $request->id_usuario_enlace,
@@ -315,6 +273,7 @@ class LetterC extends Controller
                         'id_cat_clave' => $request->id_cat_clave,
                         'id_cat_unidad' => $request->id_cat_unidad,
                         'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                        'puesto_remitente' => strtoupper($request->puesto_remitente),
 
                         'id_usuario_sistema' => Auth::user()->id,
                         'fecha_usuario' => $now,
@@ -322,14 +281,10 @@ class LetterC extends Controller
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
-                $request->validate([
-                    'observaciones' => 'required|max:50',
-                    'id_cat_estatus' => 'required',
-                ]);
 
                 $letterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
                     ->update([
-                        'observaciones' => $request->observaciones,
+                        'observaciones' => strtoupper($request->observaciones),
                         'id_cat_estatus' => $request->id_cat_estatus,
                         'id_usuario_sistema' => Auth::user()->id,
                         'fecha_usuario' => $now,

@@ -41,11 +41,14 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_clave_aux"
                                     value="{{ optional($item)->id_cat_clave ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="rfc_remitente_bool"
+                                    value="{{ optional($item)->rfc_remitente_bool ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
                                     <div class="item">
-                                        <label class="etiqueta">No. Correspondencia:</label>
+                                        <label class="etiqueta">No. Turno:</label>
                                         <label id="_labNoCorrespondencia" class="valor"></label>
                                     </div>
                                     <div class="item">
@@ -103,10 +106,10 @@
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_tomos ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="No. Copias" type="integer"
-                                        name="num_copias" placeholder="NO. Copias"
+                                    <x-template-form.template-form-input-required label="Horas respuesta" type="integer"
+                                        name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->num_copias ?? '' }}" />
+                                        value="{{optional($item)->horas_respuesta ?? '' }}" />
 
                                 </div>
 
@@ -128,7 +131,7 @@
                                         value="{{optional($item)->observaciones ?? '' }}" />
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Información institucional" />
+                                <x-template-tittle.tittle-caption-secon tittle="Área de atención" />
                                 <div class="row">
 
                                     <x-template-form.template-form-select-required :selectValue="$selectArea"
@@ -155,7 +158,7 @@
                                 </div>
 
 
-                                <x-template-tittle.tittle-caption-secon tittle="Información de estado de documento" />
+                                <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                                 <div class="row">
                                     <x-template-form.template-form-select-required :selectValue="$selectStatus"
                                         :selectEdit="$selectStatusEdit" name="id_cat_estatus" tittle="Estatus"
@@ -178,6 +181,47 @@
                                         :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
 
+                                    <div class="form-check form-check-flat form-check-primary">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
+                                                title="Marca este checkbox si no tienes un número de correspondencia.">
+                                            Agregar remitente
+                                        </label>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-input-required label="Puesto remitente" type="text"
+                                        name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
+                                        value="{{optional($item)->puesto_remitente ?? '' }}" />
+                                </div>
+
+                                <div id="mostrar_ocultar_template">
+                                    <div class="row">
+                                        <x-template-form.template-form-input-required label="Nombre" type="text"
+                                            name="remitente_nombre" placeholder="NOMBRE"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                            value="" />
+
+                                        <x-template-form.template-form-input-required label="Apellido paterno"
+                                            type="text" name="remitente_apellido_paterno" placeholder="APELLIDO PATERNO"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                            value="" />
+                                    </div>
+
+                                    <div class="row">
+                                        <x-template-form.template-form-input-required label="Apellido materno"
+                                            type="text" name="remitente_apellido_materno" placeholder="APELLIDO MATERNO"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                            value="" />
+
+                                        <x-template-form.template-form-input-required label="RFC"
+                                            type="text" name="remitente_rfc" placeholder="RFC"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                            value="" />
+                                    </div>
                                 </div>
 
                                 <x-template-button.button-form-footer routeBack="{{ route('letter.list') }}" />

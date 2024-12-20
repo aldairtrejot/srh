@@ -8,6 +8,34 @@ $(document).ready(function () {
     //checkboxState();
     setData(); //Establecer las variables de informacion general
     getRole(); //Obtener y definir los roles para no tener los input
+    setCheckboxArea();
+});
+
+//La funcion activa o desactiva el valor de un checkbox de area
+function setCheckboxArea() {
+    if ($('#rfc_remitente_bool').val()) { //valor del  la variable check true
+        $('#idcheckboxTemplate').prop('checked', true); //Activar el checkk
+        cleanSelect('#id_cat_remitente'); //Se limpia el select
+        $('#id_cat_remitente').prop('disabled', true); // desabilitar no de documento por area
+        $('#id_cat_remitente').selectpicker('refresh');
+        showDiv('mostrar_ocultar_template'); //Mostrar contenido
+    } else { //Valor de la variable check falso
+        $('#remitente_nombre').val('');// Limpiar input
+        $('#remitente_apellido_paterno').val('');// Limpiar input
+        $('#remitente_apellido_materno').val('');// Limpiar input
+        $('#remitente_rfc').val('');// Limpiar input
+        $('#id_cat_remitente').prop('disabled', false); // desabilitar no de documento por area
+        $('#id_cat_remitente').selectpicker('refresh');
+        hideDiv('mostrar_ocultar_template'); //Ocultar contenido
+    }
+}
+
+//Codigo para la ejecucion de un checkbox
+$('#idcheckboxTemplate').change(function () {
+    let bool = false; // Inicio de variable de checkbox de area
+    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
+    $('#rfc_remitente_bool').val(bool); //Se asigna el valor
+    setCheckboxArea();//Se ejecuta la funcon
 });
 
 //La funcion desabilita los campos dependiendo del rol de usuario
@@ -81,25 +109,4 @@ function getData() {
     });
 }
 
-/*
-//La funcion obtiene el estatus del checkbox para marcar o desmarcar la casilla
-function checkboxState() {
-    let nameCheckbox = document.getElementById('rfc_remitente_bool').value; //se obitnee el valor del checkbox
-    let state = true; //se inicializa el status en false
-    nameCheckbox != 'true' ? state = false : state; //Validacion si el chechkbox es verdadero el status se queda en verdadero
-    document.getElementById("rfc_remitente_bool").checked = state; //Se marca o desmarca el checkbox dependiendo del valor
-    state ? showDiv('is_inputRemitente') : hideDiv('is_inputRemitente');// se muestra u oculta el contenido dependiendo del check
-}
 
-//Se oculta/muestra el div dependiendo si se selecciona el check o no
-document.getElementById('rfc_remitente_bool').addEventListener('change', function () {
-
-    if (this.checked) { //esta marcado el check
-        showDiv('is_inputRemitente'); //Mostrar elementos ocultos
-        cleanSelect('#id_cat_remitente'); //Se limpia el select
-    } else {
-        hideDiv('is_inputRemitente');//Ocultar elementos
-        $('#rfc_remitente_aux').val('');
-    }
-});
-*/
