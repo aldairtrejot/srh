@@ -33,28 +33,32 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->SetFont('arial', '', 9);
 
         //DATA NO COPIAS
-        $pdf->SetXY(170, 177.4); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_copias);
+        $pdf->SetXY(170, 182); // Posición X, Y en el PDF
+        $pdf->Write(0, $data->horas_respuesta);
 
         //DATA NO TOMOS
-        $pdf->SetXY(103, 177.4); // Posición X, Y en el PDF
+        $pdf->SetXY(103, 182); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_tomos);
 
         //DATA O FOJAS
-        $pdf->SetXY(40.5, 177.4); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 182); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_flojas);
 
         //DATA LUGAR
-        $pdf->SetXY(40.5, 161.7); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 166); // Posición X, Y en el PDF
         $pdf->MultiCell(0,4, utf8_decode($data->observaciones));
 
         //DATA LUGAR
-        $pdf->SetXY(40.5, 151.2); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 156.5); // Posición X, Y en el PDF
         $pdf->MultiCell(0,4, utf8_decode($data->lugar));
 
         //DATA ASUNTO
-        $pdf->SetXY(40.5, 141.2); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 146.5); // Posición X, Y en el PDF
         $pdf->MultiCell(0,4, utf8_decode($data->asunto));
+
+        //DATA ASUNTO
+        $pdf->SetXY(40.5, 141.2); // Posición X, Y en el PDF
+        $pdf->MultiCell(0,4, utf8_decode($data->puesto_remitente));
 
         //DATA REMITENTE
         $pdf->SetXY(40.5, 131); // Posición X, Y en el PDF

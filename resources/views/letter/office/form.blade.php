@@ -138,6 +138,7 @@
                                         correspondiente para asignar uno en su lugar.
                                     </p>
 -->
+                                    <br>
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
                                             :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"

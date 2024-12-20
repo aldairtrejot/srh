@@ -130,7 +130,7 @@ class LetterM extends Model
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
                 'correspondencia.tbl_correspondencia.num_flojas AS num_flojas',
                 'correspondencia.tbl_correspondencia.num_tomos AS num_tomos',
-                'correspondencia.tbl_correspondencia.horas_respuesta AS num_copias',
+                'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
                 'correspondencia.tbl_correspondencia.lugar AS lugar',
                 'correspondencia.tbl_correspondencia.asunto AS asunto',
                 'correspondencia.tbl_correspondencia.observaciones AS observaciones',
@@ -144,7 +144,8 @@ class LetterM extends Model
                 'correspondencia.cat_clave.descripcion AS codigo',
                 'correspondencia.cat_clave.redaccion AS clave',
                 'correspondencia.cat_unidad.descripcion AS unidad',
-                'correspondencia.cat_coordinacion.descripcion AS coordinacion'
+                'correspondencia.cat_coordinacion.descripcion AS coordinacion',
+                'correspondencia.tbl_correspondencia.puesto_remitente AS puesto_remitente',
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')

@@ -198,6 +198,13 @@
                                         value="{{optional($item)->puesto_remitente ?? '' }}" />
                                 </div>
 
+
+                                <style>
+                                    .form-check-primary.form-check label input[type="checkbox"]+.input-helper:before,
+                                    .form-check-primary.form-check label input[type="radio"]+.input-helper:before {
+                                        border-color: #000000;
+                                    }
+                                </style>
                                 <div id="mostrar_ocultar_template">
                                     <div class="row">
                                         <x-template-form.template-form-input-required label="Nombre" type="text"
@@ -217,8 +224,8 @@
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                             value="" />
 
-                                        <x-template-form.template-form-input-required label="RFC"
-                                            type="text" name="remitente_rfc" placeholder="RFC"
+                                        <x-template-form.template-form-input-required label="RFC" type="text"
+                                            name="remitente_rfc" placeholder="RFC"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                             value="" />
                                     </div>
