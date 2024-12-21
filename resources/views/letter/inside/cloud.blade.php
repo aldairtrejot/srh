@@ -22,11 +22,10 @@
                         <div>
                             <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('inside.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id"
-                                value="{{  $id }}" />
+                            <x-template-form.template-form-input-hidden name="id" value="{{  $id }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
-                                value="{{  $item->id_cat_area }}" />
+                                value="{{  $id_cat_area }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_salida"
                                 value="{{  config('custom_config.CONFIG_CLOUD_SALIDA') }}" />

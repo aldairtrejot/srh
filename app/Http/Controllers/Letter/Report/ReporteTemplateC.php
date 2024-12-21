@@ -102,20 +102,12 @@ class ReporteTemplateC extends Controller
         $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_correspondencia);
 
-        //DATA AREA
-        $pdf->SetXY(40.5, 79.8); // Posición X, Y en el PDF
-        $pdf->Write(0, utf8_decode($data->area));
-
-        //DATA REMITENTE
-        $pdf->SetXY(40.5, 83); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
-
         //DATA ASUNTO
-        $pdf->SetXY(40.5, 91.8); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 78.2); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
 
         //DATA LUGAR
-        $pdf->SetXY(40.5, 102); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 88); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
         // Enviar el PDF generado al navegador

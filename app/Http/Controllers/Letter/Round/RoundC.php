@@ -14,6 +14,7 @@ use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
+use App\Models\Letter\Collection\CollectionReportM;
 
 class RoundC extends Controller
 {
@@ -25,9 +26,11 @@ class RoundC extends Controller
 
     public function cloud($id)
     {
+        $collectionReportM = new CollectionReportM();
         $object = new RoundM();
         $item = $object->edit($id);
-        return view('letter/round/cloud', compact('item', 'id'));
+        $id_cat_area = $collectionReportM->getIdArea($id, 'correspondencia.tbl_circular', 'id_tbl_circular');
+        return view('letter/round/cloud', compact('id_cat_area', 'item', 'id'));
 
     }
 
@@ -83,22 +86,11 @@ class RoundC extends Controller
         $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
-        $selectArea = $collectionAreaM->list(); //Catalogo de area
-        $selectAreaEdit = []; //catalogo de area null
-
-        $selectUser = []; //Catalogo de Area - usuario, al crear comienza en vacio 
-        $selectUserEdit = []; //Catalogo de Area - usuario, al crear comienza en vacio 
-
-        $selectEnlace = []; //Catalogo de Area - enlace, al crear comienza en vacio 
-        $selectEnlaceEdit = []; //Catalogo de Area - enlace, al crear comienza en vacio 
-
-        $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
-        $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
 
-        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -113,22 +105,10 @@ class RoundC extends Controller
         $item = $object->edit($id); // Obtener el elemento con el ID pasado
         $noLetter = $letterM->getTurno($item->id_tbl_correspondencia);
 
-        $selectArea = $collectionAreaM->list();// Obtener todos los registros del catálogo de áreas
-        $selectAreaEdit = isset($item->id_cat_area) ? $collectionAreaM->edit($item->id_cat_area) : []; //Validacion de id_en DB para definir si se poblan los catalogos o son vacios
-
-        $selectUser = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
-        $selectUserEdit = isset($item->id_cat_area) && isset($item->id_usuario_area) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
-
-        $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
-        $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
-
-        $selectRemitente = $collectionRemitenteM->list();
-        $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
-
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
 
-        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'selectRemitenteEdit', 'selectRemitente', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEdit', 'selectArea', 'item'));
+        return view('letter/round/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
@@ -156,13 +136,8 @@ class RoundC extends Controller
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
-                'asunto' => $request->asunto,
-                'observaciones' => $request->observaciones,
-                'id_cat_area' => $request->id_cat_area,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_remitente' => $request->id_cat_remitente,
-                'rfc_remitente_bool' => false,
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
                 'id_tbl_correspondencia' => $id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
@@ -186,13 +161,8 @@ class RoundC extends Controller
                     ->update([
                         'fecha_inicio' => $request->fecha_inicio,
                         'fecha_fin' => $request->fecha_fin,
-                        'asunto' => $request->asunto,
-                        'observaciones' => $request->observaciones,
-                        'id_cat_area' => $request->id_cat_area,
-                        'id_usuario_area' => $request->id_usuario_area,
-                        'id_usuario_enlace' => $request->id_usuario_enlace,
-                        'id_cat_remitente' => $request->id_cat_remitente,
-                        'rfc_remitente_bool' => false,
+                        'asunto' => strtoupper($request->asunto),
+                        'observaciones' => strtoupper($request->observaciones),
                         'id_tbl_correspondencia' => $id_tbl_correspondencia,
                         'es_por_area' => $es_por_area,
                         'num_documento_area' => $request->num_documento_area,
@@ -206,7 +176,7 @@ class RoundC extends Controller
             } else {
                 $object::where('id_tbl_circular', $request->id_tbl_circular)
                     ->update([
-                        'observaciones' => $request->observaciones,
+                        'observaciones' => strtoupper($request->observaciones),
                         'id_usuario_sistema' => Auth::user()->id,
                         'fecha_usuario' => $now,
                     ]);

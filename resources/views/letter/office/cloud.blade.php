@@ -26,7 +26,7 @@
                                 value="{{  $id_tbl_oficio }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
-                                value="{{  $item->id_cat_area }}" />
+                                value="{{  $id_cat_area }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_salida"
                                 value="{{  config('custom_config.CONFIG_CLOUD_SALIDA') }}" />

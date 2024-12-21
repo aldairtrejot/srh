@@ -66,9 +66,6 @@
                                         No. Turno Asoc.
                                     </th>
                                     <th>
-                                        Área
-                                    </th>
-                                    <th>
                                         Fecha de Inicio
                                     </th>
                                     <th>

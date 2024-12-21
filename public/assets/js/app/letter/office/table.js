@@ -88,7 +88,6 @@ function searchInit() {
                             </td>
                             <td>${object.num_turno_sistema}</td>
                             <td>${object.num_documento}</td>
-                            <td>${object.area}</td>
                             <td>${object.fecha_inicio}</td>
                             <td>${object.fecha_fin}</td>
                             <td>${object.anio}</td>

@@ -1,13 +1,13 @@
 // Validacion de fórmulario
 document.getElementById("myForm").addEventListener("submit", function (event) {
+    let fecha_inicio = document.getElementById('fecha_inicio').value;
+    let fecha_fin = document.getElementById('fecha_fin').value;
+
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
+        isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
-        isFieldEmpty($('#id_cat_area').val(), 'Área') ||
-        isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
-        isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace') ||
-        isFieldEmpty($('#id_cat_remitente').val(), 'Remitente') ||
         isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
         isExceedingLength($('#observaciones').val(), 'Observaciones', 100)) {
         event.preventDefault();  // Evita el envío del formulario
@@ -28,6 +28,13 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
     }
 
-$('#num_documento_area').prop('disabled', false); //desabilitar contenido
+    // Validar que la fecha de inicio no sea menor a la fecha de fin
+    if (fecha_inicio > fecha_fin) {
+        notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+        event.preventDefault();
+        return; // Detener la ejecución aquí
+    }
+
+    $('#num_documento_area').prop('disabled', false); //desabilitar contenido
 });
 

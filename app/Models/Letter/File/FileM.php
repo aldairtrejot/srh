@@ -17,14 +17,8 @@ class FileM extends Model
         'asunto',
         'observaciones',
         'fecha_usuario',
-        'rfc_remitente_aux_nombre',
-        'rfc_remitente_bool',
         'id_usuario_sistema',
-        'id_cat_area',
-        'id_usuario_area',
-        'id_usuario_enlace',
         'id_cat_anio',
-        'id_cat_remitente',
         'id_tbl_correspondencia',
         'es_por_area',
         'num_documento_area',
@@ -58,13 +52,11 @@ class FileM extends Model
                 END AS num_documento
             '),
                 DB::raw('correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema'),
-                DB::raw('correspondencia.cat_area.descripcion AS area'),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 DB::raw("correspondencia.cat_anio.descripcion AS anio"),
             ])
             ->leftJoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_expediente.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
-            ->join('correspondencia.cat_area', 'correspondencia.tbl_expediente.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->join('correspondencia.cat_anio', 'correspondencia.tbl_expediente.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio');
 
         // Filtrar por usuario si se proporciona el id
@@ -83,7 +75,6 @@ class FileM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });

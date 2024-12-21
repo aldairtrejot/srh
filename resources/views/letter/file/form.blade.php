@@ -91,31 +91,6 @@
                                         value="{{optional($item)->observaciones ?? '' }}" />
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Información institucional" />
-                                <div class="row">
-
-                                    <x-template-form.template-form-select-required :selectValue="$selectArea"
-                                        :selectEdit="$selectAreaEdit" name="id_cat_area" tittle="Área"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-
-                                    <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                        :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-
-                                    <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                        :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                                </div>
-
-                                <x-template-tittle.tittle-caption-secon tittle="Información de remitente" />
-                                <div class="row">
-
-                                    <x-template-form.template-form-select-required :selectValue="$selectRemitente"
-                                        :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
-
-                                </div>
-
                                 <x-template-tittle.tittle-caption-secon tittle="Otros" />
                                 <div class="container">
                                     <div class="row">

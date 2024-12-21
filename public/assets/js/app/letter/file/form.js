@@ -48,16 +48,7 @@ function getRole() {
         $('#asunto').prop('disabled', true);
         $('#idcheckboxTemplate').prop('disabled', true);
 
-        $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
-        $('#id_usuario_area').prop('disabled', true);
-        $('#id_usuario_enlace').prop('disabled', true);
-        $('#id_cat_remitente').prop('disabled', true);
         $('#id_cat_area_documento').prop('disabled', true);
-
-        $('#id_cat_area').selectpicker('refresh'); //Refresh de select 
-        $('#id_usuario_area').selectpicker('refresh');
-        $('#id_usuario_enlace').selectpicker('refresh');
-        $('#id_cat_remitente').selectpicker('refresh');
         $('#id_cat_area_documento').selectpicker('refresh');
     }
 }
