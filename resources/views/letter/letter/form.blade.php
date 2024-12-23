@@ -97,7 +97,7 @@
 
 
                                     <x-template-form.template-form-input-required label="No. hojas" type="integer"
-                                        name="num_flojas" placeholder="NO. FOJAS"
+                                        name="num_flojas" placeholder="NO. HOJAS"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_flojas ?? '' }}" />
 
