@@ -24,7 +24,7 @@ class CollectionRemitenteM extends Model
     {
         // Usamos Query Builder para realizar la consulta
         $remitente = DB::table('correspondencia.cat_remitente')
-            ->where('rfc', $rfc)
+            ->where('nombre', $rfc)
             ->first();
 
         return $remitente->id_cat_remitente;
