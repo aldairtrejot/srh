@@ -20,7 +20,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#id_cat_tramite').val(), 'Tramite') ||
         isFieldEmpty($('#id_cat_clave').val(), 'Clave') ||
         isFieldEmpty($('#puesto_remitente').val(), 'Puesto remitente') ||
-        isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 50) ||
+        isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
         isExceedingLength($('#lugar').val(), 'Lugar', 100) ||
         isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
