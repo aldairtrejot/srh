@@ -44,12 +44,11 @@
                         </div>
 
                         <style>
-                            /*
                             .dropdown-menu {
                                 max-height: 100px;
                                 overflow-y: auto;
                                
-                            }*/
+                            }
                         </style>
 
                         <!-- TEMPLATE TABLE -->

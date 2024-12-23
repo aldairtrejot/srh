@@ -205,7 +205,7 @@ class LetterC extends Controller
                 'fecha_usuario' => $now,
             ]);
             //Se obtiene el id del rfc ingresado
-            $request->id_cat_remitente = $collectionRemitenteM->getRfc($request->remitente_rfc);
+            $request->id_cat_remitente = $collectionRemitenteM->getRfc($request->remitente_nombre);
         }
         /*
         if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
