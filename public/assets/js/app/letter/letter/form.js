@@ -28,6 +28,7 @@ function setCheckboxArea() {
         $('#id_cat_remitente').selectpicker('refresh');
         hideDiv('mostrar_ocultar_template'); //Ocultar contenido
     }
+    getRole();
 }
 
 //Codigo para la ejecucion de un checkbox
