@@ -129,8 +129,37 @@ class OfficeC extends Controller
         //Validacion de documento unico
         $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
+        // aregar
+
+
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
+           
+           
+            $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
+            if ($es_por_area == 1) {
+                if ($request->id_cat_area_documento == 2) {
+                    $idusuario = 7;
+                    $idEnlace = 8;
+                } else if ($request->id_cat_area_documento == 4) {
+                    $idusuario = 9;
+                    $idEnlace = 10;
+                } else if ($request->id_cat_area_documento == 5) {
+                    $idusuario = 6;
+                    $idEnlace = 4;
+                }
+            } else {
+                if ($id_area_aux == 2) {
+                    $idusuario = 7;
+                    $idEnlace = 8;
+                } else if ($id_area_aux == 4) {
+                    $idusuario = 9;
+                    $idEnlace = 10;
+                } else if ($id_area_aux == 5) {
+                    $idusuario = 6;
+                    $idEnlace = 4;
+                }
+            }
 
             $officeM::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
@@ -144,6 +173,9 @@ class OfficeC extends Controller
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
+
+                'id_usuario_area' => $idusuario,
+                'id_usuario_enlace' => $idEnlace,
 
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,

@@ -23,6 +23,9 @@ class RoundM extends Model
         'es_por_area',
         'num_documento_area',
         'id_cat_area_documento',
+
+        'id_usuario_area',
+        'id_usuario_enlace',
     ];
 
     public function edit(string $id)

@@ -51,7 +51,17 @@ function getRole() {
         $('#num_tomos').prop('disabled', true);
         $('#lugar').prop('disabled', true);
         $('#asunto').prop('disabled', true);
+        $('#remitente_nombre').prop('disabled', true);
+        $('#remitente_apellido_paterno').prop('disabled', true);
+        $('#remitente_apellido_materno').prop('disabled', true);
+        $('#remitente_rfc').prop('disabled', true);
+        $('#horas_respuesta').prop('disabled', true);
+        $('#puesto_remitente').prop('disabled', true);
+        $('#id_cat_remitente').prop('disabled', true);
 
+        $('#idcheckboxTemplate').prop('disabled', true);
+
+        $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_usuario_area').prop('disabled', true);
         $('#id_usuario_enlace').prop('disabled', true);

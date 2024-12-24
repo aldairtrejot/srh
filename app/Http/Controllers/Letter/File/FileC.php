@@ -130,6 +130,32 @@ class FileC extends Controller
 
         if (!isset($request->id_tbl_expediente)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
+
+            $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
+            if ($es_por_area == 1) {
+                if ($request->id_cat_area_documento == 2) {
+                    $idusuario = 7;
+                    $idEnlace = 8;
+                } else if ($request->id_cat_area_documento == 4) {
+                    $idusuario = 9;
+                    $idEnlace = 10;
+                } else if ($request->id_cat_area_documento == 5) {
+                    $idusuario = 6;
+                    $idEnlace = 4;
+                }
+            } else {
+                if ($id_area_aux == 2) {
+                    $idusuario = 7;
+                    $idEnlace = 8;
+                } else if ($id_area_aux == 4) {
+                    $idusuario = 9;
+                    $idEnlace = 10;
+                } else if ($id_area_aux == 5) {
+                    $idusuario = 6;
+                    $idEnlace = 4;
+                }
+            }
+
             $object::create([
                 'num_turno_sistema' => $request->num_turno_sistema,
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
@@ -142,6 +168,10 @@ class FileC extends Controller
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
+
+                'id_usuario_area' => $idusuario,
+                'id_usuario_enlace' => $idEnlace,
+
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,

@@ -184,6 +184,16 @@ class LetterM extends Model
         return $turno ?: null;
     }
 
+    public function validateNoTurnoArea($noTurno)
+    {
+        $turno = DB::table('correspondencia.tbl_correspondencia')
+            ->where('num_turno_sistema', $noTurno)
+            ->value('correspondencia.tbl_correspondencia.id_cat_area');
+
+        // Si no se encuentra información, retornamos null
+        return $turno ?: null;
+    }
+
     //La funcion retorna  los datos de encabezado de la vista cloud
     public function dataCloud($id)
     {
