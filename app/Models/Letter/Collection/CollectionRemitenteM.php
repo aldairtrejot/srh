@@ -30,6 +30,19 @@ class CollectionRemitenteM extends Model
         return $remitente->id_cat_remitente;
     }
 
+    public function uniqueRemitente($value, $attribute)
+    {
+        $query = DB::table('correspondencia.cat_remitente')
+            ->select('correspondencia.cat_remitente.id_cat_remitente')
+            ->whereRaw('UPPER(TRIM(correspondencia.cat_remitente. ' . $attribute . ')) = UPPER(TRIM(?))', [trim($value)]);
+
+        // Ejecutar la consulta y verificar si hay resultados
+        $result = $query->first();
+
+        // Retornar true si se encuentra algún resultado, de lo contrario false
+        return $result;//$result !== null;
+    }
+
     //LA funcion obtienen el catalogo de remitente
     public function list()
     {

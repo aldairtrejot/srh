@@ -114,14 +114,22 @@
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="Asunto" type="text"
-                                        name="asunto" placeholder="ASUNTO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
-                                        value="{{optional($item)->asunto ?? '' }}" />
+
+                                    <x-template-form.template-form-input-required label="Folio de gestión"
+                                        type="integer" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->folio_gestion ?? '' }}" />
 
                                     <x-template-form.template-form-input-required label="Lugar" type="text" name="lugar"
-                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"
+                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8"
                                         autocomplete="" value="{{optional($item)->lugar ?? '' }}" />
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-input-required label="Asunto" type="text"
+                                        name="asunto" placeholder="ASUNTO"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
+                                        value="{{optional($item)->asunto ?? '' }}" />
                                 </div>
 
                                 <div class="row">
@@ -244,6 +252,8 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT-->
+<script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>

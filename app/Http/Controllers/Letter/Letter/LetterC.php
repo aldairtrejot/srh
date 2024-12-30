@@ -66,7 +66,7 @@ class LetterC extends Controller
         $selectCoordinacionEdit = [];//Catalogos de coordinacion vacios
 
         $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus
-        $selectStatusEdit = [];//Catalogos debe estar vacio
+        $selectStatusEdit = $collectionStatusM->edit(1);//Catalogos debe estar vacio
 
         $selectTramite = []; //Los catalogos incian vacios
         $selectTramiteEdit = []; //Los catalogos incian vacios
@@ -93,7 +93,19 @@ class LetterC extends Controller
         $collectionRemitenteM = new CollectionRemitenteM();
         $collectionClaveM = new CollectionClaveM();
 
+        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
+        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
+        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
+
         $item = $letterM->edit($id); // Obtener el elemento con el ID pasado
+
+        //Validacion de catalogo de estatus
+        $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
+        $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : [];//Catalogos debe estar vacio
+        /*
+        if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+            $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
+        }*/
 
         $selectArea = $collectionAreaM->list();// Obtener todos los registros del catálogo de áreas
         $selectAreaEdit = isset($item->id_cat_area) ? $collectionAreaM->edit($item->id_cat_area) : []; //Validacion de id_en DB para definir si se poblan los catalogos o son vacios
@@ -109,9 +121,6 @@ class LetterC extends Controller
 
         $selectCoordinacion = isset($item->id_cat_unidad) ? $collectionCoordinacionM->list($item->id_cat_unidad) : []; //Catalogos de coordinacion vacios
         $selectCoordinacionEdit = isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : [];//Catalogos de coordinacion vacios
-
-        $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus
-        $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : [];//Catalogos debe estar vacio
 
         $selectTramite = isset($item->id_cat_area) ? $collectionTramiteM->list($item->id_cat_area) : [];
         $selectTramiteEdit = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionTramiteM->edit($item->id_cat_tramite) : [];
@@ -238,6 +247,7 @@ class LetterC extends Controller
                 'id_cat_unidad' => $request->id_cat_unidad,
                 'id_cat_coordinacion' => $request->id_cat_coordinacion,
                 'puesto_remitente' => strtoupper($request->puesto_remitente),
+                'folio_gestion' => strtoupper($request->folio_gestion),
 
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -304,4 +314,32 @@ class LetterC extends Controller
         letterM::destroy($id);
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento eliminado con éxito.');
     }
+
+    //La funcion que el no de documento y no gestion sean unicos
+    public function validateUnique(Request $request)
+    {
+        $letterM = new LetterM();
+        $result = $letterM->uniqueNoDocument($request->id, $request->value, $request->attribute);
+        $value = !$result ? false : true; // Validacion de valor 
+
+        // Responder con los resultados
+        return response()->json([
+            'status' => $value,
+        ]);
+    }
+
+    //La funcion que el remitente sea unico
+    public function uniqueRemitente(Request $request)
+    {
+        $collectionRemitenteM = new CollectionRemitenteM();
+        $result = $collectionRemitenteM->uniqueRemitente($request->value, $request->attribute);
+        $value = !$result ? false : true; // Validacion de valor 
+
+        // Responder con los resultados
+        return response()->json([
+            'status' => $value,
+        ]);
+    }
 }
+
+

@@ -46,23 +46,23 @@ class ReporteCorrespondenciaC extends Controller
 
         //DATA LUGAR
         $pdf->SetXY(40.5, 166); // Posición X, Y en el PDF
-        $pdf->MultiCell(0,4, utf8_decode($data->observaciones));
+        $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
         //DATA LUGAR
         $pdf->SetXY(40.5, 156.5); // Posición X, Y en el PDF
-        $pdf->MultiCell(0,4, utf8_decode($data->lugar));
+        $pdf->MultiCell(0, 4, utf8_decode($data->lugar));
 
         //DATA ASUNTO
         $pdf->SetXY(40.5, 146.5); // Posición X, Y en el PDF
-        $pdf->MultiCell(0,4, utf8_decode($data->asunto));
+        $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
 
         //DATA ASUNTO
         $pdf->SetXY(40.5, 141.2); // Posición X, Y en el PDF
-        $pdf->MultiCell(0,4, utf8_decode($data->puesto_remitente));
+        $pdf->MultiCell(0, 4, utf8_decode($data->puesto_remitente));
 
         //DATA REMITENTE
         $pdf->SetXY(40.5, 131); // Posición X, Y en el PDF
-        $pdf->MultiCell(0,4, utf8_decode($data->remitente));
+        $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
 
         //DATA DESCRIPCION
         $pdf->SetXY(40.5, 113); // Posición X, Y en el PDF
@@ -89,24 +89,28 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->MultiCell(0, 4, utf8_decode($data->unidad));
 
         //AÑO 
-        $pdf->SetXY(147, 65); // Posición X, Y en el PDF
+        $pdf->SetXY(147, 71); // Posición X, Y en el PDF
         $pdf->Write(0, $data->anio);
 
         //FECHA DE INICIO
-        $pdf->SetXY(40.5, 59); // Posición X, Y en el PDF
+        $pdf->SetXY(147, 59); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_inicio);
 
         //FECHA DE FIN 
-        $pdf->SetXY(147, 59); // Posición X, Y en el PDF
+        $pdf->SetXY(147, 65); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_fin);
 
         //DATA NUM TURNO
-        $pdf->SetXY(40.5, 65); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 59); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_turno_sistema);
 
         //DATA NUM DOCUMENTO
-        $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
+        $pdf->SetXY(40.5, 65); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_documento);
+
+        //DATA FOLIO DE GESTION
+        $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
+        $pdf->Write(0, $data->folio_gestion);
 
         // Enviar el PDF generado al navegador
         return response($pdf->Output('I'), 200)

@@ -44,6 +44,8 @@ function getRole() {
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
     if (!new_variable) { //Condicion para inabilitar las opciones
+        validateEstatus();
+
         $('#num_documento').prop('disabled', true);
         $('#num_copias').prop('disabled', true);
         $('#fecha_inicio').prop('disabled', true);
@@ -59,10 +61,10 @@ function getRole() {
         $('#horas_respuesta').prop('disabled', true);
         $('#puesto_remitente').prop('disabled', true);
         $('#id_cat_remitente').prop('disabled', true);
+        $('#folio_gestion').prop('disabled', true);
 
         $('#idcheckboxTemplate').prop('disabled', true);
 
-        $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_usuario_area').prop('disabled', true);
         $('#id_usuario_enlace').prop('disabled', true);
@@ -80,6 +82,14 @@ function getRole() {
         $('#id_cat_tramite').selectpicker('refresh');
         $('#id_cat_clave').selectpicker('refresh');
         $('#id_cat_remitente').selectpicker('refresh');
+    }
+}
+
+//valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
+function validateEstatus() {
+    if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5) {
+        $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
+        $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
     }
 }
 

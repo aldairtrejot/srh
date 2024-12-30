@@ -34,6 +34,7 @@ class LetterM extends Model
         'id_cat_coordinacion',
         'id_usuario_sistema',
         'puesto_remitente',
+        'folio_gestion',
     ];
 
     public function edit(string $id)
@@ -105,7 +106,7 @@ class LetterM extends Model
         // Realizar la consulta a la base de datos, buscando si existe un registro con el valor de documento
         $query = DB::table('correspondencia.tbl_correspondencia')
             ->select('correspondencia.tbl_correspondencia.id_tbl_correspondencia')
-            ->whereRaw('TRIM(correspondencia.tbl_correspondencia.num_documento) = ?', [trim($value)]);
+            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) = UPPER(TRIM(?))', [trim($value)]);
 
         // Si el ID está presente, agregar la condición para excluir el ID
         if (isset($id)) {
@@ -133,6 +134,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
                 'correspondencia.tbl_correspondencia.lugar AS lugar',
                 'correspondencia.tbl_correspondencia.asunto AS asunto',
+                'correspondencia.tbl_correspondencia.folio_gestion AS folio_gestion',
                 'correspondencia.tbl_correspondencia.observaciones AS observaciones',
                 DB::raw("COALESCE(correspondencia.cat_remitente.nombre, '') || ' ' || 
                             COALESCE(correspondencia.cat_remitente.primer_apellido, '') || ' ' ||
@@ -210,5 +212,24 @@ class LetterM extends Model
             ->first();
 
         return $query;
+    }
+
+    //La funcion valida que el no de documento sea unico
+    public function uniqueNoDocument($id, $value, $attribute)
+    {
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->select('correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia. ' . $attribute . ')) = UPPER(TRIM(?))', [trim($value)]);
+
+        // Si el ID está presente, agregar la condición para excluir el ID
+        if (isset($id)) {
+            $query->whereRaw('correspondencia.tbl_correspondencia.id_tbl_correspondencia <> ?', [$id]);
+        }
+
+        // Ejecutar la consulta y verificar si hay resultados
+        $result = $query->first();
+
+        // Retornar true si se encuentra algún resultado, de lo contrario false
+        return $result;//$result !== null;
     }
 }
