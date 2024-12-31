@@ -40,6 +40,12 @@
                                 <x-template-form.template-form-input-hidden name="es_por_area"
                                     value="{{ optional($item)->es_por_area ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="usuario"
+                                    value="{{ $usuario }}" />
+
+                                <x-template-form.template-form-input-hidden name="enlace"
+                                    value="{{ $enlace }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">

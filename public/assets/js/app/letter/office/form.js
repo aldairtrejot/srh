@@ -61,6 +61,12 @@ function setData() {
     let num_turno_sistema = $('#num_turno_sistema').val();//fecha de captura
     $('#_labNoCorrespondencia').text(num_turno_sistema); //establecer los varoles
 
+    let usuario = $('#usuario').val();//usuario
+    $('#_labUsuario').text(usuario); //establecer los varoles
+
+    let enlace = $('#enlace').val();//Enlace
+    $('#_labEnlace').text(enlace); //establecer los varoles
+
     getData();//Se hace busqueda de la informacion
 }
 
@@ -83,3 +89,10 @@ function getData() {
     });
 }
 
+// Se dectecta el cambio de valor de No de correspondencia asoc, con el fin de obtener el usuario y enlace si es que es correcto
+$('#num_correspondencia').on('input', function () {
+    let text = $(this).val();  // Obtener el valor del campo de texto
+    if (text.trim() !== '') { // Validacion para que el campo no este en blanco
+        console.log(text.trim());
+    }
+});

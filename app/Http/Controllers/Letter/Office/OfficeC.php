@@ -87,11 +87,14 @@ class OfficeC extends Controller
 
         $noLetter = "";//No de oficio se inicializa en vacio
 
+        $usuario = ' _'; // Usuario se inicializa en nulo
+        $enlace = ' _'; // Enlace se inicializa en nulo
+
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
 
-        return view('letter/office/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('enlace', 'usuario', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -134,8 +137,8 @@ class OfficeC extends Controller
 
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-           
-           
+
+
             $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
             if ($es_por_area == 1) {
                 if ($request->id_cat_area_documento == 2) {
