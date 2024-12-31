@@ -13,7 +13,7 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: '/srh/public/round/table',
+        url: URL_DEFAULT.concat('/round/table'),
         type: 'POST',
         data: {
             iterator: iteradorAux,
@@ -26,9 +26,9 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/round/edit/${object.id}`;
-                    const finalCloud = `/srh/public/round/cloud/${object.id}`;
-                    const urlReport = `/srh/public/round/generate-pdf/${object.id}`;
+                    const finalUrl = URL_DEFAULT.concat(`/round/edit/${object.id}`);
+                    const finalCloud = URL_DEFAULT.concat(`/round/cloud/${object.id}`);
+                    const urlReport = URL_DEFAULT.concat(`/round/generate-pdf/${object.id}`);
 
                     // Generar el HTML con template literals
                     const rowHTML = `

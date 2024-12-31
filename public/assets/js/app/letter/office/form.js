@@ -76,7 +76,7 @@ function getData() {
     let id_cat_anio = $('#id_cat_anio').val();//Obtener elemento
 
     $.ajax({
-        url: '/srh/public/year/getYear',
+        url: URL_DEFAULT.concat('/year/getYear'),
         type: 'POST',
         data: {
             id_cat_anio: id_cat_anio,
@@ -94,5 +94,7 @@ $('#num_correspondencia').on('input', function () {
     let text = $(this).val();  // Obtener el valor del campo de texto
     if (text.trim() !== '') { // Validacion para que el campo no este en blanco
         console.log(text.trim());
+        console.log(URL_DEFAULT.concat('/login'));
+        console.log(URL_DEFAULT);
     }
 });

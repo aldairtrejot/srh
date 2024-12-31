@@ -4,7 +4,7 @@ function getNoCorrespondencia(value) {
     let isValid = false;  // Asumimos que es inválido inicialmente
 
     $.ajax({
-        url: '/srh/public/collection/validate/letter',
+        url: URL_DEFAULT.concat('/collection/validate/letter'),
         type: 'POST',
         async: false, // Asegura que la ejecución sea sincrónica
         data: {
@@ -28,7 +28,7 @@ function getNoUnique(id, value, attribute) {
     let isValid = false;  // Asumimos que es inválido inicialmente
     if (value !== '') {
         $.ajax({
-            url: '/srh/public/letter/collection/validateUnique',
+            url: URL_DEFAULT.concat('/letter/collection/validateUnique'),
             type: 'POST',
             async: false, // Asegura que la ejecución sea sincrónica
             data: {
@@ -54,7 +54,7 @@ function getUniqueRemitente(value, attribute) {
     let isValid = false;  // Asumimos que es inválido inicialmente
     if (value !== '') {
         $.ajax({
-            url: '/srh/public/letter/collection/uniqueRemitente',
+            url: URL_DEFAULT.concat('/letter/collection/uniqueRemitente'),
             type: 'POST',
             async: false, // Asegura que la ejecución sea sincrónica
             data: {

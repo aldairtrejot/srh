@@ -10,7 +10,7 @@ function searchInit() {
     const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
-    $.get('/srh/public/letter/table', {
+    $.get(URL_DEFAULT.concat('/letter/table'), {
         iterator: iteradorAux,
         searchValue: searchValue
     }, function (response) {
@@ -21,9 +21,9 @@ function searchInit() {
 
         if (response.value && response.value.length > 0) {
             response.value.forEach(function (object) {
-                const finalUrl = `/srh/public/letter/edit/${object.id}`;
-                const finalCloud = `/srh/public/letter/cloud/${object.id}`;
-                const urlReport = `/srh/public/letter/generate-pdf/correspondencia/${object.id}`;
+                const finalUrl = URL_DEFAULT.concat(`/letter/edit/${object.id}`);
+                const finalCloud = URL_DEFAULT.concat(`/letter/cloud/${object.id}`);
+                const urlReport = URL_DEFAULT.concat(`/letter/generate-pdf/correspondencia/${object.id}`);
 
                 // Generar el HTML con template literals
                 const rowHTML = `

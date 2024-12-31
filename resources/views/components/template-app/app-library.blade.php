@@ -16,3 +16,4 @@
 <script src="{{ asset('assets/other/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ asset('assets/js/app/template/notify.js') }}"></script>
 <script src="{{ asset('assets/js/app/other/validate.js') }}"></script>
+<script src="{{ asset('assets/js/app/default/url.js') }}"></script>

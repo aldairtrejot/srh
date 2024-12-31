@@ -34,7 +34,7 @@ function getDataDocument() {
     let container_oficio_salida = $('#container_oficio_salida');
 
     $.ajax({
-        url: '/srh/public/office/cloud/anexos',
+        url: URL_DEFAULT.concat('/office/cloud/anexos'),
         type: 'POST',
         data: {
             id_tbl_oficio: id_tbl_oficio,
@@ -65,7 +65,7 @@ function getDataDocument() {
 function getDataCloud() {
 
     $.ajax({
-        url: '/srh/public/office/cloud/data',
+        url: URL_DEFAULT.concat('/office/cloud/data'),
         type: 'POST',
         data: {
             id_tbl_oficio: id_tbl_oficio,
@@ -122,7 +122,7 @@ function sendFile(file, id_entrada_salida, esOficio) {
         data.append('id_entrada_salida', id_entrada_salida);
         data.append('esOficio', esOficio);
         $.ajax({
-            url: "/srh/public/office/cloud/upload",
+            url: URL_DEFAULT.concat("/office/cloud/upload"),
             type: 'POST',
             data:
                 data, // Enviar directamente el FormData
@@ -161,7 +161,7 @@ function deleteDocument(uid) {
 //La funcion elimina oficios del repositorio, solo de la base
 function deleteDocumenServer(uid) {
     $.ajax({
-        url: '/srh/public/office/cloud/delete',
+        url: URL_DEFAULT.concat('/office/cloud/delete'),
         type: 'POST',
         data: {
             uid: uid,

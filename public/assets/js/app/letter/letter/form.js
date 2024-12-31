@@ -111,7 +111,7 @@ function getData() {
     let id_cat_clave = $('#id_cat_clave_aux').val();//Obtener elemento
 
     $.ajax({
-        url: '/srh/public/letter/collection/dataClave',
+        url: URL_DEFAULT.concat('/letter/collection/dataClave'),
         type: 'POST',
         data: {
             id_cat_anio: id_cat_anio,

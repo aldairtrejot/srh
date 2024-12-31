@@ -4,7 +4,7 @@ $('#id_cat_area').on('change', function () {
     let idValue = $(this).val();  // Obtiene el valor de la opción seleccionada
     if (idValue) { // Realiza la solicitud AJAX solo si se ha seleccionado un valor
         $.ajax({
-            url: '/srh/public/letter/collection/collectionArea',
+            url: URL_DEFAULT.concat('/letter/collection/collectionArea'),
             type: 'POST',
             data: {
                 id: idValue,
@@ -35,7 +35,7 @@ $('#id_cat_unidad').on('change', function () {
     let idValue = $(this).val();  // Obtiene el valor de la opción seleccionada
     if (idValue) { // Realiza la solicitud AJAX solo si se ha seleccionado un valor
         $.ajax({
-            url: '/srh/public/letter/collection/collectionUnidad',
+            url: URL_DEFAULT.concat('/letter/collection/collectionUnidad'),
             type: 'POST',
             data: {
                 id: idValue,
@@ -57,7 +57,7 @@ $('#id_cat_tramite').on('change', function () {
     let idValue = $(this).val();  // Obtiene el valor de la opción seleccionada
     if (idValue) { // Realiza la solicitud AJAX solo si se ha seleccionado un valor
         $.ajax({
-            url: '/srh/public/letter/collection/collectionTramite',
+            url: URL_DEFAULT.concat('/letter/collection/collectionTramite'),
             type: 'POST',
             data: {
                 id: idValue,
@@ -80,7 +80,7 @@ $('#id_cat_clave').on('change', function () {
     let idValue = $(this).val();  // Obtiene el valor de la opción seleccionada
     if (idValue) { // Realiza la solicitud AJAX solo si se ha seleccionado un valor
         $.ajax({
-            url: '/srh/public/letter/collection/collectionClave',
+            url: URL_DEFAULT.concat('/letter/collection/collectionClave'),
             type: 'POST',
             data: {
                 id: idValue,

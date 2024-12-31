@@ -69,7 +69,7 @@ function enableIput(idLabel, idIcon, idValue) {
 
 function download(uid) {
     // Crear una URL para la descarga
-    let url = '/srh/public/cloud/download';
+    let url = URL_DEFAULT.concat('/cloud/download');
 
     // Crear un formulario temporal para enviar el UID y activar la descarga
     let form = document.createElement('form');
@@ -101,7 +101,7 @@ function download(uid) {
 //Se utiliza la funcion para descargar archivos de alfresco
 function seeDocument(uid) {
     $.ajax({
-        url: '/srh/public/cloud/see',  // Ruta del servidor que devuelve la URL del documento
+        url: URL_DEFAULT.concat('/cloud/see'),  // Ruta del servidor que devuelve la URL del documento
         type: 'POST',
         data: {
             uid: uid,

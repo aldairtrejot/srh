@@ -5,7 +5,7 @@ $('#id_cat_area_documento').on('change', function () {
     $('#num_documento_area').val('');// Limpiar input
     if (idValue) { // Realiza la solicitud AJAX solo si se ha seleccionado un valor
         $.ajax({
-            url: '/srh/public/collection/area/consecutivo',
+            url: URL_DEFAULT.concat('/collection/area/consecutivo'),
             type: 'POST',
             data: {
                 id: idValue,

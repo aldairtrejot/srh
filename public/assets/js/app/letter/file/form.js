@@ -70,7 +70,7 @@ function getData() {
     let id_cat_anio = $('#id_cat_anio').val();//Obtener elemento
 
     $.ajax({
-        url: '/srh/public/year/getYear',
+        url: URL_DEFAULT.concat('/year/getYear'),
         type: 'POST',
         data: {
             id_cat_anio: id_cat_anio,
