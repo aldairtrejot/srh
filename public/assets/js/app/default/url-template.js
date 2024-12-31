@@ -3,11 +3,13 @@
  * CAMBIAR LA URL POR EL DOMINIO O NUEVA IP
  * 
  * EJEMPLO
- * URL_DEAFULT: /srh/public -> LOCAL
+ * URL_DEAFULT: '/srh/public' -> LOCAL
  * 
- * URL_DEFAULT: / -> DOMINIO
+ * URL_DEFAULT: '/' -> DOMINIO
  * 
- * 1.- CREAR UN ARCHIVO NUEVO url.js, copiar el contenido de este en el archivo nuevo porque es el que se ejecuta
+ * INSTRUCCION
+ * 1.- CREAR UN ARCHIVO NUEVO EN ESTE MISMO DIRECTORIO CON EL NOMBRE url.js
+ * 2.- COPIAR EL CONTENIDO DE ESTE DENTRO DE url.js Y MODIFICAR URL_DEFAULT con lo requerido
  */
 
 const URL_DEFAULT = ''; //URL_DE_CAMBIO_EN_LUGAR_DOMINIO
