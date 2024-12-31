@@ -9,4 +9,4 @@
  * 
  */
 
-const URL_DEFAULT = '/srh/public'; //URL_DE_CAMBIO_EN_LUGAR_DOMINIO
+const URL_DEFAULT = ''; //URL_DE_CAMBIO_EN_LUGAR_DOMINIO
