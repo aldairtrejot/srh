@@ -55,6 +55,14 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Usuario:</label>
+                                        <label id="_labUsuario" class="valor"></label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Enlace:</label>
+                                        <label id="_labEnlace" class="valor"></label>
+                                    </div>
                                 </div>
 
                                 <br>

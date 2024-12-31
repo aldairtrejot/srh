@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Letter\log\LogC;
 
 class CloudLetterC extends Controller
 {
@@ -53,6 +54,7 @@ class CloudLetterC extends Controller
 
     public function upload(Request $request)
     {
+        $logC = new LogC;
         $alfrescoC = new AlfrescoC();
         $cloudConfigM = new CloudConfigM();
         $status = false;
@@ -95,7 +97,7 @@ class CloudLetterC extends Controller
                     $messages = "Se produjo un error inesperado al intentar subir el archivo: " . $result;
                 } else {//Validacion de mensaje de error
                     if ($request->esOficio == 1) { //Validacion para agregar en la tabla de oficios
-                        CloudOficiosM::create([
+                        $data = [
                             'uid' => $result,
                             'nombre' => $fileName,
                             'estatus' => true,
@@ -103,9 +105,13 @@ class CloudLetterC extends Controller
                             'id_tbl_correspondencia' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ]);
+                        ];
+
+                        CloudOficiosM::create($data);
+                        $logC->add('correspondencia.ctrl_correspondencia_oficio', $data);
+
                     } else { //agregar en la tabla de anexos
-                        CloudAnexosM::create([
+                        $data = [
                             'uid' => $result,
                             'nombre' => $fileName,
                             'estatus' => true,
@@ -113,7 +119,10 @@ class CloudLetterC extends Controller
                             'id_tbl_correspondencia' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ]);
+                        ];
+
+                        CloudAnexosM::create($data);
+                        $logC->add('correspondencia.ctrl_correspondencia_anexo', $data);
                     }
                     $status = true;
                 }
@@ -129,6 +138,7 @@ class CloudLetterC extends Controller
     //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
     public function delete(Request $request)
     {
+        $logC = new LogC;
         $now = Carbon::now(); //Hora y fecha actual
         $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
         $cloudOficiosM = new CloudOficiosM();
@@ -140,6 +150,7 @@ class CloudLetterC extends Controller
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ]);
+
         $resultOficio = $cloudOficiosM::where('uid', $request->uid)
             ->update([
                 'estatus' => false,

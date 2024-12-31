@@ -116,7 +116,7 @@
                                 <div class="row">
 
                                     <x-template-form.template-form-input-required label="Folio de gestión"
-                                        type="integer" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                        type="text" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->folio_gestion ?? '' }}" />
 

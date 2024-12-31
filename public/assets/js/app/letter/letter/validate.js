@@ -106,6 +106,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         event.preventDefault();  // Detener el envío si la validación falla
         return;  // Detener la ejecución aquí
     }
+
+    $('#id_cat_estatus').prop('disabled', false); //desabilitar contenido
 });
 
 //Validacion cuando se cambia el evento de fecha

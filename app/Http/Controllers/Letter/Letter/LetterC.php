@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
+use App\Http\Controllers\Letter\log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
+
 
 class LetterC extends Controller
 {
@@ -188,6 +190,7 @@ class LetterC extends Controller
 
     public function save(Request $request)
     {
+        $logC = new LogC();
         $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
         $messagesC = new MessagesC();
@@ -224,7 +227,7 @@ class LetterC extends Controller
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
-            $letterM::create([
+            $data = [
                 'num_turno_sistema' => strtoupper($request->num_turno_sistema),
                 'num_documento' => strtoupper($request->num_documento),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
@@ -249,11 +252,20 @@ class LetterC extends Controller
                 'puesto_remitente' => strtoupper($request->puesto_remitente),
                 'folio_gestion' => strtoupper($request->folio_gestion),
 
-                //DATA_SYSTEM
+                // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
-            ]);
 
+                // Datos de captura por primera vez
+                'id_usuario_captura' => Auth::user()->id,
+                'fecha_usuario_captura' => $now,
+            ];
+
+            // Crear el registro en la base de datos utilizando el arreglo
+            $letterM = LetterM::create($data);
+
+            // Opcional: Guardar el log con los valores insertados (si se necesita)
+            $logC->add('correspondencia.tbl_correspondencia', $data);
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
@@ -262,43 +274,52 @@ class LetterC extends Controller
 
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
-                $letterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
-                    ->update([
-                        'num_documento' => $request->num_documento,
-                        'fecha_inicio' => $request->fecha_inicio,
-                        'fecha_fin' => $request->fecha_fin,
-                        'num_flojas' => $request->num_flojas,
-                        'num_tomos' => $request->num_tomos,
-                        'horas_respuesta' => $request->horas_respuesta,
-                        'lugar' => strtoupper($request->lugar),
-                        'asunto' => strtoupper($request->asunto),
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_cat_area' => $request->id_cat_area,
-                        'id_usuario_area' => $request->id_usuario_area,
-                        'id_usuario_enlace' => $request->id_usuario_enlace,
-                        'id_cat_estatus' => $request->id_cat_estatus,
-                        'id_cat_remitente' => $request->id_cat_remitente,
-                        'id_cat_anio' => $request->id_cat_anio,
-                        'id_cat_tramite' => $request->id_cat_tramite,
-                        'id_cat_clave' => $request->id_cat_clave,
-                        'id_cat_unidad' => $request->id_cat_unidad,
-                        'id_cat_coordinacion' => $request->id_cat_coordinacion,
-                        'puesto_remitente' => strtoupper($request->puesto_remitente),
+                $data = [
+                    'num_documento' => $request->num_documento,
+                    'fecha_inicio' => $request->fecha_inicio,
+                    'fecha_fin' => $request->fecha_fin,
+                    'num_flojas' => $request->num_flojas,
+                    'num_tomos' => $request->num_tomos,
+                    'horas_respuesta' => $request->horas_respuesta,
+                    'lugar' => strtoupper($request->lugar),
+                    'asunto' => strtoupper($request->asunto),
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_usuario_area' => $request->id_usuario_area,
+                    'id_usuario_enlace' => $request->id_usuario_enlace,
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_cat_remitente' => $request->id_cat_remitente,
+                    'id_cat_anio' => $request->id_cat_anio,
+                    'id_cat_tramite' => $request->id_cat_tramite,
+                    'id_cat_clave' => $request->id_cat_clave,
+                    'id_cat_unidad' => $request->id_cat_unidad,
+                    'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                    'puesto_remitente' => strtoupper($request->puesto_remitente),
 
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
+                    'id_usuario_sistema' => Auth::user()->id,
+                    'fecha_usuario' => $now,
+                ];
+
+                // Realizar la actualización en la base de datos utilizando el arreglo
+                $letterM = LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
+                    ->update($data);
+
+                $logC->edit('correspondencia.tbl_correspondencia', $data);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
 
-                $letterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
-                    ->update([
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_cat_estatus' => $request->id_cat_estatus,
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
+                $data = [
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_usuario_sistema' => Auth::user()->id,
+                    'fecha_usuario' => $now,
+                ];
+
+                // Realizar la actualización en la base de datos utilizando el arreglo
+                $letterM = LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
+                    ->update($data);
+                $logC->edit('correspondencia.tbl_correspondencia', $data);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             }

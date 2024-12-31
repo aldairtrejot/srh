@@ -35,6 +35,8 @@ class LetterM extends Model
         'id_usuario_sistema',
         'puesto_remitente',
         'folio_gestion',
+        'id_usuario_captura',
+        'fecha_usuario_captura',
     ];
 
     public function edit(string $id)

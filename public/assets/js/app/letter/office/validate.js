@@ -35,6 +35,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
-    $('#num_documento_area').prop('disabled', false); //desabilitar contenido
+    $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
 
