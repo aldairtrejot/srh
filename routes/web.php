@@ -137,3 +137,5 @@ ROUTE::post('/collection/area/consecutivo', [CollectionAreaC::class, 'areaAutoin
 Route::get('/other/generate-pdf/office/{id}', [ReporteCorrespondenciaC::class, 'generatePdf'])->middleware('auth');
 // VALIDACION DE NO DE CORRESPONDENCIA
 Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter'])->middleware('auth');
+// TRAE INFORMACION COMO EL NO DE CORRESPONDENCIA QUE EXISTA ASI COMO USUAIRO
+Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth');

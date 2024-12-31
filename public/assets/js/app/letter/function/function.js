@@ -72,3 +72,25 @@ function getUniqueRemitente(value, attribute) {
     }
     return isValid;  // Regresa el resultado de la validación
 }
+
+// La funcion valida si existe un No de correspondencia, si es correcto imprime el usuario y el enlace que se tiene
+function getNoDocument(value, labelUser, labelEnlsace) {
+    $.ajax({
+        url: URL_DEFAULT.concat('/valitade/letter'),
+        type: 'POST',
+        data: {
+            value: value,
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            $(labelUser).text(' _');
+            $(labelEnlsace).text(' _');
+
+            if (response.value && response.value.length > 0) { //Array con informacion
+                let data = response.value[0];
+                $(labelUser).text(data.id_usuario_area);
+                $(labelEnlsace).text(data.id_usuario_enlace);
+            }
+        },
+    });
+}

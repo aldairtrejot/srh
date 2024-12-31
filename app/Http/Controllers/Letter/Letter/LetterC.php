@@ -361,6 +361,16 @@ class LetterC extends Controller
             'status' => $value,
         ]);
     }
+
+    public function getletter(Request $request)
+    {
+        $letterM = new LetterM();
+        $value = $letterM->getUserEnlace($request->value);
+        // Responder con los resultados
+        return response()->json([
+            'value' => $value,
+        ]);
+    }
 }
 
 

@@ -234,4 +234,19 @@ class LetterM extends Model
         // Retornar true si se encuentra algún resultado, de lo contrario false
         return $result;//$result !== null;
     }
+
+    public function getUserEnlace($value)
+    {
+        // Usamos Query Builder de Laravel para construir la consulta
+        return DB::table('correspondencia.tbl_correspondencia')
+            ->select(
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+                DB::raw('UPPER(user_area.name) as id_usuario_area'), // Usamos el alias correcto 'user_area'
+                DB::raw('UPPER(user_enlace.name) as id_usuario_enlace') // Usamos el alias correcto 'user_enlace'
+            )
+            ->join('administration.users AS user_area', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'user_area.id')
+            ->join('administration.users AS user_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'user_enlace.id')
+            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
+            ->get();
+    }
 }
