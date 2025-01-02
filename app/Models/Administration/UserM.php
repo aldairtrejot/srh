@@ -36,7 +36,7 @@ class UserM extends Model
                 DB::raw('UPPER(name) AS name'),
                 'email'
             )
-            ->orderBy('id', 'ASC')
+            ->orderBy('id', 'DESC')
             ->offset($iterator)
             ->limit(5);  // Limitar los resultados a 5 con offset (paginación)
 
