@@ -37,21 +37,23 @@
 
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Correspondencia"
-                                field="CORRESPONDENCIA" href="{{ route('letter.list') }}" value=""
+                                field="GESTIÓN DE CONTROL" href="{{ route('letter.list') }}" value=""
                                 description="Correspondencia" />
                         @endif
 
                         <!-- item menu administracion-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Expedientes"
-                                field="CORRESPONDENCIA" href="{{ route(name: 'file.list') }}" value="" description="Expedientes" />
+                                field="GESTIÓN DE CONTROL" href="{{ route(name: 'file.list') }}" value=""
+                                description="Expedientes" />
 
                         @endif
 
                         <!-- item menu administracion-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Circulares"
-                                field="CORRESPONDENCIA" href="{{ route('round.list') }}" value="" description="Circulares" />
+                                field="GESTIÓN DE CONTROL" href="{{ route('round.list') }}" value=""
+                                description="Circulares" />
                         @endif
 
                     </div>
@@ -61,13 +63,15 @@
                         <!-- item menu Interno-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Interno"
-                                field="CORRESPONDENCIA" href="{{ route('inside.list') }}" value="" description="Interno" />
+                                field="GESTIÓN DE CONTROL" href="{{ route('inside.list') }}" value=""
+                                description="Interno" />
                         @endif
 
                         <!-- item menu oficios-->
                         @if($letterMatch)
                             <x-template-button-dash class="card card-correspondencia" title="Oficios"
-                                field="CORRESPONDENCIA" href="{{ route('office.list') }}" value="" description="Oficios" />
+                                field="GESTIÓN DE CONTROL" href="{{ route('office.list') }}" value=""
+                                description="Oficios" />
                         @endif
                     </div>
 

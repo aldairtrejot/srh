@@ -139,23 +139,37 @@ class InsideC extends Controller
                 if ($request->id_cat_area_documento == 2) {
                     $idusuario = 7;
                     $idEnlace = 8;
+                    $idArea = 2;
                 } else if ($request->id_cat_area_documento == 4) {
                     $idusuario = 9;
                     $idEnlace = 10;
+                    $idArea = 4;
                 } else if ($request->id_cat_area_documento == 5) {
                     $idusuario = 6;
                     $idEnlace = 4;
+                    $idArea = 5;
+                } else if ($request->id_cat_area_documento == 6) {
+                    $idusuario = 13;
+                    $idEnlace = 14;
+                    $idArea = 6;
                 }
             } else {
                 if ($id_area_aux == 2) {
                     $idusuario = 7;
                     $idEnlace = 8;
+                    $idArea = 2;
                 } else if ($id_area_aux == 4) {
                     $idusuario = 9;
                     $idEnlace = 10;
+                    $idArea = 4;
                 } else if ($id_area_aux == 5) {
                     $idusuario = 6;
                     $idEnlace = 4;
+                    $idArea = 5;
+                } else if ($id_area_aux == 6) {
+                    $idusuario = 13;
+                    $idEnlace = 14;
+                    $idArea = 6;
                 }
             }
 
@@ -176,7 +190,7 @@ class InsideC extends Controller
 
                 'id_usuario_area' => $idusuario,
                 'id_usuario_enlace' => $idEnlace,
-
+                'id_cat_area' => $idArea,
 
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,

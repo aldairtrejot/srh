@@ -45,6 +45,7 @@ class CollectionAreaM extends Model
                 'correspondencia.cat_area.id_cat_area AS id',
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
             ])
+            ->where('estatus', '=', true)
             ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
 
         // Ejecutar la consulta y obtener los resultados

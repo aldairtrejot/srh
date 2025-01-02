@@ -112,7 +112,10 @@ class OfficeC extends Controller
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
 
-        return view('letter/office/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        $usuario = ' _'; // Usuario se inicializa en nulo
+        $enlace = ' _'; // Enlace se inicializa en nulo
+
+        return view('letter/office/form', compact('enlace', 'usuario', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
@@ -144,23 +147,37 @@ class OfficeC extends Controller
                 if ($request->id_cat_area_documento == 2) {
                     $idusuario = 7;
                     $idEnlace = 8;
+                    $idArea = 2;
                 } else if ($request->id_cat_area_documento == 4) {
                     $idusuario = 9;
                     $idEnlace = 10;
+                    $idArea = 4;
                 } else if ($request->id_cat_area_documento == 5) {
                     $idusuario = 6;
                     $idEnlace = 4;
+                    $idArea = 5;
+                } else if ($request->id_cat_area_documento == 6) {
+                    $idusuario = 13;
+                    $idEnlace = 14;
+                    $idArea = 6;
                 }
             } else {
                 if ($id_area_aux == 2) {
                     $idusuario = 7;
                     $idEnlace = 8;
+                    $idArea = 2;
                 } else if ($id_area_aux == 4) {
                     $idusuario = 9;
                     $idEnlace = 10;
+                    $idArea = 4;
                 } else if ($id_area_aux == 5) {
                     $idusuario = 6;
                     $idEnlace = 4;
+                    $idArea = 5;
+                } else if ($id_area_aux == 6) {
+                    $idusuario = 13;
+                    $idEnlace = 14;
+                    $idArea = 6;
                 }
             }
 
@@ -179,6 +196,7 @@ class OfficeC extends Controller
 
                 'id_usuario_area' => $idusuario,
                 'id_usuario_enlace' => $idEnlace,
+                'id_cat_area' => $idArea,
 
                 //DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
