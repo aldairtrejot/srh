@@ -40,11 +40,9 @@
                                 <x-template-form.template-form-input-hidden name="es_por_area"
                                     value="{{ optional($item)->es_por_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="usuario"
-                                    value="{{ $usuario }}" />
+                                <x-template-form.template-form-input-hidden name="usuario" value="{{ $usuario }}" />
 
-                                <x-template-form.template-form-input-hidden name="enlace"
-                                    value="{{ $enlace }}" />
+                                <x-template-form.template-form-input-hidden name="enlace" value="{{ $enlace }}" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
@@ -61,6 +59,7 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
+                                    <!--
                                     <div class="item">
                                         <label class="etiqueta">Usuario:</label>
                                         <label id="_labUsuario" class="valor"></label>
@@ -69,6 +68,7 @@
                                         <label class="etiqueta">Enlace:</label>
                                         <label id="_labEnlace" class="valor"></label>
                                     </div>
+-->
                                 </div>
 
                                 <br>

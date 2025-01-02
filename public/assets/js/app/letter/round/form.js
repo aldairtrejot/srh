@@ -8,7 +8,7 @@ $(document).ready(function () {
     $('select').selectpicker(); //Iniciar los select
     //checkboxState();
     setData(); //Establecer las variables de informacion general
-    getRole(); //Obtener y definir los roles para no tener los input
+    //getRole(); //Obtener y definir los roles para no tener los input
     setCheckboxArea();
 });
 
@@ -25,7 +25,7 @@ function setCheckboxArea() {
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
     }
-    getRole(); //Validacion por roles
+    //getRole(); //Validacion por roles
 }
 
 //Codigo para la ejecucion de un checkbox
