@@ -15,7 +15,7 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
-
+use App\Http\Controllers\Letter\log\LogC;
 class RoundC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -113,6 +113,7 @@ class RoundC extends Controller
 
     public function save(Request $request)
     {
+        $logC = new LogC();
         $object = new RoundM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
@@ -129,49 +130,50 @@ class RoundC extends Controller
         $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
 
-        if (!isset($request->id_tbl_circular)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-
-            $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
-            if ($es_por_area == 1) {
-                if ($request->id_cat_area_documento == 2) {
-                    $idusuario = 7;
-                    $idEnlace = 8;
-                    $idArea = 2;
-                } else if ($request->id_cat_area_documento == 4) {
-                    $idusuario = 9;
-                    $idEnlace = 10;
-                    $idArea = 4;
-                } else if ($request->id_cat_area_documento == 5) {
-                    $idusuario = 6;
-                    $idEnlace = 4;
-                    $idArea = 5;
-                } else if ($request->id_cat_area_documento == 6) {
-                    $idusuario = 13;
-                    $idEnlace = 14;
-                    $idArea = 6;
-                }
-            } else {
-                if ($id_area_aux == 2) {
-                    $idusuario = 7;
-                    $idEnlace = 8;
-                    $idArea = 2;
-                } else if ($id_area_aux == 4) {
-                    $idusuario = 9;
-                    $idEnlace = 10;
-                    $idArea = 4;
-                } else if ($id_area_aux == 5) {
-                    $idusuario = 6;
-                    $idEnlace = 4;
-                    $idArea = 5;
-                } else if ($id_area_aux == 6) {
-                    $idusuario = 13;
-                    $idEnlace = 14;
-                    $idArea = 6;
-                }
+        $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
+        if ($es_por_area == 1) {
+            if ($request->id_cat_area_documento == 2) {
+                $idusuario = 7;
+                $idEnlace = 8;
+                $idArea = 2;
+            } else if ($request->id_cat_area_documento == 4) {
+                $idusuario = 9;
+                $idEnlace = 10;
+                $idArea = 4;
+            } else if ($request->id_cat_area_documento == 5) {
+                $idusuario = 6;
+                $idEnlace = 4;
+                $idArea = 5;
+            } else if ($request->id_cat_area_documento == 6) {
+                $idusuario = 13;
+                $idEnlace = 14;
+                $idArea = 6;
             }
+        } else {
+            if ($id_area_aux == 2) {
+                $idusuario = 7;
+                $idEnlace = 8;
+                $idArea = 2;
+            } else if ($id_area_aux == 4) {
+                $idusuario = 9;
+                $idEnlace = 10;
+                $idArea = 4;
+            } else if ($id_area_aux == 5) {
+                $idusuario = 6;
+                $idEnlace = 4;
+                $idArea = 5;
+            } else if ($id_area_aux == 6) {
+                $idusuario = 13;
+                $idEnlace = 14;
+                $idArea = 6;
+            }
+        }
 
+
+
+        if (!isset($request->id_tbl_circular)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
-            $object::create([
+            $data = [
                 'num_turno_sistema' => $request->num_turno_sistema,
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
@@ -184,15 +186,17 @@ class RoundC extends Controller
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
 
-
                 'id_usuario_area' => $idusuario,
                 'id_usuario_enlace' => $idEnlace,
                 'id_cat_area' => $idArea,
 
-                //DATA_SYSTEM
+                // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
-            ]);
+            ];
+
+            $object::create($data);
+            $logC->add('correspondencia.tbl_circular', $data);
 
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
@@ -202,33 +206,31 @@ class RoundC extends Controller
 
         } else { //modificar elemento 
 
-            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-                $object::where('id_tbl_circular', $request->id_tbl_circular)
-                    ->update([
-                        'fecha_inicio' => $request->fecha_inicio,
-                        'fecha_fin' => $request->fecha_fin,
-                        'asunto' => strtoupper($request->asunto),
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
-                        'es_por_area' => $es_por_area,
-                        'num_documento_area' => $request->num_documento_area,
-                        'id_cat_area_documento' => $request->id_cat_area_documento,
+            $data = [
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'es_por_area' => $es_por_area,
+                'num_documento_area' => $request->num_documento_area,
+                'id_cat_area_documento' => $request->id_cat_area_documento,
 
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
+                'id_usuario_area' => $idusuario,
+                'id_usuario_enlace' => $idEnlace,
+                'id_cat_area' => $idArea,
 
-                return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
-            } else {
-                $object::where('id_tbl_circular', $request->id_tbl_circular)
-                    ->update([
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
 
-                return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
-            }
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+
+            $object::where('id_tbl_circular', $request->id_tbl_circular)
+                ->update($data);
+            $data['id_tbl_circular'] = $request->id_tbl_circular;
+            $logC->edit('correspondencia.tbl_circular', $data);
+
+            return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
 
         }
     }

@@ -304,6 +304,7 @@ class LetterC extends Controller
                 $letterM = LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
                     ->update($data);
 
+                $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
@@ -319,6 +320,8 @@ class LetterC extends Controller
                 // Realizar la actualización en la base de datos utilizando el arreglo
                 $letterM = LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)
                     ->update($data);
+
+                $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');

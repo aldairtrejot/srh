@@ -144,21 +144,31 @@ class CloudLetterC extends Controller
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
 
+        $data = [
+            'estatus' => false,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
+
+        //update en base
         $resultAnexos = $cloudAnexosM::where('uid', $request->uid)
-            ->update([
-                'estatus' => false,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ]);
+            ->update($data);
 
         $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update([
-                'estatus' => false,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ]);
+            ->update($data);
+
+        //UPDATE EN LOG
+        $data['uid'] = $request->uid;
+
+        if ($resultAnexos > 0) {
+            $logC->edit('correspondencia.ctrl_correspondencia_anexo', $data);
+        } else if ($resultOficio > 0) {
+            $logC->edit('correspondencia.ctrl_correspondencia_oficio', $data);
+        }
+
 
         $estatus = ($resultAnexos > 0 || $resultOficio > 0) ? true : false;
+
 
 
         return response()->json([

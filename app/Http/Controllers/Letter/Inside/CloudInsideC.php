@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Letter\log\LogC;
 
 class CloudInsideC extends Controller
 {
@@ -64,6 +65,7 @@ class CloudInsideC extends Controller
 
     public function upload(Request $request)
     {
+        $logC = new LogC();
         $alfrescoC = new AlfrescoC();
         $cloudConfigM = new CloudConfigM();
         $status = false;
@@ -106,7 +108,7 @@ class CloudInsideC extends Controller
                     $messages = "Se produjo un error inesperado al intentar subir el archivo: " . $result;
                 } else {//Validacion de mensaje de error
                     if ($request->esOficio == 1) { //Validacion para agregar en la tabla de oficios
-                        CloudOficiosM::create([
+                        $data = [
                             'uid' => $result,
                             'nombre' => $fileName,
                             'estatus' => true,
@@ -114,9 +116,12 @@ class CloudInsideC extends Controller
                             'id_tbl_interno' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ]);
+                        ];
+
+                        CloudOficiosM::create($data);
+                        $logC->add('correspondencia.ctrl_interno_oficio', $data);
                     } else { //agregar en la tabla de anexos
-                        CloudAnexosM::create([
+                        $data = [
                             'uid' => $result,
                             'nombre' => $fileName,
                             'estatus' => true,
@@ -124,7 +129,9 @@ class CloudInsideC extends Controller
                             'id_tbl_interno' => $request->id,
                             'id_usuario_sistema' => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ]);
+                        ];
+                        CloudAnexosM::create($data);
+                        $logC->add('correspondencia.ctrl_interno_anexo', $data);
                     }
                     $status = true;
                 }
@@ -144,19 +151,28 @@ class CloudInsideC extends Controller
         $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
+        $logC = new LogC();
 
+        $data = [
+            'estatus' => false,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
+        //update en base
         $resultAnexos = $cloudAnexosM::where('uid', $request->uid)
-            ->update([
-                'estatus' => false,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ]);
+            ->update($data);
+
         $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update([
-                'estatus' => false,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ]);
+            ->update($data);
+
+        //UPDATE EN LOG
+        $data['uid'] = $request->uid;
+
+        if ($resultAnexos > 0) {
+            $logC->edit('correspondencia.ctrl_interno_anexo', $data);
+        } else if ($resultOficio > 0) {
+            $logC->edit('correspondencia.ctrl_interno_oficio', $data);
+        }
 
         $estatus = ($resultAnexos > 0 || $resultOficio > 0) ? true : false;
 

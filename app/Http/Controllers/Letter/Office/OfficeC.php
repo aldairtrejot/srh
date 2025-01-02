@@ -15,6 +15,7 @@ use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
+use App\Http\Controllers\Letter\log\LogC;
 
 class OfficeC extends Controller
 {
@@ -120,6 +121,7 @@ class OfficeC extends Controller
 
     public function save(Request $request)
     {
+        $logC = new LogC();
         $officeM = new OfficeM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
@@ -138,50 +140,49 @@ class OfficeC extends Controller
         // aregar
 
 
+        $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
+        if ($es_por_area == 1) {
+            if ($request->id_cat_area_documento == 2) {
+                $idusuario = 7;
+                $idEnlace = 8;
+                $idArea = 2;
+            } else if ($request->id_cat_area_documento == 4) {
+                $idusuario = 9;
+                $idEnlace = 10;
+                $idArea = 4;
+            } else if ($request->id_cat_area_documento == 5) {
+                $idusuario = 6;
+                $idEnlace = 4;
+                $idArea = 5;
+            } else if ($request->id_cat_area_documento == 6) {
+                $idusuario = 13;
+                $idEnlace = 14;
+                $idArea = 6;
+            }
+        } else {
+            if ($id_area_aux == 2) {
+                $idusuario = 7;
+                $idEnlace = 8;
+                $idArea = 2;
+            } else if ($id_area_aux == 4) {
+                $idusuario = 9;
+                $idEnlace = 10;
+                $idArea = 4;
+            } else if ($id_area_aux == 5) {
+                $idusuario = 6;
+                $idEnlace = 4;
+                $idArea = 5;
+            } else if ($id_area_aux == 6) {
+                $idusuario = 13;
+                $idEnlace = 14;
+                $idArea = 6;
+            }
+        }
+
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
-
-            $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
-            if ($es_por_area == 1) {
-                if ($request->id_cat_area_documento == 2) {
-                    $idusuario = 7;
-                    $idEnlace = 8;
-                    $idArea = 2;
-                } else if ($request->id_cat_area_documento == 4) {
-                    $idusuario = 9;
-                    $idEnlace = 10;
-                    $idArea = 4;
-                } else if ($request->id_cat_area_documento == 5) {
-                    $idusuario = 6;
-                    $idEnlace = 4;
-                    $idArea = 5;
-                } else if ($request->id_cat_area_documento == 6) {
-                    $idusuario = 13;
-                    $idEnlace = 14;
-                    $idArea = 6;
-                }
-            } else {
-                if ($id_area_aux == 2) {
-                    $idusuario = 7;
-                    $idEnlace = 8;
-                    $idArea = 2;
-                } else if ($id_area_aux == 4) {
-                    $idusuario = 9;
-                    $idEnlace = 10;
-                    $idArea = 4;
-                } else if ($id_area_aux == 5) {
-                    $idusuario = 6;
-                    $idEnlace = 4;
-                    $idArea = 5;
-                } else if ($id_area_aux == 6) {
-                    $idusuario = 13;
-                    $idEnlace = 14;
-                    $idArea = 6;
-                }
-            }
-
-            $officeM::create([
+            $data = [
                 'num_turno_sistema' => $request->num_turno_sistema,
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
@@ -198,11 +199,13 @@ class OfficeC extends Controller
                 'id_usuario_enlace' => $idEnlace,
                 'id_cat_area' => $idArea,
 
-                //DATA_SYSTEM
+                // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
-            ]);
+            ];
 
+            $officeM::create($data);
+            $logC->add('correspondencia.tbl_oficio', $data);
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
             $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
@@ -210,30 +213,33 @@ class OfficeC extends Controller
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
-            //Validacion por roles
-            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
-                    ->update([
-                        'fecha_inicio' => $request->fecha_inicio,
-                        'fecha_fin' => $request->fecha_fin,
-                        'asunto' => strtoupper($request->asunto),
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_tbl_correspondencia' => $id_tbl_correspondencia,
-                        'es_por_area' => $es_por_area,
-                        'num_documento_area' => $request->num_documento_area,
-                        'id_cat_area_documento' => $request->id_cat_area_documento,
+            //Array
+            $data = [
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'es_por_area' => $es_por_area,
+                'num_documento_area' => $request->num_documento_area,
+                'id_cat_area_documento' => $request->id_cat_area_documento,
 
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
-            } else {
-                $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
-                    ->update([
-                        'observaciones' => strtoupper($request->observaciones),
-                        'id_usuario_sistema' => Auth::user()->id,
-                        'fecha_usuario' => $now,
-                    ]);
-            }
+                'id_usuario_area' => $idusuario,
+                'id_usuario_enlace' => $idEnlace,
+                'id_cat_area' => $idArea,
+
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+
+            //Actualizacion en db
+            $officeM::where('id_tbl_oficio', $request->id_tbl_oficio)
+                ->update($data);
+
+            //Log app
+            $data['id_tbl_oficio'] = $request->id_tbl_oficio;
+            $logC->edit('correspondencia.tbl_oficio', $data);
+
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
     }
