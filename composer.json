@@ -12,6 +12,11 @@
         "laravel/tinker": "^2.9",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
+        "ajtarragona/alfresco-laravel": "^2.0",
+        "guzzlehttp/guzzle": "^7.9",
+        "laravel/framework": "^11.9",
+        "laravel/tinker": "^2.9",
+        "league/flysystem": "*",
         "yajra/laravel-datatables-oracle": "^11.1"
     },
     "require-dev": {
