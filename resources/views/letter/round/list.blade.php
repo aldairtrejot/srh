@@ -14,13 +14,7 @@
                     </div>
                 </div>
             </div>
-            <!--
-            <style>
-                .custom-button[disabled] {
-                    cursor: not-allowed;
-                }
-            </style>
--->
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -40,14 +34,6 @@
                                 <x-template-table.template-search />
                             </div>
                         </div>
-
-                        <style>
-                            .dropdown-menu {
-                                max-height: 100px;
-                                overflow-y: auto;
-
-                            }
-                        </style>
 
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
@@ -86,6 +72,7 @@
     </div>
 
     <!-- CODE SCRIPT-->
+    <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/round/table.js') }}"></script>
 
 </x-template-app.app-layout>

@@ -14,13 +14,7 @@
                     </div>
                 </div>
             </div>
-            <!--
-            <style>
-                .custom-button[disabled] {
-                    cursor: not-allowed;
-                }
-            </style>
--->
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -28,26 +22,18 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Expedientes</h4>
-                                    <p class="card-description">
-                                        ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
-                                            class="text-danger" style="margin-left: 10px;">
-                                            <i class="fa fa-arrow-up"></i> Agregar Registro
-                                        </a>
-                                    </p>
+                                <p class="card-description">
+                                    ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
+                                        class="text-danger" style="margin-left: 10px;">
+                                        <i class="fa fa-arrow-up"></i> Agregar Registro
+                                    </a>
+                                </p>
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
                             </div>
                         </div>
-
-                        <style>
-                            .dropdown-menu {
-                                max-height: 100px;
-                                overflow-y: auto;
-
-                            }
-                        </style>
 
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
@@ -86,6 +72,7 @@
     </div>
 
     <!-- CODE SCRIPT-->
+    <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/file/table.js') }}"></script>
 
 </x-template-app.app-layout>

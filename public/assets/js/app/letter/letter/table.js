@@ -92,6 +92,7 @@ function searchInit() {
                 tbody.append(rowHTML);
             });
             emptyContent = false;
+            talldropdown(response.value.length, 1); // Scroll en dropw
         } else {
             tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
             emptyContent = true;

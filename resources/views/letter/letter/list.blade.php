@@ -37,14 +37,6 @@
                             </div>
                         </div>
 
-                        <style>
-                            .dropdown-menu {
-                                max-height: 100px;
-                                overflow-y: auto;
-
-                            }
-                        </style>
-
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>
@@ -88,6 +80,8 @@
     </div>
 
     <!-- CODE SCRIPT-->
+    <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
+
 
 </x-template-app.app-layout>
