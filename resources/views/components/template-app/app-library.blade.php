@@ -11,6 +11,7 @@
 <script src="{{ asset('assets/js/other/typeahead.js') }}"></script>
 <script src="{{ asset('assets/js/other/select2.js') }}"></script>
 <script src="{{ asset('assets/js/app/template/template-popup.js') }}"></script>
+<script src="{{ asset('assets/js/app/default/password.js') }}"></script>
 <script src="{{ asset('assets/js/app/other/other.js') }}"></script>
 <script src="{{ asset('assets/js/app/other/select.js') }}"></script>
 <script src="{{ asset('assets/other/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>

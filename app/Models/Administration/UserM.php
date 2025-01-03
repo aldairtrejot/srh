@@ -3,7 +3,7 @@
 namespace App\Models\Administration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\Hash;
 class UserM extends Model
 {
 
@@ -82,5 +82,21 @@ class UserM extends Model
 
         // Retornamos true si el correo no existe (no se encontró un registro), false si ya existe
         return $user ? false : true;
+    }
+
+    // La funcion valida que la contraseña ingresada si existe
+    public function validatePassword($idUser, $userPassword)
+    {
+        // Consultar la tabla 'users' dentro del esquema 'administration' usando DB::table()
+        $user = DB::table('administration.users')
+            ->where('id', $idUser)
+            ->first(); // Traer el primer resultado
+
+        // Verificar si el usuario existe y la contraseña coincide con la almacenada en la base de datos
+        if ($user && Hash::check($userPassword, $user->password)) {
+            return true; // Si la contraseña es correcta
+        }
+
+        return false; // Si no hay coincidencias
     }
 }

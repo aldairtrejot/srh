@@ -140,4 +140,14 @@ class UserC extends Controller
             return $messagesC->messageSuccessRedirect('user.list', 'El usuario se ha modificado correctamente.');
         }
     }
+
+    //La funcion valida que la contraseña anterior exista
+    public function validatePassword(Request $request)
+    {
+        $userM = new UserM();
+        
+        return response()->json([
+            'value' => $request->value,
+        ]);
+    }
 }

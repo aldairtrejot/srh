@@ -50,9 +50,9 @@
                     <img src="{{ asset('assets/images/app/icon_user.png') }}" alt="profile" />
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-                    <a class="dropdown-item">
-                        <i class="ti-settings text-primary"></i>
-                        Configuraci&oacuten
+                    <a class="dropdown-item" id="changePassword">
+                        <i class="ti-lock text-primary"></i>
+                        Contraseña
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

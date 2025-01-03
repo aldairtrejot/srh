@@ -18,5 +18,6 @@
 
 <x-template-app.app-library />
 <x-template-app.app-message />
+<x-template-app.app-password />
 
 </html>
