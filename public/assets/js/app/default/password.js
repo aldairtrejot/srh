@@ -29,7 +29,7 @@ function changePassword() {
 
 //La funcion valida la contraseña ingresada
 function validatePassword() {
-    /*
+    let bool = true;
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#oldPassword').val(), 'Contraseña anterior') ||
         isFieldEmpty($('#newPassword').val(), 'Nueva contraseña') ||
@@ -39,19 +39,44 @@ function validatePassword() {
         isExceedingMinLength($('#newPassword').val(), 'Nueva contraseña', 5) ||
         isExceedingMinLength($('#confirmPassword').val(), 'Confirmar contraseña', 5) ||
         validateEqual($('#newPassword').val(), $('#confirmPassword').val())) {
+        bool = false;
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
-    }*/
+    }
 
     let isValidPW = getOldPassword($('#oldPassword').val());
-    if (isValidPW) {
+    if (!isValidPW) {
+        bool = false;
         notyfEM.error('La contraseña anterior no es correcta.');
         event.preventDefault();  // Detener el envío si la validación falla
         return;  // Detener la ejecución aquí
     }
 
-    event.preventDefault();  // Detener el envío si la validación falla
-    return;  // Detener la ejecución aquí
+    if (bool) { //Guarda la contraseña
+        savePassword();
+    }
+}
+
+//La funcion actualiza la contraseña, para que se actuañize
+function savePassword() {
+    $.ajax({
+        url: URL_DEFAULT.concat('/user/changePassword'),
+        type: 'POST',
+        async: false, // Asegura que la ejecución sea sincrónica
+        data: {
+            value: $('#newPassword').val(),
+            _token: token_password  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            let item = response.value;
+            if (item) {
+                notyfEM.success("Contraseña actualizada");
+            } else {
+                notyfEM.error("Algo inesperado paso");
+            }
+            $('#_modalChangePassword').fadeOut();
+        }
+    });
 }
 
 // Valida que la pw anterior sea la correscta
@@ -67,8 +92,7 @@ function getOldPassword(value) {
             _token: token_password  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            console.log(response);
-            let item = response.status;
+            let item = response.value;
             if (item) {
                 isValid = true;  // La validación fue exitosa
             }

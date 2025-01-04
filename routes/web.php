@@ -43,6 +43,7 @@ Route::get('/user/create', [UserC::class, 'create'])->name('user.create')->middl
 Route::post('/user/save', [UserC::class, 'save'])->name('user.save')->middleware('auth');
 Route::get('/user/edit/{id}', [UserC::class, 'edit'])->name('user.edit')->middleware('auth');
 Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name('user.validatePassword')->middleware('auth');
+Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('user.changePassword')->middleware('auth');
 
 //ROUTE_LETTER
 Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');

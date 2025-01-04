@@ -145,9 +145,34 @@ class UserC extends Controller
     public function validatePassword(Request $request)
     {
         $userM = new UserM();
-        
+        $value = $userM->validatePassword(Auth::user()->id, $request->value);
+
         return response()->json([
-            'value' => $request->value,
+            'value' => $value,
+            'value1' => $request->value,
+        ]);
+    }
+
+    //La funcion valida que la contraseña anterior exista
+    public function changePassword(Request $request)
+    {
+        $userM = new UserM();
+        $now = Carbon::now();
+
+        // Encriptar la nueva contraseña
+        $hashedPassword = Hash::make($request->value);
+
+        // Intentar actualizar la contraseña
+        $result = $userM::where('id', Auth::user()->id)
+            ->update([
+                'password' => $hashedPassword,  // Usar la contraseña encriptada
+                'id_usuario' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+
+        // Retornar verdadero si la actualización fue exitosa, falso si no
+        return response()->json([
+            'value' => $result > 0, // Si el resultado es mayor que 0, la actualización fue exitosa
         ]);
     }
 }
