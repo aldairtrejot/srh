@@ -36,7 +36,6 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
-//use App\Http\Controllers\Courses\Alfresco\AlfrescoC;
 use Illuminate\Support\Facades\Route;
 
 
@@ -81,19 +80,6 @@ Route::post('/letter/cloud/upload', [CloudLetterC::class, 'upload'])->name('lett
 Route::post('/letter/cloud/delete', [CloudLetterC::class, 'delete'])->name('letter.cloud.delete')->middleware('auth');
 // --- -- --- - -- - -- --
 
-//ROUTE OFICIOS
-Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
-Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');
-Route::get('/office/create', [OfficeC::class, 'create'])->name('office.create')->middleware('auth');
-Route::get('/office/edit/{id}', [OfficeC::class, 'edit'])->name('office.edit')->middleware('auth');
-Route::post('/office/save', [OfficeC::class, 'save'])->name('office.save')->middleware('auth');
-Route::get('/office/cloud/{id}', [OfficeC::class, 'cloud'])->name('office.cloud')->middleware('auth');
-Route::post('/office/cloud/data', [CloudC::class, 'cloudData'])->name('office.cloud.data')->middleware('auth');
-Route::post('/office/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('office.cloud.anexos')->middleware('auth');
-Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('office.cloud.oficios')->middleware('auth');
-Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
-Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
-Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
 
 //ROUTE INSIDE
 Route::get('/inside/list', [InsideC::class, 'list'])->name('inside.list')->middleware('auth');
@@ -161,6 +147,7 @@ Route::post('/courses/save', [CoursesC::class, 'save'])->name('courses.save')->m
 Route::post('/courses/table', [CoursesC::class, 'searchTable']);
 Route::match(['get', 'post'], '/courses/edit/{id}', [CoursesC::class, 'edit'])->name('courses.edit')->middleware('auth');
 Route::delete('/courses/delete/{id}', [CoursesC::class, 'destroy']);
+
 //ROUTE_COUSER ---- > Categoria
 Route::get('/coursescategoria/list', Courses2C::class)->name('coursescategoria.list')->middleware('auth');
 Route::get('/coursescategoria/create', [Courses2C::class, 'create'])->name('coursescategoria.create')->middleware('auth');
@@ -243,11 +230,29 @@ Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
 
 //ROUTE_COUSER ---- >Tabla instructores
-Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
+Route::get('/tableinstructor/list', [InstructorsC::class, 'list'])->name('tableinstructor.list')->middleware('auth');
+Route::post('/tableinstructor/table', [InstructorsC::class, 'table'])->name('tableinstructor.table')->middleware('auth');
+Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
+Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
+Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
+Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 
-//ROUTE_COUSER ---- >Alfresco
-Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
-Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo
+
+
+//ROUTE OFICIOS
+Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
+Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');
+Route::get('/office/create', [OfficeC::class, 'create'])->name('office.create')->middleware('auth');
+Route::get('/office/edit/{id}', [OfficeC::class, 'edit'])->name('office.edit')->middleware('auth');
+Route::post('/office/save', [OfficeC::class, 'save'])->name('office.save')->middleware('auth');
+Route::get('/office/cloud/{id}', [OfficeC::class, 'cloud'])->name('office.cloud')->middleware('auth');
+Route::post('/office/cloud/data', [CloudC::class, 'cloudData'])->name('office.cloud.data')->middleware('auth');
+Route::post('/office/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('office.cloud.anexos')->middleware('auth');
+Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('office.cloud.oficios')->middleware('auth');
+Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
+Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
+Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
+
 
 
 

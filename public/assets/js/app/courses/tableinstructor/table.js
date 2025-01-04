@@ -63,7 +63,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/coursestipocur/edit/${object.id_instructor}`;
+                    const finalUrl = `/srh/public/tableinstructor/edit/${object.id_instructor}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `

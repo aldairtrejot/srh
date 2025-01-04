@@ -19,7 +19,7 @@
                             route="{{ route('tableinstructor.list') }}" />
                         
                         <br>
-                        <form action="{{ route('alfresco.upload.file') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('tableinstructor.save') }}" method="POST" enctype="multipart/form-data">
                             @csrf  <!-- Campo CSRF para proteger la solicitud -->
 
                             <x-template-form.template-form-input-required label="Curp" type="text"
@@ -60,7 +60,7 @@
                                 <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" checked>
                             </div>
 
-                            <x-template-button.button-form-footer routeBack="{{ route('alfresco.upload.form') }}" />
+                            <x-template-button.button-form-footer routeBack="{{ route('tableinstructor.list') }}" />
                         </form>
                     </div>
                 </div>

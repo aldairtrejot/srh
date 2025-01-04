@@ -21,7 +21,7 @@
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('tableinstructor.list') }}" method="POST" class="form-sample">
+                       <form action="{{ route('courses.save') }}" method="POST" class="form-sample">
                         @csrf
                         <x-template-form.template-form-input-required label="Descripcion" type="text"
                             name="descripcion" placeholder="Descripcion"

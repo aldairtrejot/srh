@@ -25,7 +25,7 @@
                                 @if($letterAdminMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
-                                        <a href="{{ route('alfresco.upload.form') }}" class="text-danger" style="margin-left: 10px;">
+                                        <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Agregar Instructor
                                         </a>
                                     </p>
