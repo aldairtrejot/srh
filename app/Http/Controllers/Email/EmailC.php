@@ -10,7 +10,7 @@ class EmailC extends Controller
     public function emailLetter(Request $request)
     {
         // Declarar el asunto y cuerpo del correo
-        $subject = 'Asunto dinámico';
+        $subject = 'No. Turno: ' . $request->value;
         $body = 'Este es el contenido dinámico del correo';
 
         try {
