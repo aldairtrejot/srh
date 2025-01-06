@@ -13,14 +13,21 @@ class EmailC extends Controller
         $subject = 'Asunto dinámico';
         $body = 'Este es el contenido dinámico del correo';
 
-        // Enviar el correo usando Mail::raw para texto plano
-        Mail::raw($body, function ($message) use ($subject) {
-            $message->to('rodolfo.trejo@imssbienestar.gob.mx')
-                ->subject($subject);
-        });
+        try {
+            // Intentar enviar el correo usando Mail::raw
+            Mail::raw($body, function ($message) use ($subject) {
+                $message->to('rodolfo.trejo@imssbienestar.gob.mx')
+                    ->subject($subject);
+            });
 
-        return response()->json([
-            'value' => 'Correo enviado exitosamente',
-        ]);
+            return response()->json([
+                'value' => 'Correo enviado exitosamente',
+            ]);
+        } catch (\Exception $e) {
+            // Capturar cualquier excepción y mostrar el error
+            return response()->json([
+                'error' => 'Error al enviar el correo: ' . $e->getMessage(),
+            ]);
+        }
     }
 }
