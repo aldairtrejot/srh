@@ -17,6 +17,3 @@ function talldropdown(value, minValue) {
     }
 }
 
-function sendEmail() {
-    console.log('sucees');
-}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
@@ -141,3 +142,5 @@ Route::get('/other/generate-pdf/office/{id}', [ReporteCorrespondenciaC::class, '
 Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter'])->middleware('auth');
 // TRAE INFORMACION COMO EL NO DE CORRESPONDENCIA QUE EXISTA ASI COMO USUAIRO
 Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth');
+// ENVIO DE CORREO ELECTRONICO
+Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');

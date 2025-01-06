@@ -24,7 +24,6 @@ function searchInit() {
                 const finalUrl = URL_DEFAULT.concat(`/letter/edit/${object.id}`);
                 const finalCloud = URL_DEFAULT.concat(`/letter/cloud/${object.id}`);
                 const urlReport = URL_DEFAULT.concat(`/letter/generate-pdf/correspondencia/${object.id}`);
-                const urlEmail = URL_DEFAULT.concat(`/letter/email/${object.id}`);
 
                 // Generar el HTML con template literals
                 const rowHTML = `
@@ -60,7 +59,7 @@ function searchInit() {
                                         </span>
                                         Reporte
                                     </a>
-                                    <button class="dropdown-item" onclick="sendEmail()">
+                                    <button class="dropdown-item" onclick="opneEmail('${object.num_turno_sistema}')">
                                         <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-location-arrow item-icon-menu"></i>
