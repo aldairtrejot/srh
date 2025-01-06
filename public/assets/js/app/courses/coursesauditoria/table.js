@@ -1,94 +1,71 @@
-// Importar la constante URL_DEFAULT desde el módulo correspondiente
-import { URL_DEFAULT } from './url.js';
-
-// Obtener el token CSRF
-const token = $('meta[name="csrf-token"]').attr('content');
-
-// Configurar AJAX con el token CSRF
+var token = $('meta[name="csrf-token"]').attr('content'); // Token for form
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': token
     }
 });
+var iterator = 1;  // Se comienza el iterador en 1
+var emptyContent = false;
+var courseIdToDelete = null; // Variable para almacenar el ID del curso a eliminar
 
-// Variables globales necesarias
-let iterator = 1;  // Se comienza el iterador en 1
-let emptyContent = false;
-let courseIdToDelete = null; // Variable para almacenar el ID del curso a eliminar
+$(document).ready(function () {
+    searchInit(); // Inicializa la búsqueda cuando la página carga
+    setValue();  // Inicializa paginador 
 
-// Función inicial para configurar la búsqueda y el paginador
-function initialize() {
-    // Configurar búsqueda inicial y el valor del paginador
-    searchInit();
-    setValue();
+    // Obtener elementos del DOM
+    var modal = document.getElementById("deleteModal");
+    var span = document.getElementsByClassName("close")[0];
+    var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    var successMessage = document.getElementById("successMessage");
 
-    // Configurar eventos del modal
-    setupModalEvents();
-
-    // Configurar eventos de paginación
-    setupPaginationEvents();
-}
-
-// Configurar eventos del modal
-function setupModalEvents() {
-    const modal = document.getElementById("deleteModal");
-    const span = document.getElementsByClassName("close")[0];
-    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-
-    // Cerrar el modal al hacer clic en "x"
-    span.onclick = function () {
+    // Cuando el usuario hace clic en <span> (x), cerrar el modal
+    span.onclick = function() {
         modal.style.display = "none";
-    };
+    }
 
-    // Cerrar el modal al hacer clic en cancelar
-    cancelDeleteBtn.onclick = function () {
+    // Cuando el usuario hace clic en el botón de cancelar, cerrar el modal
+    cancelDeleteBtn.onclick = function() {
         modal.style.display = "none";
-    };
+    }
 
-    // Cerrar el modal al hacer clic fuera de él
-    window.onclick = function (event) {
-        if (event.target === modal) {
+    // Cuando el usuario hace clic en cualquier lugar fuera del modal, cerrarlo
+    window.onclick = function(event) {
+        if (event.target == modal) {
             modal.style.display = "none";
         }
-    };
+    }
 
-    // Confirmar eliminación
-    confirmDeleteBtn.onclick = function () {
+    // Cuando el usuario confirma la eliminación
+    confirmDeleteBtn.onclick = function() {
         if (courseIdToDelete) {
             deleteCourse(courseIdToDelete);
         }
-    };
-}
+    }
+});
 
-// Configurar eventos de paginación
-function setupPaginationEvents() {
-    document.getElementById("paginatorMax1").addEventListener('click', paginatorMax1);
-    document.getElementById("paginatorMax5").addEventListener('click', paginatorMax5);
-    document.getElementById("paginatorMin1").addEventListener('click', paginatorMin1);
-    document.getElementById("paginatorMin5").addEventListener('click', paginatorMin5);
-}
-
-// Función de búsqueda inicial con AJAX
+// Esta función se encarga de hacer la petición AJAX al backend
 function searchInit() {
     const searchValue = document.getElementById('searchValue').value; // Obtén el valor de búsqueda
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: URL_DEFAULT + '/coursesauditoria/table',
+        url: '/srh/public/coursesauditoria/table', 
         type: 'POST',
         data: {
-            iterator: iteradorAux,
-            searchValue: searchValue,
-            _token: token,
+            iterator: iteradorAux,  // Número de página para la paginación
+            searchValue: searchValue, // Valor de búsqueda
+            _token: token,  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
             const tbody = $('#template-table tbody');
-            tbody.empty();
+            tbody.empty();  // Limpiar la tabla antes de agregar los nuevos resultados
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = URL_DEFAULT + `/coursesauditoria/edit/${object.id_auditoria}`;
+                    const finalUrl = `/srh/public/coursesauditoria/edit/${object.id_auditoria}`;
+
+                    // Generar el HTML con template literals
                     const rowHTML = `
                         <tr>
                             <td>
@@ -106,6 +83,7 @@ function searchInit() {
                                             </span>
                                             Modificar
                                         </a>
+                                       <!-- Aquí se agrega la opción para eliminar -->
                                         <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_auditoria})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -132,58 +110,72 @@ function searchInit() {
     });
 }
 
-// Funciones para manejar la paginación
+// Función para que al pulsar el botón se incremente uno
 function paginatorMax1() {
-    iterator = emptyContent ? iterator : iterator + 1;
+    iterator = emptyContent ? iterator : iterator += 1;
     setValue();
     searchInit();
 }
 
+// Función para que al pulsar el botón se incrementen 5
 function paginatorMax5() {
-    iterator = emptyContent ? iterator : iterator + 5;
+    iterator = emptyContent ? iterator : iterator += 5;
     setValue();
     searchInit();
 }
 
-function paginatorMin1() {
-    iterator = Math.max(iterator - 1, 1);
-    setValue();
-    searchInit();
-}
-
+// Función para que al pulsar el botón se disminuyan 5
 function paginatorMin5() {
-    iterator = Math.max(iterator - 5, 1);
+    let iteratorAux = iterator;
+    iterator = (iteratorAux -= 5) > 0 ? (iterator -= 5) : 1;
     setValue();
     searchInit();
 }
 
-// Configurar la visualización del número de página
+// Función para que al pulsar el botón se disminuyan 1
+function paginatorMin1() {
+    let iteratorAux = iterator;
+    iterator = (iteratorAux -= 1) > 0 ? (iterator -= 1) : 1;
+    setValue();
+    searchInit();
+}
+
+// Al escribir en el campo de búsqueda, se reinicia el iterador y se realiza la búsqueda
+function searchValue() {
+    iterator = 1;  // Reiniciar la paginación a la primera página
+    setValue();  // Actualizar la visualización del número de página
+    searchInit();  // Realizar la búsqueda
+}
+
+// Función para manejar la paginación y mostrar el número actual de la página
 function setValue() {
-    document.getElementById("is_iterator").innerHTML = iterator;
-    document.getElementById("is_iteratorMin").innerHTML = iterator - 1;
-    document.getElementById("is_iteratorMax").innerHTML = iterator + 1;
+    let iteratorAux = iterator;
+    document.getElementById("is_iterator").innerHTML = iteratorAux;
+    document.getElementById("is_iteratorMin").innerHTML = iteratorAux -= 1;
+    document.getElementById("is_iteratorMax").innerHTML = iteratorAux += 2;
 }
 
-// Confirmar eliminación
+// Función para la confirmación de eliminación
 function confirmDelete(id) {
-    courseIdToDelete = id;
-    document.getElementById("deleteModal").style.display = "block";
+    courseIdToDelete = id; // Almacenar el ID del curso a eliminar
+    var modal = document.getElementById("deleteModal");
+    modal.style.display = "block"; // Mostrar el modal
 }
 
-// Eliminar curso
+// Función para eliminar el curso
 function deleteCourse(id) {
     $.ajax({
-        url: URL_DEFAULT + '/coursesauditoria/delete/' + id,
+        url: '/srh/public/coursesauditoria/delete/' + id,  // Verifica que esta ruta sea correcta
         type: 'DELETE',
-        data: { _token: token },
-        success: function () {
-            window.location.href = URL_DEFAULT + '/coursesauditoria/list';
+        data: {
+            _token: token  // Incluye el token CSRF
         },
-        error: function () {
+        success: function(response) {
+            window.location.href = '/srh/public/coursesauditoria/list';  // Redirigir a la lista de cursos
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al eliminar el curso:', error);
             alert('Hubo un error al intentar eliminar el curso. Por favor, inténtalo de nuevo.');
         }
     });
 }
-
-// Inicializar eventos y configuraciones al cargar el DOM
-document.addEventListener('DOMContentLoaded', initialize);

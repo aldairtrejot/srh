@@ -1,6 +1,3 @@
-// Importa la constante URL_DEFAULT
-import { URL_DEFAULT } from './url.js';
-
 var token = $('meta[name="csrf-token"]').attr('content'); // Token for form
 $.ajaxSetup({
     headers: {
@@ -53,7 +50,7 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: URL_DEFAULT + '/coursesnombreacc/table', // Usa la constante URL_DEFAULT
+        url: '/srh/public/coursesnombreacc/table', 
         type: 'POST',
         data: {
             iterator: iteradorAux,  // Número de página para la paginación
@@ -66,7 +63,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = URL_DEFAULT.concat(`/coursesnombreacc/edit/${object.id_nombre_accion}`);
+                    const finalUrl = `/srh/public/coursesnombreacc/edit/${object.id_nombre_accion}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -100,7 +97,7 @@ function searchInit() {
                             </td>
                             <td>${object.descripcion}</td>
                             <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
-                            <td>${object.nombre}</td>
+                              <td>${object.nombre}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
@@ -169,13 +166,13 @@ function confirmDelete(id) {
 // Función para eliminar el curso
 function deleteCourse(id) {
     $.ajax({
-        url: URL_DEFAULT + '/coursesnombreacc/delete/' + id,  // Usa la constante URL_DEFAULT
+        url: '/srh/public/coursesnombreacc/delete/' + id,  // Verifica que esta ruta sea correcta
         type: 'DELETE',
         data: {
             _token: token  // Incluye el token CSRF
         },
         success: function(response) {
-            window.location.href = URL_DEFAULT + '/coursesnombreacc/list';  // Usa la constante URL_DEFAULT
+            window.location.href = '/srh/public/coursesnombreacc/list';  // Redirigir a la lista de cursos
         },
         error: function(xhr, status, error) {
             console.error('Error al eliminar el curso:', error);
