@@ -1,3 +1,6 @@
+// Importa la constante URL_DEFAULT
+import { URL_DEFAULT } from './url.js';
+
 var token = $('meta[name="csrf-token"]').attr('content'); // Token for form
 $.ajaxSetup({
     headers: {
@@ -50,7 +53,7 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: '/srh/public/coursesestatuto/table', 
+        url: URL_DEFAULT + '/coursesestatuto/table', // Usa la constante URL_DEFAULT
         type: 'POST',
         data: {
             iterator: iteradorAux,  // Número de página para la paginación
@@ -63,7 +66,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/coursesestatuto/edit/${object.id_estatuto_organico}`;
+                    const finalUrl = URL_DEFAULT.concat(`/coursesestatuto/edit/${object.id_estatuto_organico}`);
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -166,13 +169,13 @@ function confirmDelete(id) {
 // Función para eliminar el curso
 function deleteCourse(id) {
     $.ajax({
-        url: '/srh/public/coursesestatuto/delete/' + id,  // Verifica que esta ruta sea correcta
+        url: URL_DEFAULT + '/coursesestatuto/delete/' + id,  // Usa la constante URL_DEFAULT
         type: 'DELETE',
         data: {
             _token: token  // Incluye el token CSRF
         },
         success: function(response) {
-            window.location.href = '/srh/public/coursesestatuto/list';  // Redirigir a la lista de cursos
+            window.location.href = URL_DEFAULT + '/coursesestatuto/list';  // Usa la constante URL_DEFAULT
         },
         error: function(xhr, status, error) {
             console.error('Error al eliminar el curso:', error);
