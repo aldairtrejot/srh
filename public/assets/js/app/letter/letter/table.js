@@ -59,7 +59,7 @@ function searchInit() {
                                         </span>
                                         Reporte
                                     </a>
-                                    <button class="dropdown-item" onclick="opneEmail('${object.num_turno_sistema}')">
+                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.num_turno_sistema}')">
                                         <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-location-arrow item-icon-menu"></i>

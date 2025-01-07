@@ -13,11 +13,20 @@ class EmailC extends Controller
         $subject = 'No. Turno: ' . $request->value;
         $body = 'Este es el contenido dinámico del correo';
 
+        // Datos que se pasarán a la vista
+        $data = [
+            'subject' => $subject,
+            'turno' => $request->value,
+            'body' => $body,
+            'nameUser' => strtoupper($request->nameUser),
+        ];
+
         try {
-            // Intentar enviar el correo usando Mail::raw
-            Mail::raw($body, function ($message) use ($subject) {
+            // Enviar el correo con la vista Blade
+            Mail::send('letter.mail.mailLetter', $data, function ($message) use ($subject) {
                 $message->to('rodolfo.trejo@imssbienestar.gob.mx')
                     ->subject($subject);
+                // Elimina setBody(), Laravel automáticamente maneja el contenido como HTML
             });
 
             return response()->json([
@@ -30,4 +39,5 @@ class EmailC extends Controller
             ]);
         }
     }
+
 }
