@@ -53,7 +53,7 @@
 
         .email-header p {
             margin: 0;
-            font-size: 20px;
+            font-size: 17px;
             color: #ccc;
             /* Color gris */
         }
@@ -85,20 +85,34 @@
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
                 <td class="email-header">
+
+                    <!--
+                    <img src="https://i.imgur.com/wMSCglq.png" alt="Imagen desde Imgur"
+                        style="max-width: 100%; height: auto;">
+    -->
                     <p>IMSS-BIENESTAR CENTRAL</p>
                 </td>
             </tr>
             <tr>
                 <td class="email-body">
-                    <p>¡Hola, {{ $nameUser }}!</p>
+                    <p>¡Hola, !</p>
                     <p>Con el fin de dar seguimiento a la correspondencia, se te ha asignado un nuevo número de turno.
                         A continuación, se detallan algunos puntos:</p>
                     <ul style="padding-left: 20px;">
                         <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">No. Turno:</strong> 
+                            <strong style="color: #000;">Asunto:</strong> Asunto
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <strong style="color: #000;">No. Turno:</strong>
                         </li>
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">No. Documento:</strong> No documento
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <strong style="color: #000;">Fecha Inicio:</strong>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <strong style="color: #000;">Fecha Fin:</strong> Asunto
                         </li>
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Área Asignada:</strong> Area
@@ -108,9 +122,6 @@
                         </li>
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Enlace:</strong> Enlace
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Asunto:</strong> Asunto
                         </li>
                     </ul>
                     <p>Adicionalmente, se anexa el turno en formato PDF para su pronta validación.</p>
