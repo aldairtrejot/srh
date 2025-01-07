@@ -50,7 +50,7 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: '/srh/public/courses/table', 
+        url: `${URL_DEFAULT}/courses/table`, 
         type: 'POST',
         data: {
             iterator: iteradorAux,  // Número de página para la paginación
@@ -63,7 +63,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/courses/edit/${object.id_beneficio}`;
+                    const finalUrl = `${URL_DEFAULT}/courses/edit/${object.id_beneficio}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -165,7 +165,7 @@ function confirmDelete(id) {
 // Función para eliminar el curso
 function deleteCourse(id) {
     $.ajax({
-        url: '/srh/public/courses/delete/' + id,  // Verifica que esta ruta sea correcta
+        url: `${URL_DEFAULT}/courses/delete/${id}`, // Verifica que esta ruta sea correcta
         type: 'DELETE',
         data: {
             _token: token  // Incluye el token CSRF

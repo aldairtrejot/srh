@@ -261,4 +261,3 @@ Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->mi
 
 
 
-

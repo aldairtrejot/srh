@@ -70,6 +70,7 @@
 </div>
 
     <!-- CODE SCRIPT-->
-    <script src="{{ asset('assets/js/app/courses/courses/table.js') }}"></script>
+    <script src="/srh/public/assets/js/app/default/url.js"></script>
+    <script src="/srh/public/assets/js/app/courses/courses/table.js"></script>
 
 </x-template-app.app-layout>
