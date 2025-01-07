@@ -3,21 +3,26 @@
 namespace App\Http\Controllers\Email;
 
 use App\Http\Controllers\Controller;
+use App\Models\Letter\Letter\LetterM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+
 class EmailC extends Controller
 {
     public function emailLetter(Request $request)
     {
         // Declarar el asunto y cuerpo del correo
-        $subject = 'No. Turno: ' . $request->value;
+        $letterM = new LetterM();
+        $subject = 'No. DE TURNO ASIGNADO PARA CORRESPONDENCIA';
         $body = 'Este es el contenido dinámico del correo';
+        $mailBody = $letterM->mailLetter($request->id);
 
         // Datos que se pasarán a la vista
         $data = [
             'subject' => $subject,
             'turno' => $request->value,
             'body' => $body,
+            'mailBody' => $mailBody,
             'nameUser' => strtoupper($request->nameUser),
         ];
 
