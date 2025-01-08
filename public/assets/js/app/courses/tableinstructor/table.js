@@ -60,7 +60,8 @@ function renderTable(response) {
 
     if (response.value && response.value.length > 0) {
         response.value.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_instructor}`;
+            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id}`;
+
             const rowHTML = `
                 <tr>
                     <td>
@@ -78,7 +79,7 @@ function renderTable(response) {
                                     </span>
                                     Modificar
                                 </a>
-                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_instructor})">
+                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id})">
                                     <span style="background:#6A1B3D" class="icon-container-template">
                                         <div style="text-align: center;">
                                             <i class="fa fa-trash item-icon-menu"></i>
@@ -93,16 +94,16 @@ function renderTable(response) {
                     <td>${object.uuid_constancia || '-'}</td>
                     <td>${object.uuid_cv || '-'}</td>
                     <td>${object.estatus_apto ? 'ACTIVO' : 'INACTIVO'}</td>
+                    <td>${object.estatus_instructor || '-'}</td>
                 </tr>
             `;
             tbody.append(rowHTML);
         });
-        emptyContent = false;
     } else {
         tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
-        emptyContent = true;
     }
 }
+
 
 // Manejo de errores en AJAX
 function handleAjaxError(xhr) {

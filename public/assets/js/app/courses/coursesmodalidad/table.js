@@ -1,5 +1,7 @@
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
+
+// Configuración global para solicitudes AJAX
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': token
@@ -7,15 +9,16 @@ $.ajaxSetup({
 });
 
 // Variables globales
-let iterator = 1;
-let emptyContent = false;
-let courseIdToDelete = null;
+let iterator = 1; // Paginación actual
+let emptyContent = false; // Indica si la tabla está vacía
+let courseIdToDelete = null; // ID del curso a eliminar
 
+// Inicializar cuando el documento esté listo
 $(document).ready(function () {
-    searchInit();
-    setValue();
+    searchInit(); // Inicializar búsqueda
+    setValue(); // Configurar valores iniciales de la paginación
 
-    // Modal y eventos
+    // Configuración del modal
     const modal = document.getElementById("deleteModal");
     const span = document.getElementsByClassName("close")[0];
     const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
@@ -24,41 +27,50 @@ $(document).ready(function () {
     span.onclick = () => (modal.style.display = "none");
     cancelDeleteBtn.onclick = () => (modal.style.display = "none");
 
+    // Cierra el modal si se hace clic fuera de él
     window.onclick = (event) => {
         if (event.target === modal) {
             modal.style.display = "none";
         }
     };
 
+    // Confirmar eliminación
     confirmDeleteBtn.onclick = () => {
         if (courseIdToDelete) deleteCourse(courseIdToDelete);
     };
 });
 
-// Función para inicializar la búsqueda
+// Inicializar búsqueda
 function searchInit() {
     const searchValue = document.getElementById('searchValue').value.trim();
-    const iteradorAux = (iterator * 5) - 5;
+    const iteradorAux = Math.max((iterator - 1) * 5, 0); // Asegura que sea >= 0
 
     $.ajax({
         url: `${URL_DEFAULT}/coursesmodalidad/table`,
         type: 'POST',
         data: {
             iterator: iteradorAux,
-            searchValue: searchValue,
+            searchValue: searchValue || '', // Si está vacío, envía cadena vacía
             _token: token
         },
-        success: (response) => renderTable(response),
-        error: (xhr) => handleAjaxError(xhr)
+        success: (response) => {
+            if (response && typeof response === 'object') {
+                renderTable(response);
+            } else {
+                console.error('Respuesta inválida:', response);
+                alert('Error en la respuesta del servidor.');
+            }
+        },
+        error: handleAjaxError
     });
 }
 
-// Renderiza la tabla con los resultados
+// Renderizar la tabla con los resultados
 function renderTable(response) {
     const tbody = $('#template-table tbody');
     tbody.empty();
 
-    if (response.value && response.value.length > 0) {
+    if (response.value && Array.isArray(response.value) && response.value.length > 0) {
         response.value.forEach((object) => {
             const finalUrl = `${URL_DEFAULT}/coursesmodalidad/edit/${object.id_modalidad}`;
             const rowHTML = `
@@ -104,8 +116,8 @@ function renderTable(response) {
 
 // Manejo de errores en AJAX
 function handleAjaxError(xhr) {
-    console.error('Error en la solicitud:', xhr.responseText);
-    alert('Hubo un error al procesar la solicitud. Por favor, inténtalo de nuevo.');
+    console.error('Error en la solicitud:', xhr.status, xhr.responseText);
+    alert(`Error ${xhr.status}: ${xhr.statusText}`);
 }
 
 // Funciones de paginación
@@ -133,27 +145,27 @@ function paginatorMin1() {
     searchInit();
 }
 
-// Reinicia el iterador y realiza la búsqueda
+// Reiniciar búsqueda
 function searchValue() {
     iterator = 1;
     setValue();
     searchInit();
 }
 
-// Actualiza el número de página en el DOM
+// Actualizar valores de la paginación en el DOM
 function setValue() {
     document.getElementById("is_iterator").innerText = iterator;
     document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
     document.getElementById("is_iteratorMax").innerText = iterator + 2;
 }
 
-// Muestra el modal de confirmación de eliminación
+// Mostrar modal para confirmar eliminación
 function confirmDelete(id) {
     courseIdToDelete = id;
     document.getElementById("deleteModal").style.display = "block";
 }
 
-// Elimina un curso
+// Eliminar un curso
 function deleteCourse(id) {
     $.ajax({
         url: `${URL_DEFAULT}/coursesmodalidad/delete/${id}`,
@@ -163,6 +175,6 @@ function deleteCourse(id) {
             alert('Modalidad eliminada exitosamente.');
             window.location.href = `${URL_DEFAULT}/coursesmodalidad/list`;
         },
-        error: (xhr) => handleAjaxError(xhr)
+        error: handleAjaxError
     });
 }

@@ -10,10 +10,12 @@ class InstructorM extends Model
     protected $primaryKey = 'id_instructor'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
+        'id_instructor',
         'id_empleados',
         'uuid_constancia',
         'uuid_cv',
         'estatus_apto',
+        'estatus_instructor',
         'id_usuario_sistema',
         'fecha_usuario',
     ];
@@ -28,33 +30,37 @@ class InstructorM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function list($iterator, $searchValue )
-    {
-        // Preparar la consulta base
-        $query = DB::table('capacitacion.tbl_instructores')
+    public function list($iterator, $searchValue)
+{
+    // Construcción de la consulta base
+    $query = DB::table('capacitacion.tbl_instructores')
         ->select([
             'capacitacion.tbl_instructores.id_instructor AS id',
-            DB::raw('UPPER(capacitacion.tbl_instructores.descripcion) AS descripcion'),
-            DB::raw('CASE WHEN capacitacion.tbl_instructores.estatus_apto = 1 THEN TRUE ELSE FALSE END AS estatus_apto')
-        ]); 
+            'capacitacion.tbl_instructores.id_empleados',
+            'capacitacion.tbl_instructores.uuid_constancia',
+            'capacitacion.tbl_instructores.uuid_cv',
+            DB::raw('CASE WHEN capacitacion.tbl_instructores.estatus_apto = 1 THEN TRUE ELSE FALSE END AS estatus_apto'),
+            'capacitacion.tbl_instructores.estatus_instructor'
+        ]);
 
-        // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
-        if (!empty($searchValue)) {
-            $searchValue = strtoupper(trim($searchValue));  // Limpiar y convertir a mayúsculas
+    // Si se proporciona un valor de búsqueda, aplicar filtros
+    if (!empty($searchValue)) {
+        $searchValue = strtoupper(trim($searchValue));
 
-            // Condiciones de búsqueda centralizadas en una sola cláusula
-            $query->where(function ($query) use ($searchValue) {
-                $query->whereRaw("UPPER(TRIM(capacitacion.tbl_instructores.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(capacitacion.tbl_instructores.estatus_apto)) LIKE ?", ['%' . $searchValue . '%']);
-            });
-        }
-
-        // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.tbl_instructores.id_instructor', 'ASC')
-            ->offset($iterator) // OFFSET
-            ->limit(5); // LIMIT
-
-        // Ejecutar la consulta y retornar los resultados
-        return $query->get();
+        $query->where(function ($query) use ($searchValue) {
+            $query->whereRaw("UPPER(TRIM(capacitacion.tbl_instructores.id_empleados)) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(TRIM(capacitacion.tbl_instructores.uuid_constancia)) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(TRIM(capacitacion.tbl_instructores.uuid_cv)) LIKE ?", ['%' . $searchValue . '%']);
+        });
     }
+
+    // Aplicar orden y paginación
+    $query->orderBy('capacitacion.tbl_instructores.id_instructor', 'ASC')
+          ->offset($iterator)
+          ->limit(5);
+
+    // Ejecutar la consulta y retornar resultados
+    return $query->get();
+}
+
 }

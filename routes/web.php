@@ -230,13 +230,15 @@ Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
 
 //ROUTE_COUSER ---- >Tabla instructores
-Route::get('/tableinstructor/list', [InstructorsC::class, 'list'])->name('tableinstructor.list')->middleware('auth');
-Route::post('/tableinstructor/table', [InstructorsC::class, 'table'])->name('tableinstructor.table')->middleware('auth');
-Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
-Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
-Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
-Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tableinstructor/list', [InstructorsC::class, 'list'])->name('tableinstructor.list');
+    Route::post('/tableinstructor/table', [InstructorsC::class, 'table'])->name('tableinstructor.table');
+    Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create');
+    Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
+    Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save');
+    Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud');
+    Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy'])->name('tableinstructor.destroy');
+});
 
 
 //ROUTE OFICIOS
