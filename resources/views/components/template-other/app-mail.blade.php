@@ -6,18 +6,20 @@
             Enviar email
         </h3>
 
-        <p>Ingresa el nombre y correo del remitente para enviar la información del No. de turno: <label
-                id="noTurnoSistemaEmail"></label>, para su seguimiento.</p>
+        <!-- id oculto -->
+        <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_email" value="" />
+
+        <p>Ingresa el nombre y correo del <strong style="color:rgb(46, 45, 45);">destinatario</strong> para enviar la
+            información del No. de turno: <label id="noTurnoSistemaEmail"></label>, para su seguimiento.</p>
 
         <div class="custom-input-container">
             <label class="custom-input-label" for="customTextInput">Nombre</label>
-            <input type="password" id="emailName" class="custom-input-field" autocomplete="current-password">
+            <input type="text" id="emailName" class="custom-input-field">
         </div>
 
         <div class="custom-input-container">
             <label class="custom-input-label" for="customTextInput">Email</label>
-            <input type="password" id="emailMail" name="newPassword" class="custom-input-field"
-                autocomplete="current-password">
+            <input type="email" id="emailMail" name="newPassword" class="custom-input-field">
         </div>
 
         <div class="modal-buttons">

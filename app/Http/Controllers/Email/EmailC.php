@@ -14,28 +14,27 @@ class EmailC extends Controller
     // La funcion manda correo para correspondecia
     public function emailLetter(Request $request)
     {
-        // Declarar el asunto y cuerpo del correo
-        $letterM = new LetterM();
-        $subject = 'No. DE TURNO ASIGNADO PARA CORRESPONDENCIA';
-        $body = 'Este es el contenido dinámico del correo';
-        $mailBody = $letterM->mailLetter($request->id);
-
-        // Datos que se pasarán a la vista
-        $data = [
-            'subject' => $subject,
-            'turno' => $request->value,
-            'body' => $body,
-            'mailBody' => $mailBody,
-            'nameUser' => strtoupper($request->nameUser),
-        ];
-
         try {
+            // Declarar el asunto y cuerpo del correo
+            $letterM = new LetterM();
+            $subject = 'No. DE TURNO ASIGNADO PARA CORRESPONDENCIA';
+            $body = 'Este es el contenido dinámico del correo';
+            $mailBody = $letterM->mailLetter($request->id);
+
+            // Datos que se pasarán a la vista
+            $data = [
+                'subject' => $subject,
+                'turno' => $request->value,
+                'body' => $body,
+                'mailBody' => $mailBody,
+                'nameUser' => strtoupper($request->nameUser),
+            ];
+
             // Enviar el correo con la vista Blade
-            Mail::send('letter.mail.mailLetter', $data, function ($message) use ($subject) {
-                $message->from('soporterh.imssbienestar@gmail.com', 'SIRH') // Agrega el nombre y el correo del remitente
-                    ->to('rodolfo.trejo@imssbienestar.gob.mx')
-                    ->subject($subject);
-                // Elimina setBody(), Laravel automáticamente maneja el contenido como HTML
+            Mail::send('letter.mail.mailLetter', $data, function ($message) use ($subject, $request) {
+                $message->from('soporterh.imssbienestar@gmail.com', 'SIRH')  // Dirección del remitente
+                    ->to($request->mail)  // Dirección del destinatario
+                    ->subject($subject);  // Asunto del correo
             });
 
             return response()->json([
