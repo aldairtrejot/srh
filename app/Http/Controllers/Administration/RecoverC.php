@@ -8,6 +8,6 @@ use Illuminate\Http\Request;
 class RecoverC extends Controller
 {
     public function __invoke(){
-        return view ('letter/mail/mailLetter');//'administration/recover');
+        return view ('administration/recover');
     }
 }
