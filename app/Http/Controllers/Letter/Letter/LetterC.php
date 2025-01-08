@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;

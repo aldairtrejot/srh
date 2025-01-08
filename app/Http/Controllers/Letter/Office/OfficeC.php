@@ -15,7 +15,7 @@ use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 
 class OfficeC extends Controller
 {

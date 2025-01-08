@@ -15,7 +15,7 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 class FileC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
