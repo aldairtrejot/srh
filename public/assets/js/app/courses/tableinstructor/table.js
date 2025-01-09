@@ -1,171 +1,127 @@
-// Obtener el token CSRF desde la metaetiqueta
-const token = $('meta[name="csrf-token"]').attr('content');
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': token
-    }
-});
+var token = $('meta[name="csrf-token"]').attr('content'); // Token para formularios
 
-// Variables globales
-let iterator = 1;
-let emptyContent = false;
-let courseIdToDelete = null;
+var iterator = 1; // Iterador inicial
+var emptyContent = false;
 
 $(document).ready(function () {
-    searchInit();
-    setValue();
-
-    // Modal y eventos
-    const modal = document.getElementById("deleteModal");
-    const span = document.getElementsByClassName("close")[0];
-    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-
-    span.onclick = () => (modal.style.display = "none");
-    cancelDeleteBtn.onclick = () => (modal.style.display = "none");
-
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    };
-
-    confirmDeleteBtn.onclick = () => {
-        if (courseIdToDelete) deleteCourse(courseIdToDelete);
-    };
+    searchInit(); // Inicializar búsqueda
+    setValue();   // Establecer valores iniciales
 });
 
-// Función para inicializar la búsqueda
+// Inicializa la búsqueda y carga los datos en la tabla
 function searchInit() {
-    const searchValue = document.getElementById('searchValue').value.trim();
+    const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/table`,
+        url: URL_DEFAULT.concat('/tableinstructor/table'),
         type: 'POST',
         data: {
             iterator: iteradorAux,
             searchValue: searchValue,
-            _token: token
+            _token: token // Token CSRF para autenticación
         },
-        success: (response) => renderTable(response),
-        error: (xhr) => handleAjaxError(xhr)
+        success: function (response) {
+            const tbody = $('#template-table tbody');
+            tbody.empty(); // Limpiar la tabla antes de agregar nuevos datos
+
+            if (response.data && response.data.length > 0) {
+                response.data.forEach(function (object) {
+                    const editUrl = URL_DEFAULT.concat(`/tableinstructor/edit/${object.id_instructor}`);
+                    const cloudUrl = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_instructor}`);
+
+                    // Generar el HTML de la fila
+                    const rowHTML = `
+                        <tr>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menú">
+                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
+                                        <h6 class="dropdown-header">Acciones</h6>
+                                        <a class="dropdown-item" href="${editUrl}">
+                                            <span style="background:#1D5B3B" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-pencil item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Modificar
+                                        </a>
+                                        <a class="dropdown-item" href="${cloudUrl}">
+                                            <span style="background:#8a6f19" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-cloud item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Cloud
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${object.id_instructor}</td>
+                            <td>${object.nombre}</td>
+                            <td>${object.uuid_cv || 'Sin CV'}</td>
+                            <td>${object.uuid_constancia || 'Sin constancia'}</td>
+                            <td>${object.estatus_apto ? 'Apto' : 'No Apto'}</td>
+                        </tr>
+                    `;
+                    tbody.append(rowHTML);
+                });
+                emptyContent = false;
+            } else {
+                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                emptyContent = true;
+                setValue();
+            }
+        },
+        error: function () {
+            alert("Error al cargar la tabla.");
+        }
     });
 }
 
-// Renderiza la tabla con los resultados
-function renderTable(response) {
-    const tbody = $('#template-table tbody');
-    tbody.empty();
-
-    if (response.value && response.value.length > 0) {
-        response.value.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id}`;
-
-            const rowHTML = `
-                <tr>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
-                                <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <h6 class="dropdown-header">Acciones</h6>
-                                <a class="dropdown-item" href="${finalUrl}">
-                                    <span style="background:#1D5B3B" class="icon-container-template">
-                                        <div style="text-align: center;">
-                                            <i class="fa fa-pencil item-icon-menu"></i>
-                                        </div>
-                                    </span>
-                                    Modificar
-                                </a>
-                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id})">
-                                    <span style="background:#6A1B3D" class="icon-container-template">
-                                        <div style="text-align: center;">
-                                            <i class="fa fa-trash item-icon-menu"></i>
-                                        </div>
-                                    </span>
-                                    Eliminar
-                                </a>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${object.id_empleados || '-'}</td>
-                    <td>${object.uuid_constancia || '-'}</td>
-                    <td>${object.uuid_cv || '-'}</td>
-                    <td>${object.estatus_apto ? 'ACTIVO' : 'INACTIVO'}</td>
-                    <td>${object.estatus_instructor || '-'}</td>
-                </tr>
-            `;
-            tbody.append(rowHTML);
-        });
-    } else {
-        tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
-    }
-}
-
-
-// Manejo de errores en AJAX
-function handleAjaxError(xhr) {
-    console.error('Error en la solicitud:', xhr.responseText);
-    alert('Hubo un error al procesar la solicitud. Por favor, inténtalo de nuevo.');
-}
-
-// Funciones de paginación
+// Incrementa el iterador en 1
 function paginatorMax1() {
-    if (!emptyContent) iterator += 1;
+    iterator = emptyContent ? iterator : iterator + 1;
     setValue();
     searchInit();
 }
 
+// Incrementa el iterador en 5
 function paginatorMax5() {
-    if (!emptyContent) iterator += 5;
+    iterator = emptyContent ? iterator : iterator + 5;
     setValue();
     searchInit();
 }
 
+// Decrementa el iterador en 5
 function paginatorMin5() {
-    iterator = Math.max(iterator - 5, 1);
+    let iteratorAux = iterator;
+    iterator = (iteratorAux - 5) > 0 ? iterator - 5 : 1;
     setValue();
     searchInit();
 }
 
+// Decrementa el iterador en 1
 function paginatorMin1() {
-    iterator = Math.max(iterator - 1, 1);
+    let iteratorAux = iterator;
+    iterator = (iteratorAux - 1) > 0 ? iterator - 1 : 1;
     setValue();
     searchInit();
 }
 
-// Reinicia el iterador y realiza la búsqueda
+// Establece los valores de los labels del paginador
+function setValue() {
+    let iteratorAux = iterator;
+    document.getElementById("is_iterator").innerHTML = iteratorAux;
+    document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
+    document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 2;
+}
+
+// Resetea el iterador al cambiar el valor de búsqueda
 function searchValue() {
     iterator = 1;
     setValue();
     searchInit();
-}
-
-// Actualiza el número de página en el DOM
-function setValue() {
-    document.getElementById("is_iterator").innerText = iterator;
-    document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
-    document.getElementById("is_iteratorMax").innerText = iterator + 2;
-}
-
-// Muestra el modal de confirmación de eliminación
-function confirmDelete(id) {
-    courseIdToDelete = id;
-    document.getElementById("deleteModal").style.display = "block";
-}
-
-// Elimina un curso
-function deleteCourse(id) {
-    $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
-        type: 'DELETE',
-        data: { _token: token },
-        success: () => {
-            alert('Instructor eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
-        },
-        error: (xhr) => handleAjaxError(xhr)
-    });
 }

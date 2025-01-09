@@ -1,19 +1,25 @@
-<!-- TEMPLATE APP-->
+<!-- TEMPLATE APP -->
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
-    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Tabla</h3>
-                            <h5 class="font-weight-normal mb-0">Instructores</h5>
+                            <h3 class="font-weight-bold">Gestión de Instructores</h3>
+                            <h5 class="font-weight-normal mb-0">Lista de Instructores</h5>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <style>
+                .custom-button[disabled] {
+                    cursor: not-allowed;
+                }
+            </style>
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -21,15 +27,13 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Administración De Personas Instructoras</h4>
-                                @if($letterAdminMatch)
-                                    <p class="card-description">
-                                        ¿Deseas agregar un registro? 
-                                        <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
-                                            <i class="fa fa-arrow-up"></i> Agregar Instructor
-                                        </a>
-                                    </p>
-                                @endif
+                                <h4 class="card-title">Instructores</h4>
+                                <p class="card-description">
+                                    ¿Deseas agregar un registro? <a href="{{ route('tableinstructor.create') }}"
+                                        class="text-danger" style="margin-left: 10px;">
+                                        <i class="fa fa-plus"></i> Agregar Instructor
+                                    </a>
+                                </p>
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
@@ -41,18 +45,17 @@
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>Menu</th>
+                                    <th>Menú</th>
+                                    <th>ID</th>
                                     <th>Nombre</th>
-                                    <th>Constancia de Evaluación</th>
-                                    <th>Curriculum Vitae</th>
-                                    <th>Apto Para Impartir Cursos</th>
-
+                                    <th>CV</th>
+                                    <th>Constancia</th>
+                                    <th>Estatus Apto</th>
                                 </tr>
                             </thead>
-                           
                         </x-template-table.template-table>
 
-                        <!-- TEMPLATE PAGINATOR-->
+                        <!-- TEMPLATE PAGINATOR -->
                         <x-template-table.template-paginator />
 
                     </div>
@@ -61,20 +64,9 @@
 
         </div>
     </div>
-                <!-- Modal de confirmación -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Estás seguro de que deseas eliminar este curso?</p>
-        <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
-        <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
-    </div>
-</div>
 
-
-    <!-- CODE SCRIPT-->
-    <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
-    <script src="/srh/public/assets/js/app/default/url.js"></script>
+    <!-- CODE SCRIPT -->
+    <script src="{{ asset('assets/js/app/instructors/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
 
 </x-template-app.app-layout>

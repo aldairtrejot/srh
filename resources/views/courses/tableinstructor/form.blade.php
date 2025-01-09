@@ -1,12 +1,13 @@
 <!-- TEMPLATE APP -->
 <x-template-app.app-layout>
+    <?php include(resource_path('views/config.php')); ?>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Alfresco" caption="Nube" />
+                        <x-template-tittle.tittle-header tittle="Gestión de Instructores" caption="Formulario de Instructor" />
                     </div>
                 </div>
             </div>
@@ -15,59 +16,57 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tipocursos) ? 'Cargar' : '' }} Subir Archivos"
+                            tittle="{{ isset($instructor->id_instructor) ? 'Modificar' : 'Agregar ' }} Instructor"
                             route="{{ route('tableinstructor.list') }}" />
-                        
-                        <br>
-                        <form action="{{ route('tableinstructor.save') }}" method="POST" enctype="multipart/form-data">
-                            @csrf  <!-- Campo CSRF para proteger la solicitud -->
+                        <div>
+                            <form id="myForm" action="{{ route('tableinstructor.save') }}" method="POST" class="form-sample">
+                                @csrf
 
-                            <x-template-form.template-form-input-required label="Curp" type="text"
-                                name="name" placeholder="Curp"
-                                grid="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" autocomplete=""
-                                value="" />
-                            <br><br>
+                                <x-template-form.template-form-input-hidden name="id_instructor"
+                                    value="{{ optional($instructor)->id_instructor ?? '' }}" />
 
-                            <!-- Subir CV -->
-                            <label for="file_cv">Sube tu CV:</label>
-                            <input type="file" name="file_cv" id="file_cv" required onchange="showFileNameAndPreview('cv')"><br><br>
-                            
-                            <p id="file-name-cv"></p>
-                            <div id="image-preview-container-cv" style="display:none; max-width: 150px; max-height: 150px;">
-                                <img id="image-preview-cv" src="" alt="Vista previa de imagen" style="width: 100%; height: 100%; object-fit: contain;" />
-                            </div>
-                            <div id="pdf-preview-container-cv" style="display:none; width: 150px; height: 150px; overflow: hidden;">
-                                <embed id="pdf-preview-cv" src="" type="application/pdf" width="100%" height="100%" />
-                            </div>
+                                <x-template-tittle.tittle-caption-secon tittle="Información del Instructor" />
+                                <div class="row">
+                                    <x-template-form.template-form-input-required label="ID Empleados" type="text"
+                                        name="id_empleados" placeholder="ID del empleado"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($instructor)->id_empleados ?? '' }}" />
 
-                            <br><br>
+                                    <x-template-form.template-form-input-required label="UUID CV" type="text"
+                                        name="uuid_cv" placeholder="UUID del CV"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($instructor)->uuid_cv ?? '' }}" />
 
-                            <!-- Subir Constancia -->
-                            <label for="file_constancia">Sube tu Constancia:</label>
-                            <input type="file" name="file_constancia" id="file_constancia" required onchange="showFileNameAndPreview('constancia')"><br><br>
-                            
-                            <p id="file-name-constancia"></p>
-                            <div id="image-preview-container-constancia" style="display:none; max-width: 150px; max-height: 150px;">
-                                <img id="image-preview-constancia" src="" alt="Vista previa de imagen" style="width: 100%; height: 100%; object-fit: contain;" />
-                            </div>
-                            <div id="pdf-preview-container-constancia" style="display:none; width: 150px; height: 150px; overflow: hidden;">
-                                <embed id="pdf-preview-constancia" src="" type="application/pdf" width="100%" height="100%" />
-                            </div>
-                            <br><br>
+                                    <x-template-form.template-form-input-required label="UUID Constancia" type="text"
+                                        name="uuid_constancia" placeholder="UUID de la Constancia"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($instructor)->uuid_constancia ?? '' }}" />
+                                </div>
 
-                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                                <label for="estatus">Estatus</label>
-                                <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" checked>
-                            </div>
+                                <x-template-tittle.tittle-caption-secon tittle="Estatus y Observaciones" />
+                                <div class="row">
+                                    <x-template-form.template-form-select-required 
+                                        :selectValue="[['id' => 1, 'value' => 'Apto'], ['id' => 0, 'value' => 'No Apto']]"
+                                        :selectEdit="optional($instructor)->estatus_apto ?? ''"
+                                        name="estatus_apto" tittle="Estatus Apto"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
-                            <x-template-button.button-form-footer routeBack="{{ route('tableinstructor.list') }}" />
-                        </form>
+                                    <x-template-form.template-form-input-required label="Observaciones" type="text"
+                                        name="observaciones" placeholder="Observaciones"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" autocomplete=""
+                                        value="{{ optional($instructor)->observaciones ?? '' }}" />
+                                </div>
+
+                                <x-template-button.button-form-footer routeBack="{{ route('tableinstructor.list') }}" />
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="{{ asset('assets/js/app/courses/alfresco/table.js') }}"></script>
 </x-template-app.app-layout>
 
+<!-- CODE SCRIPT -->
+<script src="{{ asset('assets/js/app/instructors/form.js') }}"></script>
+<script src="{{ asset('assets/js/app/instructors/validate.js') }}"></script>

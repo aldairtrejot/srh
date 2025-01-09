@@ -230,15 +230,26 @@ Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
 
 //ROUTE_COUSER ---- >Tabla instructores
+
 Route::middleware(['auth'])->group(function () {
+    // Gestión de instructores
     Route::get('/tableinstructor/list', [InstructorsC::class, 'list'])->name('tableinstructor.list');
     Route::post('/tableinstructor/table', [InstructorsC::class, 'table'])->name('tableinstructor.table');
     Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create');
     Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
     Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save');
-    Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud');
     Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy'])->name('tableinstructor.destroy');
+    Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud');
+
+    // Gestión de la nube
+    Route::post('/tableinstructor/cloud/data', [CloudC::class, 'cloudData'])->name('tableinstructor.cloud.data');
+    Route::post('/tableinstructor/cloud/anexos', [CloudC::class, 'cloudAnexos'])->name('tableinstructor.cloud.cv');
+    Route::post('/tableinstructor/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('tableinstructor.cloud.constancia');
+    Route::post('/tableinstructor/cloud/upload', [CloudC::class, 'upload'])->name('tableinstructor.cloud.upload');
+    Route::post('/tableinstructor/cloud/delete', [CloudC::class, 'delete'])->name('tableinstructor.cloud.delete');
 });
+
+
 
 
 //ROUTE OFICIOS
