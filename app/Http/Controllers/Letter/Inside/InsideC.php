@@ -150,7 +150,12 @@ class InsideC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($request->id_cat_area_documento == 7) {
+                $idusuario = 15;
+                $idEnlace = 16;
+                $idArea = 7;
             }
+
         } else {
             if ($id_area_aux == 2) {
                 $idusuario = 7;
@@ -168,6 +173,10 @@ class InsideC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($id_area_aux == 7) {
+                $idusuario = 15;
+                $idEnlace = 17;
+                $idArea = 7;
             }
         }
 
