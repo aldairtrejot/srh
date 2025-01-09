@@ -175,7 +175,7 @@ class InsideC extends Controller
                 $idArea = 6;
             } else if ($id_area_aux == 7) {
                 $idusuario = 15;
-                $idEnlace = 17;
+                $idEnlace = 16;
                 $idArea = 7;
             }
         }
