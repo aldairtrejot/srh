@@ -7,8 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control"
-                            caption="Correspondencia" />
+                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Correspondencia" />
                     </div>
                 </div>
             </div>
@@ -59,6 +58,9 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
+
+                                    <!--
+                                    Se oculro porque se modifico el catalogo de clave
                                     <div class="item">
                                         <label class="etiqueta">Clave:</label>
                                         <label id="_labClave" class="valor"></label>
@@ -71,6 +73,7 @@
                                         <label class="etiqueta">Clave / redacción:</label>
                                         <label id="_labClaveRedaccion" class="valor"></label>
                                     </div>
+-->
                                 </div>
 
                                 <br>
@@ -115,8 +118,8 @@
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Folio de gestión"
-                                        type="text" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
+                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->folio_gestion ?? '' }}" />
 
