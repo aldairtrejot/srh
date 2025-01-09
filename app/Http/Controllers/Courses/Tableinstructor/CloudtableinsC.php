@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Courses\Tableinstructor;
 
 use App\Models\CloudCV;
 use App\Models\CloudConstancia;
