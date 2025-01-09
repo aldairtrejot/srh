@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Models\Courses\Courses;
+namespace App\Models\Courses\Courses\Instructores\Instructores;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+
 class InstructorM extends Model
 {
-    protected $table = 'capacitacion.tbl_instructores';
-    protected $primaryKey = 'id_instructor'; // Especifica la clave primaria
-    public $timestamps = false;
+    protected $table = 'capacitacion.tbl_instructores'; // Nombre de la tabla en la base de datos
+    protected $primaryKey = 'id_instructor'; // Clave primaria
+    public $timestamps = false; // Desactivar timestamps si no se usan en la tabla
     protected $fillable = [
         'id_instructor',
         'id_empleados',
@@ -20,47 +21,54 @@ class InstructorM extends Model
         'fecha_usuario',
     ];
 
+    /**
+     * Obtener un instructor por ID.
+     *
+     * @param string $id
+     * @return object|null
+     */
     public function edit(string $id)
     {
-        // Realizamos la consulta utilizando el Query Builder de Laravel
-        $query = DB::table('capacitacion.tbl_instructores')
+        return DB::table($this->table)
             ->where('id_instructor', $id)
-            ->first(); // Usamos first() para obtener un único registro
-
-        // Retornamos el usuario o null si no se encuentra
-        return $query ?? null;
-    }
-    public function list($iterator, $searchValue)
-{
-    // Construcción de la consulta base
-    $query = DB::table('capacitacion.tbl_instructores')
-        ->select([
-            'capacitacion.tbl_instructores.id_instructor AS id',
-            'capacitacion.tbl_instructores.id_empleados',
-            'capacitacion.tbl_instructores.uuid_constancia',
-            'capacitacion.tbl_instructores.uuid_cv',
-            DB::raw('CASE WHEN capacitacion.tbl_instructores.estatus_apto = 1 THEN TRUE ELSE FALSE END AS estatus_apto'),
-            'capacitacion.tbl_instructores.estatus_instructor'
-        ]);
-
-    // Si se proporciona un valor de búsqueda, aplicar filtros
-    if (!empty($searchValue)) {
-        $searchValue = strtoupper(trim($searchValue));
-
-        $query->where(function ($query) use ($searchValue) {
-            $query->whereRaw("UPPER(TRIM(capacitacion.tbl_instructores.id_empleados)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(capacitacion.tbl_instructores.uuid_constancia)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(capacitacion.tbl_instructores.uuid_cv)) LIKE ?", ['%' . $searchValue . '%']);
-        });
+            ->first();
     }
 
-    // Aplicar orden y paginación
-    $query->orderBy('capacitacion.tbl_instructores.id_instructor', 'ASC')
-          ->offset($iterator)
-          ->limit(5);
+    /**
+     * Obtener lista de instructores con paginación y búsqueda.
+     *
+     * @param int $iterator
+     * @param string|null $searchValue
+     * @return \Illuminate\Support\Collection
+     */
+    public function list($iterator = 0, $searchValue = null)
+    {
+        // Construcción de la consulta base
+        $query = DB::table($this->table)
+            ->select([
+                "{$this->table}.id_instructor AS id",
+                "{$this->table}.id_empleados",
+                "{$this->table}.uuid_constancia",
+                "{$this->table}.uuid_cv",
+                DB::raw("CASE WHEN {$this->table}.estatus_apto = 1 THEN TRUE ELSE FALSE END AS estatus_apto"),
+                "{$this->table}.estatus_instructor",
+            ]);
 
-    // Ejecutar la consulta y retornar resultados
-    return $query->get();
-}
+        // Aplicar filtros de búsqueda si corresponde
+        if (!empty($searchValue)) {
+            $searchValue = strtoupper(trim($searchValue));
+            $query->where(function ($subquery) use ($searchValue) {
+                $subquery->whereRaw("UPPER(TRIM({$this->table}.id_empleados)) LIKE ?", ['%' . $searchValue . '%'])
+                         ->orWhereRaw("UPPER(TRIM({$this->table}.uuid_constancia)) LIKE ?", ['%' . $searchValue . '%'])
+                         ->orWhereRaw("UPPER(TRIM({$this->table}.uuid_cv)) LIKE ?", ['%' . $searchValue . '%']);
+            });
+        }
 
+        // Aplicar orden y paginación
+        $query->orderBy("{$this->table}.id_instructor", 'ASC')
+              ->offset($iterator)
+              ->limit(5);
+
+        return $query->get();
+    }
 }

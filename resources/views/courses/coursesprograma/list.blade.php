@@ -73,6 +73,4 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursesprograma/table.js') }}"></script>
-    <script src="/srh/public/assets/js/app/default/url.js"></script>
-
 </x-template-app.app-layout>

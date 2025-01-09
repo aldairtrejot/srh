@@ -1,41 +1,44 @@
-var token = $('meta[name="csrf-token"]').attr('content'); // Token para formularios
-
+var token = $('meta[name="csrf-token"]').attr('content'); // Token CSRF
 var iterator = 1; // Iterador inicial
 var emptyContent = false;
 
+// Inicialización del documento
 $(document).ready(function () {
-    searchInit(); // Inicializar búsqueda
+    if (typeof URL_DEFAULT === 'undefined') {
+        console.error("La variable URL_DEFAULT no está definida.");
+        return;
+    }
+    searchInit(); // Inicializar la búsqueda
     setValue();   // Establecer valores iniciales
 });
 
-// Inicializa la búsqueda y carga los datos en la tabla
+// Carga los datos en la tabla
 function searchInit() {
-    const searchValue = document.getElementById('searchValue').value;
+    const searchValue = $('#searchValue').val();
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: URL_DEFAULT.concat('/tableinstructor/table'),
+        url: `${URL_DEFAULT}/tableinstructor/table`,
         type: 'POST',
         data: {
             iterator: iteradorAux,
             searchValue: searchValue,
-            _token: token // Token CSRF para autenticación
+            _token: token, // Token CSRF
         },
         success: function (response) {
             const tbody = $('#template-table tbody');
-            tbody.empty(); // Limpiar la tabla antes de agregar nuevos datos
+            tbody.empty(); // Limpia la tabla
 
             if (response.data && response.data.length > 0) {
-                response.data.forEach(function (object) {
-                    const editUrl = URL_DEFAULT.concat(`/tableinstructor/edit/${object.id_instructor}`);
-                    const cloudUrl = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_instructor}`);
+                response.data.forEach((object) => {
+                    const editUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_instructor}`;
+                    const cloudUrl = `${URL_DEFAULT}/tableinstructor/cloud/${object.id_instructor}`;
 
-                    // Generar el HTML de la fila
                     const rowHTML = `
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menú">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Acciones de fila">
                                         <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
@@ -60,7 +63,7 @@ function searchInit() {
                                 </div>
                             </td>
                             <td>${object.id_instructor}</td>
-                            <td>${object.nombre}</td>
+                            <td>${object.nombre || 'Sin nombre'}</td>
                             <td>${object.uuid_cv || 'Sin CV'}</td>
                             <td>${object.uuid_constancia || 'Sin constancia'}</td>
                             <td>${object.estatus_apto ? 'Apto' : 'No Apto'}</td>
@@ -70,56 +73,33 @@ function searchInit() {
                 });
                 emptyContent = false;
             } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                tbody.html('<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>');
                 emptyContent = true;
-                setValue();
             }
+            setValue();
         },
-        error: function () {
-            alert("Error al cargar la tabla.");
-        }
+        error: function (xhr, status, error) {
+            console.error(`Error al cargar la tabla: ${error}`);
+            alert("Hubo un problema al cargar los datos.");
+        },
     });
 }
 
-// Incrementa el iterador en 1
-function paginatorMax1() {
-    iterator = emptyContent ? iterator : iterator + 1;
+// Funciones de paginación
+function changeIterator(change) {
+    iterator = Math.max(1, iterator + change);
     setValue();
     searchInit();
 }
 
-// Incrementa el iterador en 5
-function paginatorMax5() {
-    iterator = emptyContent ? iterator : iterator + 5;
-    setValue();
-    searchInit();
-}
-
-// Decrementa el iterador en 5
-function paginatorMin5() {
-    let iteratorAux = iterator;
-    iterator = (iteratorAux - 5) > 0 ? iterator - 5 : 1;
-    setValue();
-    searchInit();
-}
-
-// Decrementa el iterador en 1
-function paginatorMin1() {
-    let iteratorAux = iterator;
-    iterator = (iteratorAux - 1) > 0 ? iterator - 1 : 1;
-    setValue();
-    searchInit();
-}
-
-// Establece los valores de los labels del paginador
+// Establece los valores del paginador
 function setValue() {
-    let iteratorAux = iterator;
-    document.getElementById("is_iterator").innerHTML = iteratorAux;
-    document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
-    document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 2;
+    $("#is_iterator").text(iterator);
+    $("#is_iteratorMin").text(Math.max(1, iterator - 1));
+    $("#is_iteratorMax").text(iterator + 2);
 }
 
-// Resetea el iterador al cambiar el valor de búsqueda
+// Reinicia el iterador al cambiar el valor de búsqueda
 function searchValue() {
     iterator = 1;
     setValue();

@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Courses\Tableinstructor;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\Instructor;
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM// Modelo correcto
 
 class InstructorsC extends Controller
 {
     // Mostrar la lista principal de instructores
     public function list()
     {
-        return view('instructors.list');
+        return view('courses.tableinstructor.list');
     }
 
     // Método para obtener la tabla (por ejemplo, para Datatables)
     public function table(Request $request)
     {
         try {
-            $iterator = $request->input('iterator'); // Desplazamiento para paginación
-            $searchValue = $request->input('searchValue'); // Valor de búsqueda
+            $iterator = $request->input('iterator', 0); // Desplazamiento para paginación, por defecto 0
+            $searchValue = $request->input('searchValue', ''); // Valor de búsqueda, por defecto vacío
 
             // Consulta básica con filtros de búsqueda
-            $query = Instructor::query();
+            $query = InstructorM::query();
             if ($searchValue) {
                 $query->where('uuid_cv', 'like', '%' . $searchValue . '%')
                       ->orWhere('uuid_constancia', 'like', '%' . $searchValue . '%');
@@ -40,7 +41,7 @@ class InstructorsC extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error al cargar la tabla: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -48,18 +49,19 @@ class InstructorsC extends Controller
     // Mostrar formulario de creación
     public function create()
     {
-        return view('instructors.create');
+        $instructor = null;
+        return view('courses.tableinstructor.form', compact('instructor'));
     }
 
     // Mostrar formulario de edición
     public function edit($id)
     {
-        $instructor = Instructor::find($id);
+        $instructor = InstructorM::find($id);
         if (!$instructor) {
             return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
         }
 
-        return view('instructors.edit', compact('instructor'));
+        return view('courses.tableinstructor.form', compact('instructor'));
     }
 
     // Guardar un nuevo instructor o actualizar uno existente
@@ -71,42 +73,57 @@ class InstructorsC extends Controller
             'uuid_cv' => 'nullable|string',
             'estatus_apto' => 'nullable|integer',
             'estatus_instructor' => 'nullable|integer',
-            'id_usuario_sistema' => 'nullable|integer',
-            'fecha_usuario' => 'nullable|date',
         ]);
 
-        $data = array_merge($validated, [
-            'id_usuario_sistema' => Auth::id(),
-            'fecha_usuario' => Carbon::now(),
-        ]);
+        try {
+            $data = array_merge($validated, [
+                'id_usuario_sistema' => Auth::id(),
+                'fecha_usuario' => Carbon::now(),
+            ]);
 
-        if ($request->has('id_instructor')) {
-            // Actualización
-            Instructor::where('id_instructor', $request->id_instructor)->update($data);
-            return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
-        } else {
-            // Creación
-            Instructor::create($data);
-            return redirect()->route('tableinstructor.list')->with('success', 'Instructor creado correctamente.');
+            if ($request->has('id_instructor')) {
+                // Actualización
+                $instructor = InstructorM::find($request->id_instructor);
+                if (!$instructor) {
+                    return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado para actualizar.');
+                }
+
+                $instructor->update($data);
+                return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
+            } else {
+                // Creación
+                InstructorM::create($data);
+                return redirect()->route('tableinstructor.list')->with('success', 'Instructor creado correctamente.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('tableinstructor.list')->with('error', 'Error al guardar el instructor: ' . $e->getMessage());
         }
     }
 
     // Eliminar un instructor
     public function destroy($id)
     {
-        Instructor::where('id_instructor', $id)->delete();
-        return response()->json(['success' => 'Instructor eliminado']);
+        try {
+            $instructor = InstructorM::find($id);
+            if (!$instructor) {
+                return response()->json(['success' => false, 'message' => 'Instructor no encontrado'], 404);
+            }
+
+            $instructor->delete();
+            return response()->json(['success' => true, 'message' => 'Instructor eliminado']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al eliminar el instructor: ' . $e->getMessage()], 500);
+        }
     }
 
     // Método adicional para gestionar datos en la nube
     public function cloud($id)
     {
-        $instructor = Instructor::find($id);
+        $instructor = InstructorM::find($id);
         if (!$instructor) {
             return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
         }
 
-        // Aquí puedes implementar lógica para interactuar con Alfresco o datos en la nube
-        return view('instructors.cloud', compact('instructor'));
+        return view('courses.tableinstructor.cloud', compact('instructor'));
     }
 }

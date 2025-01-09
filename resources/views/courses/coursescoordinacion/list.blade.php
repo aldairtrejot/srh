@@ -69,6 +69,4 @@
 </div>
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursescoordinacion/table.js') }}"></script>
-    <script src="/srh/public/assets/js/app/default/url.js"></script>
-
 </x-template-app.app-layout>
