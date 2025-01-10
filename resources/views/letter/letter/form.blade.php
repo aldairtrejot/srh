@@ -128,11 +128,27 @@
                                         autocomplete="" value="{{optional($item)->lugar ?? '' }}" />
                                 </div>
 
+                                <!--
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Asunto" type="text"
                                         name="asunto" placeholder="ASUNTO"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
                                         value="{{optional($item)->asunto ?? '' }}" />
+                                </div>
+-->
+
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label"
+                                            style="font-size: 1rem; color: #333;">Asunto</label>
+                                        <div class="col-sm-9">
+                                            <textarea name="asunto" id="asunto" placeholder="ASUNTO" autocomplete=""
+                                                class="form-control"
+                                                style="font-size: 1rem; resize: vertical; min-height: 100px;">
+                                                {{ optional($item)->asunto ?? '' }}
+                                            </textarea>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="row">
