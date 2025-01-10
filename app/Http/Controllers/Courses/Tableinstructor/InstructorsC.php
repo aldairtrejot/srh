@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\Courses\Courses\Instructores\Instructores\InstructorM// Modelo correcto
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;// Modelo correcto
 
 class InstructorsC extends Controller
 {
@@ -49,56 +49,91 @@ class InstructorsC extends Controller
     // Mostrar formulario de creación
     public function create()
     {
-        $instructor = null;
-        return view('courses.tableinstructor.form', compact('instructor'));
+        $selectValue = [
+            ['id' => 1, 'value' => 'Apto'],
+            ['id' => 0, 'value' => 'No Apto'],
+        ];
+    
+        $instructor = null; // Pasar la variable $instructor como null
+    
+        return view('courses.tableinstructor.form', compact('selectValue', 'instructor'));
     }
 
     // Mostrar formulario de edición
     public function edit($id)
-    {
-        $instructor = InstructorM::find($id);
-        if (!$instructor) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
-        }
-
-        return view('courses.tableinstructor.form', compact('instructor'));
+{
+    $instructor = InstructorM::find($id);
+    if (!$instructor) {
+        return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
     }
 
+    $selectValue = [
+        ['id' => 1, 'value' => 'Apto'],
+        ['id' => 0, 'value' => 'No Apto'],
+    ];
+
+    return view('courses.tableinstructor.form', compact('instructor', 'selectValue'));
+}
     // Guardar un nuevo instructor o actualizar uno existente
     public function save(Request $request)
-    {
-        $validated = $request->validate([
-            'id_empleados' => 'required|integer',
-            'uuid_constancia' => 'nullable|string',
-            'uuid_cv' => 'nullable|string',
-            'estatus_apto' => 'nullable|integer',
-            'estatus_instructor' => 'nullable|integer',
+{
+    $validated = $request->validate([
+        'id_empleados' => 'required|integer',
+        'uuid_constancia' => 'nullable|string',
+        'uuid_cv' => 'nullable|string',
+        'estatus_apto' => 'nullable|integer',
+        'estatus_instructor' => 'nullable|integer',
+        'cv' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        'constancia' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+    ]);
+
+    try {
+        // Datos generales del instructor
+        $data = array_merge($validated, [
+            'id_usuario_sistema' => Auth::id(),
+            'fecha_usuario' => Carbon::now(),
         ]);
 
-        try {
-            $data = array_merge($validated, [
-                'id_usuario_sistema' => Auth::id(),
-                'fecha_usuario' => Carbon::now(),
-            ]);
-
-            if ($request->has('id_instructor')) {
-                // Actualización
-                $instructor = InstructorM::find($request->id_instructor);
-                if (!$instructor) {
-                    return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado para actualizar.');
-                }
-
-                $instructor->update($data);
-                return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
+        // Manejo de archivos (CV y Constancia)
+        if ($request->hasFile('cv')) {
+            $cvFile = $request->file('cv');
+            $cvResponse = $this->uploadToAlfresco($cvFile, 'CV');
+            if ($cvResponse['success']) {
+                $data['uuid_cv'] = $cvResponse['data']['uuid']; // Guardar el UUID devuelto por Alfresco
             } else {
-                // Creación
-                InstructorM::create($data);
-                return redirect()->route('tableinstructor.list')->with('success', 'Instructor creado correctamente.');
+                return redirect()->route('tableinstructor.list')->with('error', 'Error al subir el CV: ' . $cvResponse['message']);
             }
-        } catch (\Exception $e) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Error al guardar el instructor: ' . $e->getMessage());
         }
+
+        if ($request->hasFile('constancia')) {
+            $constanciaFile = $request->file('constancia');
+            $constanciaResponse = $this->uploadToAlfresco($constanciaFile, 'Constancia');
+            if ($constanciaResponse['success']) {
+                $data['uuid_constancia'] = $constanciaResponse['data']['uuid']; // Guardar el UUID devuelto por Alfresco
+            } else {
+                return redirect()->route('tableinstructor.list')->with('error', 'Error al subir la Constancia: ' . $constanciaResponse['message']);
+            }
+        }
+
+        // Guardar o actualizar el instructor
+        if ($request->has('id_instructor')) {
+            // Actualización
+            $instructor = InstructorM::find($request->id_instructor);
+            if (!$instructor) {
+                return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado para actualizar.');
+            }
+
+            $instructor->update($data);
+            return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
+        } else {
+            // Creación
+            InstructorM::create($data);
+            return redirect()->route('tableinstructor.list')->with('success', 'Instructor creado correctamente.');
+        }
+    } catch (\Exception $e) {
+        return redirect()->route('tableinstructor.list')->with('error', 'Error al guardar el instructor: ' . $e->getMessage());
     }
+}
 
     // Eliminar un instructor
     public function destroy($id)
@@ -126,4 +161,39 @@ class InstructorsC extends Controller
 
         return view('courses.tableinstructor.cloud', compact('instructor'));
     }
+    private function uploadToAlfresco($file, $type)
+    {
+        $alfrescoBaseUrl = 'http://<alfresco-server-url>/alfresco/api/-default-/public/alfresco/versions/1/nodes';
+        $alfrescoToken = '<alfresco-auth-token>';
+    
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post($alfrescoBaseUrl, [
+                'headers' => [
+                    'Authorization' => "Bearer $alfrescoToken",
+                ],
+                'multipart' => [
+                    [
+                        'name' => 'filedata',
+                        'contents' => fopen($file->getRealPath(), 'r'),
+                        'filename' => $file->getClientOriginalName(),
+                    ],
+                    [
+                        'name' => 'name',
+                        'contents' => $type . '_' . $file->getClientOriginalName(),
+                    ],
+                ],
+            ]);
+    
+            if ($response->getStatusCode() === 201) {
+                $data = json_decode($response->getBody(), true);
+                return ['success' => true, 'data' => $data];
+            }
+    
+            return ['success' => false, 'message' => 'Error al subir el archivo'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
 }
