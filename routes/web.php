@@ -240,6 +240,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save');
     Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy'])->name('tableinstructor.destroy');
     Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud');
+    
 
     // Gestión de la nube
     Route::post('/tableinstructor/cloud/data', [CloudC::class, 'cloudData'])->name('tableinstructor.cloud.data');

@@ -14,13 +14,6 @@
                     </div>
                 </div>
             </div>
-
-            <style>
-                .custom-button[disabled] {
-                    cursor: not-allowed;
-                }
-            </style>
-
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -46,17 +39,30 @@
                             <thead>
                                 <tr>
                                     <th>Menú</th>
-                                    <th>ID</th>
+                                    <th>CURP</th>
                                     <th>Nombre</th>
-                                    <th>CV</th>
-                                    <th>Constancia</th>
-                                    <th>Estatus Apto</th>
+                                    <th>Estatus Instructor</th>
+                                    <th>Estado CV</th>
+                                    <th>Estado Constancia</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @foreach ($instructores as $instructor)
+                                    <tr>
+                                        <td>Menú</td>
+                                        <td>{{ $instructor->curp }}</td>
+                                        <td>{{ $instructor->nombre_completo }}</td>
+                                        <td>{{ $instructor->estatus_instructor }}</td>
+                                        <td>{{ $instructor->estado_cv }}</td>
+                                        <td>{{ $instructor->estado_constancia }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
                         </x-template-table.template-table>
 
-                        <!-- TEMPLATE PAGINATOR -->
-                        <x-template-table.template-paginator />
+                       <!-- TEMPLATE PAGINATOR-->
+                       <x-template-table.template-paginator />
+                       
 
                     </div>
                 </div>
@@ -66,6 +72,5 @@
     </div>
 
     <!-- CODE SCRIPT -->
-    <script src="{{ asset('assets\js\app\courses\tableinstructor/table.js') }}"></script>
-    <!-- <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>-->
+    <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
 </x-template-app.app-layout>
