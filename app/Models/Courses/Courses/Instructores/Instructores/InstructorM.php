@@ -87,24 +87,6 @@ class InstructorM extends Model
                         WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.tbl_empleados.nombre || ' ' || transferidos.tbl_empleados.primer_apellido || ' ' || transferidos.tbl_empleados.segundo_apellido)
                     END AS nombre_completo
                 "),
-                DB::raw("
-                    CASE
-                        WHEN capacitacion.tbl_instructores.estatus_instructor IS TRUE THEN 'ACTIVO'
-                        ELSE 'INACTIVO'
-                    END AS estatus_instructor
-                "),
-                DB::raw("
-                    CASE
-                        WHEN LENGTH(TRIM(CAST(capacitacion.tbl_instructores.uuid_cv AS TEXT))) > 0 THEN 'COMPLETO'
-                        ELSE 'INCOMPLETO'
-                    END AS estado_cv
-                "),
-                DB::raw("
-                    CASE
-                        WHEN LENGTH(TRIM(CAST(capacitacion.tbl_instructores.uuid_constancia AS TEXT))) > 0 THEN 'COMPLETO'
-                        ELSE 'INCOMPLETO'
-                    END AS estado_constancia
-                ")
             ])
             ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
             ->leftJoin('central.tbl_empleados_hraes', 'administration.users.id_tbl_empleados_central', '=', 'central.tbl_empleados_hraes.id_tbl_empleados_hraes')

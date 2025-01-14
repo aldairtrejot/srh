@@ -38,23 +38,19 @@
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>Menú</th>
+                                    <th>MENÚ</th>
                                     <th>CURP</th>
-                                    <th>Nombre</th>
-                                    <th>Estatus Instructor</th>
-                                    <th>Estado CV</th>
-                                    <th>Estado Constancia</th>
+                                    <th>NOMBRE</th>
+                                    <th>TOTAL CONSTANCIAS</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($instructores as $instructor)
                                     <tr>
-                                        <td>Menú</td>
+                                        <td>MENÚ</td>
                                         <td>{{ $instructor->curp }}</td>
                                         <td>{{ $instructor->nombre_completo }}</td>
-                                        <td>{{ $instructor->estatus_instructor }}</td>
-                                        <td>{{ $instructor->estado_cv }}</td>
-                                        <td>{{ $instructor->estado_constancia }}</td>
+                                        <td>{{ $instructor->total_constancias }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

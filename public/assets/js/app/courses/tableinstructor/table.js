@@ -121,7 +121,7 @@ function deleteCourse(id) {
         data: { _token: token },
         success: () => {
             alert('Tipo de curso eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/coursestipocur/list`;
+            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
         },
         error: (xhr) => handleAjaxError(xhr)
     });
