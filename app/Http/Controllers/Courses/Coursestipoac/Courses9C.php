@@ -46,7 +46,7 @@ class Courses9C extends Controller
     public function create()
     {
         $item = new CoursestipoacM();
-        $item->id_tipo_accion = '';  // Valor por defecto
+        $item->id_cat_tipo_accion = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = '';     
 

@@ -63,7 +63,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/coursestipocur/edit/${object.id_tipocursos}`;
+                    const finalUrl = `/srh/public/coursestipocur/edit/${object.id_cat_tipo_cursos}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -84,7 +84,7 @@ function searchInit() {
                                             Modificar
                                         </a>
                                        <!-- Aquí se agrega la opción para eliminar -->
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tipocursos})">
+                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_tipo_cursos})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-trash item-icon-menu"></i>

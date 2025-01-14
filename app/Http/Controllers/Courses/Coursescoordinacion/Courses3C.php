@@ -46,7 +46,7 @@ class Courses3C extends Controller
     public function create()
     {
         $item = new CoursescoordinacionM();
-        $item->id_coordinacion = '';  // Valor por defecto
+        $item->id_cat_coordinacion = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = '';     
 

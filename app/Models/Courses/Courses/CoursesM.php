@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursesM extends Model
 {
     protected $table = 'capacitacion.cat_beneficio';
-    protected $primaryKey = 'id_beneficio'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_beneficio'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -31,7 +31,7 @@ class CoursesM extends Model
         // Preparar la consulta base
         $query = DB::table('capacitacion.cat_beneficio')
         ->select([
-            'capacitacion.cat_beneficio.id_beneficio AS id',
+            'capacitacion.cat_beneficio.id_cat_beneficio AS id',
             DB::raw('UPPER(capacitacion.cat_beneficio.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_beneficio.estatus = 1 THEN TRUE ELSE FALSE END AS estatus')
         ]); 
@@ -61,7 +61,7 @@ class CoursesM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_beneficio.id_beneficio', 'ASC')
+        $query->orderBy('capacitacion.cat_beneficio.id_cat_beneficio', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 

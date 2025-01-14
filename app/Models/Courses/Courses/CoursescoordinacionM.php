@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursescoordinacionM extends Model
 {
     protected $table = 'capacitacion.cat_coordinacion';
-    protected $primaryKey = 'id_coordinacion'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_coordinacion'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -20,7 +20,7 @@ class CoursescoordinacionM extends Model
         // Preparar la consulta base
         $query = DB::table('capacitacion.cat_coordinacion')
         ->select([
-            'capacitacion.cat_coordinacion.id_coordinacion AS id',
+            'capacitacion.cat_coordinacion.id_cat_coordinacion AS id',
             DB::raw('UPPER(capacitacion.cat_coordinacion.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_coordinacion.estatus = 1 THEN TRUE ELSE FALSE END AS estatus')
         ]); 
@@ -37,7 +37,7 @@ class CoursescoordinacionM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_coordinacion.id_coordinacion', 'ASC')
+        $query->orderBy('capacitacion.cat_coordinacion.id_cat_coordinacion', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
@@ -48,7 +48,7 @@ class CoursescoordinacionM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_coordinacion')
-            ->where('id_coordinacion', $id)
+            ->where('id_cat_coordinacion', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra

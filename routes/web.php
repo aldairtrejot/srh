@@ -245,6 +245,7 @@ Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 //ROUTE_COUSER ---- >Tabla instructores
 Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
 
+
 //ROUTE_COUSER ---- >Alfresco
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo

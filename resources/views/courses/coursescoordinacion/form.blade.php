@@ -15,7 +15,7 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_coordinacion) ? 'Modificar' : 'Agregar ' }} Curso Coordinacion"
+                            tittle="{{ isset($item->id_cat_coordinacion) ? 'Modificar' : 'Agregar ' }} Curso Coordinacion"
                             route="{{ route('coursescoordinacion.list') }}" />
                         
                         <br>

@@ -47,7 +47,7 @@ class Courses6C extends Controller
     public function create()
     {
         $item = new CoursesnombreaccM();
-        $item->id_estatuto_organico = '';  // Valor por defecto
+        $item->id_cat_nombre_accion = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = '';     
         $item->nombre = '';    

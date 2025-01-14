@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursesestatutoM extends Model
 {
     protected $table = 'capacitacion.cat_estatuto_organico';
-    protected $primaryKey = 'id_estatuto_organico'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_estatuto_organico'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -21,7 +21,7 @@ class CoursesestatutoM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_estatuto_organico')
-            ->where('id_estatuto_organico', $id)
+            ->where('id_cat_estatuto_organico', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
@@ -32,7 +32,7 @@ class CoursesestatutoM extends Model
         // Preparar la consulta base
         $query = DB::table('capacitacion.cat_estatuto_organico')
         ->select([
-            'capacitacion.cat_estatuto_organico.id_estatuto_organico AS id',
+            'capacitacion.cat_estatuto_organico.id_cat_estatuto_organico AS id',
             DB::raw('UPPER(capacitacion.cat_estatuto_organico.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_estatuto_organico.estatus = 1 THEN TRUE ELSE FALSE END AS estatus'),
             DB::raw('UPPER(capacitacion.cat_estatuto_organico.nombre) AS nombre'),
@@ -51,7 +51,7 @@ class CoursesestatutoM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_estatuto_organico.id_estatuto_organico', 'ASC')
+        $query->orderBy('capacitacion.cat_estatuto_organico.id_cat_estatuto_organico', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 

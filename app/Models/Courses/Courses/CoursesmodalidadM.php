@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursesmodalidadM extends Model
 {
     protected $table = 'capacitacion.cat_modalidad';
-    protected $primaryKey = 'id_modalidad'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_modalidad'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -20,7 +20,7 @@ class CoursesmodalidadM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_modalidad')
-            ->where('id_modalidad', $id)
+            ->where('id_cat_modalidad', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
@@ -31,7 +31,7 @@ class CoursesmodalidadM extends Model
         // Preparar la consulta base
         $query = DB::table('capacitacion.cat_modalidad')
         ->select([
-            'capacitacion.cat_modalidad.id_modalidad AS id',
+            'capacitacion.cat_modalidad.id_cat_modalidad AS id',
             DB::raw('UPPER(capacitacion.cat_modalidad.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_modalidad.estatus = 1 THEN TRUE ELSE FALSE END AS estatus')
         ]); 
@@ -48,7 +48,7 @@ class CoursesmodalidadM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_modalidad.id_modalidad', 'ASC')
+        $query->orderBy('capacitacion.cat_modalidad.id_cat_modalidad', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
