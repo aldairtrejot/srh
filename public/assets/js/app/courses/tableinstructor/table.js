@@ -48,7 +48,7 @@ function searchInit() {
             searchValue: searchValue,
             _token: token
         },
-        success: (response) => renderTable(response.value),
+        success: (response) => renderTable(response),
         error: (xhr) => handleAjaxError(xhr)
     });
 }
@@ -90,8 +90,8 @@ function renderTable(response) {
                         </div>
                     </td>
                     <td>${object.curp || ' '}</td>
-                    <td>${object.nombre || ' '}</td>
-                    <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                    <td>${object.nombre_completo || ' '}</td>
+                    <td>${object.estatus_instructor ? 'ACTIVO' : 'INACTIVO'}</td>
                 </tr>
             `;
             tbody.append(rowHTML);
@@ -106,7 +106,6 @@ function renderTable(response) {
 // Manejo de errores en AJAX
 function handleAjaxError(xhr) {
     console.error('Error en la solicitud:', xhr.responseText);
-    alert('Hubo un error al procesar la solicitud. Por favor, inténtalo de nuevo.');
 }
 
 // Funciones de paginación
@@ -157,7 +156,7 @@ function confirmDelete(id) {
 // Elimina un curso
 function deleteCourse(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete/{id}${id}`,
+        url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
         type: 'DELETE',
         data: { _token: token },
         success: () => {

@@ -45,26 +45,26 @@ class InstructorsC extends Controller
 
     public function searchTable(Request $request)
     {
-        $searchValue = $request->get('searchValue', '');
-        $iterator = max(0, (int)$request->get('iterator', 0));
+        try {
 
-        if (empty($searchValue)) {
-            return response()->json([
-                'value' => [],
+            $iterator = $request->input('iterator'); //OFSET valor de paginador
+            $searchValue = $request->input('searchValue');
+            $searchColumn = $request->input('searchColumn', null);  
+
+            $instructorM = new InstructorM();
+            $value = $instructorM ->list($iterator, $searchValue);
+
+            return response()->json([ // Lógica para procesar la solicitud+
+                'value' => $value,
                 'status' => true,
-                'message' => 'Sin resultados para el término de búsqueda.',
             ]);
+
+        } catch (\Exception $e) { // Manejo de errores  
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $instructors = InstructorM::where('estatus', 'LIKE', '%' . $searchValue . '%')
-            ->offset($iterator)
-            ->limit(5)
-            ->get();
-
-        return response()->json([
-            'value' => $instructors,
-            'status' => true,
-        ]);
     }
 
     public function destroy($id)

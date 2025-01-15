@@ -18,54 +18,62 @@ class InstructorM extends Model
     ];
 
     public function list($iterator, $searchValue)
-    {
-        // Preparar la consulta base
-        $query = DB::table($this->table)
-            ->select([
-                'capacitacion.tbl_instructores.id_tbl_instructores',
-                DB::raw("
-                    CASE
-                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.tbl_empleados_hraes.curp)
-                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.tbl_empleados_hraes.curp)
-                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.tbl_empleados.curp)
-                    END AS curp
-                "),
-                DB::raw("
-                    CASE
-                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.tbl_empleados_hraes.nombre || ' ' || central.tbl_empleados_hraes.primer_apellido || ' ' || central.tbl_empleados_hraes.segundo_apellido)
-                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.tbl_empleados_hraes.nombre || ' ' || public.tbl_empleados_hraes.primer_apellido || ' ' || public.tbl_empleados_hraes.segundo_apellido)
-                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.tbl_empleados.nombre || ' ' || transferidos.tbl_empleados.primer_apellido || ' ' || transferidos.tbl_empleados.segundo_apellido)
-                    END AS nombre
-                "),
-                DB::raw("
-                    CASE
-                        WHEN capacitacion.tbl_instructores.estatus IS TRUE THEN 'ACTIVO'
-                        ELSE 'INACTIVO'
-                    END AS estatus
-                "),
-            ])
-            ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
-            ->leftJoin('central.tbl_empleados_hraes', 'administration.users.id_tbl_empleados_central', '=', 'central.tbl_empleados_hraes.id_tbl_empleados_hraes')
-            ->leftJoin('transferidos.tbl_empleados', 'administration.users.id_tbl_empleados_central', '=', 'transferidos.tbl_empleados.id_tbl_empleados')
-            ->leftJoin('public.tbl_empleados_hraes', 'administration.users.id_tbl_empleados_hraes', '=', 'public.tbl_empleados_hraes.id_tbl_empleados_hraes');
+{
+    $query = DB::table('capacitacion.tbl_instructores')
+        ->select([
+            'capacitacion.tbl_instructores.id_tbl_instructores',
+            DB::raw("
+                CASE
+                    WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.curp)
+                    WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.curp)
+                    WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.curp)
+                END AS curp
+            "),
+            DB::raw("
+                CASE
+                    WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.nombre || ' ' || central.primer_apellido || ' ' || central.segundo_apellido)
+                    WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.nombre || ' ' || public.primer_apellido || ' ' || public.segundo_apellido)
+                    WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.nombre || ' ' || transferidos.primer_apellido || ' ' || transferidos.segundo_apellido)
+                END AS nombre_completo
+            "),
+            DB::raw("
+                CASE
+                    WHEN capacitacion.tbl_instructores.estatus IS TRUE THEN 'ACTIVO'
+                    ELSE 'INACTIVO'
+                END AS estatus_instructor
+            "),
+        ])
+        ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
+        ->leftJoin('central.tbl_empleados_hraes as central', 'administration.users.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
+        ->leftJoin('transferidos.tbl_empleados as transferidos', 'administration.users.id_tbl_empleados_central', '=', 'transferidos.id_tbl_empleados')
+        ->leftJoin('public.tbl_empleados_hraes as public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes');
 
-        // Si se proporciona un valor de búsqueda, agregar condiciones
-        if (!empty($searchValue)) {
-            $searchValue = strtoupper(trim($searchValue));
-            $query->where(function ($query) use ($searchValue) {
-                $query->where('capacitacion.tbl_instructores.id_tbl_instructores', 'LIKE', '%' . $searchValue . '%')
-                      ->orWhere('capacitacion.tbl_instructores.estatus', 'LIKE', '%' . $searchValue . '%');
-            });
-        }
-
-        // Validar y aplicar paginación
-        $iterator = max(0, (int)$iterator);
-        $query->orderBy('capacitacion.tbl_instructores.id_tbl_instructores', 'ASC')
-            ->offset($iterator)
-            ->limit(5);
-
-        return $query->get();
+    // Agregar condiciones de búsqueda
+    if (!empty($searchValue)) {
+        $searchValue = strtoupper(trim($searchValue));
+        $query->where(function ($query) use ($searchValue) {
+            $query->whereRaw("UPPER(central.curp) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(public.curp) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(transferidos.curp) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(central.nombre || ' ' || central.primer_apellido || ' ' || central.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(public.nombre || ' ' || public.primer_apellido || ' ' || public.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("UPPER(transferidos.nombre || ' ' || transferidos.primer_apellido || ' ' || transferidos.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                  ->orWhereRaw("
+                        CASE
+                            WHEN capacitacion.tbl_instructores.estatus IS TRUE THEN 'ACTIVO'
+                            ELSE 'INACTIVO'
+                        END LIKE ?
+                  ", ['%' . $searchValue . '%']);
+        });
     }
+
+    // Aplicar paginación y orden
+    $query->orderBy('capacitacion.tbl_instructores.id_tbl_instructores', 'ASC')
+        ->offset(max(0, (int)$iterator))
+        ->limit(5);
+
+    return $query->get();
+}
 
     public function edit(string $id)
     {
