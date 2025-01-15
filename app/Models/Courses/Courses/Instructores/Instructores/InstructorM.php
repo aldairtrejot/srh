@@ -69,7 +69,12 @@ class InstructorM extends Model
 
     public function edit(string $id)
     {
-        // Usar Eloquent para obtener el registro
-        return self::find($id);
+          // Realizamos la consulta utilizando el Query Builder de Laravel
+          $query = DB::table('capacitacion.tbl_instructores')
+          ->where('id_tbl_instructores', $id)
+          ->first(); // Usamos first() para obtener un único registro
+
+      // Retornamos el usuario o null si no se encuentra
+      return $query ?? null;
     }
 }

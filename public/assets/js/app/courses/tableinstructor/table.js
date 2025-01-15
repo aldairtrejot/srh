@@ -89,9 +89,9 @@ function renderTable(response) {
                             </div>
                         </div>
                     </td>
-                    <td>${object.curp}</td>
-                    <td>${object.nombre}</td>
-                    <td>${object.estatus}</td>
+                    <td>${object.curp || ' '}</td>
+                    <td>${object.nombre || ' '}</td>
+                    <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
                 </tr>
             `;
             tbody.append(rowHTML);

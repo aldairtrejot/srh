@@ -19,6 +19,7 @@ class InstructorsC extends Controller
 
     public function save(Request $request)
     {
+        $instructorM = new InstructorM();
         $messagesC = new MessagesC();
         $now = Carbon::now();
 
@@ -26,7 +27,7 @@ class InstructorsC extends Controller
             'estatus' => 'required|boolean',
         ]);
 
-        InstructorM::create([
+        $instructorM::create([
             'estatus' => $request->estatus,
             'id_usuario_sistema' => Auth::id(),
             'fecha_usuario' => $now,
