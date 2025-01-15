@@ -32,6 +32,7 @@ use App\Http\Controllers\Courses\Coursesprograma\Courses8C;
 use App\Http\Controllers\Courses\Coursestipoac\Courses9C;
 use App\Http\Controllers\Courses\Coursestipocur\Courses10C;
 use App\Http\Controllers\Courses\Tableinstructor\InstructorsC;
+use App\Http\Controllers\Courses\Tablecourses\TblCoursesC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
@@ -249,6 +250,10 @@ Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.
 //ROUTE_COUSER ---- >Alfresco
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo
+
+//ROUTE_COUSER ---- >Tabla Cursos
+Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')->middleware('auth');
+Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 
 
 

@@ -85,6 +85,8 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tableinstructor.list') }}">Instructores</a>
                         </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('tablecourses.list') }}">Cursos Tabla</a>
+                        </li>
 
                     </ul>
                 </div>
