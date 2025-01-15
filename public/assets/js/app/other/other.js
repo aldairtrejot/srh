@@ -1,11 +1,31 @@
-// Función para ocultar el div
+// Función para ocultar el div con animación
 function hideDiv(parameter) {
-    document.getElementById(parameter).style.display = 'none';
+    let element = document.getElementById(parameter);
+    
+    // Cambiar el estilo de opacidad para la animación
+    element.style.transition = "opacity 0.5s ease-in-out";  // Definimos la transición de opacidad
+    element.style.opacity = "0";  // Hacemos que el elemento se desvanezca
+    
+    // Esperar a que termine la transición antes de cambiar el display a 'none'
+    setTimeout(function() {
+        element.style.display = "none"; // Después de la animación, ocultamos el div
+    }, 500);  // El tiempo debe coincidir con la duración de la transición
 }
 
-// Función para mostrar el div
+// Función para mostrar el div con animación
 function showDiv(parameter) {
-    document.getElementById(parameter).style.display = 'block';
+    let element = document.getElementById(parameter);
+    
+    // Asegúrate de que el div esté visible y con la animación de opacidad
+    element.style.display = "block"; // Cambiar display a 'block' para que sea visible
+    element.style.transition = "opacity 0.5s ease-in-out";  // Definir la transición de opacidad
+    element.style.opacity = "0";  // Establecemos la opacidad inicial a 0 para comenzar desde invisible
+    
+    // Forzar un reflujo para aplicar la animación
+    void element.offsetWidth; // Este truco hace que el navegador recalcule el estilo antes de comenzar la animación
+    
+    // Finalmente, hacemos que el div se desvanezca al 100% de opacidad
+    element.style.opacity = "1";
 }
 
 

@@ -44,6 +44,12 @@
                                 <x-template-form.template-form-input-hidden name="rfc_remitente_bool"
                                     value="{{ optional($item)->rfc_remitente_bool ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="es_doc_fisico"
+                                    value="{{ optional($item)->es_doc_fisico ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="son_mas_remitentes"
+                                    value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
@@ -124,10 +130,11 @@
                                         grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
                                         value="{{optional($item)->folio_gestion ?? '' }}" />
 
-                                    <div class="form-check form-check-flat form-check-secondary">
+                                    <div id="id_checkbox_Template_tooltip_fisico"
+                                        class="form-check form-check-flat form-check-secondary">
                                         <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate_">
-                                            ¿El documento es en formato físico?
+                                            <input type="checkbox" class="form-check-input" id="es_doc_fisico_box">
+                                            ¿El documento es físico?
                                         </label>
                                     </div>
                                 </div>
@@ -211,38 +218,52 @@
 
                                 </div>
 
+                                <!--
                                 <x-template-tittle.tittle-caption-secon tittle="Información de remitente" />
-                                <div class="row">
+-->
 
-                                    <x-template-form.template-form-select-required :selectValue="$selectRemitente"
-                                        :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
+                                <p class="card-description"
+                                    style="font-size: 1rem; font-weight: bold; color: #000; display: inline-block; margin-right: 30px;">
+                                    Información de remitente
+                                </p>
 
-                                    <div class="form-check form-check-flat form-check-secondary">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate">
-                                            Agregar remitente
-                                        </label>
+                                <div id="mas_remitentes" class="form-check form-check-flat form-check-secondary"
+                                    style="display: inline-block;">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" class="form-check-input" id="son_mas_remitentes_box"
+                                            style="margin-left: 50px;">
+                                        ¿Cuenta con varios remitentes?
+                                    </label>
+                                </div>
+
+
+                                <div id="_hidden_select">
+                                    <div class="row">
+
+                                        <x-template-form.template-form-select-required :selectValue="$selectRemitente"
+                                            :selectEdit="$selectRemitenteEdit" name="id_cat_remitente"
+                                            tittle="Remitente" grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
+
+                                        <div id="id_checkbox_Template_tooltip"
+                                            class="form-check form-check-flat form-check-secondary"
+                                            style="display: inline-block;">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
+                                                    style="margin-left: 50px;">
+                                                Agregar remitente
+                                            </label>
+                                        </div>
+
                                     </div>
-
                                 </div>
 
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Puesto remitente" type="text"
                                         name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
                                         value="{{optional($item)->puesto_remitente ?? '' }}" />
                                 </div>
 
-                                <!--
-                                <style>
-                                    .form-check-primary.form-check label input[type="checkbox"]+.input-helper:before,
-                                    .form-check-primary.form-check label input[type="radio"]+.input-helper:before {
-                                        border-color: #000000;
-                                    }
-
-                                </style>
-                                -->
                                 <div id="mostrar_ocultar_template">
                                     <div class="row">
                                         <x-template-form.template-form-input-required label="Nombre" type="text"
@@ -266,6 +287,15 @@
                                             name="remitente_rfc" placeholder="RFC"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                             value="" />
+                                    </div>
+                                </div>
+
+                                <div id="mostrar_ocultar_mas_remitentes">
+                                    <div class="row">
+                                        <x-template-form.template-form-input-required label="Remitentes" type="text"
+                                            name="remitente" placeholder="REMITENTES"
+                                            grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
+                                            value="{{optional($item)->remitente ?? '' }}" />
                                     </div>
                                 </div>
 

@@ -51,6 +51,8 @@ class LetterC extends Controller
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
         $item->rfc_remitente_bool = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
+        $item->es_doc_fisico = true; // Inicio de variables
+        $item->son_mas_remitentes = false; // Inicio de variables
 
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
