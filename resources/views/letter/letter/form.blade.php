@@ -12,6 +12,7 @@
                 </div>
             </div>
 
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -120,11 +121,20 @@
 
                                     <x-template-form.template-form-input-required label="Folio de gestión" type="text"
                                         name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
                                         value="{{optional($item)->folio_gestion ?? '' }}" />
 
+                                    <div class="form-check form-check-flat form-check-secondary">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate_">
+                                            ¿El documento es en formato físico?
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <x-template-form.template-form-input-required label="Lugar" type="text" name="lugar"
-                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8"
+                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
                                         autocomplete="" value="{{optional($item)->lugar ?? '' }}" />
                                 </div>
 
@@ -144,8 +154,8 @@
                                         <div class="col-sm-9">
                                             <textarea name="asunto" id="asunto" placeholder="ASUNTO" autocomplete=""
                                                 class="form-control"
-                                                style="font-size: 1rem; resize: vertical; min-height: 100px;">
-                                                {{ optional($item)->asunto ?? '' }}
+                                                style="font-size: 1rem; resize: vertical; min-height: 30px;">
+                                                {{ optional($item)->asunto ?: '' }}
                                             </textarea>
                                         </div>
                                     </div>
@@ -208,10 +218,9 @@
                                         :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
 
-                                    <div class="form-check form-check-flat form-check-primary">
+                                    <div class="form-check form-check-flat form-check-secondary">
                                         <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
-                                                title="Marca este checkbox si no tienes un número de correspondencia.">
+                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate">
                                             Agregar remitente
                                         </label>
                                     </div>
@@ -225,13 +234,15 @@
                                         value="{{optional($item)->puesto_remitente ?? '' }}" />
                                 </div>
 
-
+                                <!--
                                 <style>
                                     .form-check-primary.form-check label input[type="checkbox"]+.input-helper:before,
                                     .form-check-primary.form-check label input[type="radio"]+.input-helper:before {
                                         border-color: #000000;
                                     }
+
                                 </style>
+                                -->
                                 <div id="mostrar_ocultar_template">
                                     <div class="row">
                                         <x-template-form.template-form-input-required label="Nombre" type="text"

@@ -9,6 +9,9 @@ $(document).ready(function () {
     setData(); //Establecer las variables de informacion general
     getRole(); //Obtener y definir los roles para no tener los input
     setCheckboxArea();
+
+    tooltip('#idcheckboxTemplate_', 'Marcar si el documento es físico'); // Tooltip
+    tooltip('#idcheckboxTemplate', 'Añadir un remitente no registrado'); // Tooltip
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area

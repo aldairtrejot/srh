@@ -26,3 +26,14 @@ function hideSpinner() {
         spinner.style.display = 'none';  // Ocultar después de la animación
     }, 300);  // Tiempo para esperar que la animación termine
 }
+
+// Muestra un tooltip. esperando como parametroa el id del valor value y la leyenta text
+function tooltip(value, text) {
+    tippy(value, {
+        content: text,
+        theme: 'dark',  // Color del fondo del tooltip (puedes cambiar el tema o personalizarlo)
+        placement: 'top',  // Posición del tooltip (puede ser 'top', 'bottom', 'left', 'right')
+        animation: 'fade',  // Animación del tooltip
+        arrow: true,  // Muestra una flecha para señalar al checkbox
+    });
+}
