@@ -1,219 +1,103 @@
 <?php
+
 namespace App\Http\Controllers\Courses\Tableinstructor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\Courses\Courses\Instructores\Instructores\InstructorM; // Modelo correcto
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\MessagesC;
 
 class InstructorsC extends Controller
 {
-    // Mostrar la lista principal de instructores
-    public function list()
+    public function __invoke()
     {
-        $instructorModel = new InstructorM();
-        $instructores = $instructorModel->obtenerInstructoresConDetalles();
-        return view('courses.tableinstructor.list', compact('instructores'));
+        $tableInstructors = InstructorM::all();
+        return view('courses.tableinstructor.list', compact('tableInstructors'));
     }
 
-    // Método para obtener la tabla (por ejemplo, para Datatables)
-    public function table(Request $request)
-    {
-        try {
-            $searchValue = $request->input('searchValue', ''); // Valor de búsqueda, por defecto vacío
-    
-            // Consulta básica con filtros de búsqueda
-            $query = InstructorM::query();
-            if ($searchValue) {
-                $query->where('uuid_cv', 'like', '%' . $searchValue . '%')
-                      ->orWhere('uuid_constancia', 'like', '%' . $searchValue . '%');
-            }
-    
-            // Obtener resultados con paginación
-            $instructores = $query->paginate(10); // Cambia el número 10 por el número de registros por página que desees
-    
-            return response()->json([
-                'data' => $instructores,
-                'status' => true,
-            ]);
-    
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Error al cargar la tabla: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    // Mostrar formulario de creación
-    public function create()
-    {
-        $selectValue = [
-            ['id' => 1, 'value' => 'Apto'],
-            ['id' => 0, 'value' => 'No Apto'],
-        ];
-    
-        $instructor = null; // Pasar la variable $instructor como null
-    
-        return view('courses.tableinstructor.form', compact('selectValue', 'instructor'));
-    }
-
-    // Mostrar formulario de edición
-    public function edit($id)
-    {
-        $instructor = InstructorM::find($id);
-        if (!$instructor) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
-        }
-
-        $selectValue = [
-            ['id' => 1, 'value' => 'Apto'],
-            ['id' => 0, 'value' => 'No Apto'],
-        ];
-
-        return view('courses.tableinstructor.form', compact('instructor', 'selectValue'));
-    }
-
-    // Guardar un nuevo instructor o actualizar uno existente
     public function save(Request $request)
     {
-        $validated = $request->validate([
-            'id_empleados' => 'required|integer',
-            'uuid_constancia' => 'nullable|string',
-            'uuid_cv' => 'nullable|string',
-            'estatus_apto' => 'nullable|integer',
-            'estatus_instructor' => 'nullable|integer',
-            'cv' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
-            'constancia' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        $messagesC = new MessagesC();
+        $now = Carbon::now();
+
+        $request->validate([
+            'estatus' => 'required|boolean',
         ]);
 
-        try {
-            // Datos generales del instructor
-            $data = array_merge($validated, [
-                'id_usuario_sistema' => Auth::id(),
-                'fecha_usuario' => Carbon::now(),
-            ]);
+        InstructorM::create([
+            'estatus' => $request->estatus,
+            'id_usuario_sistema' => Auth::id(),
+            'fecha_usuario' => $now,
+        ]);
 
-            // Manejo de archivos (CV y Constancia)
-            if ($request->hasFile('cv')) {
-                $cvFile = $request->file('cv');
-                $cvResponse = $this->uploadToAlfresco($cvFile, 'CV');
-                if ($cvResponse['success']) {
-                    $data['uuid_cv'] = $cvResponse['data']['uuid']; // Guardar el UUID devuelto por Alfresco
-                } else {
-                    return redirect()->route('tableinstructor.list')->with('error', 'Error al subir el CV: ' . $cvResponse['message']);
-                }
-            }
-
-            if ($request->hasFile('constancia')) {
-                $constanciaFile = $request->file('constancia');
-                $constanciaResponse = $this->uploadToAlfresco($constanciaFile, 'Constancia');
-                if ($constanciaResponse['success']) {
-                    $data['uuid_constancia'] = $constanciaResponse['data']['uuid']; // Guardar el UUID devuelto por Alfresco
-                } else {
-                    return redirect()->route('tableinstructor.list')->with('error', 'Error al subir la Constancia: ' . $constanciaResponse['message']);
-                }
-            }
-
-            // Guardar o actualizar el instructor
-            if ($request->has('id_instructor')) {
-                // Actualización
-                $instructor = InstructorM::find($request->id_instructor);
-                if (!$instructor) {
-                    return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado para actualizar.');
-                }
-
-                $instructor->update($data);
-                return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
-            } else {
-                // Creación
-                InstructorM::create($data);
-                return redirect()->route('tableinstructor.list')->with('success', 'Instructor creado correctamente.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Error al guardar el instructor: ' . $e->getMessage());
-        }
+        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor guardado exitosamente.');
     }
 
-    // Eliminar un instructor
+    public function create()
+    {
+        $item = new InstructorM();
+        $item->estatus = '';
+        return view('courses.tableinstructor.form', compact('item'));
+    }
+
+    public function searchTable(Request $request)
+    {
+        $searchValue = $request->get('searchValue', '');
+        $iterator = max(0, (int)$request->get('iterator', 0));
+
+        if (empty($searchValue)) {
+            return response()->json([
+                'value' => [],
+                'status' => true,
+                'message' => 'Sin resultados para el término de búsqueda.',
+            ]);
+        }
+
+        $instructors = InstructorM::where('estatus', 'LIKE', '%' . $searchValue . '%')
+            ->offset($iterator)
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'value' => $instructors,
+            'status' => true,
+        ]);
+    }
+
     public function destroy($id)
     {
         try {
-            $instructor = InstructorM::find($id);
-            if (!$instructor) {
-                return response()->json(['success' => false, 'message' => 'Instructor no encontrado'], 404);
-            }
-
+            $instructor = InstructorM::findOrFail($id);
             $instructor->delete();
-            return response()->json(['success' => true, 'message' => 'Instructor eliminado']);
+
+            return response()->json(['success' => true, 'message' => 'Instructor eliminado exitosamente.']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error al eliminar el instructor: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Error al eliminar el instructor.'], 500);
         }
     }
 
-    // Método adicional para gestionar datos en la nube
-    public function cloud($id)
+    public function edit(Request $request, $id)
     {
         $instructor = InstructorM::find($id);
+        $messagesC = new MessagesC();
+
         if (!$instructor) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado');
+            abort(404, 'Instructor no encontrado.');
         }
 
-        return view('courses.tableinstructor.cloud', compact('instructor'));
-    }
-
-    private function uploadToAlfresco($file, $type)
-    {
-        $alfrescoBaseUrl = 'http://<alfresco-server-url>/alfresco/api/-default-/public/alfresco/versions/1/nodes';
-        $alfrescoToken = '<alfresco-auth-token>';
-    
-        try {
-            $client = new \GuzzleHttp\Client();
-            $response = $client->post($alfrescoBaseUrl, [
-                'headers' => [
-                    'Authorization' => "Bearer $alfrescoToken",
-                ],
-                'multipart' => [
-                    [
-                        'name' => 'filedata',
-                        'contents' => fopen($file->getRealPath(), 'r'),
-                        'filename' => $file->getClientOriginalName(),
-                    ],
-                    [
-                        'name' => 'name',
-                        'contents' => $type . '_' . $file->getClientOriginalName(),
-                    ],
-                ],
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'estatus' => 'required|boolean',
             ]);
-    
-            if ($response->getStatusCode() === 201) {
-                $data = json_decode($response->getBody(), true);
-                return ['success' => true, 'data' => $data];
-            }
-    
-            return ['success' => false, 'message' => 'Error al subir el archivo'];
-        } catch (\Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+
+            $instructor->estatus = $request->input('estatus') ? true : false;
+            $instructor->save();
+
+            return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor actualizado exitosamente.');
         }
-    }
 
-    // Método para obtener instructores con detalles adicionales
-    public function obtenerInstructoresConDetalles()
-{
-    try {
-        // Crear una instancia del modelo
-        $instructorModel = new InstructorM();
-
-        // Llamar al método usando la instancia
-        $instructores = $instructorModel->obtenerInstructoresConDetalles();
-
-        // Pasar los datos a la vista
-        return view('courses.tableinstructor.detalles', compact('instructores'));
-    } catch (\Exception $e) {
-        // Manejo de errores
-        return redirect()->route('tableinstructor.list')->with('error', 'Error al obtener los detalles de los instructores: ' . $e->getMessage());
+        return view('courses.tableinstructor.edit', compact('instructor'));
     }
 }
-    
-}   

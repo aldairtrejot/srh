@@ -38,7 +38,7 @@ $(document).ready(function () {
 // Función para inicializar la búsqueda
 function searchInit() {
     const searchValue = document.getElementById('searchValue').value.trim();
-    const iteradorAux = (iterator * 5) - 5; // Ajusta el cálculo según el número de registros por página
+    const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
         url: `${URL_DEFAULT}/tableinstructor/table`,
@@ -48,7 +48,7 @@ function searchInit() {
             searchValue: searchValue,
             _token: token
         },
-        success: (response) => renderTable(response),
+        success: (response) => renderTable(response.value),
         error: (xhr) => handleAjaxError(xhr)
     });
 }
@@ -58,9 +58,9 @@ function renderTable(response) {
     const tbody = $('#template-table tbody');
     tbody.empty();
 
-    if (response.data && response.data.data.length > 0) {
-        response.data.data.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
+    if (response.value && response.value.length > 0) {
+        response.value.forEach((object) => {
+            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/{id}${object.id_tbl_instructores}`;
             const rowHTML = `
                 <tr>
                     <td>
@@ -89,7 +89,9 @@ function renderTable(response) {
                             </div>
                         </div>
                     </td>
-                    <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                    <td>${object.curp}</td>
+                    <td>${object.nombre}</td>
+                    <td>${object.estatus}</td>
                 </tr>
             `;
             tbody.append(rowHTML);
@@ -99,6 +101,7 @@ function renderTable(response) {
         tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
         emptyContent = true;
     }
+}
 
 // Manejo de errores en AJAX
 function handleAjaxError(xhr) {
@@ -106,27 +109,6 @@ function handleAjaxError(xhr) {
     alert('Hubo un error al procesar la solicitud. Por favor, inténtalo de nuevo.');
 }
 
-
-// Muestra el modal de confirmación de eliminación
-function confirmDelete(id) {
-    courseIdToDelete = id;
-    document.getElementById("deleteModal").style.display = "block";
-}
-
-// Elimina un curso
-function deleteCourse(id) {
-    $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
-        type: 'DELETE',
-        data: { _token: token },
-        success: () => {
-            alert('Tipo de curso eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
-        },
-        error: (xhr) => handleAjaxError(xhr)
-    });
-}
-}
 // Funciones de paginación
 function paginatorMax1() {
     if (!emptyContent) iterator += 1;
@@ -164,4 +146,24 @@ function setValue() {
     document.getElementById("is_iterator").innerText = iterator;
     document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
     document.getElementById("is_iteratorMax").innerText = iterator + 2;
+}
+
+// Muestra el modal de confirmación de eliminación
+function confirmDelete(id) {
+    courseIdToDelete = id;
+    document.getElementById("deleteModal").style.display = "block";
+}
+
+// Elimina un curso
+function deleteCourse(id) {
+    $.ajax({
+        url: `${URL_DEFAULT}/tableinstructor/delete/{id}${id}`,
+        type: 'DELETE',
+        data: { _token: token },
+        success: () => {
+            alert('Instructor eliminado exitosamente.');
+            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
+        },
+        error: (xhr) => handleAjaxError(xhr)
+    });
 }

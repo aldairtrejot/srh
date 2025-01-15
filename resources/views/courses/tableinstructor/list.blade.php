@@ -1,19 +1,20 @@
-<!-- TEMPLATE APP -->
+<!-- TEMPLATE APP-->
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de Instructores</h3>
-                            <h5 class="font-weight-normal mb-0">Lista de Instructores</h5>
+                            <h3 class="font-weight-bold">TABLA</h3>
+                            <h5 class="font-weight-normal mb-0">INSTRUCTORES</h5>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -21,12 +22,14 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Instructores</h4>
-                                <p class="card-description">
-                                    ¿Deseas agregar un registro? <a href="{{ route('tableinstructor.create') }}"
-                                        class="text-danger" style="margin-left: 10px;">
-                                        <i class="fa fa-plus"></i> Agregar Instructor
-                                    </a>
-                                </p>
+                                @if($letterAdminMatch)
+                                    <p class="card-description">
+                                        ¿Deseas agregar un registro? 
+                                        <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Agregar Registro
+                                        </a>
+                                    </p>
+                                @endif
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
@@ -38,27 +41,16 @@
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>MENÚ</th>
+                                    <th>MENU</th>
                                     <th>CURP</th>
                                     <th>NOMBRE</th>
-                                    <th>TOTAL CONSTANCIAS</th>
+                                    <th>ESTATUS</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($instructores as $instructor)
-                                    <tr>
-                                        <td>MENÚ</td>
-                                        <td>{{ $instructor->curp }}</td>
-                                        <td>{{ $instructor->nombre_completo }}</td>
-                                        <td>{{ $instructor->total_constancias }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </x-template-table.template-table>
 
-                       <!-- TEMPLATE PAGINATOR-->
-                       <x-template-table.template-paginator />
-                       
+                        <!-- TEMPLATE PAGINATOR-->
+                        <x-template-table.template-paginator />
 
                     </div>
                 </div>
@@ -66,7 +58,17 @@
 
         </div>
     </div>
+    <!-- Modal de confirmación -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que deseas eliminar este curso?</p>
+        <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+        <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
+    </div>
+</div>
 
-    <!-- CODE SCRIPT -->
+    <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
 </x-template-app.app-layout>
