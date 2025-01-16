@@ -204,6 +204,8 @@ class LetterC extends Controller
         $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
         $COR_USUARIO = config('custom_config.COR_USUARIO'); // Acceso por área
         $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0; //Se condiciona el valor del check
+        $es_doc_fisico = isset($request->es_doc_fisico) ? 1 : 0; //Se condiciona el valor del check
+        $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0; //Se condiciona el valor del check
         //Autorizacion solo administracion
 
         if ($rfc_remitente_bool) { //El usuario agrego un remitente
@@ -253,6 +255,9 @@ class LetterC extends Controller
                 'id_cat_coordinacion' => $request->id_cat_coordinacion,
                 'puesto_remitente' => strtoupper($request->puesto_remitente),
                 'folio_gestion' => strtoupper($request->folio_gestion),
+                'es_doc_fisico' => $es_doc_fisico,
+                'son_mas_remitentes' => $son_mas_remitentes,
+                'remitente' => strtoupper($request->remitente),
 
                 // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
@@ -297,6 +302,9 @@ class LetterC extends Controller
                     'id_cat_unidad' => $request->id_cat_unidad,
                     'id_cat_coordinacion' => $request->id_cat_coordinacion,
                     'puesto_remitente' => strtoupper($request->puesto_remitente),
+                    'es_doc_fisico' => $es_doc_fisico,
+                    'son_mas_remitentes' => $son_mas_remitentes,
+                    'remitente' => strtoupper($request->remitente),
 
                     'id_usuario_sistema' => Auth::user()->id,
                     'fecha_usuario' => $now,

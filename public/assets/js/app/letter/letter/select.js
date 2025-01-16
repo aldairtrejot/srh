@@ -12,19 +12,19 @@ $('#id_cat_area').on('change', function () {
             },
             success: function (response) {
                 //proceso de select 
-                foreachSelect(response.selectEnlace, '#id_usuario_enlace');
-                foreachSelect(response.selectUsuario, '#id_usuario_area');
+                foreachSelectNull(response.selectEnlace, '#id_usuario_enlace');
+                foreachSelectNull(response.selectUsuario, '#id_usuario_area');
                 foreachSelect(response.selectTramite, '#id_cat_tramite');
 
-                cleanSelect('#id_cat_clave'); //Se limpia el select
+                cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
                 clearClaveData(); //Limpieza de encabezado
             },
         });
     } else {
-        cleanSelect('#id_usuario_area'); //Se limpia el select
-        cleanSelect('#id_usuario_enlace'); //Se limpia el select
-        cleanSelect('#id_cat_tramite'); //Se limpia el select
-        cleanSelect('#id_cat_clave'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_tramite'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
     }
 });
@@ -44,11 +44,11 @@ $('#id_cat_unidad').on('change', function () {
             success: function (response) {
 
                 //Proceso de select
-                foreachSelect(response.selectCoordinacion, '#id_cat_coordinacion');
+                foreachSelectNull(response.selectCoordinacion, '#id_cat_coordinacion');
             },
         });
     } else {
-        cleanSelect('#id_cat_coordinacion'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_coordinacion'); //Se limpia el select
     }
 });
 
@@ -65,11 +65,11 @@ $('#id_cat_tramite').on('change', function () {
             },
             success: function (response) {
                 //Proceso de select
-                foreachSelect(response.selectClave, '#id_cat_clave');
+                foreachSelectNull(response.selectClave, '#id_cat_clave');
             },
         });
     } else {
-        cleanSelect('#id_cat_clave'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
     }
 });

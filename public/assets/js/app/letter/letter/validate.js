@@ -21,14 +21,23 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#id_cat_tramite').val(), 'Tramite') ||
         isFieldEmpty($('#id_cat_clave').val(), 'Clave') ||
         isFieldEmpty($('#puesto_remitente').val(), 'Puesto remitente') ||
-        isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 30) ||
+        isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 50) ||
         isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
-        isExceedingLength($('#lugar').val(), 'Lugar', 100) ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 100)) {
+        isExceedingLength($('#lugar').val(), 'Lugar', 250) ||
+        isExceedingLength($('#asunto').val(), 'Asunto', 130) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 130)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
+    }
+
+    // Valida el check de agregar remitentes, mas de dos
+    if ($('#son_mas_remitentes').val()) {
+        if (isFieldEmpty($('#remitente').val(), 'Remitente') ||
+            isExceedingLength($('#remitente').val(), 'Remitente', 230)) {
+            event.preventDefault();  // Evita el envío del formulario
+            return;  // Detener la ejecución aquí
+        }
     }
 
     //Validacion para agregar remitente al sistema

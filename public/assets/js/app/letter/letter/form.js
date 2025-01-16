@@ -47,10 +47,25 @@ function setCheckbox() {
     son_mas_remitentes ? $('#son_mas_remitentes_box').prop('checked', true) : $('#son_mas_remitentes_box').prop('checked', false);
 
     // Oculta o muestra el contenido dependiendo del la seleccion de remitentes
-    son_mas_remitentes ? hideDiv('_hidden_select') : showDiv('_hidden_select');
-    son_mas_remitentes ? hideDiv('mostrar_ocultar_template') : hideDiv('mostrar_ocultar_template');
-    son_mas_remitentes ? showDiv('mostrar_ocultar_mas_remitentes') : hideDiv('mostrar_ocultar_mas_remitentes');
+    setValueOfMoreRem();
 
+}
+
+// Oculta o muestra el contenido dependiendo del la seleccion de remitentes
+function setValueOfMoreRem() {
+    let son_mas_remitentes = $('#son_mas_remitentes').val();
+
+    if (son_mas_remitentes) {
+        hideDiv('_hidden_select');
+        hideDiv('mostrar_ocultar_template');
+        showDiv('mostrar_ocultar_mas_remitentes');
+        cleanSelect('#id_cat_remitente'); //Se limpia el select
+    } else {
+        showDiv('_hidden_select');
+        hideDiv('mostrar_ocultar_template');
+        hideDiv('mostrar_ocultar_mas_remitentes');
+        $('#remitente').val('');
+    }
 }
 
 //Codigo para la ejecucion de un checkbox
