@@ -45,13 +45,16 @@ class CollectionAreaC extends Controller
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionTramiteM = new CollectionTramiteM();
+        $collectionAreaM = new CollectionAreaM();
 
         $idArea = $request->id; //Obtenemos el id que el usuario selecciono en el combo de area
         $selectEnlace = $collectionRelEnlaceM->idUsuarioByArea($idArea); //Obtenemos el catalogo de enlaces
         $selectUsuario = $collectionRelUsuarioM->idUsuarioByArea($idArea);
         $selectTramite = $collectionTramiteM->list($idArea);
+        $clave = $collectionAreaM->getClave($idArea);
 
         return response()->json([
+            'clave' => $clave,
             'selectEnlace' => $selectEnlace,
             'selectUsuario' => $selectUsuario,
             'selectTramite' => $selectTramite,

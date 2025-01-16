@@ -18,6 +18,7 @@ $('#id_cat_area').on('change', function () {
 
                 cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
                 clearClaveData(); //Limpieza de encabezado
+                setClaveInNuSystem(response.clave); // modificación de no de correspondencia
             },
         });
     } else {
@@ -26,6 +27,7 @@ $('#id_cat_area').on('change', function () {
         cleanSelectMoreSelect('#id_cat_tramite'); //Se limpia el select
         cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
+        setClaveInNuSystem('-'); // modificación de no de correspondencia
     }
 });
 
@@ -104,4 +106,14 @@ function clearClaveData() {
     $('#_labClave').text('_');
     $('#_labClaveCodigo').text('_');
     $('#_labClaveRedaccion').text('_');
+}
+
+// La funcion estable el nuevo no de sistema por el area o sin el area
+function setClaveInNuSystem(value) {
+    let num_turno_sistema = $('#num_turno_sistema').val();
+    let result = num_turno_sistema.replace(/^[^/]+/, value);
+
+    // Se establen los resultados en la variables
+    $('#num_turno_sistema').val(result);
+    $('#_labNoCorrespondencia').text(result);
 }

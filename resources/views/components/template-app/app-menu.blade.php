@@ -32,7 +32,7 @@
                         <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres" aria-expanded="false"
                             aria-controls="ui-basic">
                             <i class="fa fa-file-text menu-icon"></i>
-                            <span class="menu-title">Correspondencia</span>
+                            <span class="menu-title">G. Control</span>
                             <i class="menu-arrow"></i>
                         </a>
                         <div class="collapse" id="ui-basic_corres">

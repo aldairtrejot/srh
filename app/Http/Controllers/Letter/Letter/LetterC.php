@@ -282,6 +282,7 @@ class LetterC extends Controller
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
                 $data = [
+                    'num_turno_sistema' => strtoupper($request->num_turno_sistema),
                     'num_documento' => $request->num_documento,
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,

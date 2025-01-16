@@ -15,7 +15,7 @@ class CollectionConsecutivoM extends Model
             ->select(
                 DB::raw("
                     UPPER(correspondencia.cat_tipo_documento.clave) || '/' || 
-                    TO_CHAR(correspondencia.rel_anio_documento.consecutivo + 1, 'FM0000') || '/' ||
+                    TO_CHAR(correspondencia.rel_anio_documento.consecutivo + 1, 'FM00000') || '/' ||
                     correspondencia.cat_anio.descripcion AS documento_id
                 ")
             )

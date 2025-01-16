@@ -114,8 +114,11 @@ function getRole() {
         $('#puesto_remitente').prop('disabled', true);
         $('#id_cat_remitente').prop('disabled', true);
         $('#folio_gestion').prop('disabled', true);
+        $('#remitente').prop('disabled', true);
 
         $('#idcheckboxTemplate').prop('disabled', true);
+        $('#es_doc_fisico_box').prop('disabled', true);
+        $('#son_mas_remitentes_box').prop('disabled', true);
 
         $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_usuario_area').prop('disabled', true);

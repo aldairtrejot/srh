@@ -51,9 +51,13 @@ class CollectionRemitenteM extends Model
             ->select(
                 'correspondencia.cat_remitente.id_cat_remitente AS id',
                 DB::raw("UPPER(correspondencia.cat_remitente.nombre) || ' ' || 
-                         UPPER(correspondencia.cat_remitente.primer_apellido) || ' ' || 
-                         UPPER(correspondencia.cat_remitente.segundo_apellido) || ' - ' || 
-                         UPPER(correspondencia.cat_remitente.rfc) AS descripcion")
+                                UPPER(correspondencia.cat_remitente.primer_apellido) || ' ' || 
+                                UPPER(correspondencia.cat_remitente.segundo_apellido) ||
+                                CASE 
+                                    WHEN correspondencia.cat_remitente.rfc IS NOT NULL THEN 
+                                        ' - ' || UPPER(correspondencia.cat_remitente.rfc)
+                                    ELSE ''
+                                END AS descripcion")
             )
             ->where('correspondencia.cat_remitente.estatus', true)
             ->orderBy('correspondencia.cat_remitente.nombre', 'ASC')
