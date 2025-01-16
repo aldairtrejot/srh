@@ -237,6 +237,7 @@ Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('table
 Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::match(['get', 'post'], '/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
+Route::post('/tableinstructor/table/dataClave', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataClave')->middleware('auth');
 
 
 

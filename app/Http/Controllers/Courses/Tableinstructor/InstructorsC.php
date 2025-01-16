@@ -49,7 +49,7 @@ class InstructorsC extends Controller
 
             $iterator = $request->input('iterator'); //OFSET valor de paginador
             $searchValue = $request->input('searchValue');
-            $searchColumn = $request->input('searchColumn', null);  
+            
 
             $instructorM = new InstructorM();
             $value = $instructorM ->list($iterator, $searchValue);
@@ -101,4 +101,32 @@ class InstructorsC extends Controller
 
         return view('courses.tableinstructor.edit', compact('instructor'));
     }
+
+
+    //BUSQUEDA DE CURP
+
+    public function dataCurp(Request $request)
+    {
+        try {/*
+
+            $iterator = $request->input('iterator'); //OFSET valor de paginador
+            $searchValue = $request->input('searchValue');
+            
+
+            $instructorM = new InstructorM();
+            $value = $instructorM -> listCurp ($iterator, $searchValue);
+*/
+            return response()->json([ // Lógica para procesar la solicitud+
+                'value' => 'hola',
+                'status' => true,
+            ]);
+
+        } catch (\Exception $e) { // Manejo de errores  
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }
