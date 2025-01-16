@@ -104,29 +104,48 @@ class InstructorsC extends Controller
 
 
     //BUSQUEDA DE CURP
-
     public function dataCurp(Request $request)
     {
-        try {/*
-
-            $iterator = $request->input('iterator'); //OFSET valor de paginador
-            $searchValue = $request->input('searchValue');
-            
-
-            $instructorM = new InstructorM();
-            $value = $instructorM -> listCurp ($iterator, $searchValue);
-*/
-            return response()->json([ // Lógica para procesar la solicitud+
-                'value' => 'hola',
-                'status' => true,
+        try {
+            // Validar la CURP recibida
+            $request->validate([
+                'curp' => 'required|string|size:18', // Asegura que sea una CURP válida
             ]);
 
-        } catch (\Exception $e) { // Manejo de errores  
+            $instructorM = new InstructorM();
+
+            // Llamar a los métodos para consultar la CURP en las tres tablas
+            $centralCurp = $instructorM->centralCurp($request->curp);
+            $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
+            $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
+
+            // Combinar los resultados
+            $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
+
+            // Manejar caso sin resultados
+            if (empty($resultados)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se encontraron resultados para la CURP proporcionada.',
+                    'value' => null,
+                ], 200);
+            }
+
+            // Retornar resultados
+            return response()->json([
+                'status' => true,
+                'value' => $resultados, // Enviará una lista de resultados combinados
+                'message' => 'Datos encontrados correctamente',
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Error en dataCurp: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error en el servidor: ' . $e->getMessage(),
             ], 500);
         }
     }
-
 }
+   
+
