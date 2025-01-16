@@ -55,4 +55,20 @@ class CoursestipoacM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listtipoaccion()
+    {
+        $query = DB::table('capacitacion.cat_tipo_accion')
+            ->select([
+                'capacitacion.cat_tipo_accion.id_cat_tipo_accion AS id',
+                DB::raw('UPPER(capacitacion.cat_tipo_accion.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_tipo_accion.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }

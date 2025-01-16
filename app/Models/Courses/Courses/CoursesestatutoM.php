@@ -58,4 +58,20 @@ class CoursesestatutoM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listestatuto()
+    {
+        $query = DB::table('capacitacion.cat_estatuto_organico')
+            ->select([
+                'capacitacion.cat_estatuto_organico.id_cat_estatuto_organico AS id',
+                DB::raw('UPPER(capacitacion.cat_estatuto_organico.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_estatuto_organico.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }

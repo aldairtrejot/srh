@@ -59,4 +59,21 @@ class CoursesnombreaccM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listnomaccion()
+    {
+        $query = DB::table('capacitacion.cat_nombre_accion')
+            ->select([
+                'capacitacion.cat_nombre_accion.id_cat_nombre_accion AS id',
+                DB::raw("UPPER(capacitacion.cat_nombre_accion.nombre || '-' || capacitacion.cat_nombre_accion.descripcion) AS descripcion")
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_nombre_accion.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
+    
 }

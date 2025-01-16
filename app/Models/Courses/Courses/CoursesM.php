@@ -78,4 +78,20 @@ class CoursesM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }*/
+    public function listbeneficio()
+    {
+        $query = DB::table('capacitacion.cat_beneficio')
+            ->select([
+                'capacitacion.cat_beneficio.id_cat_beneficio AS id',
+                DB::raw('UPPER(capacitacion.cat_beneficio.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_beneficio.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }

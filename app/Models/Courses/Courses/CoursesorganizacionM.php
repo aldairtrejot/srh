@@ -55,4 +55,20 @@ class CoursesorganizacionM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listorganizacion()
+    {
+        $query = DB::table('capacitacion.cat_organizacion')
+            ->select([
+                'capacitacion.cat_organizacion.id_cat_organizacion AS id',
+                DB::raw('UPPER(capacitacion.cat_organizacion.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_organizacion.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }

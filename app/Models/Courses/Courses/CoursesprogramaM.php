@@ -58,4 +58,20 @@ class CoursesprogramaM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listprograma()
+    {
+        $query = DB::table('capacitacion.cat_programa_institucional')
+            ->select([
+                'capacitacion.cat_programa_institucional.id_cat_programa_institucional AS id',
+                DB::raw("UPPER(capacitacion.cat_programa_institucional.nombre || '-' || capacitacion.cat_programa_institucional.descripcion) AS descripcion")
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_programa_institucional.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }

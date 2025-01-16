@@ -55,4 +55,20 @@ class CoursesmodalidadM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    public function listmodalidad()
+    {
+        $query = DB::table('capacitacion.cat_modalidad')
+            ->select([
+                'capacitacion.cat_modalidad.id_cat_modalidad AS id',
+                DB::raw('UPPER(capacitacion.cat_modalidad.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_modalidad.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 }
