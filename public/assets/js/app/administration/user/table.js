@@ -30,16 +30,12 @@ function searchInit() {
                 $('#template-table tbody').append(
                     '<tr>' +
                     '<td>' +
-
-
-
                     '<div class="dropdown">' +
                     '<button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">' +
                     '<i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>' +  // Icono de 3 puntos en blanco
                     '</button>' +
                     '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
                     '<h6 class="dropdown-header">Acciones</h6>' +
-
                     '<a class="dropdown-item" href="' + finalUrl + '">' +
                     '<span style="background:#1D5B3B" class="icon-container-template">' +
                     '<div style="text-align: center;">' +
@@ -78,11 +74,6 @@ function searchInit() {
                     '</div>' +
                     '</div>' +
                     '</td>' +
-
-
-
-
-
                     '<td>' + user.name + '</td>' +
                     '<td>' + user.email + '</td>' +
                     '</tr>'
