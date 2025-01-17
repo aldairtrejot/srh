@@ -14,11 +14,11 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($course->id_tipocursos) ? 'Modificar' : 'Agregar ' }} Tipo Cursos"
+                            tittle="{{ isset($course->id_cat_tipo_cursos) ? 'Modificar' : 'Agregar ' }} Tipo Cursos"
                             route="{{ route('coursestipocur.list') }}" />
                         
                         <br>
-                        <form action="{{ route('coursestipocur.edit', $course->id_tipocursos) }}" method="POST">
+                        <form action="{{ route('coursestipocur.edit', $course->id_cat_tipo_cursos) }}" method="POST">
                             @csrf
                             <x-template-form.template-form-input-required label="Descripcion" type="text"
                                 name="descripcion" placeholder="Descripcion"

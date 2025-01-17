@@ -47,7 +47,7 @@ class CoursesC extends Controller
     public function create()
     {
         $item = new CoursesM();
-        $item->id_beneficio = '';  // Set an empty value or default if needed
+        $item->id_cat_beneficio = '';  // Set an empty value or default if needed
         $item->descripcion = '';    // Set an empty value or default if needed
         $item->estatus = '';     
 

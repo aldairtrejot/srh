@@ -44,7 +44,7 @@ class Courses7C extends Controller
     public function create()
     {
         $item = new CoursesorganizacionM();
-        $item->id_organizacion = '';  // Valor por defecto
+        $item->id_cat_organizacion = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = '';     
 

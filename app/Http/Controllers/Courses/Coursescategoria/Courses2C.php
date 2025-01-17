@@ -46,7 +46,7 @@ class Courses2C extends Controller
     public function create()
     {
         $item = new CoursescategoriaM();
-        $item->id_categoria = '';  // Set an empty value or default if needed
+        $item->id_cat_categoria = '';  // Set an empty value or default if needed
         $item->descripcion = '';    // Set an empty value or default if needed
         $item->estatus = '';     
 

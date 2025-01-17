@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursestipocurM extends Model
 {
     protected $table = 'capacitacion.cat_tipo_cursos';
-    protected $primaryKey = 'id_tipocursos'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_tipo_cursos'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -21,6 +21,7 @@ class CoursestipocurM extends Model
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_tipo_cursos')
             ->where('id_tipocursos', $id)
+            ->where('id_cat_tipo_cursos', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
@@ -32,6 +33,7 @@ class CoursestipocurM extends Model
         $query = DB::table('capacitacion.cat_tipo_cursos')
         ->select([
             'capacitacion.cat_tipo_cursos.id_tipocursos AS id',
+            'capacitacion.cat_tipo_cursos.id_cat_tipo_cursos AS id',
             DB::raw('UPPER(capacitacion.cat_tipo_cursos.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_tipo_cursos.estatus = 1 THEN TRUE ELSE FALSE END AS estatus')
         ]); 
@@ -48,11 +50,27 @@ class CoursestipocurM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_tipo_cursos.id_tipocursos', 'ASC')
+        $query->orderBy('capacitacion.cat_tipo_cursos.id_cat_tipo_cursos', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
+    }
+    public function listtipocurso()
+    {
+        $query = DB::table('capacitacion.cat_tipo_cursos')
+            ->select([
+                'capacitacion.cat_tipo_cursos.id_cat_tipo_cursos AS id',
+                DB::raw('UPPER(capacitacion.cat_tipo_cursos.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('capacitacion.cat_tipo_cursos.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
     }
 }

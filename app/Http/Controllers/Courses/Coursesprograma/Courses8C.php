@@ -47,7 +47,7 @@ class Courses8C extends Controller
     public function create()
     {
         $item = new CoursesprogramaM();
-        $item->id_programa_institucional = '';  // Valor por defecto
+        $item->id_cat_programa_institucional = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = '';   
         $item->nombre = '';      

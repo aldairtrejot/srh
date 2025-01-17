@@ -47,7 +47,7 @@ class Courses4C extends Controller
     public function create()
     {
         $item = new CoursesestatutoM();
-        $item->id_estatuto_organico = '';  // Valor por defecto
+        $item->id_cat_estatuto_organico = '';  // Valor por defecto
         $item->descripcion = '';    // Valor por defecto
         $item->estatus = ''; 
         $item->nombre = '';    

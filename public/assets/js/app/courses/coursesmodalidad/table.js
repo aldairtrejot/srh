@@ -53,9 +53,51 @@ function searchInit() {
             searchValue: searchValue || '', // Si está vacío, envía cadena vacía
             _token: token
         },
-        success: (response) => {
-            if (response && typeof response === 'object') {
-                renderTable(response);
+        success: function (response) {
+            const tbody = $('#template-table tbody');
+            tbody.empty();  // Limpiar la tabla antes de agregar los nuevos resultados
+
+            if (response.value && response.value.length > 0) {
+                response.value.forEach(function (object) {
+                    const finalUrl = `/srh/public/coursesmodalidad/edit/${object.id_cat_modalidad}`;
+
+                    // Generar el HTML con template literals
+                    const rowHTML = `
+                        <tr>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
+                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
+                                        <h6 class="dropdown-header">Acciones</h6>
+                                        <a class="dropdown-item" href="${finalUrl}">
+                                            <span style="background:#1D5B3B" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-pencil item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Modificar
+                                        </a>
+                                       <!-- Aquí se agrega la opción para eliminar -->
+                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_modalidad})">
+                                            <span style="background:#6A1B3D" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-trash item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Eliminar
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${object.descripcion}</td>
+                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                        </tr>
+                    `;
+                    tbody.append(rowHTML);
+                });
+                emptyContent = false;
             } else {
                 console.error('Respuesta inválida:', response);
                 alert('Error en la respuesta del servidor.');

@@ -1,69 +1,71 @@
-var token = $('meta[name="csrf-token"]').attr('content'); // Token for form
+var token = $('meta[name="csrf-token"]').attr('content'); // Token para las solicitudes
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': token
     }
 });
-var iterator = 1;  // Se comienza el iterador en 1
-var emptyContent = false;
-var courseIdToDelete = null; // Variable para almacenar el ID del curso a eliminar
+
+// Variables globales
+var iterator = 1;  // Página actual (inicia en 1)
+var emptyContent = false; // Controla si hay contenido en la tabla
+var courseIdToDelete = null; // Almacena el ID del curso a eliminar
 
 $(document).ready(function () {
-    searchInit(); // Inicializa la búsqueda cuando la página carga
-    setValue();  // Inicializa paginador 
+    searchInit(); // Carga inicial de la tabla
+    setValue();   // Configura la paginación
 
-    // Obtener elementos del DOM
+    // Modal de confirmación de eliminación
     var modal = document.getElementById("deleteModal");
     var span = document.getElementsByClassName("close")[0];
     var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
     var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-    var successMessage = document.getElementById("successMessage");
 
-    // Cuando el usuario hace clic en <span> (x), cerrar el modal
+    // Cerrar el modal al hacer clic en "x"
     span.onclick = function() {
         modal.style.display = "none";
-    }
+    };
 
-    // Cuando el usuario hace clic en el botón de cancelar, cerrar el modal
+    // Cerrar el modal al hacer clic en "Cancelar"
     cancelDeleteBtn.onclick = function() {
         modal.style.display = "none";
-    }
+    };
 
-    // Cuando el usuario hace clic en cualquier lugar fuera del modal, cerrarlo
+    // Cerrar el modal al hacer clic fuera de él
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
-    }
+    };
 
-    // Cuando el usuario confirma la eliminación
+    // Confirmar la eliminación
     confirmDeleteBtn.onclick = function() {
         if (courseIdToDelete) {
             deleteCourse(courseIdToDelete);
         }
-    }
+    };
 });
 
-// Esta función se encarga de hacer la petición AJAX al backend
+// Función para inicializar la búsqueda y cargar datos
 function searchInit() {
-    const searchValue = document.getElementById('searchValue').value; // Obtén el valor de búsqueda
-    const iteradorAux = (iterator * 5) - 5;
+    const searchValue = document.getElementById('searchValue').value; // Obtener el valor de búsqueda
+    const iteradorAux = (iterator * 5) - 5; // Calcular el índice inicial para la paginación
 
+    // Realizar la solicitud AJAX
     $.ajax({
-        url: `${URL_DEFAULT}/courses/table`, 
+        url: '/srh/public/tablecourses/table',
         type: 'POST',
         data: {
-            iterator: iteradorAux,  // Número de página para la paginación
+            iterator: iterator, // Número de página para la paginación
             searchValue: searchValue, // Valor de búsqueda
-            _token: token,  // Usar el token extraído de la metaetiqueta
+            _token: token,  // Token CSRF
         },
         success: function (response) {
             const tbody = $('#template-table tbody');
-            tbody.empty();  // Limpiar la tabla antes de agregar los nuevos resultados
+            tbody.empty(); // Limpiar la tabla antes de agregar nuevos resultados
 
-            if (response.value && response.value.length > 0) {
-                response.value.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/courses/edit/${object.id_beneficio}`;
+            if (response.data && response.data.length > 0) {
+                response.data.forEach(function (object) {
+                    const finalUrl = `/srh/public/coursestipocur/edit/${object.id_tbl_cursos}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -83,8 +85,7 @@ function searchInit() {
                                             </span>
                                             Modificar
                                         </a>
-                                       <!-- Aquí se agrega la opción para eliminar -->
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_beneficio})">
+                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_cursos})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-trash item-icon-menu"></i>
@@ -95,7 +96,16 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.descripcion}</td>
+                            <td>${object.nombre_curso}</td>
+                            <td>${object.categoria_beneficio}</td>
+                            <td>${object.categoria_tipo_curso}</td>
+                            <td>${object.categoria_tipo_accion}</td>
+                            <td>${object.categoria_programa_institucional}</td>
+                            <td>${object.costo_total}</td>
+                            <td>${object.fecha_inicio}</td>
+                            <td>${object.fecha_fin}</td>
+                            <td>${object.horas_curso}</td>
+                            <td>${object.nombre_completo}</td>
                             <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
                         </tr>
                     `;
@@ -103,79 +113,78 @@ function searchInit() {
                 });
                 emptyContent = false;
             } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                tbody.html('<tr><td colspan="12" class="text-center">No se encontraron resultados</td></tr>');
                 emptyContent = true;
             }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al cargar los datos:', error);
         }
     });
-}
-
-// Función para que al pulsar el botón se incremente uno
-function paginatorMax1() {
-    iterator = emptyContent ? iterator : iterator += 1;
-    setValue();
-    searchInit();
-}
-
-// Función para que al pulsar el botón se incrementen 5
-function paginatorMax5() {
-    iterator = emptyContent ? iterator : iterator += 5;
-    setValue();
-    searchInit();
-}
-
-// Función para que al pulsar el botón se disminuyan 5
-function paginatorMin5() {
-    let iteratorAux = iterator;
-    iterator = (iteratorAux -= 5) > 0 ? (iterator -= 5) : 1;
-    setValue();
-    searchInit();
-}
-
-// Función para que al pulsar el botón se disminuyan 1
-function paginatorMin1() {
-    let iteratorAux = iterator;
-    iterator = (iteratorAux -= 1) > 0 ? (iterator -= 1) : 1;
-    setValue();
-    searchInit();
-}
-
-// Al escribir en el campo de búsqueda, se reinicia el iterador y se realiza la búsqueda
-function searchValue() {
-    iterator = 1;  // Reiniciar la paginación a la primera página
-    setValue();  // Actualizar la visualización del número de página
-    searchInit();  // Realizar la búsqueda
 }
 
 // Función para manejar la paginación y mostrar el número actual de la página
 function setValue() {
     let iteratorAux = iterator;
     document.getElementById("is_iterator").innerHTML = iteratorAux;
-    document.getElementById("is_iteratorMin").innerHTML = iteratorAux -= 1;
-    document.getElementById("is_iteratorMax").innerHTML = iteratorAux += 2;
+    document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
+    document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 1;
 }
 
-// Función para la confirmación de eliminación
+// Función para confirmar la eliminación
 function confirmDelete(id) {
     courseIdToDelete = id; // Almacenar el ID del curso a eliminar
     var modal = document.getElementById("deleteModal");
     modal.style.display = "block"; // Mostrar el modal
 }
 
-// Función para eliminar el curso
+// Función para eliminar un curso
 function deleteCourse(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/courses/delete/${id}`, // Verifica que esta ruta sea correcta
+        url: `/srh/public/coursestipocur/delete/${id}`,
         type: 'DELETE',
         data: {
-            _token: token  // Incluye el token CSRF
+            _token: token // Incluir el token CSRF
         },
         success: function(response) {
-            window.location.href = '/srh/public/courses/list';  // Redirigir a la lista de cursos
+            alert('Curso eliminado exitosamente.');
+            searchInit(); // Actualizar la tabla
         },
         error: function(xhr, status, error) {
             console.error('Error al eliminar el curso:', error);
-            alert('Hubo un error al intentar eliminar el curso. Por favor, inténtalo de nuevo.');
+            alert('Hubo un error al intentar eliminar el curso. Intenta nuevamente.');
         }
     });
+}
+
+// Funciones para manejar la paginación
+function paginatorMax1() {
+    iterator += 1;
+    setValue();
+    searchInit();
+}
+
+function paginatorMax5() {
+    iterator += 5;
+    setValue();
+    searchInit();
+}
+
+function paginatorMin1() {
+    iterator = Math.max(1, iterator - 1);
+    setValue();
+    searchInit();
+}
+
+function paginatorMin5() {
+    iterator = Math.max(1, iterator - 5);
+    setValue();
+    searchInit();
+}
+
+// Función para realizar la búsqueda al escribir en el campo de texto
+function searchValue() {
+    iterator = 1; // Reiniciar la paginación
+    setValue(); // Actualizar la paginación
+    searchInit(); // Realizar la búsqueda
 }
