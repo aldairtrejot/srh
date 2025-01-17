@@ -31,7 +31,7 @@
         @if($letterMatch)
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres" aria-expanded="false"
-                    aria-controls="ui-basic">
+                    aria-controls="ui-basic_corres">
                     <i class="fa fa-file-text menu-icon"></i>
                     <span class="menu-title">G. Control</span>
                     <i class="menu-arrow"></i>
