@@ -55,7 +55,7 @@
         </div>
         <!-- Botón CONSULTAR -->
         <button class="btn ml-2" onclick="validarcurp();" type="button"
-            style="font-size: 1rem; padding: 10px 20px; background-color:rgb(252, 252, 252); color:#646464; border: none;"><i class="fa fa-search"></i>
+            style="font-size: 1rem; padding: 10px 20px; background-color:rgb(235, 235, 235); color:#646464; border: none;display: inline-flex; justify-content: center; align-items: center;"data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar CURP"><i class="fa fa-search"></i>
         </button>
     </div>
 </div>
