@@ -40,9 +40,17 @@
                                 <x-template-form.template-form-input-hidden name="es_por_area"
                                     value="{{ optional($item)->es_por_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="usuario" value="{{ $usuario }}" />
+                                <!-- change -->
+                                <x-template-form.template-form-input-hidden name="id_cat_area"
+                                    value="{{ optional($item)->id_cat_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="enlace" value="{{ $enlace }}" />
+                                <x-template-form.template-form-input-hidden name="id_usuario_area"
+                                    value="{{ optional($item)->id_usuario_area ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="id_usuario_enlace"
+                                    value="{{ optional($item)->id_usuario_enlace ?? '' }}" />
+
+
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
@@ -59,7 +67,11 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
-                                    <!--
+
+                                    <div class="item">
+                                        <label class="etiqueta">Área:</label>
+                                        <label id="_labArea" class="valor"></label>
+                                    </div>
                                     <div class="item">
                                         <label class="etiqueta">Usuario:</label>
                                         <label id="_labUsuario" class="valor"></label>
@@ -68,7 +80,7 @@
                                         <label class="etiqueta">Enlace:</label>
                                         <label id="_labEnlace" class="valor"></label>
                                     </div>
--->
+
                                 </div>
 
                                 <br>
@@ -94,39 +106,27 @@
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Asunto" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto"
                                         name="asunto" placeholder="ASUNTO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->asunto ?? '' }}" />
+                                        value="{{ optional($item)->asunto ?: '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Observaciones" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones"
                                         name="observaciones" placeholder="OBSERVACIONES"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" autocomplete=""
-                                        value="{{optional($item)->observaciones ?? '' }}" />
+                                        value="{{ optional($item)->observaciones ?: '' }}" />
+
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Otros" />
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="form-check form-check-flat form-check-primary">
-                                            <label class="form-check-label">
-                                                <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
-                                                    title="Marca este checkbox si no tienes un número de correspondencia.">
-                                                ¿No tengo un No. de Correspondencia?
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <p class="card-description"
+                                    style="font-size: 1rem; font-weight: bold; color: #000; display: inline-block; margin-right: 30px;">
+                                    Otros
+                                </p>
 
-
+                                <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip"
+                                    name="idcheckboxTemplate" label="¿No tengo un No. de Correspondencia?" />
 
                                 <div id="mostrar_ocultar_no_area">
-                                    <!--
-                                    <p class="texto-centro">
-                                        Si no cuentas con un número de correspondencia, selecciona el área
-                                        correspondiente para asignar uno en su lugar.
-                                    </p>
--->
                                     <br>
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectAreaAux"

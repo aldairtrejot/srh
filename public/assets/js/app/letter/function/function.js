@@ -74,7 +74,7 @@ function getUniqueRemitente(value, attribute) {
 }
 
 // La funcion valida si existe un No de correspondencia, si es correcto imprime el usuario y el enlace que se tiene
-function getNoDocument(value, labelUser, labelEnlsace) {
+function getNoDocument(value, labelUser, labelEnlace, labelArea, id_area, id_usuario, id_enlace) {
     $.ajax({
         url: URL_DEFAULT.concat('/valitade/letter'),
         type: 'POST',
@@ -83,15 +83,55 @@ function getNoDocument(value, labelUser, labelEnlsace) {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            $(labelUser).text(' _');
-            $(labelEnlsace).text(' _');
+            console.log(response);
 
             if (response.value && response.value.length > 0) { //Array con informacion
                 let data = response.value[0];
-                $(labelUser).text(data.id_usuario_area);
-                $(labelEnlsace).text(data.id_usuario_enlace);
+                $(labelUser).text(data.usuario_area);
+                $(labelEnlace).text(data.usuario_enlace);
+                $(labelArea).text(data.area);
+
+                $(id_area).val(data.id_cat_area);
+                $(id_usuario).val(data.id_usuario_area);
+                $(id_enlace).val(data.id_usuario_enlace);
+            } else {
+                cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace);// clean
             }
         },
     });
 }
 
+
+// La función obtiene el valor de area, usuario y enlace y remplaza los valores
+function getDataUsers(id_area, id_usuario, id_enlace, labelArea, labelUser, labelEnlace) {
+    if (id_area !== '') {
+        $.ajax({
+            url: URL_DEFAULT.concat('/collection/areaAndUser'),
+            type: 'POST',
+            data: {
+                id_area: id_area,
+                id_usuario: id_usuario,
+                id_enlace: id_enlace,
+                _token: token  // Usar el token extraído de la metaetiqueta
+            },
+            success: function (response) {
+                console.log(response);
+            },
+        });
+    } else {
+        cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace);// clean
+    }
+}
+
+// La funcion agrega un - a los atributos, asi como le quita el valor a area, usuario y enlace
+function cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace) {
+    // Variables de input
+    $(id_area).val('');
+    $(id_usuario).val('');
+    $(id_enlace).val('');
+
+    // Variables de text
+    $(labelArea).text(' _');
+    $(labelUser).text(' _');
+    $(labelEnlace).text(' _');
+}

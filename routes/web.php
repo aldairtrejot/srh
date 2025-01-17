@@ -144,3 +144,5 @@ Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter']
 Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth');
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
+// CONSULTA DE USUARIO, ENLACE Y AREA
+Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');

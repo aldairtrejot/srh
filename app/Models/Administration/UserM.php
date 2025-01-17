@@ -99,4 +99,18 @@ class UserM extends Model
 
         return false; // Si no hay coincidencias
     }
+
+    // La función obtiene el nombre de usuario
+    public function getName($id)
+    {
+        // Usando DB::table() para obtener el primer registro y la clave en mayúsculas
+        $result = DB::table('administration.users')
+            ->where('id', $id)
+            ->limit(1) // Esto puede ser innecesario, ya que first() ya limita el resultado a 1
+            ->select(DB::raw('UPPER(name) AS nombre'))
+            ->first();
+
+        // Verificar si se encontró un resultado
+        return $result ? $result->clave : null;
+    }
 }

@@ -246,12 +246,20 @@ class LetterM extends Model
         return DB::table('correspondencia.tbl_correspondencia')
             ->select(
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
-                DB::raw('UPPER(user_area.name) as id_usuario_area'), // Usamos el alias correcto 'user_area'
-                DB::raw('UPPER(user_enlace.name) as id_usuario_enlace') // Usamos el alias correcto 'user_enlace'
+                'correspondencia.tbl_correspondencia.id_cat_area AS id_cat_area',
+                'correspondencia.tbl_correspondencia.id_usuario_area AS id_usuario_area',
+                'correspondencia.tbl_correspondencia.id_usuario_enlace AS id_usuario_enlace',
+                DB::raw('UPPER(user_area.name) as usuario_area'), // Usamos el alias correcto 'user_area'
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) as area'), // Usamos el alias correcto 'user_area'
+                DB::raw('UPPER(user_enlace.name) as usuario_enlace') // Usamos el alias correcto 'user_enlace'
             )
             ->join('administration.users AS user_area', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'user_area.id')
             ->join('administration.users AS user_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'user_enlace.id')
-            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
+            ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->where(function ($query) use ($value) {
+                $query->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
+                    ->orWhereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) = UPPER(TRIM(?))', [$value]);
+            })
             ->get();
     }
 

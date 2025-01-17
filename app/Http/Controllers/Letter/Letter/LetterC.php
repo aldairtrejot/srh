@@ -303,6 +303,7 @@ class LetterC extends Controller
                     'id_cat_unidad' => $request->id_cat_unidad,
                     'id_cat_coordinacion' => $request->id_cat_coordinacion,
                     'puesto_remitente' => strtoupper($request->puesto_remitente),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
                     'es_doc_fisico' => $es_doc_fisico,
                     'son_mas_remitentes' => $son_mas_remitentes,
                     'remitente' => strtoupper($request->remitente),
