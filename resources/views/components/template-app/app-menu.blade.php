@@ -47,10 +47,12 @@
         @endif
 
         <!-- Item Cursos -->
-        @if($coursesMatch)
+        @if($adminMatch)
             <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#ui-cursos" aria-expanded="false" aria-controls="ui-cursos">
-                <i class="fa fa-desktop menu-icon"></i>
+                <a class="nav-link" data-toggle="collapse" href="#ui-basic-courses" aria-expanded="false"
+                    aria-controls="ui-basic-courses">
+                    <i class="fa fa-desktop menu-icon"></i>
+                    <!-- Icono cambiado a computadora -->
                     <span class="menu-title">Cursos</span>
                     <i class="menu-arrow"></i></a>
                 <div class="collapse" id="ui-cursos">
