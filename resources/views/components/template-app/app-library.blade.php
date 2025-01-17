@@ -20,4 +20,4 @@
 <script src="{{ asset('assets/js/app/default/url.js') }}"></script>
 <script src="{{ asset('assets/other/tippy/popper.min.js') }}"></script>
 <script src="{{ asset('assets/other/tippy/tippy.umd.min.js') }}"></script>
-<script src={{asset("assets/js/app/default/url.js")}}></script>
+

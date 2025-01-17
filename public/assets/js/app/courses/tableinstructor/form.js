@@ -35,21 +35,21 @@ function validarcurp() {
                 $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
                 $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
                 $('#remitente_rfc').text(data.rfc || 'N/A');
+                notyfEM.success("CURP localizado con éxito.");
             } else {
-                alert(response.message);
+                notyfEM.error("No se encontró el CURP. Verifica los datos e inténtalo de nuevo.");
                 limpiarValores();
             }
         },
         error: function () {
-            alert('Ocurrió un error al validar la CURP.');
             limpiarValores();
         }
     });
 }
 
 function limpiarValores() {
-    $('#remitente_nombre').text('');
-    $('#remitente_primer_apellido').text('');
-    $('#remitente_segundo_apellido').text('');
-    $('#remitente_rfc').text('');
+    $('#remitente_nombre').text('_');
+    $('#remitente_primer_apellido').text('_');
+    $('#remitente_segundo_apellido').text('_');
+    $('#remitente_rfc').text('_');
 }
