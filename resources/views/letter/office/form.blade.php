@@ -141,11 +141,11 @@
 
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                            :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
+                                            :selectEdit="$selectUserEdit" name="id_usuario_area_aux" tittle="Usuario"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
                                         <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
+                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace_aux" tittle="Enlace"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
                                     </div>
                                 </div>

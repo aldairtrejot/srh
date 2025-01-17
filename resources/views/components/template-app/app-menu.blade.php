@@ -39,8 +39,8 @@
                 <div class="collapse" id="ui-basic_corres">
                     <ul class="nav flex-column sub-menu">
                         <!--
-                                        <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
-                -->
+                                            <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
+                    -->
                         <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route(name: 'file.list') }}">Expedientes</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circulares</a></li>
@@ -52,11 +52,12 @@
         @endif
 
         <!-- Item Cursos -->
-        @if($coursesMatch)
+        @if($adminMatch)
             <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#ui-basic-courses" aria-expanded="false" aria-controls="ui-basic-courses">
-                <i class="fa fa-desktop menu-icon"></i>
-                <!-- Icono cambiado a computadora -->
+                <a class="nav-link" data-toggle="collapse" href="#ui-basic-courses" aria-expanded="false"
+                    aria-controls="ui-basic-courses">
+                    <i class="fa fa-desktop menu-icon"></i>
+                    <!-- Icono cambiado a computadora -->
                     <span class="menu-title">Cursos</span>
                     <i class="menu-arrow"></i>
                 </a>

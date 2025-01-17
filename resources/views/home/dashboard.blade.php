@@ -78,7 +78,7 @@
                        <div class="row">
                         <!-- item menu administracion-->
 
-                        @if($letterMatch)
+                        @if($adminMatch)
                             <x-template-button-dash class="card card-cursos" title="cursos"
                                 field="CURSOS" href="{{ route('courses.list') }}" value="0"
                                 description="Cursos" />
