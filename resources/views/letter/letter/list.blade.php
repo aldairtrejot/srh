@@ -79,7 +79,9 @@
         </div>
     </div>
 
+    <x-template-other.app-mail />
     <!-- CODE SCRIPT-->
+    <script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
 

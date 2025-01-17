@@ -10,6 +10,7 @@
                 <x-template-app.app-header />
             </header>
             <x-template-app.app-menu />
+            <x-template-other.app-spinner />
             {{$slot}}
             <footer />
         </div>
@@ -18,5 +19,6 @@
 
 <x-template-app.app-library />
 <x-template-app.app-message />
+<x-template-app.app-password />
 
 </html>

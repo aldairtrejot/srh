@@ -15,7 +15,7 @@ use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 
 class OfficeC extends Controller
 {
@@ -81,6 +81,10 @@ class OfficeC extends Controller
         $collectionAreaM = new CollectionAreaM();
         $collectionRemitenteM = new CollectionRemitenteM();
 
+        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
+        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
+        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
+
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
@@ -88,14 +92,14 @@ class OfficeC extends Controller
 
         $noLetter = "";//No de oficio se inicializa en vacio
 
-        $usuario = ' _'; // Usuario se inicializa en nulo
-        $enlace = ' _'; // Enlace se inicializa en nulo
+        if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
+        }
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
 
-        return view('letter/office/form', compact('enlace', 'usuario', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -158,6 +162,10 @@ class OfficeC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($request->id_cat_area_documento == 7) {
+                $idusuario = 15;
+                $idEnlace = 16;
+                $idArea = 7;
             }
         } else {
             if ($id_area_aux == 2) {
@@ -176,6 +184,10 @@ class OfficeC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($id_area_aux == 7) {
+                $idusuario = 15;
+                $idEnlace = 16;
+                $idArea = 7;
             }
         }
 

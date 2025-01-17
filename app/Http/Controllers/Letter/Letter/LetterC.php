@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
@@ -51,6 +51,8 @@ class LetterC extends Controller
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
         $item->rfc_remitente_bool = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
+        $item->es_doc_fisico = true; // Inicio de variables
+        $item->son_mas_remitentes = false; // Inicio de variables
 
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
@@ -202,6 +204,8 @@ class LetterC extends Controller
         $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
         $COR_USUARIO = config('custom_config.COR_USUARIO'); // Acceso por área
         $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0; //Se condiciona el valor del check
+        $es_doc_fisico = isset($request->es_doc_fisico) ? 1 : 0; //Se condiciona el valor del check
+        $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0; //Se condiciona el valor del check
         //Autorizacion solo administracion
 
         if ($rfc_remitente_bool) { //El usuario agrego un remitente
@@ -251,6 +255,9 @@ class LetterC extends Controller
                 'id_cat_coordinacion' => $request->id_cat_coordinacion,
                 'puesto_remitente' => strtoupper($request->puesto_remitente),
                 'folio_gestion' => strtoupper($request->folio_gestion),
+                'es_doc_fisico' => $es_doc_fisico,
+                'son_mas_remitentes' => $son_mas_remitentes,
+                'remitente' => strtoupper($request->remitente),
 
                 // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
@@ -275,6 +282,7 @@ class LetterC extends Controller
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
                 $data = [
+                    'num_turno_sistema' => strtoupper($request->num_turno_sistema),
                     'num_documento' => $request->num_documento,
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,
@@ -295,6 +303,10 @@ class LetterC extends Controller
                     'id_cat_unidad' => $request->id_cat_unidad,
                     'id_cat_coordinacion' => $request->id_cat_coordinacion,
                     'puesto_remitente' => strtoupper($request->puesto_remitente),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
+                    'es_doc_fisico' => $es_doc_fisico,
+                    'son_mas_remitentes' => $son_mas_remitentes,
+                    'remitente' => strtoupper($request->remitente),
 
                     'id_usuario_sistema' => Auth::user()->id,
                     'fecha_usuario' => $now,

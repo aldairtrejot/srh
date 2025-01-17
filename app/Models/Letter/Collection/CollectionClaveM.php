@@ -11,7 +11,7 @@ class CollectionClaveM extends Model
     {
         return DB::table('correspondencia.cat_clave')  // Especificamos la tabla 'cat_clave' en el esquema 'correspondencia'
             ->select(DB::raw('correspondencia.cat_clave.id_cat_clave AS id, 
-                UPPER(correspondencia.cat_clave.codigo) || \' - \' || UPPER(correspondencia.cat_clave.descripcion) AS descripcion'))
+                UPPER(correspondencia.cat_clave.descripcion) AS descripcion'))
             ->join('correspondencia.rel_tramite_clave', 'correspondencia.cat_clave.id_cat_clave', '=', 'correspondencia.rel_tramite_clave.id_cat_clave')  // Realizamos el INNER JOIN entre 'cat_clave' y 'rel_tramite_clave'
             ->where('correspondencia.rel_tramite_clave.id_cat_tramite', $idTramite)  // Filtramos por el 'id_cat_tramite'
             ->where('correspondencia.cat_clave.estatus', true)  // Filtramos por 'estatus' en la tabla 'cat_clave'

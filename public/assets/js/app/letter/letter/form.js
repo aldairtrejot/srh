@@ -9,6 +9,11 @@ $(document).ready(function () {
     setData(); //Establecer las variables de informacion general
     getRole(); //Obtener y definir los roles para no tener los input
     setCheckboxArea();
+    setCheckbox(); // Inicio de status de checkox
+
+    tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico'); // Tooltip
+    tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado'); // Tooltip
+    tooltip('#mas_remitentes', 'Añadir dos o más remitentes'); // Tooltip
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area
@@ -30,6 +35,53 @@ function setCheckboxArea() {
     }
     getRole();
 }
+
+// La función de define el status de los checkbox, con el fin de marcalos y obtener el status de sus variables
+function setCheckbox() {
+    // Declaracion de variables
+    let es_doc_fisico = $('#es_doc_fisico').val();
+    let son_mas_remitentes = $('#son_mas_remitentes').val();
+
+    // Dependiendo del valor marca o desmarca el checbox
+    es_doc_fisico ? $('#es_doc_fisico_box').prop('checked', true) : $('#es_doc_fisico_box').prop('checked', false);
+    son_mas_remitentes ? $('#son_mas_remitentes_box').prop('checked', true) : $('#son_mas_remitentes_box').prop('checked', false);
+
+    // Oculta o muestra el contenido dependiendo del la seleccion de remitentes
+    setValueOfMoreRem();
+
+}
+
+// Oculta o muestra el contenido dependiendo del la seleccion de remitentes
+function setValueOfMoreRem() {
+    let son_mas_remitentes = $('#son_mas_remitentes').val();
+
+    if (son_mas_remitentes) {
+        hideDiv('_hidden_select');
+        hideDiv('mostrar_ocultar_template');
+        showDiv('mostrar_ocultar_mas_remitentes');
+        cleanSelect('#id_cat_remitente'); //Se limpia el select
+    } else {
+        showDiv('_hidden_select');
+        hideDiv('mostrar_ocultar_template');
+        hideDiv('mostrar_ocultar_mas_remitentes');
+        $('#remitente').val('');
+    }
+}
+
+//Codigo para la ejecucion de un checkbox
+$('#es_doc_fisico_box').change(function () {
+    let bool = false; // Inicio de variable de checkbox de area
+    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
+    $('#es_doc_fisico').val(bool); //Se asigna el valor
+});
+
+//Codigo para la ejecucion de un checkbox
+$('#son_mas_remitentes_box').change(function () {
+    let bool = false; // Inicio de variable de checkbox de area
+    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
+    $('#son_mas_remitentes').val(bool); //Se asigna el valor
+    setCheckbox();
+});
 
 //Codigo para la ejecucion de un checkbox
 $('#idcheckboxTemplate').change(function () {
@@ -62,8 +114,11 @@ function getRole() {
         $('#puesto_remitente').prop('disabled', true);
         $('#id_cat_remitente').prop('disabled', true);
         $('#folio_gestion').prop('disabled', true);
+        $('#remitente').prop('disabled', true);
 
         $('#idcheckboxTemplate').prop('disabled', true);
+        $('#es_doc_fisico_box').prop('disabled', true);
+        $('#son_mas_remitentes_box').prop('disabled', true);
 
         $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
         $('#id_usuario_area').prop('disabled', true);

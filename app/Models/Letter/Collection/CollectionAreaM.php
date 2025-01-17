@@ -69,4 +69,32 @@ class CollectionAreaM extends Model
         $result = $query->first();
         return $result;
     }
+
+    // Obtener solo la clave del area
+    public function getClave($id)
+    {
+        // Usando DB::table() para obtener el primer registro y la clave en mayúsculas
+        $result = DB::table('correspondencia.cat_area')
+            ->where('id_cat_area', $id)
+            ->limit(1) // Esto puede ser innecesario, ya que first() ya limita el resultado a 1
+            ->select(DB::raw('UPPER(clave) AS clave'))
+            ->first();
+
+        // Verificar si se encontró un resultado
+        return $result ? $result->clave : null;
+    }
+
+    // Obtener solo el nombre de area
+    public function getName($id)
+    {
+        // Usando DB::table() para obtener el primer registro y la clave en mayúsculas
+        $result = DB::table('correspondencia.cat_area')
+            ->where('id_cat_area', $id)
+            ->limit(1) // Esto puede ser innecesario, ya que first() ya limita el resultado a 1
+            ->select(DB::raw('UPPER(descripcion) AS nombre'))
+            ->first();
+
+        // Verificar si se encontró un resultado
+        return $result ? $result->clave : null;
+    }
 }

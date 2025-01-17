@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
@@ -56,6 +57,8 @@ Route::get('/user/list', [UserC::class, 'list'])->middleware('auth'); //ROUTE_LI
 Route::get('/user/create', [UserC::class, 'create'])->name('user.create')->middleware('auth'); //ROUTE_CREATE
 Route::post('/user/save', [UserC::class, 'save'])->name('user.save')->middleware('auth');
 Route::get('/user/edit/{id}', [UserC::class, 'edit'])->name('user.edit')->middleware('auth');
+Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name('user.validatePassword')->middleware('auth');
+Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('user.changePassword')->middleware('auth');
 
 //ROUTE_LETTER
 Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
@@ -257,3 +260,7 @@ Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.up
 
 
 
+// ENVIO DE CORREO ELECTRONICO
+Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
+// CONSULTA DE USUARIO, ENLACE Y AREA
+Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');

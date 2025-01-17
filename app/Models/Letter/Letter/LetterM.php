@@ -37,6 +37,9 @@ class LetterM extends Model
         'folio_gestion',
         'id_usuario_captura',
         'fecha_usuario_captura',
+        'es_doc_fisico',
+        'son_mas_remitentes',
+        'remitente',
     ];
 
     public function edit(string $id)
@@ -235,18 +238,54 @@ class LetterM extends Model
         return $result;//$result !== null;
     }
 
+    // La funcion busca el usuario y enlace a apartir del no de turno de correspondencia que se ingrese, esto se usa en el encabezado
+    // de oficio, interno, expedientes y circulares
     public function getUserEnlace($value)
     {
         // Usamos Query Builder de Laravel para construir la consulta
         return DB::table('correspondencia.tbl_correspondencia')
             ->select(
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
-                DB::raw('UPPER(user_area.name) as id_usuario_area'), // Usamos el alias correcto 'user_area'
-                DB::raw('UPPER(user_enlace.name) as id_usuario_enlace') // Usamos el alias correcto 'user_enlace'
+                'correspondencia.tbl_correspondencia.id_cat_area AS id_cat_area',
+                'correspondencia.tbl_correspondencia.id_usuario_area AS id_usuario_area',
+                'correspondencia.tbl_correspondencia.id_usuario_enlace AS id_usuario_enlace',
+                DB::raw('UPPER(user_area.name) as usuario_area'), // Usamos el alias correcto 'user_area'
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) as area'), // Usamos el alias correcto 'user_area'
+                DB::raw('UPPER(user_enlace.name) as usuario_enlace') // Usamos el alias correcto 'user_enlace'
             )
             ->join('administration.users AS user_area', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'user_area.id')
             ->join('administration.users AS user_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'user_enlace.id')
-            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
+            ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->where(function ($query) use ($value) {
+                $query->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
+                    ->orWhereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) = UPPER(TRIM(?))', [$value]);
+            })
             ->get();
     }
+
+    // La funcion retorna la informacion que ira en el cuerpo de email que se compartira
+    public function mailLetter($id)
+    {
+        $result = DB::table('correspondencia.tbl_correspondencia')
+            ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('administration.users AS users_user', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'users_user.id')
+            ->join('administration.users AS users_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'users_enlace.id')
+            ->select(
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
+                DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, \'DD/MM/YYYY\') AS fecha_inicio'),
+                DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, \'DD/MM/YYYY\') AS fecha_fin'),
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area_descripcion'),
+                DB::raw('UPPER(users_user.name) AS usuario_area'),
+                DB::raw('UPPER(users_enlace.name) AS usuario_enlace')
+            )
+            ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
+            ->first();
+
+        return $result;
+    }
+
+
 }

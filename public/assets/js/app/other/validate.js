@@ -17,6 +17,54 @@ function isLength(string, maxLength) {
     return string.length > maxLength; //Devulve true si exede el limite de caracteres
 }
 
+// Funcion para validar el no minimo de caracteres
+function isMinLength(string, maxLength) {
+    return string.length < maxLength; //Devulve true si exede el limite de caracteres
+}
+
+//Retorna verdadero si los valores son iguales
+function isEqual(value1, value2) {
+    return value1 === value2;
+}
+
+// Retorna verdero si el mail es correcto y false si es incorrecto 
+function isMail(mail) {
+    // Expresión regular para validar un email
+    let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Patron mail
+    return regex.test(mail);
+}
+
+// Valida que el correo electronico sea verdero o incorecto
+function validateMail(value1) {
+    let bool = false;
+    if (!isMail(value1)) {
+        bool = true;
+        notyfEM.error('El correo electrónico ingresado no es válido.');
+    }
+    return bool;
+}
+
+
+//Valida que los valores sean iguales de lo contrario manda msj de error
+function validateEqual(value1, value2) {
+    let bool = false;
+    if (!isEqual(value1, value2)) {
+        bool = true;
+        notyfEM.error('Las contraseñas no coinciden.');
+    }
+    return bool;
+}
+
+// Funcion que retorna verdadero o falso con el mensaje de rror, si es que exede el limite minimo de caracteres
+function isExceedingMinLength(field, nameFiel, maxLength) {
+    let bool = false;
+    if (isMinLength(field, maxLength)) {
+        bool = true;
+        notyfEM.error('Campo ' + nameFiel + '  tiene un límite máximo de ' + maxLength + ' caracteres');
+    }
+    return bool;
+}
+
 // Funcion que retorna verdadero o falso con el mensaje de rror, si es que exede el limite de caracteres
 function isExceedingLength(field, nameFiel, maxLength) {
     let bool = false;

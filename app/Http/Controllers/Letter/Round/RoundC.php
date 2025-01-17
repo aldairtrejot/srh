@@ -15,7 +15,7 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
-use App\Http\Controllers\Letter\log\LogC;
+use App\Http\Controllers\Letter\Log\LogC;
 class RoundC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -148,7 +148,12 @@ class RoundC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($request->id_cat_area_documento == 7) {
+                $idusuario = 15;
+                $idEnlace = 16;
+                $idArea = 7;
             }
+
         } else {
             if ($id_area_aux == 2) {
                 $idusuario = 7;
@@ -166,6 +171,10 @@ class RoundC extends Controller
                 $idusuario = 13;
                 $idEnlace = 14;
                 $idArea = 6;
+            } else if ($id_area_aux == 7) {
+                $idusuario = 15;
+                $idEnlace = 16;
+                $idArea = 7;
             }
         }
 

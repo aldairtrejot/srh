@@ -7,11 +7,11 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control"
-                            caption="Correspondencia" />
+                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Correspondencia" />
                     </div>
                 </div>
             </div>
+
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -44,6 +44,12 @@
                                 <x-template-form.template-form-input-hidden name="rfc_remitente_bool"
                                     value="{{ optional($item)->rfc_remitente_bool ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="es_doc_fisico"
+                                    value="{{ optional($item)->es_doc_fisico ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="son_mas_remitentes"
+                                    value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
@@ -59,6 +65,9 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
+
+                                    <!--
+                                    Se oculro porque se modifico el catalogo de clave
                                     <div class="item">
                                         <label class="etiqueta">Clave:</label>
                                         <label id="_labClave" class="valor"></label>
@@ -71,6 +80,7 @@
                                         <label class="etiqueta">Clave / redacción:</label>
                                         <label id="_labClaveRedaccion" class="valor"></label>
                                     </div>
+-->
                                 </div>
 
                                 <br>
@@ -95,7 +105,6 @@
 
                                 <div class="row">
 
-
                                     <x-template-form.template-form-input-required label="No. hojas" type="integer"
                                         name="num_flojas" placeholder="NO. HOJAS"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
@@ -115,28 +124,35 @@
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Folio de gestión"
-                                        type="text" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
+                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
                                         value="{{optional($item)->folio_gestion ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Lugar" type="text" name="lugar"
-                                        placeholder="LUGAR" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8"
-                                        autocomplete="" value="{{optional($item)->lugar ?? '' }}" />
+                                    <x-template-form.template-form-input-check
+                                        idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box"
+                                        label="¿El documento es físico?" />
+
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="Asunto" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Lugar" name="lugar"
+                                        placeholder="LUGAR" value="{{ optional($item)->lugar ?: '' }}" />
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto"
                                         name="asunto" placeholder="ASUNTO"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
-                                        value="{{optional($item)->asunto ?? '' }}" />
+                                        value="{{ optional($item)->asunto ?: '' }}" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="Observaciones" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones"
                                         name="observaciones" placeholder="OBSERVACIONES"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
-                                        value="{{optional($item)->observaciones ?? '' }}" />
+                                        value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
                                 <x-template-tittle.tittle-caption-secon tittle="Área de atención" />
@@ -182,37 +198,35 @@
 
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Información de remitente" />
-                                <div class="row">
+                                <p class="card-description"
+                                    style="font-size: 1rem; font-weight: bold; color: #000; display: inline-block; margin-right: 30px;">
+                                    Información de remitente
+                                </p>
 
-                                    <x-template-form.template-form-select-required :selectValue="$selectRemitente"
-                                        :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
+                                <x-template-form.template-form-input-check idDiv="mas_remitentes"
+                                    name="son_mas_remitentes_box" label="¿Cuenta con varios remitentes?" />
 
-                                    <div class="form-check form-check-flat form-check-primary">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
-                                                title="Marca este checkbox si no tienes un número de correspondencia.">
-                                            Agregar remitente
-                                        </label>
+
+                                <div id="_hidden_select">
+                                    <div class="row">
+
+                                        <x-template-form.template-form-select-required :selectValue="$selectRemitente"
+                                            :selectEdit="$selectRemitenteEdit" name="id_cat_remitente"
+                                            tittle="Remitente" grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
+
+                                        <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip"
+                                            name="idcheckboxTemplate" label="Agregar remitente" />
+
                                     </div>
-
                                 </div>
 
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Puesto remitente" type="text"
                                         name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
                                         value="{{optional($item)->puesto_remitente ?? '' }}" />
                                 </div>
 
-
-                                <style>
-                                    .form-check-primary.form-check label input[type="checkbox"]+.input-helper:before,
-                                    .form-check-primary.form-check label input[type="radio"]+.input-helper:before {
-                                        border-color: #000000;
-                                    }
-                                </style>
                                 <div id="mostrar_ocultar_template">
                                     <div class="row">
                                         <x-template-form.template-form-input-required label="Nombre" type="text"
@@ -236,6 +250,15 @@
                                             name="remitente_rfc" placeholder="RFC"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                             value="" />
+                                    </div>
+                                </div>
+
+                                <div id="mostrar_ocultar_mas_remitentes">
+                                    <div class="row">
+                                        <x-template-form.template-form-input-text-area
+                                            grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Remitentes"
+                                            name="remitente" placeholder="REMITENTES"
+                                            value="{{ optional($item)->remitente ?: '' }}" />
                                     </div>
                                 </div>
 

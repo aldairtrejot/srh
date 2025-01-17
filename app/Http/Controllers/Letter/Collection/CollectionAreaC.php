@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Collection;
 
+use App\Models\Administration\UserM;
 use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Http\Controllers\Controller;
@@ -45,16 +46,37 @@ class CollectionAreaC extends Controller
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionTramiteM = new CollectionTramiteM();
+        $collectionAreaM = new CollectionAreaM();
 
         $idArea = $request->id; //Obtenemos el id que el usuario selecciono en el combo de area
         $selectEnlace = $collectionRelEnlaceM->idUsuarioByArea($idArea); //Obtenemos el catalogo de enlaces
         $selectUsuario = $collectionRelUsuarioM->idUsuarioByArea($idArea);
         $selectTramite = $collectionTramiteM->list($idArea);
+        $clave = $collectionAreaM->getClave($idArea);
 
         return response()->json([
+            'clave' => $clave,
             'selectEnlace' => $selectEnlace,
             'selectUsuario' => $selectUsuario,
             'selectTramite' => $selectTramite,
+            'status' => true,
+        ]);
+    }
+
+    // La función obtiene el nombre de usuario, area y enlace
+    public function getUserArea(Request $request)
+    {
+        $collectionAreaM = new CollectionAreaM();
+        $userM = new UserM();
+
+        $nameArea = $collectionAreaM->getName($request->id_area);
+        $nameUser = $userM->getName($request->id_usuario);
+        $nameEnlace = $userM->getName($request->id_enlace);
+
+        return response()->json([
+            'nameArea' => $nameArea,
+            'nameUser' => $nameUser,
+            'nameEnlace' => $nameEnlace,
             'status' => true,
         ]);
     }

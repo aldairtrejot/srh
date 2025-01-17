@@ -12,20 +12,22 @@ $('#id_cat_area').on('change', function () {
             },
             success: function (response) {
                 //proceso de select 
-                foreachSelect(response.selectEnlace, '#id_usuario_enlace');
-                foreachSelect(response.selectUsuario, '#id_usuario_area');
+                foreachSelectNull(response.selectEnlace, '#id_usuario_enlace');
+                foreachSelectNull(response.selectUsuario, '#id_usuario_area');
                 foreachSelect(response.selectTramite, '#id_cat_tramite');
 
-                cleanSelect('#id_cat_clave'); //Se limpia el select
+                cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
                 clearClaveData(); //Limpieza de encabezado
+                setClaveInNuSystem(response.clave); // modificación de no de correspondencia
             },
         });
     } else {
-        cleanSelect('#id_usuario_area'); //Se limpia el select
-        cleanSelect('#id_usuario_enlace'); //Se limpia el select
-        cleanSelect('#id_cat_tramite'); //Se limpia el select
-        cleanSelect('#id_cat_clave'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_tramite'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
+        setClaveInNuSystem('-'); // modificación de no de correspondencia
     }
 });
 
@@ -44,11 +46,11 @@ $('#id_cat_unidad').on('change', function () {
             success: function (response) {
 
                 //Proceso de select
-                foreachSelect(response.selectCoordinacion, '#id_cat_coordinacion');
+                foreachSelectNull(response.selectCoordinacion, '#id_cat_coordinacion');
             },
         });
     } else {
-        cleanSelect('#id_cat_coordinacion'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_coordinacion'); //Se limpia el select
     }
 });
 
@@ -65,11 +67,11 @@ $('#id_cat_tramite').on('change', function () {
             },
             success: function (response) {
                 //Proceso de select
-                foreachSelect(response.selectClave, '#id_cat_clave');
+                foreachSelectNull(response.selectClave, '#id_cat_clave');
             },
         });
     } else {
-        cleanSelect('#id_cat_clave'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
     }
 });
@@ -104,4 +106,14 @@ function clearClaveData() {
     $('#_labClave').text('_');
     $('#_labClaveCodigo').text('_');
     $('#_labClaveRedaccion').text('_');
+}
+
+// La funcion estable el nuevo no de sistema por el area o sin el area
+function setClaveInNuSystem(value) {
+    let num_turno_sistema = $('#num_turno_sistema').val();
+    let result = num_turno_sistema.replace(/^[^/]+/, value);
+
+    // Se establen los resultados en la variables
+    $('#num_turno_sistema').val(result);
+    $('#_labNoCorrespondencia').text(result);
 }
