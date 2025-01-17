@@ -60,7 +60,12 @@ class TblCoursesC extends Controller
     public function create()
     {
         $item = new TblcoursesM();
-        $item->nombre_curso = '';    // Valor por defecto
+        $item->nombre_curso = '';  
+        $item->costo = ''; 
+        $item->iva = ''; 
+        $item->fecha_inicio = ''; 
+        $item->fecha_fin = ''; 
+        $item->horas = '';// Valor por defecto
         $coursesM = new CoursesM();
         $coursestipocurM = new CoursestipocurM();
         $coursestipoacM = new CoursestipoacM();

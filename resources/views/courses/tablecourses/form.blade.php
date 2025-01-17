@@ -56,6 +56,42 @@
                                 <x-template-form.template-form-select-required :selectValue="$selectCategoria"
                                 :selectEdit="$selectCategoriaEdit" name="id_cat_categoria" tittle="Categoria"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                              
+
+                            </div>
+
+                            <div class="row">
+                                <x-template-form.template-form-input-required label="Nombre Curso" type="text"
+                                name="nombre" placeholder="Nombre Curso"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                value="{{ optional($item)->nombre_curso ?? '' }}" />
+
+                                <x-template-form.template-form-input-required label="Costo" type="text"
+                                name="costo" placeholder="Costo"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                value="{{ optional($item)->costo ?? '' }}" />
+
+                                <x-template-form.template-form-input-required label="Iva" type="text"
+                                name="iva" placeholder="Iva"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                value="{{ optional($item)->iva ?? '' }}" />
+                            </div>
+                            <div class="row">
+                            <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
+                                        name="fecha_inicio" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->fecha_inicio ?? '' }}" />
+
+                            <x-template-form.template-form-input-required label="Fecha fin" type="date"
+                                        name="fecha_fin" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->fecha_fin ?? '' }}" />
+
+                            <x-template-form.template-form-input-required label="Horas" type="text"
+                                        name="horas" placeholder="Horas"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->horas ?? '' }}" />
                             </div>
 
                             <div class="row">
