@@ -19,74 +19,16 @@
                     <div class="row">
                         <!-- item menu users-->
                         @if($adminMatch)
-                            <x-template-button-dash class="card card-administration" title="Usuarios del sistema"
-                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="4006"
-                                description="Total de usuarios" />
+                            <x-template-button-dash title="Usuarios del sistema" field="ADMINISTRACIÓN"
+                                href="{{ route('user.list') }}" icon="fas fa-cogs" description="Administración" />
                         @endif
                         <!-- item menu users-->
-                        @if($adminMatch)
-                            <x-template-button-dash class="card card-administration" title="Roles del sistema"
-                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="12"
-                                description="Total de roles" />
+                        @if($letterMatch)
+                            <x-template-button-dash title="Gestión de control" field="GESTIÓN DE CONTROL"
+                                href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
                         @endif
                     </div>
-
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu administracion-->
-
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Correspondencia"
-                                field="GESTIÓN DE CONTROL" href="{{ route('letter.list') }}" value=""
-                                description="Correspondencia" />
-                        @endif
-
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Expedientes"
-                                field="GESTIÓN DE CONTROL" href="{{ route(name: 'file.list') }}" value=""
-                                description="Expedientes" />
-
-                        @endif
-
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Circulares"
-                                field="GESTIÓN DE CONTROL" href="{{ route('round.list') }}" value=""
-                                description="Circulares" />
-                        @endif
-
-                    </div>
-
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu Interno-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Interno"
-                                field="GESTIÓN DE CONTROL" href="{{ route('inside.list') }}" value=""
-                                description="Interno" />
-                        @endif
-
-                        <!-- item menu oficios-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Oficios"
-                                field="GESTIÓN DE CONTROL" href="{{ route('office.list') }}" value=""
-                                description="Oficios" />
-                        @endif
-                    </div>
-                       <!-- CURSOS-->
-                       <div class="row">
-                        <!-- item menu administracion-->
-
-                        @if($adminMatch)
-                            <x-template-button-dash class="card card-cursos" title="cursos"
-                                field="CURSOS" href="{{ route('courses.list') }}" value="0"
-                                description="Cursos" />
-                        @endif
-
-
                 </div>
             </div>
         </div>
-    </div>
 </x-template-app.app-layout>

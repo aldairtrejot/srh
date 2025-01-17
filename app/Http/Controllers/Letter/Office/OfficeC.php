@@ -93,23 +93,16 @@ class OfficeC extends Controller
         $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
-        $data = $collectionRelUsuarioM->idAreaUser(Auth::user()->id);
-
-
-        // Función solo para administradores, lista todos los usuarios
-        if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-            $selectAreaEditAux = []; //catalogo de area null
-        } else { // Valores por roles de enlacw
-            $selectAreaEditAux = isset($data->id_cat_area) ? $collectionAreaM->edit($data->id_cat_area) : [];
-        }
-
-        $selectUser = []; //Catalogo de Area - usuario, al crear comienza en vacio 
-        $selectUserEdit = []; //Catalogo de Area - usuario, al crear comienza en vacio 
-
-        $selectEnlace = []; //Catalogo de Area - enlace, al crear comienza en vacio 
-        $selectEnlaceEdit = []; //Catalogo de Area - enlace, al crear comienza en vacio 
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
+        $selectAreaEditAux = []; //catalogo de area null
+
+        $selectUser = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+        $selectUserEdit = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+
+        $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+        $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+
 
         return view('letter/office/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
