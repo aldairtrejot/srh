@@ -8,8 +8,8 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Tabla</h3>
-                            <h5 class="font-weight-normal mb-0">Instructores</h5>
+                            <h3 class="font-weight-bold">TABLA</h3>
+                            <h5 class="font-weight-normal mb-0">INSTRUCTORES</h5>
                         </div>
                     </div>
                 </div>
@@ -21,12 +21,12 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Administración De Personas Instructoras</h4>
+                                <h4 class="card-title">Instructores</h4>
                                 @if($letterAdminMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
-                                        <a href="{{ route('alfresco.upload.form') }}" class="text-danger" style="margin-left: 10px;">
-                                            <i class="fa fa-arrow-up"></i> Agregar Instructor
+                                        <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Agregar Registro
                                         </a>
                                     </p>
                                 @endif
@@ -41,15 +41,12 @@
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>Menu</th>
-                                    <th>Nombre</th>
-                                    <th>Constancia de Evaluación</th>
-                                    <th>Curriculum Vitae</th>
-                                    <th>Apto Para Impartir Cursos</th>
-
+                                    <th>MENU</th>
+                                    <th>CURP</th>
+                                    <th>NOMBRE</th>
+                                    <th>ESTATUS</th>
                                 </tr>
                             </thead>
-                           
                         </x-template-table.template-table>
 
                         <!-- TEMPLATE PAGINATOR-->
@@ -61,7 +58,7 @@
 
         </div>
     </div>
-                <!-- Modal de confirmación -->
+    <!-- Modal de confirmación -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
@@ -72,8 +69,6 @@
     </div>
 </div>
 
-
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
-
 </x-template-app.app-layout>

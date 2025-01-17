@@ -72,5 +72,4 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursestipocur/table.js') }}"></script>
-
 </x-template-app.app-layout>

@@ -73,5 +73,4 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursesnombreacc/table.js') }}"></script>
-
 </x-template-app.app-layout>

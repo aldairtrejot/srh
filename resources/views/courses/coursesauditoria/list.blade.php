@@ -70,5 +70,4 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursesauditoria/table.js') }}"></script>
-
 </x-template-app.app-layout>

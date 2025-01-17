@@ -14,7 +14,6 @@ class CoursesestatutoM extends Model
         'estatus',
         'id_usuario_sistema',
         'fecha_usuario',
-        'nombre',
     ];
 
     public function edit(string $id)

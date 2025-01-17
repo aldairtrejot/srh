@@ -43,7 +43,6 @@
                                     <th>Menu</th>
                                     <th>Descripción</th>
                                     <th>Estatus</th>
-                                    <th>Nombre</th>
                                 </tr>
                             </thead>
                             
@@ -71,5 +70,4 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/coursesestatuto/table.js') }}"></script>
-
 </x-template-app.app-layout>
