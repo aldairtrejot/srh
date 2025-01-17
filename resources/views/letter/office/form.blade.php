@@ -131,12 +131,22 @@
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
                                             :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
                                         <x-template-form.template-form-input-required label="No. Doc" type="text"
                                             name="num_documento_area" placeholder="NO. DOCUMENTO"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                             value="{{optional($item)->num_documento_area ?? '' }}" />
+                                    </div>
+
+                                    <div class="row">
+                                        <x-template-form.template-form-select-required :selectValue="$selectUser"
+                                            :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
+
+                                        <x-template-form.template-form-select-required :selectValue="$selectEnlace"
+                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
                                     </div>
                                 </div>
 
