@@ -107,22 +107,18 @@ class InstructorsC extends Controller
     public function dataCurp(Request $request)
     {
         try {
-            // Validar la CURP recibida
             $request->validate([
-                'curp' => 'required|string|size:18', // Asegura que sea una CURP válida
+                'curp' => 'required|string|size:18',
             ]);
-
+    
             $instructorM = new InstructorM();
-
-            // Llamar a los métodos para consultar la CURP en las tres tablas
+    
             $centralCurp = $instructorM->centralCurp($request->curp);
             $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
             $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
-
-            // Combinar los resultados
+    
             $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
-
-            // Manejar caso sin resultados
+    
             if (empty($resultados)) {
                 return response()->json([
                     'status' => false,
@@ -130,14 +126,15 @@ class InstructorsC extends Controller
                     'value' => null,
                 ], 200);
             }
-
-            // Retornar resultados
+    
+            \Log::info('Resultados encontrados: ', $resultados); // Registro para verificar la respuesta
+    
             return response()->json([
                 'status' => true,
-                'value' => $resultados, // Enviará una lista de resultados combinados
+                'value' => $resultados,
                 'message' => 'Datos encontrados correctamente',
             ], 200);
-
+    
         } catch (\Exception $e) {
             \Log::error('Error en dataCurp: ' . $e->getMessage());
             return response()->json([
@@ -146,6 +143,7 @@ class InstructorsC extends Controller
             ], 500);
         }
     }
+    
 }
    
 
