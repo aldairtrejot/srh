@@ -49596,7 +49596,6 @@ textarea:disabled {
     opacity: 0.6; /* Opacidad para dar un aspecto más apagado */
 }
 
-
 select:disabled {
     background-color: #cecece; /* Fondo gris claro */
     border: 2.8px dotted #ccc; /* Líneas punteadas */
@@ -50035,7 +50034,7 @@ select:disabled {
 }
 
 .toggle-switch::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 18px;
     height: 18px;
@@ -50059,8 +50058,8 @@ select:disabled {
     width: 100%; /* Ancho completo */
     height: 100%; /* Alto completo */
     overflow: auto; /* Habilitar scroll si es necesario */
-    background-color: rgb(0,0,0); /* Color de fondo */
-    background-color: rgba(0,0,0,0.4); /* Fondo con opacidad */
+    background-color: rgb(0, 0, 0); /* Color de fondo */
+    background-color: rgba(0, 0, 0, 0.4); /* Fondo con opacidad */
 }
 
 .modal-content {
@@ -50103,64 +50102,65 @@ select:disabled {
     background-color: #6c757d;
     color: white;
 
-/* Contenedor del input */
-.custom-input-container {
-    margin-bottom: 20px;
-    /* Espaciado entre los campos */
-}
+    /* Contenedor del input */
+    .custom-input-container {
+        margin-bottom: 20px;
+        /* Espaciado entre los campos */
+    }
 
-/* Estilo para el label */
-.custom-input-label {
-    width: 95%;
-    font-size: 16px;
-    /* Tamaño del texto del label */
-    color: black;
-    /* Color del texto del label */
-    /*font-weight: ;*/
-    text-align: left;
-    /* Estilo de texto en negritas */
-    margin-bottom: 5px;
-    /* Espacio entre el label y el input */
-    display: block;
-    /* Asegura que el label esté arriba del input */
-}
+    /* Estilo para el label */
+    .custom-input-label {
+        width: 95%;
+        font-size: 16px;
+        /* Tamaño del texto del label */
+        color: black;
+        /* Color del texto del label */
+        /*font-weight: ;*/
+        text-align: left;
+        /* Estilo de texto en negritas */
+        margin-bottom: 5px;
+        /* Espacio entre el label y el input */
+        display: block;
+        /* Asegura que el label esté arriba del input */
+    }
 
-/* Estilo para el input */
-.custom-input-field {
-    width: 95%;
-    /* El input ocupará el 100% del contenedor */
-    padding: 10px;
-    /* Espaciado interno del input */
-    border: 1px solid #ccc;
-    /* Borde gris claro */
-    border-radius: 2px;
-    /* Bordes redondeados */
-    font-size: 14px;
-    /* Tamaño de fuente para el texto del input */
-}
+    /* Estilo para el input */
+    .custom-input-field {
+        width: 95%;
+        /* El input ocupará el 100% del contenedor */
+        padding: 10px;
+        /* Espaciado interno del input */
+        border: 1px solid #ccc;
+        /* Borde gris claro */
+        border-radius: 2px;
+        /* Bordes redondeados */
+        font-size: 14px;
+        /* Tamaño de fuente para el texto del input */
+    }
 
-.custom-input-field:focus {
-    border-color: rgb(121, 122, 122);
-    /* Cambia el color del borde al hacer focus */
-    outline: none;
-    /* Elimina el contorno predeterminado del navegador */
-}
+    .custom-input-field:focus {
+        border-color: rgb(121, 122, 122);
+        /* Cambia el color del borde al hacer focus */
+        outline: none;
+        /* Elimina el contorno predeterminado del navegador */
+    }
 
-.custom-input-height {
-    height: 80px !important;
-    /* Ajusta la altura según lo que necesites */
-    padding: 10px !important;
-    /* Ajusta el relleno para que haya más espacio dentro */
-    font-size: 1rem !important;
-    /* Ajusta el tamaño de la fuente */
-    width: 100%;
-    /* Asegura que el campo ocupe todo el ancho disponible */
-    resize: vertical;
-    /* Permite que el textarea sea redimensionable solo en la dirección vertical */
-}
+    .custom-input-height {
+        height: 80px !important;
+        /* Ajusta la altura según lo que necesites */
+        padding: 10px !important;
+        /* Ajusta el relleno para que haya más espacio dentro */
+        font-size: 1rem !important;
+        /* Ajusta el tamaño de la fuente */
+        width: 100%;
+        /* Asegura que el campo ocupe todo el ancho disponible */
+        resize: vertical;
+        /* Permite que el textarea sea redimensionable solo en la dirección vertical */
+    }
 
-/* Limitar la altura del dropdown de selectpicker y agregar scroll */
-.bootstrap-select .dropdown-menu {
-    max-height: 200px; /* Ajusta la altura máxima */
-    overflow-y: auto; /* Añade scroll si excede la altura */
+    /* Limitar la altura del dropdown de selectpicker y agregar scroll */
+    .bootstrap-select .dropdown-menu {
+        max-height: 200px; /* Ajusta la altura máxima */
+        overflow-y: auto; /* Añade scroll si excede la altura */
+    }
 }
