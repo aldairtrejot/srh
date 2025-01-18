@@ -63,7 +63,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/courses/edit/${object.id_beneficio}`;
+                    const finalUrl = `${URL_DEFAULT}/courses/edit/${object.id_cat_beneficio}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `

@@ -18,6 +18,11 @@
                             tittle="{{ isset($item->id_tbl_cursos) ? 'Modificar' : 'Agregar ' }} Cursos"
                             route="{{ route('tablecourses.list') }}" />
                             <br>
+                            <form id="myForm" action="{{ route('tablecourses.save') }}" method="POST" class="form-sample">
+                                @csrf
+                            <x-template-form.template-form-input-hidden name="id_tbl_cursos"
+                                    value="{{ optional($item)->id_tbl_cursos ?? '' }}" />
+
                             <div class="row">
 
                                 <x-template-form.template-form-select-required :selectValue="$selectTipocurso"
@@ -28,18 +33,13 @@
                                 :selectEdit="$selectCoordinacionEdit" name="id_cat_coordinacion" tittle="Coordinacion"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
-                                <x-template-form.template-form-select-required :selectValue="$selectEstatuto"
-                                :selectEdit="$selectEstatutoEdit" name="id_cat_estatuto_organico" tittle="Estatuto Organico"
+                                <x-template-form.template-form-select-required :selectValue="$selectBeneficio"
+                                :selectEdit="$selectBeneficioEdit" name="id_cat_beneficio" tittle="Beneficio"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
                             </div>
                             
                             <div class="row">
-
-                                <x-template-form.template-form-select-required :selectValue="$selectBeneficio"
-                                :selectEdit="$selectBeneficioEdit" name="id_cat_beneficio" tittle="Beneficio"
-                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-
                                 <x-template-form.template-form-select-required :selectValue="$selectOrganizacion"
                                 :selectEdit="$selecOrganizacionEdit" name="id_cat_organizacion" tittle="Organizacion"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
@@ -47,17 +47,20 @@
                                 <x-template-form.template-form-select-required :selectValue="$selectTipoaccion"
                                 :selectEdit="$selectTipoAccionEdit" name="id_cat_tipo_accion" tittle="Tipo Accion"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                            </div>
-                            <div class="row">
+
                                 <x-template-form.template-form-select-required :selectValue="$selectModalidad"
                                 :selectEdit="$selectModalidadEdit" name="id_cat_modalidad" tittle="Modalidad"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
+                            </div>
+                            <div class="row">
                                 <x-template-form.template-form-select-required :selectValue="$selectCategoria"
                                 :selectEdit="$selectCategoriaEdit" name="id_cat_categoria" tittle="Categoria"
                                 grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
-                              
+                                <x-template-form.template-form-select-required :selectValue="$selectInstructor"
+                                :selectEdit="$selectInstructorEdit" name="id_tbl_instructores" tittle="Instructor"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
                             </div>
 
@@ -106,6 +109,11 @@
                             grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" />
                             </div>
 
+                            <div class="row">
+                            <x-template-form.template-form-select-required :selectValue="$selectEstatuto"
+                                :selectEdit="$selectEstatutoEdit" name="id_cat_estatuto_organico" tittle="Estatuto Organico"
+                                grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" />
+                            </div>
                              <x-template-button.button-form-footer routeBack="{{ route('tablecourses.list') }}" />
                          </form>
                          </div>

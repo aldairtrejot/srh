@@ -14,6 +14,10 @@ use App\Models\Courses\Courses\CoursesestatutoM;
 use App\Models\Courses\Courses\CoursesorganizacionM;
 use App\Models\Courses\Courses\CoursesmodalidadM;
 use App\Models\Courses\Courses\CoursescategoriaM;
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
+use App\Http\Controllers\Admin\MessagesC;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class TblCoursesC extends Controller
@@ -76,6 +80,7 @@ class TblCoursesC extends Controller
         $coursesorganizacionM = new CoursesorganizacionM();
         $coursesmodalidadM = new CoursesmodalidadM();
         $coursescategoriaM = new CoursescategoriaM();
+        $instructorM = new InstructorM();
 
         $selectBeneficio = $coursesM->listbeneficio(); //Catalogo de beneficio
         $selectBeneficioEdit = []; //catalogo de beneficio null
@@ -107,9 +112,55 @@ class TblCoursesC extends Controller
         $selectCategoria = $coursescategoriaM->listcategoria();
         $selectCategoriaEdit = [];
 
+        $selectInstructor = $instructorM->listinstructor();
+        $selectInstructorEdit = [];
+
         return view('courses.tablecourses.form', compact('item','selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
     'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',
-'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit'));
+'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit','selectInstructor','selectInstructorEdit'));
+    }
+    public function save(Request $request)
+    {
+        $now = Carbon::now(); // Fecha actual
+        $request->validate([
+            'id_cat_tipo_cursos' => 'required|integer',
+            'nombre' => 'required|string|max:255',
+            'costo' => 'required|numeric',
+            'iva' => 'required|numeric',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date',
+            'horas' => 'required|integer',
+        ]);
+    
+        if (!$request->id_tbl_cursos) {
+            TblcoursesM::create([
+                'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
+                'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                'id_cat_nombre_accion' => $request->id_cat_nombre_accion,
+                'id_cat_programa_institucional' => $request->id_cat_programa_institucional,
+                'id_cat_estatuto_organico' => $request->id_cat_estatuto_organico,
+                'programa_proyecto' => strtoupper($request->nombre),
+                'id_cat_beneficio' => $request->id_cat_beneficio,
+                'id_cat_organizacion' => $request->id_cat_organizacion,
+                'id_cat_tipo_accion' => $request->id_cat_tipo_accion,
+                'id_cat_modalidad' => $request->id_cat_modalidad,
+                'id_cat_categoria' => $request->id_cat_categoria,
+                'costo' => $request->costo,
+                'iva' => $request->iva,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'horas' => $request->horas,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+        } else {
+            TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update([
+                // mismos datos que en la creación
+            ]);
+        }
+    
+        return redirect()->route('tablecourses.list')->with('success', 'Curso guardado exitosamente.');
     }
 }
 

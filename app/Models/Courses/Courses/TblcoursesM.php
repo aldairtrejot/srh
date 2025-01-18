@@ -29,7 +29,7 @@ class TblcoursesM extends Model
         'fecha_fin',
         'horas',
         'id_usuario_sistema',
-        'nombre_completo',
+        
     ];
 
     public function list($iterator, $searchValue)

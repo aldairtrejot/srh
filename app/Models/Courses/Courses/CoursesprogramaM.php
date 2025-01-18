@@ -21,7 +21,7 @@ class CoursesprogramaM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_programa')
-            ->where('id_programa', $id)
+            ->where('id_cat_programa_institucional', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
