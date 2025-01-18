@@ -27,6 +27,11 @@
                             <x-template-button-dash title="Gestión de control" field="GESTIÓN DE CONTROL"
                                 href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
                         @endif
+                        <!-- Item menu Cursos -->
+                        @if($coursesMatch) 
+                            <x-template-button-dash  title="Cursos" field="CURSOS"  
+                                href="{{ route('courses.list') }}" icon="fa fa-book" description="Gestión de cursos disponibles" />
+                        @endif
                     </div>
                 </div>
             </div>
