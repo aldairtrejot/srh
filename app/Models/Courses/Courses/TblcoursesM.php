@@ -29,6 +29,7 @@ class TblcoursesM extends Model
         'fecha_fin',
         'horas',
         'id_usuario_sistema',
+        'estatus',
         
     ];
 

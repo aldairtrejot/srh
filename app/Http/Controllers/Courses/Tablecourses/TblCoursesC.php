@@ -70,6 +70,7 @@ class TblCoursesC extends Controller
         $item->fecha_inicio = ''; 
         $item->fecha_fin = ''; 
         $item->horas = '';// Valor por defecto
+        $item->estatus = '';  
         $coursesM = new CoursesM();
         $coursestipocurM = new CoursestipocurM();
         $coursestipoacM = new CoursestipoacM();
@@ -154,6 +155,7 @@ class TblCoursesC extends Controller
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ]);
+            //Ir a la base de cursos y busca el nombre de curso que es el programa_proyecto y obtengo el id de curso 
         } else {
             TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update([
                 // mismos datos que en la creación
