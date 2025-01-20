@@ -15,7 +15,9 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     }
 
     if ($('#es_por_area').val()) {//Validacion de check activo
-        if (isFieldEmpty($('#id_cat_area_documento').val(), 'Área')) { // valida que el campo este seleccionado
+        if (isFieldEmpty($('#id_cat_area_documento').val(), 'Área') ||
+            isFieldEmpty($('#id_usuario_area_aux').val(), 'Usuario') ||
+            isFieldEmpty($('#id_usuario_enlace_aux').val(), 'Enlace')) { // valida que el campo este seleccionado
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }
@@ -38,3 +40,24 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
 
+
+//Validacion cuando se cambia el evento de fecha
+$('#fecha_inicio').change(function () {
+    validateDate();
+});
+
+//Validacion cuando se cambia el evento de fecha
+$('#fecha_fin').change(function () {
+    validateDate();
+});
+
+//La funcion valida que la fecha de inicio no sea mayor a la fecha de fin
+function validateDate() {
+    let fecha_inicio = document.getElementById('fecha_inicio').value;
+    let fecha_fin = document.getElementById('fecha_fin').value;
+    if (fecha_inicio !== '' && fecha_fin !== '') { //Valida que los campos fecchas tengan informacion
+        if (fecha_inicio > fecha_fin) {
+            notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+        }
+    }
+}

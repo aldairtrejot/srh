@@ -183,12 +183,14 @@ class LetterM extends Model
     //Valida el no de turno exista
     public function validateNoTurno($noTurno)
     {
+        // Usamos whereRaw con binding para evitar problemas de inyección SQL
         $turno = DB::table('correspondencia.tbl_correspondencia')
-            ->where('num_turno_sistema', $noTurno)
-            ->value('correspondencia.tbl_correspondencia.id_tbl_correspondencia');
+            ->whereRaw('UPPER(TRIM(num_turno_sistema)) = UPPER(TRIM(?))', [$noTurno])
+            ->orWhereRaw('UPPER(TRIM(folio_gestion)) = UPPER(TRIM(?))', [$noTurno])
+            ->value('id_tbl_correspondencia'); // Recuperamos el valor de id_tbl_correspondencia
 
-        // Si no se encuentra información, retornamos null
-        return $turno ?: null;
+        // Retornamos el valor, si no se encuentra, será null
+        return $turno;
     }
 
     public function validateNoTurnoArea($noTurno)

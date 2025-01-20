@@ -89,12 +89,11 @@ class CollectionAreaM extends Model
     {
         // Usando DB::table() para obtener el primer registro y la clave en mayúsculas
         $result = DB::table('correspondencia.cat_area')
-            ->where('id_cat_area', $id)
-            ->limit(1) // Esto puede ser innecesario, ya que first() ya limita el resultado a 1
+           ->where('id_cat_area', $id)
             ->select(DB::raw('UPPER(descripcion) AS nombre'))
             ->first();
 
         // Verificar si se encontró un resultado
-        return $result ? $result->clave : null;
+        return $result ? $result->nombre : null;
     }
 }
