@@ -61,6 +61,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
                 DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
                 DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area'),
@@ -90,7 +91,7 @@ class LetterM extends Model
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_tramite.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);

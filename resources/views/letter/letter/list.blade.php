@@ -45,16 +45,16 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
+                                        Fólio de gestón
                                     </th>
                                     <th>
                                         No. Documento
                                     </th>
                                     <th>
-                                        Estatus
+                                        No. Turno
                                     </th>
                                     <th>
-                                        Tramite
+                                        Estatus
                                     </th>
                                     <th>
                                         Área

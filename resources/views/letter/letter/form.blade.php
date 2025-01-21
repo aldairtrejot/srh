@@ -92,15 +92,17 @@
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_documento ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
-                                        name="fecha_inicio" placeholder=""
+                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
+                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->fecha_inicio ?? '' }}" />
+                                        value="{{optional($item)->folio_gestion ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha fin" type="date"
-                                        name="fecha_fin" placeholder=""
+                                    <x-template-form.template-form-input-required label="Fecha de doc." type="date"
+                                        name="fecha_documento" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->fecha_fin ?? '' }}" />
+                                        value="{{optional($item)->fecha_documento ?? '' }}" />
+
+
                                 </div>
 
                                 <div class="row">
@@ -119,20 +121,19 @@
                                         name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->horas_respuesta ?? '' }}" />
-
                                 </div>
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
-                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                    <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
+                                        name="fecha_inicio" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->folio_gestion ?? '' }}" />
+                                        value="{{optional($item)->fecha_inicio ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha de doc." type="date"
-                                        name="fecha_documento" placeholder=""
+                                    <x-template-form.template-form-input-required label="Fecha fin" type="date"
+                                        name="fecha_fin" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->fecha_documento ?? '' }}" />
+                                        value="{{optional($item)->fecha_fin ?? '' }}" />
 
                                     <x-template-form.template-form-input-check
                                         idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box"
