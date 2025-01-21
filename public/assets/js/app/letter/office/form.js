@@ -22,13 +22,6 @@ function setCheckboxArea() {
         showDiv('mostrar_ocultar_no_area'); //Mostrar contenido
         $('#num_correspondencia').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', true); // desabilitar no de documento por area
-        //Limpieza de variables
-        /*
-        $('#id_cat_area').val('');
-        $('#id_usuario_area').val('');
-        $('#id_usuario_enlace').val('');
-        $('#id_tbl_correspondencia').val('');
-        */
     } else { //Valor de la variable check falso
         hideDiv('mostrar_ocultar_no_area'); //Ocultar contenido
         cleanSelect('#id_cat_area_documento'); // Limpiar select
@@ -37,8 +30,6 @@ function setCheckboxArea() {
         cleanSelectMoreSelect('#id_usuario_area_aux'); //Se limpia el select
         cleanSelectMoreSelect('#id_usuario_enlace_aux'); //Se limpia el select
     }
-
-
     //getRole(); //Validacion por roles
 }
 

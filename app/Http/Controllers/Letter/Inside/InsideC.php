@@ -86,13 +86,17 @@ class InsideC extends Controller
         $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
-        $selectArea = $collectionAreaM->list(); //Catalogo de area
-        $selectAreaEdit = []; //catalogo de area null
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
 
-        return view('letter/inside/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        $selectUser = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+        $selectUserEdit = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+
+        $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+        $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+
+        return view('letter/inside/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -110,7 +114,13 @@ class InsideC extends Controller
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
 
-        return view('letter/inside/form', compact('selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        $selectUser = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+        $selectUserEdit = isset($item->id_cat_area) && isset($item->id_usuario_area) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+
+        $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+        $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+
+        return view('letter/inside/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
@@ -119,66 +129,12 @@ class InsideC extends Controller
         $object = new InsideM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
-        $letterM = new LetterM();
         $collectionAreaM = new CollectionAreaM();
-        //USER_ROLE
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
-        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-        //Autorizacion solo administracion
 
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
-        $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
 
-        $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
-        if ($es_por_area == 1) {
-            if ($request->id_cat_area_documento == 2) {
-                $idusuario = 7;
-                $idEnlace = 8;
-                $idArea = 2;
-            } else if ($request->id_cat_area_documento == 4) {
-                $idusuario = 9;
-                $idEnlace = 10;
-                $idArea = 4;
-            } else if ($request->id_cat_area_documento == 5) {
-                $idusuario = 6;
-                $idEnlace = 4;
-                $idArea = 5;
-            } else if ($request->id_cat_area_documento == 6) {
-                $idusuario = 13;
-                $idEnlace = 14;
-                $idArea = 6;
-            } else if ($request->id_cat_area_documento == 7) {
-                $idusuario = 15;
-                $idEnlace = 16;
-                $idArea = 7;
-            }
-
-        } else {
-            if ($id_area_aux == 2) {
-                $idusuario = 7;
-                $idEnlace = 8;
-                $idArea = 2;
-            } else if ($id_area_aux == 4) {
-                $idusuario = 9;
-                $idEnlace = 10;
-                $idArea = 4;
-            } else if ($id_area_aux == 5) {
-                $idusuario = 6;
-                $idEnlace = 4;
-                $idArea = 5;
-            } else if ($id_area_aux == 6) {
-                $idusuario = 13;
-                $idEnlace = 14;
-                $idArea = 6;
-            } else if ($id_area_aux == 7) {
-                $idusuario = 15;
-                $idEnlace = 16;
-                $idArea = 7;
-            }
-        }
 
         if (!isset($request->id_tbl_interno)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
@@ -190,18 +146,18 @@ class InsideC extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-
-                'id_usuario_area' => $idusuario,
-                'id_usuario_enlace' => $idEnlace,
-                'id_cat_area' => $idArea,
+                'id_usuario_area' => $request->id_usuario_area,
+                'id_usuario_enlace' => $request->id_usuario_enlace,
+                'id_cat_area' => $request->id_cat_area,
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
+                'id_usuario_captura' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];
 
@@ -215,23 +171,23 @@ class InsideC extends Controller
 
         } else { //modificar elemento 
 
+            //Array
             $data = [
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-
-                'id_usuario_area' => $idusuario,
-                'id_usuario_enlace' => $idEnlace,
-                'id_cat_area' => $idArea,
-
+                'id_usuario_area' => $request->id_usuario_area,
+                'id_usuario_enlace' => $request->id_usuario_enlace,
+                'id_cat_area' => $request->id_cat_area,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];
+
             $object::where('id_tbl_interno', $request->id_tbl_interno)
                 ->update($data);
             $data['id_tbl_interno'] = $request->id_tbl_interno;

@@ -83,10 +83,6 @@ class OfficeC extends Controller
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
 
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
-        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
@@ -102,7 +98,6 @@ class OfficeC extends Controller
 
         $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
-
 
         return view('letter/office/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }

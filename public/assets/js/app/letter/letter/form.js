@@ -4,90 +4,40 @@
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
 $(document).ready(function () {
+    $('#num_documento_area').prop('disabled', true); //Desabilitar input
     $('select').selectpicker(); //Iniciar los select
     //checkboxState();
     setData(); //Establecer las variables de informacion general
-    getRole(); //Obtener y definir los roles para no tener los input
+    //getRole(); //Obtener y definir los roles para no tener los input
     setCheckboxArea();
-    setCheckbox(); // Inicio de status de checkox
-
-    tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico'); // Tooltip
-    tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado'); // Tooltip
-    tooltip('#mas_remitentes', 'Añadir dos o más remitentes'); // Tooltip
+    tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
+    tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
+    getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area
 function setCheckboxArea() {
-    if ($('#rfc_remitente_bool').val()) { //valor del  la variable check true
+    if ($('#es_por_area').val()) { //valor del  la variable check true
         $('#idcheckboxTemplate').prop('checked', true); //Activar el checkk
-        cleanSelect('#id_cat_remitente'); //Se limpia el select
-        $('#id_cat_remitente').prop('disabled', true); // desabilitar no de documento por area
-        $('#id_cat_remitente').selectpicker('refresh');
-        showDiv('mostrar_ocultar_template'); //Mostrar contenido
+        showDiv('mostrar_ocultar_no_area'); //Mostrar contenido
+        $('#num_correspondencia').val('');// Limpiar input
+        $('#num_correspondencia').prop('disabled', true); // desabilitar no de documento por area
     } else { //Valor de la variable check falso
-        $('#remitente_nombre').val('');// Limpiar input
-        $('#remitente_apellido_paterno').val('');// Limpiar input
-        $('#remitente_apellido_materno').val('');// Limpiar input
-        $('#remitente_rfc').val('');// Limpiar input
-        $('#id_cat_remitente').prop('disabled', false); // desabilitar no de documento por area
-        $('#id_cat_remitente').selectpicker('refresh');
-        hideDiv('mostrar_ocultar_template'); //Ocultar contenido
+        hideDiv('mostrar_ocultar_no_area'); //Ocultar contenido
+        cleanSelect('#id_cat_area_documento'); // Limpiar select
+        $('#num_documento_area').val('');// Limpiar input
+        $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
+        cleanSelectMoreSelect('#id_usuario_area_aux'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace_aux'); //Se limpia el select
     }
-    getRole();
+    //getRole(); //Validacion por roles
 }
-
-// La función de define el status de los checkbox, con el fin de marcalos y obtener el status de sus variables
-function setCheckbox() {
-    // Declaracion de variables
-    let es_doc_fisico = $('#es_doc_fisico').val();
-    let son_mas_remitentes = $('#son_mas_remitentes').val();
-
-    // Dependiendo del valor marca o desmarca el checbox
-    es_doc_fisico ? $('#es_doc_fisico_box').prop('checked', true) : $('#es_doc_fisico_box').prop('checked', false);
-    son_mas_remitentes ? $('#son_mas_remitentes_box').prop('checked', true) : $('#son_mas_remitentes_box').prop('checked', false);
-
-    // Oculta o muestra el contenido dependiendo del la seleccion de remitentes
-    setValueOfMoreRem();
-
-}
-
-// Oculta o muestra el contenido dependiendo del la seleccion de remitentes
-function setValueOfMoreRem() {
-    let son_mas_remitentes = $('#son_mas_remitentes').val();
-
-    if (son_mas_remitentes) {
-        hideDiv('_hidden_select');
-        hideDiv('mostrar_ocultar_template');
-        showDiv('mostrar_ocultar_mas_remitentes');
-        cleanSelect('#id_cat_remitente'); //Se limpia el select
-    } else {
-        showDiv('_hidden_select');
-        hideDiv('mostrar_ocultar_template');
-        hideDiv('mostrar_ocultar_mas_remitentes');
-        $('#remitente').val('');
-    }
-}
-
-//Codigo para la ejecucion de un checkbox
-$('#es_doc_fisico_box').change(function () {
-    let bool = false; // Inicio de variable de checkbox de area
-    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#es_doc_fisico').val(bool); //Se asigna el valor
-});
-
-//Codigo para la ejecucion de un checkbox
-$('#son_mas_remitentes_box').change(function () {
-    let bool = false; // Inicio de variable de checkbox de area
-    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#son_mas_remitentes').val(bool); //Se asigna el valor
-    setCheckbox();
-});
 
 //Codigo para la ejecucion de un checkbox
 $('#idcheckboxTemplate').change(function () {
     let bool = false; // Inicio de variable de checkbox de area
     bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#rfc_remitente_bool').val(bool); //Se asigna el valor
+    $('#es_por_area').val(bool); //Se asigna el valor
     setCheckboxArea();//Se ejecuta la funcon
 });
 
@@ -96,55 +46,15 @@ function getRole() {
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
     if (!new_variable) { //Condicion para inabilitar las opciones
-        validateEstatus();
-
-        $('#num_documento').prop('disabled', true);
-        $('#num_copias').prop('disabled', true);
+        $('#num_correspondencia').prop('disabled', true);
         $('#fecha_inicio').prop('disabled', true);
         $('#fecha_fin').prop('disabled', true);
-        $('#num_flojas').prop('disabled', true);
-        $('#num_tomos').prop('disabled', true);
-        $('#lugar').prop('disabled', true);
         $('#asunto').prop('disabled', true);
-        $('#remitente_nombre').prop('disabled', true);
-        $('#remitente_apellido_paterno').prop('disabled', true);
-        $('#remitente_apellido_materno').prop('disabled', true);
-        $('#remitente_rfc').prop('disabled', true);
-        $('#horas_respuesta').prop('disabled', true);
-        $('#puesto_remitente').prop('disabled', true);
-        $('#id_cat_remitente').prop('disabled', true);
-        $('#folio_gestion').prop('disabled', true);
-        $('#remitente').prop('disabled', true);
-
         $('#idcheckboxTemplate').prop('disabled', true);
-        $('#es_doc_fisico_box').prop('disabled', true);
-        $('#son_mas_remitentes_box').prop('disabled', true);
 
-        $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
-        $('#id_usuario_area').prop('disabled', true);
-        $('#id_usuario_enlace').prop('disabled', true);
-        $('#id_cat_unidad').prop('disabled', true);
-        $('#id_cat_coordinacion').prop('disabled', true);
-        $('#id_cat_tramite').prop('disabled', true);
-        $('#id_cat_clave').prop('disabled', true);
-        $('#id_cat_remitente').prop('disabled', true);
+        $('#id_cat_area_documento').prop('disabled', true);
 
-        $('#id_cat_area').selectpicker('refresh'); //Refresh de select 
-        $('#id_usuario_area').selectpicker('refresh');
-        $('#id_usuario_enlace').selectpicker('refresh');
-        $('#id_cat_unidad').selectpicker('refresh');
-        $('#id_cat_coordinacion').selectpicker('refresh');
-        $('#id_cat_tramite').selectpicker('refresh');
-        $('#id_cat_clave').selectpicker('refresh');
-        $('#id_cat_remitente').selectpicker('refresh');
-    }
-}
-
-//valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
-function validateEstatus() {
-    if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5) {
-        $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
-        $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
+        $('#id_cat_area_documento').selectpicker('refresh');
     }
 }
 
@@ -156,33 +66,43 @@ function setData() {
     let num_turno_sistema = $('#num_turno_sistema').val();//fecha de captura
     $('#_labNoCorrespondencia').text(num_turno_sistema); //establecer los varoles
 
+    let usuario = $('#usuario').val();//usuario
+    $('#_labUsuario').text(usuario); //establecer los varoles
+
+    let enlace = $('#enlace').val();//Enlace
+    $('#_labEnlace').text(enlace); //establecer los varoles
+
     getData();//Se hace busqueda de la informacion
 }
 
-//La funcion obtiene el año, clave, codigo y redaccion
+//La funcion obtiene el año
 function getData() {
 
     let id_cat_anio = $('#id_cat_anio').val();//Obtener elemento
-    let id_cat_clave = $('#id_cat_clave_aux').val();//Obtener elemento
 
     $.ajax({
-        url: URL_DEFAULT.concat('/letter/collection/dataClave'),
+        url: URL_DEFAULT.concat('/year/getYear'),
         type: 'POST',
         data: {
             id_cat_anio: id_cat_anio,
-            id_cat_clave: id_cat_clave,
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
             let item = response.nameYear;
-            let itemClave = response.dataClave;
-
             $('#_labAño').text(item.name); // establecer los valores
-            $('#_labClave').text(itemClave._labClave);
-            $('#_labClaveCodigo').text(itemClave._labClaveCodigo);
-            $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
         },
     });
 }
 
 
+// Se dectecta el cambio de valor de No de correspondencia asoc, con el fin de obtener el usuario y enlace si es que es correcto
+$('#num_correspondencia').on('input', function () {
+    let value = $(this).val().trim();  // Obtener el valor del campo de texto
+    if (value !== '') { // Validacion para que el campo no este en blanco
+        getNoDocument(value, '#_labUsuario', '#_labEnlace', '#_labArea', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace', '#id_tbl_correspondencia');
+    } else {
+        $('#_labUsuario').text(' _');
+        $('#_labEnlace').text(' _');
+        $('#_labArea').text(' _');
+    }
+});
