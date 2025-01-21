@@ -15,6 +15,8 @@ use App\Models\Courses\Courses\CoursesorganizacionM;
 use App\Models\Courses\Courses\CoursesmodalidadM;
 use App\Models\Courses\Courses\CoursescategoriaM;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
+use App\Models\Courses\Courses\Cursoinstructor\CourseinstructorM;
+use App\Models\Courses\Courses\Relcurso\RelcoursesM;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +84,7 @@ class TblCoursesC extends Controller
         $coursesmodalidadM = new CoursesmodalidadM();
         $coursescategoriaM = new CoursescategoriaM();
         $instructorM = new InstructorM();
+       
 
         $selectBeneficio = $coursesM->listbeneficio(); //Catalogo de beneficio
         $selectBeneficioEdit = []; //catalogo de beneficio null
@@ -116,23 +119,16 @@ class TblCoursesC extends Controller
         $selectInstructor = $instructorM->listinstructor();
         $selectInstructorEdit = [];
 
+
         return view('courses.tablecourses.form', compact('item','selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
     'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',
 'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit','selectInstructor','selectInstructorEdit'));
     }
     public function save(Request $request)
     {
+        $courseinstructorM = new CourseinstructorM();
         $now = Carbon::now(); // Fecha actual
-        $request->validate([
-            'id_cat_tipo_cursos' => 'required|integer',
-            'nombre' => 'required|string|max:255',
-            'costo' => 'required|numeric',
-            'iva' => 'required|numeric',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
-            'horas' => 'required|integer',
-        ]);
-    
+        
         if (!$request->id_tbl_cursos) {
             TblcoursesM::create([
                 'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
@@ -155,6 +151,16 @@ class TblCoursesC extends Controller
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ]);
+
+            $idcursos = $courseinstructorM->cursoinstructor($request->nombre);
+            RelcoursesM::create([
+                'id_usuario_sistema' => Auth::user()->id,
+                'id_tbl_cursos' => $idcursos -> id_tbl_cursos,
+                'id_tbl_instructores' => $request->id_tbl_instructores,
+                'fecha_usuario' => $now
+            ]);
+            
+
             //Ir a la base de cursos y busca el nombre de curso que es el programa_proyecto y obtengo el id de curso 
         } else {
             TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update([
