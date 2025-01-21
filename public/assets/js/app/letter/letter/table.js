@@ -93,7 +93,7 @@ function searchInit() {
                         <td>${object.estatus}</td>
                         <td>${object.tramite}</td>
                         <td>${object.area}</td>
-                        <td>${object.fecha_inicio}</td>
+                        <td>${object.fecha_documento}</td>
                         <td>${object.fecha_fin}</td>
                     </tr>
                 `;

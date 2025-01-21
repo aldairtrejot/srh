@@ -60,7 +60,7 @@
                                         Área
                                     </th>
                                     <th>
-                                        Fecha de incio
+                                        Fecha Doc.
                                     </th>
                                     <th>
                                         Fecha de fin
