@@ -258,6 +258,7 @@ class LetterC extends Controller
                 'es_doc_fisico' => $es_doc_fisico,
                 'son_mas_remitentes' => $son_mas_remitentes,
                 'remitente' => strtoupper($request->remitente),
+                'fecha_documento' => $request->fecha_documento,
 
                 // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
@@ -307,6 +308,7 @@ class LetterC extends Controller
                     'es_doc_fisico' => $es_doc_fisico,
                     'son_mas_remitentes' => $son_mas_remitentes,
                     'remitente' => strtoupper($request->remitente),
+                    'fecha_documento' => $request->fecha_documento,
 
                     'id_usuario_sistema' => Auth::user()->id,
                     'fecha_usuario' => $now,

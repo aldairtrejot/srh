@@ -40,6 +40,7 @@ class LetterM extends Model
         'es_doc_fisico',
         'son_mas_remitentes',
         'remitente',
+        'fecha_documento',
     ];
 
     public function edit(string $id)

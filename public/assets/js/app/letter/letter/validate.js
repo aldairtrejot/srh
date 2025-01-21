@@ -11,6 +11,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
         isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
         isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
+        isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#id_cat_area').val(), 'Área') ||
         isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
