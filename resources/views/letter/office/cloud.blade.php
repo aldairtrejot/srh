@@ -63,7 +63,7 @@
                             </div>
                         </div>
 
-                        <!-- modal deelete -->
+                        <!-- modal delete -->
                         <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
                             confirmButton="confirmBtn" />
 
@@ -158,7 +158,6 @@
                                     <div id="container_anexo_salida"></div>
                                 </div>
                             </div>
-                            </di </div>
                         </div>
                     </div>
                 </div>

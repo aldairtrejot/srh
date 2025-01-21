@@ -209,7 +209,7 @@ function deleteCourse(id) {
         data: { _token: token },
         success: () => {
             alert('Tipo de acción eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/coursestipoac/list`;
+            href = `${URL_DEFAULT}/coursestipoac/list`;
         },
         error: (xhr) => handleAjaxError(xhr)
     });

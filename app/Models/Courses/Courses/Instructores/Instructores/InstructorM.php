@@ -43,10 +43,10 @@ class InstructorM extends Model
                 END AS estatus_instructor
             "),
         ])
-        ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
-        ->leftJoin('central.tbl_empleados_hraes as central', 'administration.users.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
-        ->leftJoin('transferidos.tbl_empleados as transferidos', 'administration.users.id_tbl_empleados_central', '=', 'transferidos.id_tbl_empleados')
-        ->leftJoin('public.tbl_empleados_hraes as public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes');
+        ->join(table: 'administration.users', first: 'capacitacion.tbl_instructores.id_usuario_empleado', operator: '=', second: 'administration.users.id')
+        ->leftJoin(table: 'central.tbl_empleados_hraes as central', first: 'administration.users.id_tbl_empleados_central', operator: '=', second: 'central.id_tbl_empleados_hraes')
+        ->leftJoin(table: 'transferidos.tbl_empleados as transferidos', first: 'administration.users.id_tbl_empleados_central', operator: '=', second: 'transferidos.id_tbl_empleados')
+        ->leftJoin(table: 'public.tbl_empleados_hraes as public', first: 'administration.users.id_tbl_empleados_hraes', operator: '=', second: 'public.id_tbl_empleados_hraes');
 
     // Agregar condiciones de búsqueda
     if (!empty($searchValue)) {

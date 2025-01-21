@@ -91,7 +91,7 @@ function renderTable(response) {
                     </td>
                     <td>${object.curp || ' '}</td>
                     <td>${object.nombre_completo || ' '}</td>
-                    <td>${object.estatus_instructor ? 'ACTIVO' : 'INACTIVO'}</td>
+                    <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
                 </tr>
             `;
             tbody.append(rowHTML);

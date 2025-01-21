@@ -22,7 +22,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Instructores</h4>
-                                @if($letterAdminMatch)
+                                @if($coursesMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
                                         <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
@@ -69,6 +69,8 @@
     </div>
 </div>
 
-    <!-- CODE SCRIPT-->
-    <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
+ <!-- CODE SCRIPT-->
+ <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
 </x-template-app.app-layout>
+
+   

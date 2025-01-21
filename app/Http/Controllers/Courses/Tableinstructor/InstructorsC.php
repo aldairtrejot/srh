@@ -23,9 +23,7 @@ class InstructorsC extends Controller
         $messagesC = new MessagesC();
         $now = Carbon::now();
 
-        $request->validate([
-            'estatus' => 'required|boolean',
-        ]);
+        $request->validate(['estatus' => 'required|boolean',]);
 
         $instructorM::create([
             'estatus' => $request->estatus,
