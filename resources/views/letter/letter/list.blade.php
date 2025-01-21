@@ -45,7 +45,7 @@
                                         Menú
                                     </th>
                                     <th>
-                                        Fólio de gestón
+                                        Fólio de gestión
                                     </th>
                                     <th>
                                         No. Documento
