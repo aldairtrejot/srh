@@ -54,6 +54,12 @@ class LetterC extends Controller
         $item->es_doc_fisico = true; // Inicio de variables
         $item->son_mas_remitentes = false; // Inicio de variables
 
+        $item->num_flojas = 1; // Inicio de variables
+        $item->num_tomos = 0; // Inicio de variables
+        $item->horas_respuesta = 0; // Inicio de variables
+
+
+
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
 

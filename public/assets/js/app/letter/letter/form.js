@@ -115,6 +115,7 @@ function getRole() {
         $('#id_cat_remitente').prop('disabled', true);
         $('#folio_gestion').prop('disabled', true);
         $('#remitente').prop('disabled', true);
+        $('#fecha_documento').prop('disabled', true);
 
         $('#idcheckboxTemplate').prop('disabled', true);
         $('#es_doc_fisico_box').prop('disabled', true);
@@ -142,9 +143,16 @@ function getRole() {
 
 //valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
 function validateEstatus() {
+    // Se eliminan las opciones
     if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5) {
         $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
         $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
+    } else {
+        console.log($('#id_cat_estatus').length);
+        //$('#id_cat_estatus option').eq(1).remove(); // Elimina la opción 2
+        $('#id_cat_estatus option[value="2"]').remove();
+        $('#id_cat_estatus option[value="5"]').remove();
+        $('#id_cat_estatus').selectpicker('refresh');
     }
 }
 
