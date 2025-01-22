@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Mail;
 class EmailC extends Controller
 {
 
+    // la función retorna la vista para diseño
+    public function template()
+    {
+        //value 
+        $nameUser = 'User of Name';
+        $mailBody = (object)[
+            'asunto' => 'asunto',
+            'num_turno_sistema' => 'num_turno_sistema',
+            'num_documento' => 'num_documento',
+            'fecha_inicio' => 'fecha_inicio',
+            'fecha_fin' => 'fecha_fin',
+            'area_descripcion' => 'area_descripcion',
+            'usuario_area' => 'usuario_area',
+            'usuario_enlace' => 'usuario_enlace',
+        ];
+        
+
+        return view('letter/mail/mailLetter', compact('mailBody', 'nameUser'));
+    }
+
+
     // La funcion manda correo para correspondecia
     public function emailLetter(Request $request)
     {

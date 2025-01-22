@@ -279,3 +279,5 @@ Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablec
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 // CONSULTA DE USUARIO, ENLACE Y AREA
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');
+
+Route::get('/mail', [EmailC::class, 'template']);
