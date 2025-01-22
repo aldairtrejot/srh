@@ -50075,11 +50075,12 @@ select:disabled {
 }
 
 /* Limitar la altura del dropdown de selectpicker y agregar scroll */
+/*
 .bootstrap-select .dropdown-menu {
-    max-height: 200px; /* Ajusta la altura máxima */
-    overflow-y: auto; /* Añade scroll si excede la altura */
+    max-height: 200px; 
+    overflow-y: auto; 
 }
-
+*/
 
 /* cahenges */
 .toggle-switch {
