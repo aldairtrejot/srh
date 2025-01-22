@@ -63,7 +63,7 @@ class LetterC extends Controller
         $selectEnlace = []; //Catalogo de Area - enlace, al crear comienza en vacio 
         $selectEnlaceEdit = []; //Catalogo de Area - enlace, al crear comienza en vacio 
 
-        $selectUnidad = $collectionUnidadM->list();//Catalogo de unidad
+        $selectUnidad = [];//Catalogo de unidad
         $selectUnidadEdit = []; //Catalogo de Unidad, al crear comienza en vacio 
 
         $selectCoordinacion = []; //Catalogos de coordinacion vacios
