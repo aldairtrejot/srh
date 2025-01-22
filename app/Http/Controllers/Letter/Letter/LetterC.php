@@ -29,6 +29,11 @@ class LetterC extends Controller
         return view('letter/letter/list');
     }
 
+    // Retorna el dashboard
+    public function dashboard()
+    {
+        return view('letter/dashboard/dashboard');
+    }
     public function cloud($id)
     {
         $object = new LetterM();
