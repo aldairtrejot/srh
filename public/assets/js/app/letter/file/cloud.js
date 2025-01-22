@@ -52,10 +52,10 @@ function getDataDocument() {
             response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
             response.resultAnexosSalida ? disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida') : enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
 
-            templateCloud(container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
-            templateCloud(container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
-            templateCloud(container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
+            templateCloud(false, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(false, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(false, container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
+            templateCloud(false, container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
 
         },
     });

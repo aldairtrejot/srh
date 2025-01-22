@@ -22,6 +22,9 @@
                         <div>
                             <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('letter.list') }}" />
 
+                            <x-template-form.template-form-input-hidden name="bool_user_role"
+                                value="{{  $letterAdminMatch }}" />
+
                             <x-template-form.template-form-input-hidden name="id"
                                 value="{{  $item->id_tbl_correspondencia }}" />
 

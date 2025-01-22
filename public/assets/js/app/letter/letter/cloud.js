@@ -13,6 +13,7 @@ var es_anexo = 0;//Identifca si es un anexo
 $(document).ready(function () {
     getDataCloud();
     getDataDocument();
+    getRole();
 
     $(window).click(function (event) {//El evento se utiliza para oculatar el modal de eliminar cuando se da click en cualquier parte distinta
         if ($(event.target).is('#modalBackdrop')) {
@@ -21,8 +22,25 @@ $(document).ready(function () {
     });
 });
 
+function getRole() {
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+    if (!new_variable) { //Condicion para inabilitar las opciones
+        console.log('intro');
+        disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+        disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+    } else {
+        console.log('intro-2');
+        enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+        enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+    }
+}
 //La funcion lista los documentos que existen en el cloud
 function getDataDocument() {
+
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+
     let container_anexo_entrada_vacio = $('#container_anexo_entrada_vacio');
     let container_anexo_entrada = $('#container_anexo_entrada');
     let container_oficio_entrada_vacio = $('#container_oficio_entrada_vacio');
@@ -43,8 +61,10 @@ function getDataDocument() {
             response.resultOficioEntrada ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
             response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
 
-            templateCloud(container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+
+            getRole();
         },
     });
 }

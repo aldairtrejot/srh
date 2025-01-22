@@ -1,5 +1,5 @@
 // La funcion retorna los valores para listar los archivos de cloud
-function templateCloud(templateData, templateDataNull, data) {
+function templateCloud(bool, templateData, templateDataNull, data) {
     // Limpiar el contenedor antes de agregar nuevos elementos
     templateData.empty();
 
@@ -11,7 +11,7 @@ function templateCloud(templateData, templateDataNull, data) {
         // Iteramos sobre los anexos y creamos los elementos HTML dinámicamente
         data.forEach(function (valueTemplate) {
             // Creamos el HTML para cada anexo utilizando la segunda función
-            let fileHTML = generateFileHTML(valueTemplate);
+            let fileHTML = generateFileHTML(bool, valueTemplate);
 
             // Insertamos el HTML generado en el contenedor
             templateData.append(fileHTML);
@@ -23,25 +23,29 @@ function templateCloud(templateData, templateDataNull, data) {
 }
 
 // La función que genera el HTML para cada archivo de cloud
-function generateFileHTML(template) {
+function generateFileHTML(boolx, template) {
     return `
         <div class="custom-file-container">
             <div class="custom-file-icon-container">
                 <i style="color:#777777" class="fa fa-file" aria-hidden="true"></i>
                 <div class="custom-button-container">
-                <!--
+                    <!--
                     <button onclick="getInfo('${template.id}')" style="background: #003366" class="custom-button" title="Usuario">
                         <i style="color: white" class="fa fa-user"></i>
                     </button>
                     <button onclick="seeDocument('${template.uid}')" style="background: #1D5B3B" class="custom-button" title="Ver" disabled>
                         <i style="color: white" class="fa fa-eye"></i>
-                    </button>-->
+                    </button> -->
                     <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
                         <i style="color: white" class="fa fa-download"></i>
                     </button>
-                    <button onclick="deleteDocument('${template.uid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
-                        <i style="color: white" class="fa fa-trash"></i>
-                    </button>
+                    ${
+                        boolx ? `
+                            <button onclick="deleteDocument('${template.uid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                                <i style="color: white" class="fa fa-trash"></i>
+                            </button>
+                        ` : ''
+                    }
                 </div>
             </div>
             <div class="custom-file-name">
