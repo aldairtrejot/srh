@@ -102,13 +102,14 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
+    /*
     // Validacion de no document sea unico
     let isValid = getNoUnique($('#id_tbl_correspondencia').val(), $('#num_documento').val(), 'num_documento');
     if (isValid) {
         notyfEM.error('El No. Documento ya está registrado.');
         event.preventDefault();  // Detener el envío si la validación falla
         return;  // Detener la ejecución aquí
-    }
+    }*/
 
     let isValidG = getNoUnique($('#id_tbl_correspondencia').val(), $('#folio_gestion').val(), 'folio_gestion');
     if (isValidG) {
