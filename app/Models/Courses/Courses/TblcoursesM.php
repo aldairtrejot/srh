@@ -30,7 +30,6 @@ class TblcoursesM extends Model
         'horas',
         'id_usuario_sistema',
         'estatus',
-        
     ];
 
     public function list($iterator, $searchValue)
@@ -94,6 +93,17 @@ class TblcoursesM extends Model
         }
 
         return $query->paginate(5, ['*'], 'page', $iterator);
+    }
+
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('capacitacion.tbl_cursos')
+            ->where('id_tbl_cursos', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
     }
 }
 

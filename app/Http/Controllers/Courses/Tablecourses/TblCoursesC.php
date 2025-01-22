@@ -65,7 +65,7 @@ class TblCoursesC extends Controller
     }
     public function create()
     {
-        $item = new TblcoursesM();
+        $tblcoursesM = new TblcoursesM();
         $item->nombre_curso = '';  
         $item->costo = ''; 
         $item->iva = ''; 
@@ -170,5 +170,63 @@ class TblCoursesC extends Controller
     
         return redirect()->route('tablecourses.list')->with('success', 'Curso guardado exitosamente.');
     }
+    public function edit(string $id)
+    {
+        $tblcoursesM = new TblcoursesM();
+        $coursesM = new CoursesM();
+        $coursestipocurM = new CoursestipocurM();
+        $coursestipoacM = new CoursestipoacM();
+        $coursescoordinacionM = new CoursescoordinacionM();
+        $coursesnombreaccM = new CoursesnombreaccM();
+        $coursesprogramaM = new CoursesprogramaM();
+        $coursesestatutoM = new CoursesestatutoM();
+        $coursesorganizacionM = new CoursesorganizacionM();
+        $coursesmodalidadM = new CoursesmodalidadM();
+        $coursescategoriaM = new CoursescategoriaM();
+        $instructorM = new InstructorM();
+
+        $item = $tblcoursesM->edit($id); 
+
+        $selectBeneficio = $coursesM->listbeneficio(); //Catalogo de beneficio
+        $selectBeneficioEdit = isset($item->id_cat_beneficio) ? $coursesM->edit($item->id_cat_beneficio) : []; 
+
+        $selectTipocurso = $coursestipocurM->listtipocurso(); //Catalogo de Tipo Curso
+        $selectTipoCursoEdit = isset($item->id_cat_tipo_cursos) ? $coursestipocurM->edit($item->id_cat_tipo_cursos) :[]; 
+
+        $selectTipoaccion = $coursestipoacM->listtipoaccion(); //Catalogo de Tipo Accion
+        $selectTipoAccionEdit = isset($item->id_cat_tipo_accion) ? $coursestipoacM->edit($item->id_cat_tipo_accion) : []; 
+
+        $selectCoordinacion = $coursescoordinacionM->listcoordinacion(); //Catalogo Coordinacion
+        $selectCoordinacionEdit = isset($item->id_cat_coordinacion) ? $coursescoordinacionM->edit($item->id_cat_coordinacion) : []; 
+
+        $selectNomaccion = $coursesnombreaccM->listnomaccion(); //Catalogo Nombre Accion
+        $selectNomaccionEdit = isset($item->id_cat_nombre_accion) ? $coursesnombreaccM->edit($item->id_cat_nombre_accion) : []; 
+
+        $selectPrograma = $coursesprogramaM->listprograma(); //Catalogo Programa Institucional
+        $selectProgramaEdit = isset($item->id_cat_programa_institucional) ? $coursesprogramaM->edit($item->id_cat_programa_institucional) : [];
+
+        $selectEstatuto = $coursesestatutoM->listestatuto();
+        $selectEstatutoEdit = isset($item->id_cat_estatuto_organico) ? $coursesestatutoM->edit($item->id_cat_estatuto_organico) : [];
+
+        $selectOrganizacion = $coursesorganizacionM->listorganizacion();
+        $selecOrganizacionEdit = isset($item->id_cat_organizacion) ? $coursesorganizacionM->edit($item->id_cat_organizacion) : [];
+
+        $selectModalidad = $coursesmodalidadM->listmodalidad();
+        $selectModalidadEdit = isset($item->id_cat_modalidad) ? $coursesmodalidadM->edit($item->id_cat_modalidad) : [];
+
+        $selectCategoria = $coursescategoriaM->listcategoria();
+        $selectCategoriaEdit = isset($item->id_cat_categoria) ? $coursescategoriaM->edit($item->id_cat_categoria) : [];
+
+        $selectInstructor = $instructorM->listinstructor();
+        $selectInstructorEdit = isset($item->id_tbl_instructores) ? $instructorM->edit($item->id_tbl_instructores) : [];
+
+
+
+        return view('courses.tablecourses.form', compact('item','selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
+    'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',
+'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit','selectInstructor','selectInstructorEdit'));
+    }
+      
 }
+
 

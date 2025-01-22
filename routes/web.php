@@ -267,6 +267,7 @@ Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')-
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 Route::post('/tablecourses/save', [TblCoursesC::class, 'save'])->name('tablecourses.save')->middleware('auth');
+Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('tablecourses.edit')->middleware('auth');
 
 
 
