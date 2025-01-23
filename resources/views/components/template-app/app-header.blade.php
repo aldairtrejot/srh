@@ -33,7 +33,7 @@
                             </div>
                         </div>
                         <div class="preview-item-content">
-                            <h6 class="preview-subject font-weight-normal">Usuario</h6>
+                            <h6 class="preview-subject font-weight-normal">Estatus</h6>
                             <p class="font-weight-light small-text mb-0 text-muted">
                                 @if(session('SESSION_ROLE_USER'))
                                     Activo
