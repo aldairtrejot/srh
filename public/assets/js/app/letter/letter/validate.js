@@ -9,7 +9,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#num_documento').val(), 'No. Documento') ||
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
         isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
-        isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
+        //isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
         isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
         isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
         isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||

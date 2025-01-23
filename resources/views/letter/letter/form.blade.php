@@ -107,24 +107,6 @@
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="No. hojas" type="integer"
-                                        name="num_flojas" placeholder="NO. HOJAS"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->num_flojas ?? '' }}" />
-
-                                    <x-template-form.template-form-input-required label="No. tomos" type="integer"
-                                        name="num_tomos" placeholder="NO. TOMOS"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->num_tomos ?? '' }}" />
-
-                                    <x-template-form.template-form-input-required label="Horas respuesta" type="integer"
-                                        name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->horas_respuesta ?? '' }}" />
-                                </div>
-
-                                <div class="row">
-
                                     <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
                                         name="fecha_inicio" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
@@ -142,9 +124,27 @@
                                 </div>
 
                                 <div class="row">
+
+                                    <!--
+                                    <x-template-form.template-form-input-required label="No. hojas" type="integer"
+                                        name="num_flojas" placeholder="NO. HOJAS"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->num_flojas ?? '' }}" />
+
+                                    <x-template-form.template-form-input-required label="No. tomos" type="integer"
+                                        name="num_tomos" placeholder="NO. TOMOS"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->num_tomos ?? '' }}" />
+-->
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
                                         :selectEdit="$selectEntidadEdit" name="id_cat_entidad" tittle="Entidad"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" />
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" />
+
+
+                                    <x-template-form.template-form-input-required label="Horas respuesta" type="integer"
+                                        name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->horas_respuesta ?? '' }}" />
                                 </div>
 
                                 <div class="row">
