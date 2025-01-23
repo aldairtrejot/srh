@@ -3,7 +3,7 @@
     <ul class="nav">
         <!-- Item de inicio -->
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('dashboard') }}">
+            <a class="nav-link @if(Request::is('/*')) active @endif" href="{{ route('dashboard') }}">
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Inicio</span>
             </a>
@@ -41,7 +41,7 @@
                         <!--
                                                 <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
                         -->
-                        <li class="nav-item"><a class="nav-link" href="{{ route('letter.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link @if(Request::is('letter/*')) active @endif" href="{{ route('letter.dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route(name: 'file.list') }}">Expedientes</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circulares</a></li>

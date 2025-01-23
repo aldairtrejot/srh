@@ -6,6 +6,37 @@
         <div class="content-wrapper">
 
 
+            <style>
+                /* Aseguramos que el botón sea completamente transparente y sin borde */
+                #reporteBtn {
+                    background: transparent;
+                    border: none;
+                    padding: 0;
+                    text-decoration: none;
+                    /* Elimina el subrayado al pasar el cursor */
+                    cursor: pointer;
+                    /* Cambia el cursor a puntero */
+                }
+
+                /* Aseguramos que el texto y el ícono estén alineados correctamente */
+                #reporteBtn .ti-layout {
+                    margin-left: 5px;
+                    /* Ajuste para separar el ícono del texto */
+                }
+
+                /* Efecto de hover: agrandar texto y ícono */
+                #reporteBtn:hover {
+                    transform: scale(1.1);
+                    /* Hace que todo el botón (texto + ícono) crezca un poco */
+                    transition: transform 0.3s ease;
+                    /* Animación suave */
+                }
+
+                /* Asegura que no haya subrayado */
+                #reporteBtn:hover {
+                    text-decoration: none;
+                }
+            </style>
 
             <div class="row">
                 <div class="col-md-12 grid-margin">
@@ -15,12 +46,13 @@
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
                         <div class="col-12 col-xl-4 text-xl-right">
-                            <button style="background:#666666; border-color: #666666;" type="button" class="btn btn-dark btn-icon-text">
-                                Reporte <i class="ti-layout btn-icon-append"></i>
+                            <button type="button" class="btn btn-link" id="reporteBtn">
+                                <span class="font-weight-bold" style="color: #10312b;">Reporte</span>
+                                <i class="ti-layout" style="color: #10312b;"></i>
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> 
             </div>
 
             <div class="row">
