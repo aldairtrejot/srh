@@ -17,5 +17,16 @@ class RelcoursesM extends Model{
         'id_tbl_instructores', 
     ];
 
+    public function relinstructor($id)
+    {
+        // Realizar la consulta utilizando el query builder de Laravel para editar
+        $relinstructor = DB::table('capacitacion.rel_cursos_instructor')
+            ->where('id_tbl_cursos', $id)
+            ->value('id_tbl_instructores');
+
+        // Si no se encuentra información, retornamos null
+        return $relinstructor ?: null;
+    }
+
 
 }

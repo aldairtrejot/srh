@@ -171,7 +171,7 @@ public function buscarEmpleadoTransferidos($curp)
     // Retornar los resultados
     return $results;
 }
-public function edittblcourses($id_tbl_instructores)
+public function edittblinstructores($id)
 {
     $query = DB::table('capacitacion.tbl_instructores')
         ->select([
@@ -188,11 +188,16 @@ public function edittblcourses($id_tbl_instructores)
         ->leftJoin('central.tbl_empleados_hraes', 'central.tbl_empleados_hraes.id_tbl_empleados_hraes', '=', 'administration.users.id_tbl_empleados_central')
         ->leftJoin('public.tbl_empleados_hraes', 'public.tbl_empleados_hraes.id_tbl_empleados_hraes', '=', 'administration.users.id_tbl_empleados_hraes')
         ->leftJoin('transferidos.tbl_empleados', 'transferidos.tbl_empleados.id_tbl_empleados', '=', 'administration.users.id_tbl_empleados_transferidos')
-        ->where('capacitacion.tbl_instructores.id_tbl_instructores', $id_tbl_instructores)
-        ->first();
+        ->where(function ($query) {
+            $query->whereNotNull('central.tbl_empleados_hraes.nombre')
+                ->orWhereNotNull('public.tbl_empleados_hraes.nombre')
+                ->orWhereNotNull('transferidos.tbl_empleados.nombre');
+        })
+        ->where('administration.users.estatus', true)
+        ->where('capacitacion.tbl_instructores.id_tbl_instructores', '=', $id);
 
-    return $query;
+    // Retornamos el resultado o null si no se encuentra
+    $result = $query->first();
+    return $result;
 }
-
-
 }

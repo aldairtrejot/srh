@@ -26,14 +26,13 @@ class CoursesorganizacionM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function edittblcourses(string $id)
+    public function edittblcourses($id)
     {
         $query = DB::table('capacitacion.cat_organizacion')
-        ->select(['capacitacion.cat_organizacion.id_cat_organizacion',
+        ->select(['capacitacion.cat_organizacion.id_cat_organizacion AS id',
                     DB::raw('UPPER(capacitacion.cat_organizacion.descripcion) AS descripcion')])
     
-        ->where('capacitacion.cat_organizacion.id_cat_organizacion', '=', $id)
-        ->orderBy('capacitacion.cat_organizacion.descripcion', 'ASC'); 
+        ->where('capacitacion.cat_organizacion.id_cat_organizacion', '=', $id);
     
     // Retornamos el usuario o null si no se encuentra
     $result = $query->first();

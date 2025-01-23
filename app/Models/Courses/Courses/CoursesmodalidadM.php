@@ -26,14 +26,13 @@ class CoursesmodalidadM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function edittblcourses(string $id)
+    public function edittblcourses($id)
     {
         $query = DB::table('capacitacion.cat_modalidad')
-        ->select(['capacitacion.cat_modalidad.id_cat_modalidad',
+        ->select(['capacitacion.cat_modalidad.id_cat_modalidad AS id',
                     DB::raw('UPPER(capacitacion.cat_modalidad.descripcion) AS descripcion')])
     
-        ->where('capacitacion.cat_modalidad.id_cat_modalidad', '=', $id)
-        ->orderBy('capacitacion.cat_modalidad.descripcion', 'ASC'); 
+        ->where('capacitacion.cat_modalidad.id_cat_modalidad', '=', $id);
     
     // Retornamos el usuario o null si no se encuentra
     $result = $query->first();

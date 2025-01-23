@@ -121,15 +121,16 @@ class TblCoursesC extends Controller
     {
         $courseinstructorM = new CourseinstructorM();
         $now = Carbon::now(); // Fecha actual
-        
+    
         if (!$request->id_tbl_cursos) {
-            TblcoursesM::create([
+            // Crear nuevo curso
+            $nuevoCurso = TblcoursesM::create([
                 'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
                 'id_cat_coordinacion' => $request->id_cat_coordinacion,
                 'id_cat_nombre_accion' => $request->id_cat_nombre_accion,
                 'id_cat_programa_institucional' => $request->id_cat_programa_institucional,
                 'id_cat_estatuto_organico' => $request->id_cat_estatuto_organico,
-                'programa_proyecto' => strtoupper($request->nombre),
+                'programa_proyecto' => strtoupper($request->programa_proyecto),
                 'id_cat_beneficio' => $request->id_cat_beneficio,
                 'id_cat_organizacion' => $request->id_cat_organizacion,
                 'id_cat_tipo_accion' => $request->id_cat_tipo_accion,
@@ -144,21 +145,54 @@ class TblCoursesC extends Controller
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ]);
-
-            $idcursos = $courseinstructorM->cursoinstructor($request->nombre);
+    
+            // Obtener ID del curso creado
+            $idcursos = $courseinstructorM->cursoinstructor($request->programa_proyecto);
+    
+            // Relacionar curso con instructor
             RelcoursesM::create([
                 'id_usuario_sistema' => Auth::user()->id,
-                'id_tbl_cursos' => $idcursos -> id_tbl_cursos,
+                'id_tbl_cursos' => $idcursos->id_tbl_cursos,
                 'id_tbl_instructores' => $request->id_tbl_instructores,
                 'fecha_usuario' => $now
             ]);
-            
-
-            //Ir a la base de cursos y busca el nombre de curso que es el programa_proyecto y obtengo el id de curso 
         } else {
-            TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update([
-                // mismos datos que en la creación
-            ]);
+            // Modificar curso existente
+            $data = [
+                'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
+                'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                'id_cat_nombre_accion' => $request->id_cat_nombre_accion,
+                'id_cat_programa_institucional' => $request->id_cat_programa_institucional,
+                'id_cat_estatuto_organico' => $request->id_cat_estatuto_organico,
+                'programa_proyecto' => strtoupper($request->programa_proyecto),
+                'id_cat_beneficio' => $request->id_cat_beneficio,
+                'id_cat_organizacion' => $request->id_cat_organizacion,
+                'id_cat_tipo_accion' => $request->id_cat_tipo_accion,
+                'id_cat_modalidad' => $request->id_cat_modalidad,
+                'id_cat_categoria' => $request->id_cat_categoria,
+                'costo' => $request->costo,
+                'iva' => $request->iva,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'horas' => $request->horas,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+    
+            TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update($data);
+    
+            // Actualizar observaciones si existen
+            if ($request->observaciones) {
+                $observacionesData = [
+                    'estatus' => $request->estatus ?? false,
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_usuario_sistema' => Auth::user()->id,
+                    'fecha_usuario' => $now,
+                ];
+    
+                TblcoursesM::where('id_tbl_cursos', $request->id_tbl_cursos)->update($observacionesData);
+            }
         }
     
         return redirect()->route('tablecourses.list')->with('success', 'Curso guardado exitosamente.');
@@ -177,6 +211,7 @@ class TblCoursesC extends Controller
         $coursesmodalidadM = new CoursesmodalidadM();
         $coursescategoriaM = new CoursescategoriaM();
         $instructorM = new InstructorM();
+        $relcoursesM = new RelcoursesM();
 
         $item = $tblcoursesM->edit($id); 
 
@@ -210,8 +245,9 @@ class TblCoursesC extends Controller
         $selectCategoria = $coursescategoriaM->listcategoria();
         $selectCategoriaEdit = isset($item->id_cat_categoria) ? $coursescategoriaM->edittblcourses($item->id_cat_categoria) : [];
 
+        $idinstructor = $relcoursesM ->relinstructor($item->id_tbl_cursos);
         $selectInstructor = $instructorM->listinstructor();
-        $selectInstructorEdit = isset($item->id_tbl_instructores) ? $instructorM->edittblcourses($item->id_tbl_instructores) : [];
+        $selectInstructorEdit = isset($idinstructor) ? $instructorM->edittblinstructores($idinstructor) : [];
 
 
 

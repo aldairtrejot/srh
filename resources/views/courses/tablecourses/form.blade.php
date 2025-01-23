@@ -26,9 +26,9 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general curso" />
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Nombre Curso" type="text"
-                                    name="nombre" placeholder="Nombre Curso"
+                                    name="programa_proyecto" placeholder="Nombre Curso"
                                     grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                    value="{{ optional($item)->nombre_curso ?? '' }}" />
+                                    value="{{ optional($item)->programa_proyecto ?? '' }}" />
 
                                     <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
                                         name="fecha_inicio" placeholder=""
