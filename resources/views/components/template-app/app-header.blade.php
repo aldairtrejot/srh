@@ -21,7 +21,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#"
                     data-toggle="dropdown">
-                    <i style="color:#fff" class="icon-bell mx-0"></i>
+                    <i style="color:#fff" class="fa fa-bell mx-0"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list"
                     aria-labelledby="notificationDropdown">
@@ -47,7 +47,7 @@
             </li>
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                    <img src="{{ asset('assets/images/app/icon_user.png') }}" alt="profile" />
+                    <i style="color:#fff; font-size: 22px;" class="fa fa-cog mx-0"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                     <a class="dropdown-item" id="changePassword">
