@@ -15,9 +15,8 @@
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
                         <div class="col-12 col-xl-4 text-xl-right">
-                            <button style="background:black" type="button" class="btn btn-dark btn-icon-text">
-                                Reporte
-                                <i class="ti-layout btn-icon-append"></i>
+                            <button style="background:#666666; border-color: #666666;" type="button" class="btn btn-dark btn-icon-text">
+                                Reporte <i class="ti-layout btn-icon-append"></i>
                             </button>
                         </div>
                     </div>
