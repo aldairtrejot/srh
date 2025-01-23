@@ -28,10 +28,9 @@
                                         <div class="row">
                                             <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
                                                 <div class="ml-xl-4 mt-3">
-                                                    <p class="card-title">Detailed Reports</p>
-                                                    <h1 class="text-primary">$34040</h1>
-                                                    <h3 class="font-weight-500 mb-xl-4 text-primary">North
-                                                        America</h3>
+                                                    <p class="card-title">Correspondencia</p>
+                                                    <h1 class="text-primary">12</h1>
+                                                    <h3 class="font-weight-500 mb-xl-4 text-primary">Total</h3>
                                                     <p class="mb-2 mb-xl-0">The total number of sessions
                                                         within the date range. It is the period time a user
                                                         is actively engaged with your website, page or app,
@@ -48,7 +47,7 @@
                                                                     <td class="w-100 px-0">
                                                                         <div class="progress progress-md mx-4">
                                                                             <div class="progress-bar bg-primary"
-                                                                                role="progressbar" style="width: 70%"
+                                                                                role="progressbar" style="width: 100%"
                                                                                 aria-valuenow="70" aria-valuemin="0"
                                                                                 aria-valuemax="100"></div>
                                                                         </div>
@@ -275,6 +274,159 @@
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="sr-only">Next</span>
                                 </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-md-8 stretch-card grid-margin">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title mb-0">Últimos remitentes</p>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th class="pl-0  pb-2 border-bottom">Places</th>
+                                            <th class="border-bottom pb-2">Orders</th>
+                                            <th class="border-bottom pb-2">Users</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="pl-0">Kentucky</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">65</span>(2.15%)</p>
+                                            </td>
+                                            <td class="text-muted">65</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0">Ohio</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">54</span>(3.25%)</p>
+                                            </td>
+                                            <td class="text-muted">51</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0">Nevada</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">22</span>(2.22%)</p>
+                                            </td>
+                                            <td class="text-muted">32</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0">North Carolina</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">46</span>(3.27%)</p>
+                                            </td>
+                                            <td class="text-muted">15</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0">Montana</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">17</span>(1.25%)</p>
+                                            </td>
+                                            <td class="text-muted">25</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0">Nevada</td>
+                                            <td>
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">52</span>(3.11%)</p>
+                                            </td>
+                                            <td class="text-muted">71</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pl-0 pb-0">Louisiana</td>
+                                            <td class="pb-0">
+                                                <p class="mb-0"><span class="font-weight-bold mr-2">25</span>(1.32%)</p>
+                                            </td>
+                                            <td class="pb-0">14</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 stretch-card grid-margin">
+                    <div class="row">
+                        <div class="col-md-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="card-title">Charts</p>
+                                    <div class="charts-data">
+                                        <div class="mt-3">
+                                            <p class="mb-0">Data 1</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="progress progress-md flex-grow-1 mr-4">
+                                                    <div class="progress-bar bg-inf0" role="progressbar"
+                                                        style="width: 95%" aria-valuenow="95" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                                <p class="mb-0">5k</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <p class="mb-0">Data 2</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="progress progress-md flex-grow-1 mr-4">
+                                                    <div class="progress-bar bg-info" role="progressbar"
+                                                        style="width: 35%" aria-valuenow="35" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                                <p class="mb-0">1k</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <p class="mb-0">Data 3</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="progress progress-md flex-grow-1 mr-4">
+                                                    <div class="progress-bar bg-info" role="progressbar"
+                                                        style="width: 48%" aria-valuenow="48" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                                <p class="mb-0">992</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <p class="mb-0">Data 4</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="progress progress-md flex-grow-1 mr-4">
+                                                    <div class="progress-bar bg-info" role="progressbar"
+                                                        style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                                <p class="mb-0">687</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 stretch-card grid-margin grid-margin-md-0">
+                            <div class="card data-icon-card-primary">
+                                <div class="card-body">
+                                    <p class="card-title text-white">Number of Meetings</p>
+                                    <div class="row">
+                                        <div class="col-8 text-white">
+                                            <h3>34040</h3>
+                                            <p class="text-white font-weight-500 mb-0">The total number of sessions
+                                                within the date range.It is calculated as the sum . </p>
+                                        </div>
+                                        <div class="col-4 background-icon">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
