@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Letter\Letter;
 
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
+use App\Models\Letter\Collection\CollectionEntidadM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
@@ -46,6 +47,7 @@ class LetterC extends Controller
         $collectionDateM = new CollectionDateM();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRemitenteM = new CollectionRemitenteM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
@@ -87,7 +89,10 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function edit(string $id)
@@ -102,6 +107,7 @@ class LetterC extends Controller
         $collectionTramiteM = new CollectionTramiteM();
         $collectionRemitenteM = new CollectionRemitenteM();
         $collectionClaveM = new CollectionClaveM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -141,7 +147,10 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function table(Request $request)
@@ -246,7 +255,7 @@ class LetterC extends Controller
                 'num_flojas' => $request->num_flojas,
                 'num_tomos' => $request->num_tomos,
                 'horas_respuesta' => $request->horas_respuesta,
-                'lugar' => strtoupper($request->lugar),
+                'id_cat_entidad' =>$request->id_cat_entidad,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_area' => $request->id_cat_area,
@@ -296,7 +305,7 @@ class LetterC extends Controller
                     'num_flojas' => $request->num_flojas,
                     'num_tomos' => $request->num_tomos,
                     'horas_respuesta' => $request->horas_respuesta,
-                    'lugar' => strtoupper($request->lugar),
+                    'id_cat_entidad' =>$request->id_cat_entidad,
                     'asunto' => strtoupper($request->asunto),
                     'observaciones' => strtoupper($request->observaciones),
                     'id_cat_area' => $request->id_cat_area,

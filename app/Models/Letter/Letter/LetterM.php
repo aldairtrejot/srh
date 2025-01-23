@@ -18,7 +18,6 @@ class LetterM extends Model
         'num_flojas',
         'num_tomos',
         'horas_respuesta',
-        'lugar',
         'asunto',
         'observaciones',
         'fecha_usuario',
@@ -41,6 +40,7 @@ class LetterM extends Model
         'son_mas_remitentes',
         'remitente',
         'fecha_documento',
+        'id_cat_entidad',
     ];
 
     public function edit(string $id)

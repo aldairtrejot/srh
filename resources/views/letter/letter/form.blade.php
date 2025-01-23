@@ -142,9 +142,9 @@
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-text-area
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Lugar" name="lugar"
-                                        placeholder="LUGAR" value="{{ optional($item)->lugar ?: '' }}" />
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_entidad" tittle="Entidad"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" />
                                 </div>
 
                                 <div class="row">

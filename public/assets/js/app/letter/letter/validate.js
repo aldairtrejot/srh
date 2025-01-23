@@ -12,6 +12,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
         isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
         isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
+        isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#id_cat_area').val(), 'Área') ||
         isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
@@ -25,7 +26,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 50) ||
         isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
-        isExceedingLength($('#lugar').val(), 'Lugar', 250) ||
         isExceedingLength($('#asunto').val(), 'Asunto', 130) ||
         isExceedingLength($('#observaciones').val(), 'Observaciones', 130)) {
         event.preventDefault();  // Evita el envío del formulario
