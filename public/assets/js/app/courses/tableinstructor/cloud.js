@@ -1,162 +1,178 @@
-// Variables iniciales y configuración
-var token = $('meta[name="csrf-token"]').attr('content'); // Token CSRF
-var id_instructor = $('#id_instructor').val(); // ID del instructor
-var tipo_cv = "cv"; // Identificador para CV
-var tipo_constancia = "constancia"; // Identificador para constancia
+//Scrip que se ejecuta con el formulario, para funciones u herramientas extras
+//Ejecucion cuando carga el formulario
+var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
+var id = $('#id').val();//Obtener elemento
+var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
+var id_cat_salida = $('#id_cat_salida').val(); //Se obtiene el id de la area
+var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
+var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de la area
+var es_cons = 1; //Identifica si es cons
+var es_cv = 0;//Identifca si es un cv
 
-// Inicialización al cargar el documento
+//Inicio de variables
 $(document).ready(function () {
-    getDataCloud(); // Obtener datos del instructor
-    getDataDocument(); // Cargar documentos
+    getDataCloud();
+    getDataDocument();
 
-    // Cerrar modal al hacer clic fuera de él
     $(window).click(function (event) {
         if ($(event.target).is('#modalBackdrop')) {
-            $('#modalBackdrop').fadeOut(); // Ocultar modal
+            $('#modalBackdrop').fadeOut(); // Ocultar la ventana modal
         }
     });
 });
 
-// Obtener datos generales del instructor
-function getDataCloud() {
-    $.ajax({
-        url: URL_DEFAULT.concat('/cloud/data'),
-        type: 'POST',
-        data: {
-            id_instructor: id_instructor,
-            _token: token,
-        },
-        success: function (response) {
-            let item = response.value;
-
-            // Actualizar datos del encabezado
-            $('#_nombreInstructor').text(item.nombre_instructor || 'No disponible');
-            $('#_estatusInstructor').text(item.estatus || 'No definido');
-        },
-    });
-}
-
-// Cargar documentos asociados al instructor
+//La funcion lista los documentos que existen en el cloud
 function getDataDocument() {
-    let container_cv = $('#container_cv');
-    let container_cv_empty = $('#container_cv_empty');
-    let container_constancia = $('#container_constancia');
-    let container_constancia_empty = $('#container_constancia_empty');
+    let container_cv_entrada_vacio = $('#container_cv_entrada_vacio');
+    let container_cv_entrada = $('#container_cv_entrada');
+    let container_cons_entrada_vacio = $('#container_cons_entrada_vacio');
+    let container_cons_entrada = $('#container_cons_entrada');
+    let container_cv_salida_vacio = $('#container_cv_salida_vacio');
+    let container_cv_salida = $('#container_cv_salida');
+    let container_cons_salida_vacio = $('#container_cons_salida_vacio');
+    let container_cons_salida = $('#container_cons_salida');
 
     $.ajax({
-        url: URL_DEFAULT.concat('/cloud/files'),
+        url: URL_DEFAULT.concat('/round/cloud/cvs'),
         type: 'POST',
         data: {
-            id_instructor: id_instructor,
-            _token: token,
+            id_tbl_cons: id,
+            _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            let cvs = response.cvs;
-            let constancias = response.constancias;
+            let cvsEntrada = response.cvsEntrada;  // Suponiendo que la respuesta tiene una propiedad 'value' con los datos
+            let consEntrada = response.consEntrada;
+            let cvSalida = response.cvSalida;
+            let consSalida = response.consSalida;
 
-            // Renderizar documentos en la interfaz
-            templateCloud(container_cv, container_cv_empty, cvs);
-            templateCloud(container_constancia, container_constancia_empty, constancias);
+            //Habilita o desabilita los botones de agregar
+            response.resultConsEntrada ? disabledInput('#label_cons_entrada', '#icon_cons_entrada', '#file_cons_entrada') : enableIput('#label_cons_entrada', '#icon_cons_entrada', '#file_cons_entrada');
+            response.resultConsSalida ? disabledInput('#label_cons_salida', '#icon_cons_salida', '#file_cons_salida') : enableIput('#label_cons_salida', '#icon_cons_salida', '#file_cons_salida');
+            response.resultCvsEntrada ? disabledInput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada') : enableIput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada');
+            response.resultCvsSalida ? disabledInput('#label_cv_salida', '#icon_cv_salida', '#file_cv_salida') : enableIput('#label_cv_salida', '#icon_cv_salida', '#file_cv_salida');
+
+            templateCloud(container_cv_entrada, container_cv_entrada_vacio, cvsEntrada); //Listamos la informacion
+            templateCloud(container_cons_entrada, container_cons_entrada_vacio, consEntrada); //Listamos la informacion
+            templateCloud(container_cv_salida, container_cv_salida_vacio, cvSalida);
+            templateCloud(container_cons_salida, container_cons_salida_vacio, consSalida);
+
         },
     });
 }
 
-// Plantilla para renderizar documentos
-function templateCloud(container, containerEmpty, data) {
-    container.empty();
-    if (data && data.length > 0) {
-        data.forEach(function (doc) {
-            const fileHTML = `
-                <div class="document-item">
-                    <p>${doc.nombre}</p>
-                    <button class="btn btn-primary" onclick="viewDocument('${doc.uid}')">Ver</button>
-                    <button class="btn btn-danger" onclick="deleteDocument('${doc.uid}')">Eliminar</button>
-                </div>
-            `;
-            container.append(fileHTML);
-        });
-        containerEmpty.hide();
-    } else {
-        containerEmpty.show();
-    }
+//La funcion obtiene los datos del encabezado de cloud
+function getDataCloud() {
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/round/cloud/data'),
+        type: 'POST',
+        data: {
+            id: id,
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            let item = response.value; //Obtenemos la consulta
+
+            $('#_noCons').text(item.num_turno_sistema); // establecer los valores
+            $('#_noCorrespondencia').text(item.num_turno_sistema_correspondencia); // establecer los valores
+            $('#_noAnio').text(item.anio); // establecer los valores
+            $('#_fechaInicio').text(item.fecha_inicio); // establecer los valores
+            $('#_fechaFin').text(item.fecha_fin); // establecer los valores
+        },
+    });
 }
 
-// Subir un archivo
-document.getElementById('file_cv').addEventListener('change', function (event) {
+
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_cons_entrada').addEventListener('change', function (event) {
     if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], tipo_cv);
+        sendFile(event.target.files[0], id_cat_entrada, es_cons); // Pasa el archivo real a la función
     }
 });
 
-document.getElementById('file_constancia').addEventListener('change', function (event) {
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_cv_entrada').addEventListener('change', function (event) {
     if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], tipo_constancia);
+        sendFile(event.target.files[0], id_cat_entrada, es_cv); // Pasa el archivo real a la función
     }
 });
 
-function sendFile(file, tipo) {
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_cons_salida').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_salida, es_cons); // Pasa el archivo real a la función
+    }
+});
+
+//La funcion sube el archivo que el usuario esta seleccionando
+document.getElementById('file_cv_salida').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_salida, es_cv); // Pasa el archivo real a la función
+    }
+});
+
+function sendFile(file, id_entrada_salida, esCons) {
     if (file) {
-        let data = new FormData();
+        let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
-        data.append('tipo', tipo);
-        data.append('id_instructor', id_instructor);
-
+        data.append('id_cat_tipo_cons', id_cat_tipo_oficio);
+        data.append('id_cat_area', id_cat_area);
+        data.append('id', id);
+        data.append('id_entrada_salida', id_entrada_salida);
+        data.append('esCons', esCons);
         $.ajax({
-            url: URL_DEFAULT.concat("/cloud/upload"),
+            url: URL_DEFAULT.concat("/round/cloud/upload"),
             type: 'POST',
-            data: data,
-            processData: false,
-            contentType: false,
+            data:
+                data, // Enviar directamente el FormData
+            processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
+            contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
             headers: {
-                'X-CSRF-TOKEN': token,
+                'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
-                if (response.status) {
-                    alert("Archivo subido correctamente.");
+                if (response.status) { //Validacion si es que los cambios se han agregado correctamente
+                    notyfEM.success("Documento agregado correctamente.");
                 } else {
-                    alert(response.message || "Error al subir archivo.");
+                    notyfEM.error(response.messages);
                 }
-                getDataDocument(); // Actualizar lista de documentos
+                getDataDocument(); //Lista de nuevo e directorio
             },
         });
     }
 }
 
-// Ver un documento
-function viewDocument(uid) {
-    window.open(URL_DEFAULT.concat(`/cloud/see?uid=${uid}`), '_blank');
-}
-
-// Eliminar un documento
+//La funcion elimina un documento
 function deleteDocument(uid) {
-    $('#modalBackdrop').fadeIn(); // Mostrar modal
 
-    $('#cancelBtn').click(function () {
-        $('#modalBackdrop').fadeOut(); // Cerrar modal al cancelar
+    $('#modalBackdrop').fadeIn();//Iniciar ventana modal
+
+    $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar
+        $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
     });
 
-    $('#confirmBtn').click(function () {
+    $('#confirmBtn').click(function () {///Se da click al boton de confirmar y se ejecuta el evento de eliminacion
         deleteDocumenServer(uid);
-        $('#modalBackdrop').fadeOut(); // Cerrar modal al confirmar
+        $('#modalBackdrop').fadeOut(); // Cerrar modal después de confirmar
     });
 }
 
-// Eliminar un documento en el servidor
+//La funcion elimina cons del repositorio, solo de la base
 function deleteDocumenServer(uid) {
     $.ajax({
-        url: URL_DEFAULT.concat('/cloud/delete'),
+        url: URL_DEFAULT.concat('/round/cloud/delete'),
         type: 'POST',
         data: {
             uid: uid,
-            _token: token,
+            _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            if (response.status) {
-                alert("Archivo eliminado correctamente.");
+            if (response.messages) {
+                notyfEM.success("El archivo se eliminó correctamente.");
             } else {
-                alert("Error al eliminar archivo.");
+                notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
-            getDataDocument(); // Actualizar lista de documentos
+            getDataDocument(); //Lista de nuevo e directorio
         },
     });
 }

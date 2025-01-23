@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Courses\Tableinstructor;
 
-use App\Models\CloudCV;
-use App\Models\CloudConstancia;
+use App\Models\Courses\Cloud\CloudConsM;
+use App\Models\Courses\Cloud\CloudConfigTableM;
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
+use App\Models\Courses\Cloud\CloudCvM;
+use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,116 +14,169 @@ use Carbon\Carbon;
 
 class CloudtableinsC extends Controller
 {
-    // Obtener datos del encabezado para la vista de la nube
     public function cloudData(Request $request)
     {
-        $id_instructor = $request->id_instructor;
-
-        // Simulación de datos (puedes reemplazar con lógica real)
-        $data = [
-            'nombre_instructor' => 'Ejemplo Nombre',
-            'estatus' => 'Activo',
-            'archivos' => 5,
-        ];
-
+        $id_tbl_cons = $request->id_tbl_cons;
+        $instructorM = new InstructorM();
+        $value = $instructorM ->dataCloud($id_tbl_cons);
         return response()->json([
-            'value' => $data,
+            'value' => $value,
             'status' => true,
         ]);
     }
 
-    // Listar CVs y constancias asociados al instructor
-    public function cloudFiles(Request $request)
+    //La funcion lista los documentos y trae la informacion para el cloud
+    public function cloudCvs(Request $request)
     {
-        $id_instructor = $request->id_instructor;
+        $cloudConfigTableM = new CloudConfigTableM();
+        //$collectionConfigCloudM = new CollectionConfigCloudM();
+        //Constantes
+        $CAT_TIPO_DOC_ENTRADA = config('custom_config.CAT_TIPO_DOC_ENTRADA');
+        $CAT_TIPO_DOC_SALIDA = config('custom_config.CAT_TIPO_DOC_SALIDA');
+        $MAX_CONS_ENTRADA = config('custom_config.MAX_CONS_ENTRADA');
+        $MAX_CVS_ENTRADA = config('custom_config.MAX_CVS_ENTRADA');
+        $MAX_CONS_SALIDA = config('custom_config.MAX_CONS_SALIDA');
+        $MAX_CVS_SALIDA = config('custom_config.MAX_CVS_SALIDA');
 
-        $cvs = CloudCV::where('id_instructor', $id_instructor)->get();
-        $constancias = CloudConstancia::where('id_instructor', $id_instructor)->get();
+        //$cvsEntrada = $cloudConfigTableM->listCvs($request->id_tbl_cons, $collectionConfigCloudM->getValue($MAX_CVS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
+        //$consEntrada = $cloudConfigTableM->listCons($request->id_tbl_cons, $collectionConfigCloudM->getValue($MAX_CONS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
+        //$cvSalida = $cloudConfigTableM->listCvs($request->id_tbl_cons, $collectionConfigCloudM->getValue($MAX_CVS_SALIDA), $CAT_TIPO_DOC_SALIDA);
+        //$consSalida = $cloudConfigTableM->listCons($request->id_tbl_cons, $collectionConfigCloudM->getValue($MAX_CONS_SALIDA), $CAT_TIPO_DOC_SALIDA);
+        //$resultConsEntrada = $cloudConfigTableM->conditionCons($collectionConfigCloudM->getValue($MAX_CONS_ENTRADA), $request->id_tbl_cons, $CAT_TIPO_DOC_ENTRADA);
+        //$resultConsSalida = $cloudConfigTableM->conditionCons($collectionConfigCloudM->getValue($MAX_CONS_SALIDA), $request->id_tbl_cons, $CAT_TIPO_DOC_SALIDA);
+        //$resultCvsEntrada = $cloudConfigTableM->conditionCvs($collectionConfigCloudM->getValue($MAX_CVS_ENTRADA), $request->id_tbl_cons, $CAT_TIPO_DOC_ENTRADA);
+        //$resultCvsSalida = $cloudConfigTableM->conditionCvs($collectionConfigCloudM->getValue($MAX_CVS_SALIDA), $request->id_tbl_cons, $CAT_TIPO_DOC_SALIDA);
 
         return response()->json([
-            'cvs' => $cvs,
-            'constancias' => $constancias,
-            'status' => true,
+            //'cvsEntrada' => $cvsEntrada,
+            //'consEntrada' => $consEntrada,
+            //'cvSalida' => $cvSalida,
+            //'consSalida' => $consSalida,
+            //'resultConsEntrada' => $resultConsEntrada->valor,
+            //'resultConsSalida' => $resultConsSalida->valor,
+            //'resultCvsEntrada' => $resultCvsEntrada->valor,
+            //'resultCvsSalida' => $resultCvsSalida->valor,
+            //'status' => true,
         ]);
     }
 
-    // Subir archivos al sistema de la nube (CV o Constancia)
     public function upload(Request $request)
     {
-        $now = Carbon::now();
+        $logC = new LogC();
+        $alfrescoC = new AlfrescoC();
+        $cloudConfigM = new CloudConfigM();
         $status = false;
-        $message = 'Archivo subido correctamente.';
+        $messages = 'ok';
+        $now = Carbon::now(); //Hora y fecha actual
 
-        if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            $file = $request->file('file');
-            $fileName = strtoupper($request->tipo) . '_' . $file->getClientOriginalName();
-            $fileExtension = $file->getClientOriginalExtension();
-            $fileSize = $file->getSize() / 1024 / 1024;
+        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
+            $file = $request->file('file');// Obtener el archivo cargado
 
-            // Validaciones de tamaño y extensión
-            $maxSize = 5;
-            $validExtensions = ['pdf', 'docx', 'jpg'];
-
-            if ($fileSize > $maxSize) {
-                $message = "El archivo supera el tamaño máximo permitido de {$maxSize} MB.";
-            } elseif (!in_array($fileExtension, $validExtensions)) {
-                $message = "Extensiones permitidas: " . implode(', ', $validExtensions);
-            } else {
-                // Lógica simulada para subir el archivo a Alfresco
-                $result = 'UID_GENERADO_POR_ALFRESCO';
-
-                // Guardar en la base de datos
-                $data = [
-                    'uid' => $result,
-                    'nombre' => $fileName,
-                    'estatus' => true,
-                    'fecha_usuario' => $now,
-                    'id_instructor' => $request->id_instructor,
-                    'id_usuario_sistema' => Auth::id(),
-                ];
-
-                if ($request->tipo == 'cv') {
-                    CloudCV::create($data);
-                } else {
-                    CloudConstancia::create($data);
-                }
-
-                $status = true;
+            $fileName = 'CV_' . $file->getClientOriginalName(); // Nombre del archivo
+            if ($request->esCons == 1) { //Validacion de archivo donde 1 se cambia el nombre por cons si no es cv
+                $fileName = 'CONS_' . $file->getClientOriginalName(); // Nombre del archivo
             }
-        } else {
-            $message = 'No se ha seleccionado un archivo válido.';
+
+            $nameFile = $file->getClientOriginalName();
+            $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
+            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a MB
+
+            $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $validExtensions = explode(',', $fileExtension->valor);// Convertimos la cadena de extensiones válidas en un array
+
+            if ($tamanoArchivoMB > $maxSize->valor) { //Validacion por tamaño maximo de archivo
+                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';//. $maxSize . ' MB.';
+            } else if (!in_array($extensionArchivo, $validExtensions)) { //Validacion de extensiones
+                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+            } else {
+
+                //La funcion obtiene el id de la carpeta donde se almacenara el archivo
+                $uid = $cloudConfigM->getUid(
+                    $request->id_cat_area,
+                    $request->id_entrada_salida,
+                    $request->id_cat_tipo_cons
+                );
+
+                //Se carga el archivo a alfresco
+                $result = $alfrescoC->addFile($file, $uid->uid, $request->esCons);
+
+                if (!$result) { //Validacion de exito, se cargan las tablas 
+                    $messages = "Se produjo un error inesperado al intentar subir el archivo: " . $result;
+                } else {//Validacion de mensaje de error
+                    if ($request->esCons == 1) { //Validacion para agregar en la tabla de cons
+                        $data = [
+                            'uid' => $result,
+                            'nombre' => $fileName,
+                            'estatus' => true,
+                            'fecha_usuario' => $now,
+                            'id_tbl_cons' => $request->id_tbl_cons,
+                            'id_usuario_sistema' => Auth::user()->id,
+                            'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
+                        ];
+
+                        CloudConsM::create($data);
+                        $logC->add('correspondencia.ctrl_cons_cons', $data);
+                    } else { //agregar en la tabla de cvs
+                        $data = [
+                            'uid' => $result,
+                            'nombre' => $fileName,
+                            'estatus' => true,
+                            'fecha_usuario' => $now,
+                            'id_tbl_cons' => $request->id_tbl_cons,
+                            'id_usuario_sistema' => Auth::user()->id,
+                            'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
+                        ];
+                        CloudCvM::create($data);
+                        $logC->add('correspondencia.ctrl_cons_cv', $data);
+                    }
+                    $status = true;
+                }
+            }
         }
 
         return response()->json([
-            'message' => $message,
+            'messages' => $messages,
             'status' => $status,
         ]);
     }
 
-    // Eliminar un archivo del sistema de la nube
+    //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
     public function delete(Request $request)
     {
-        $uid = $request->uid;
-        $now = Carbon::now();
-        $status = false;
+        $logC = new LogC();
+        $now = Carbon::now(); //Hora y fecha actual
+        $cloudCvsM = new CloudCvM(); //aCTUALIACION DE CV POR UID
+        $cloudConsM = new CloudConsM();
+        $estatus = false;
 
         $data = [
             'estatus' => false,
+            'id_usuario_sistema' => Auth::user()->id,
             'fecha_usuario' => $now,
-            'id_usuario_sistema' => Auth::id(),
         ];
+        //update en base
+        $resultCvs = $cloudCvsM::where('uid', $request->uid)
+            ->update($data);
 
-        // Buscar y actualizar el estatus en las tablas correspondientes
-        $cv = CloudCV::where('uid', $uid)->update($data);
-        $constancia = CloudConstancia::where('uid', $uid)->update($data);
+        $resultCons = $cloudConsM::where('uid', $request->uid)
+            ->update($data);
 
-        if ($cv || $constancia) {
-            $status = true;
+        //UPDATE EN LOG
+        $data['uid'] = $request->uid;
+
+        if ($resultCvs > 0) {
+            $logC->edit('correspondencia.ctrl_cons_cv', $data);
+        } else if ($resultCons > 0) {
+            $logC->edit('correspondencia.ctrl_cons_cons', $data);
         }
 
+        $estatus = ($resultCvs > 0 || $resultCons > 0) ? true : false;
+
+
         return response()->json([
-            'message' => $status ? 'Archivo eliminado correctamente.' : 'No se encontró el archivo.',
-            'status' => $status,
+            'messages' => $estatus,
+            'status' => true,
         ]);
     }
 }

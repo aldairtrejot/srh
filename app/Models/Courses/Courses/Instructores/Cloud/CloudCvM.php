@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Courses\Courses\Instructores\Cloud;
+namespace App\Models\Courses\Cloud;
 
 use Illuminate\Database\Eloquent\Model;
 

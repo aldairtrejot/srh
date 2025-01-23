@@ -91,16 +91,31 @@ class InstructorM extends Model
     // BUSQUEDA DE CURP 
     public function centralCurp($curp)
     {
-        return DB::table('central.tbl_empleados_hraes')
-            ->select([
-                DB::raw('UPPER(rfc) AS RFC'),
-                DB::raw('UPPER(curp) AS CURP'),
-                DB::raw('UPPER(nombre) AS NOMBRE'),
-                DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-                DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
-            ])
-            ->where('curp', '=', $curp)
-            ->first(); // Devuelve null si no encuentra un registro
+        // Consulta a la primera tabla
+    $empleado = DB::table('central.tbl_empleados_hraes')
+    ->select([
+        'id_tbl_empleados_hraes',
+        DB::raw('UPPER(rfc) AS RFC'),
+        DB::raw('UPPER(curp) AS CURP'),
+        DB::raw('UPPER(nombre) AS NOMBRE'),
+        DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
+        DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+    ])
+    ->where('curp', '=', $curp)
+    ->first();
+
+// Consulta a la tabla en el esquema catalogos
+$catalogoInfo = DB::table('catalogos.cat_tipo_schema')
+    ->select('id_cat_tipo_schema')
+    ->where('id_cat_tipo_schema', '=', 1)
+    ->first();
+
+// Combina la información de ambas consultas
+if ($empleado && $catalogoInfo) {
+    return (object) array_merge((array) $empleado, (array) $catalogoInfo);
+}
+
+return null; // Devuelve null si no encuentra un registro en alguna de las tablas
     }
 
     public function buscarEmpleadoHRAES($curp)

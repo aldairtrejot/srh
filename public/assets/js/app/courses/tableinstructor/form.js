@@ -9,7 +9,6 @@ $.ajaxSetup({
 });
 
 // Función para validar la CURP
-
 function validarcurp() {
     let curp = $('#curp').val().trim();
 
@@ -29,12 +28,18 @@ function validarcurp() {
         type: 'POST',
         data: { curp: curp },
         success: function (response) {
-            if (response.status) {
-                let data = response.value[0] // Asume que es un array con al menos un resultado
+            console.log("Respuesta recibida:", response); // Depuración
+            
+            if (response && response.status && response.value) {
+
+                let data = response.value; // Acceder al objeto en "value"
+
+                // Asegúrate de que los IDs sean correctos
                 $('#remitente_nombre').text(data.nombre || 'N/A');
                 $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
                 $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
                 $('#remitente_rfc').text(data.rfc || 'N/A');
+
                 notyfEM.success("CURP localizado con éxito.");
             } else {
                 notyfEM.error("No se encontró el CURP. Verifica los datos e inténtalo de nuevo.");
@@ -42,11 +47,13 @@ function validarcurp() {
             }
         },
         error: function () {
+            notyfEM.error("Ocurrió un error al consultar el CURP.");
             limpiarValores();
         }
     });
 }
 
+// Función para limpiar los valores de los contenedores
 function limpiarValores() {
     $('#remitente_nombre').text('_');
     $('#remitente_primer_apellido').text('_');

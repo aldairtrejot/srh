@@ -17,6 +17,12 @@
                         <x-template-tittle.tittle-caption
                             tittle="{{ isset($item->id_tbl_instructores) ? 'Modificar' : 'Agregar ' }} Instructor"
                             route="{{ route('tableinstructor.list') }}" />
+
+                            <x-template-form.template-form-input-hidden name="id_cat_entrada"
+                                value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
+
+                            <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
+                                value="{{  config('custom_config.CLOUD_ALFRESCO_CORRESPONDENCIA') }}" />
                         
                         <x-template-tittle.tittle-caption-secon tittle="Información de Usuario" />
                         
@@ -79,19 +85,19 @@
                                     <div>
                                         <div style="display: flex; align-items: center;">
                                             <x-template-tittle.tittle-caption-secon tittle="CV (Max 1)" />
-                                            <label for="file_oficio_entrada" id="label_oficio_entrada"
+                                            <label for="file_cv_entrada" id="label_cv_entrada"
                                                 style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                                <i class="fa fa-arrow-up" id="icon_oficio_entrada"
+                                                <i class="fa fa-arrow-up" id="icon_cv_entrada"
                                                     style="margin-right: 5px;"></i>
                                                 Cargar
                                             </label>
-                                            <input type="file" id="file_oficio_entrada" style="display: none;">
+                                            <input type="file" id="file_cv_entrada" style="display: none;">
                                         </div>
 
-                                        <div id="container_oficio_entrada_vacio" class="rectangulo">
+                                        <div id="container_cv_entrada_vacio" class="rectangulo">
                                             Sin contenido
                                         </div>
-                                        <div id="container_oficio_entrada"></div>
+                                        <div id="container_cv_entrada"></div>
                                     </div>
                                 </div>
 
@@ -101,18 +107,18 @@
                                     <div>
                                         <div style="display: flex; align-items: center;">
                                             <x-template-tittle.tittle-caption-secon tittle="Constancia (Max 1)" />
-                                            <label for="file_oficio_salida" id="label_oficio_salida"
+                                            <label for="file_cons_entrada" id="label_cons_entrada"
                                                 style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                                <i class="fa fa-arrow-up" id="icon_oficio_salida"
+                                                <i class="fa fa-arrow-up" id="icon_cons_entrada"
                                                     style="margin-right: 5px;"></i>
                                                 Cargar
                                             </label>
-                                            <input type="file" id="file_oficio_salida" style="display: none;">
+                                            <input type="file" id="file_cons_entrada" style="display: none;">
                                         </div>
-                                        <div id="container_oficio_salida_vacio" class="rectangulo">
+                                        <div id="container_cons_entrada_vacio" class="rectangulo">
                                             Sin contenido
                                         </div>
-                                        <div id="container_oficio_salida"></div>
+                                        <div id="container_cons_entrada"></div>
                                     </div>
                                 </div>
                             </div>
@@ -127,4 +133,5 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT-->
+<!--<script src="{{ asset('assets/js/app/courses/tableinstructor/cloud.js') }}"></script>-->
 <script src="{{ asset('assets/js/app/courses/tableinstructor/form.js') }}"></script>

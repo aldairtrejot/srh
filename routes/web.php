@@ -38,6 +38,7 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
+use App\Http\Controllers\Courses\Tableinstructor\CloudtableinsC;
 use Illuminate\Support\Facades\Route;
 
 
@@ -242,6 +243,11 @@ Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::match(['get', 'post'], '/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
+Route::post('/tableinstructor/cloud/data', [CloudtableinsC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
+Route::post('/tableinstructor/cloud/cv', [CloudtableinsC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
+Route::post('/tableinstructor/cloud/cons', [CloudtableinsC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
+Route::post('/tableinstructor/cloud/upload', [CloudtableinsC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
+Route::post('/tableinstructor/cloud/delete', [CloudtableinsC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
 
 
 
