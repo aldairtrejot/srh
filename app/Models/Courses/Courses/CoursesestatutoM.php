@@ -27,6 +27,19 @@ class CoursesestatutoM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+    public function edittblcourses(string $id)
+    {
+        $query = DB::table('capacitacion.cat_estatuto_organico')
+        ->select(['capacitacion.cat_estatuto_organico.id_cat_estatuto_organico',
+                    DB::raw('UPPER(capacitacion.cat_estatuto_organico.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_estatuto_organico.id_cat_estatuto_organico', '=', $id)
+        ->orderBy('capacitacion.cat_estatuto_organico.descripcion', 'ASC'); 
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
+    }
     public function list($iterator, $searchValue )
     {
         // Preparar la consulta base

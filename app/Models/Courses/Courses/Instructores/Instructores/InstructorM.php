@@ -171,6 +171,28 @@ public function buscarEmpleadoTransferidos($curp)
     // Retornar los resultados
     return $results;
 }
+public function edittblcourses($id_tbl_instructores)
+{
+    $query = DB::table('capacitacion.tbl_instructores')
+        ->select([
+            'capacitacion.tbl_instructores.id_tbl_instructores AS id',
+            DB::raw(
+                "COALESCE(
+                    CONCAT(central.tbl_empleados_hraes.nombre, ' ', central.tbl_empleados_hraes.primer_apellido, ' ', central.tbl_empleados_hraes.segundo_apellido),
+                    CONCAT(public.tbl_empleados_hraes.nombre, ' ', public.tbl_empleados_hraes.primer_apellido, ' ', public.tbl_empleados_hraes.segundo_apellido),
+                    CONCAT(transferidos.tbl_empleados.nombre, ' ', transferidos.tbl_empleados.primer_apellido, ' ', transferidos.tbl_empleados.segundo_apellido)
+                ) AS descripcion"
+            )
+        ])
+        ->join('administration.users', 'administration.users.id', '=', 'capacitacion.tbl_instructores.id_usuario_empleado')
+        ->leftJoin('central.tbl_empleados_hraes', 'central.tbl_empleados_hraes.id_tbl_empleados_hraes', '=', 'administration.users.id_tbl_empleados_central')
+        ->leftJoin('public.tbl_empleados_hraes', 'public.tbl_empleados_hraes.id_tbl_empleados_hraes', '=', 'administration.users.id_tbl_empleados_hraes')
+        ->leftJoin('transferidos.tbl_empleados', 'transferidos.tbl_empleados.id_tbl_empleados', '=', 'administration.users.id_tbl_empleados_transferidos')
+        ->where('capacitacion.tbl_instructores.id_tbl_instructores', $id_tbl_instructores)
+        ->first();
+
+    return $query;
+}
 
 
 }

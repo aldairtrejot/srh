@@ -20,12 +20,25 @@ class CoursesprogramaM extends Model
     public function edit(string $id)
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
-        $query = DB::table('capacitacion.cat_programa')
+        $query = DB::table('capacitacion.cat_programa_institucional')
             ->where('id_cat_programa_institucional', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
+    }
+    public function edittblcourses(string $id)
+    {
+        $query = DB::table('capacitacion.cat_programa_institucional')
+        ->select(['capacitacion.cat_programa_institucional.id_cat_programa_institucional',
+                    DB::raw('UPPER(capacitacion.cat_programa_institucional.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_programa_institucional.id_cat_programa_institucional', '=', $id)
+        ->orderBy('capacitacion.cat_programa_institucional.descripcion', 'ASC'); 
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
     }
     public function list($iterator, $searchValue )
     {

@@ -12,17 +12,18 @@ class TblcoursesM extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_cat_beneficio',
         'id_cat_tipo_cursos',
+        'id_cat_tipo_accion',
         'id_cat_coordinacion',
         'id_cat_nombre_accion',
         'id_cat_programa_institucional',
         'id_cat_estatuto_organico',
-        'programa_proyecto',
-        'id_cat_beneficio',
         'id_cat_organizacion',
-        'id_cat_tipo_accion',
+        'programa_proyecto',
         'id_cat_modalidad',
         'id_cat_categoria',
+        'id_tbl_instructores',
         'costo',
         'iva',
         'fecha_inicio',

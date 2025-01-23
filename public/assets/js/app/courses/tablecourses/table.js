@@ -65,7 +65,7 @@ function searchInit() {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalUrl = `/srh/public/tablecourses/edit/${object.id}`;
+                    const finalUrl = `/srh/public/tablecourses/edit/${object.id_tbl_cursos}`;
 
                     // Generar el HTML con template literals
                     const rowHTML = `
@@ -85,7 +85,7 @@ function searchInit() {
                                             </span>
                                             Modificar
                                         </a>
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id})">
+                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_cursos})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-trash item-icon-menu"></i>
