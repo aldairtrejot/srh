@@ -161,7 +161,7 @@
                                         value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Área de atención" />
+                                <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
                                 <div class="row">
 
                                     <x-template-form.template-form-select-required :selectValue="$selectArea"

@@ -51,7 +51,7 @@
                                         No. Documento
                                     </th>
                                     <th>
-                                        No. Turno
+                                    No. Turno
                                     </th>
                                     <th>
                                         Estatus
