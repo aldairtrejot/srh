@@ -50,7 +50,7 @@ class ReporteCorrespondenciaC extends Controller
 
         //DATA LUGAR
         $pdf->SetXY(40.5, 141.5); // Posición X, Y en el PDF
-        $pdf->MultiCell(0, 4, utf8_decode($data->lugar));
+        $pdf->MultiCell(0, 4, utf8_decode($data->entidad));
 
         //DATA ASUNTO
         $pdf->SetXY(40.5, 131.5); // Posición X, Y en el PDF

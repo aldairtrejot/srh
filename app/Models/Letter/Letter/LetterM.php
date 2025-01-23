@@ -139,7 +139,6 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.num_flojas AS num_flojas',
                 'correspondencia.tbl_correspondencia.num_tomos AS num_tomos',
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
-                'correspondencia.tbl_correspondencia.lugar AS lugar',
                 'correspondencia.tbl_correspondencia.asunto AS asunto',
                 'correspondencia.tbl_correspondencia.folio_gestion AS folio_gestion',
                 'correspondencia.tbl_correspondencia.observaciones AS observaciones',
@@ -155,6 +154,7 @@ class LetterM extends Model
                 'correspondencia.cat_unidad.descripcion AS unidad',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.puesto_remitente AS puesto_remitente',
+                'correspondencia.cat_entidad.descripcion AS entidad'
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
@@ -163,6 +163,7 @@ class LetterM extends Model
             ->leftJoin('correspondencia.cat_clave', 'correspondencia.tbl_correspondencia.id_cat_clave', '=', 'correspondencia.cat_clave.id_cat_clave')
             ->leftJoin('correspondencia.cat_unidad', 'correspondencia.tbl_correspondencia.id_cat_unidad', '=', 'correspondencia.cat_unidad.id_cat_unidad')
             ->leftJoin('correspondencia.cat_coordinacion', 'correspondencia.tbl_correspondencia.id_cat_coordinacion', '=', 'correspondencia.cat_coordinacion.id_cat_coordinacion')
+            ->leftJoin('correspondencia.cat_entidad', 'correspondencia.tbl_correspondencia.id_cat_entidad', '=', 'correspondencia.cat_entidad.id_cat_entidad')
             ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
             ->first(); // Obtener solo el primer resultado
 
