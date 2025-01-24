@@ -247,8 +247,8 @@ class LetterC extends Controller
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
             /// Validación de no de  turno de sistema
-            if ($this->getMaxTurno($request->num_turno_sistema) == $letterM->getMaxNuSistem()) {
-                $numTurnoSistemaAux = $this->incrementarConsecutivo($request->num_turno_sistema);
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA')));
                 //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
             } else {
                 $numTurnoSistemaAux = $request->num_turno_sistema;
@@ -427,7 +427,21 @@ class LetterC extends Controller
         return null; // Si no encuentra el patrón, devolvemos null
     }
 
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
+    }
     // Incrementacion del no consecutivo
+    /*
     private function incrementarConsecutivo($turno)
     {
         // Usamos una expresión regular para extraer el prefijo, el número consecutivo y el sufijo
@@ -449,6 +463,7 @@ class LetterC extends Controller
         // Si no coincide con el formato esperado, devolvemos null o un valor de error
         return null;
     }
+        */
 }
 
 
