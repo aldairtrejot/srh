@@ -26,7 +26,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 50) ||
         isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 130) ||
+        isExceedingLength($('#asunto').val(), 'Asunto', 300) ||
         isExceedingLength($('#observaciones').val(), 'Observaciones', 130)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
