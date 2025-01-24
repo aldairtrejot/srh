@@ -249,6 +249,7 @@ class LetterC extends Controller
             /// Validación de no de  turno de sistema
             if ($this->getMaxTurno($request->num_turno_sistema) == $letterM->getMaxNuSistem()) {
                 $numTurnoSistemaAux = $this->incrementarConsecutivo($request->num_turno_sistema);
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
             } else {
                 $numTurnoSistemaAux = $request->num_turno_sistema;
             }
