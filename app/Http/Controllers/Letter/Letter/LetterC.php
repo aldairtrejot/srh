@@ -32,7 +32,11 @@ class LetterC extends Controller
     // Retorna el dashboard
     public function dashboard()
     {
-        return view('letter/dashboard/dashboard');
+        $letterM = new LetterM();
+        $item = [
+
+        ];
+        return view('letter/dashboard/dashboard', compact('item'));
     }
     public function cloud($id)
     {

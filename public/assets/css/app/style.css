@@ -19877,7 +19877,7 @@ a.close.disabled {
 
 .bg-primary,
 .settings-panel .color-tiles .tiles.primary {
-    background-color: #4b49ac !important;
+    background-color: #4b49ac;
 }
 
 a.bg-primary:hover,
@@ -50080,7 +50080,6 @@ select:disabled {
     overflow-y: auto; /* Añade scroll si excede la altura */
 }
 
-
 /* cahenges */
 .toggle-switch {
     appearance: none;
@@ -50114,5 +50113,32 @@ select:disabled {
     transform: translateX(20px);
 }
 
+/* Aseguramos que el botón sea completamente transparente y sin borde */
+#reporteBtn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    /* Elimina el subrayado al pasar el cursor */
+    cursor: pointer;
+    /* Cambia el cursor a puntero */
+}
 
+/* Aseguramos que el texto y el ícono estén alineados correctamente */
+#reporteBtn .ti-layout {
+    margin-left: 5px;
+    /* Ajuste para separar el ícono del texto */
+}
 
+/* Efecto de hover: agrandar texto y ícono */
+#reporteBtn:hover {
+    transform: scale(1.1);
+    /* Hace que todo el botón (texto + ícono) crezca un poco */
+    transition: transform 0.3s ease;
+    /* Animación suave */
+}
+
+/* Asegura que no haya subrayado */
+#reporteBtn:hover {
+    text-decoration: none;
+}

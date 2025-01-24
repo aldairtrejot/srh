@@ -292,4 +292,6 @@ class LetterM extends Model
     }
 
 
+    /// FUNCIONES PARA DASHBOARD
+    // La función cuenta el todal de no de correspondencia
 }
