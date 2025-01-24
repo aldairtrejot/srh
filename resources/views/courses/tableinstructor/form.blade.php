@@ -15,15 +15,11 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_instructores) ? 'Modificar' : 'Agregar ' }} Instructor"
+                            tittle="{{ isset($item->id_tbl_instructores) ? 'Modificar' : 'Agregar' }} Instructor"
                             route="{{ route('tableinstructor.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id_cat_entrada"
-                                value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
+                     
 
-                            <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_CORRESPONDENCIA') }}" />
-                        
                         <x-template-tittle.tittle-caption-secon tittle="Información de Usuario" />
                         
                         <!-- Contenedor de Resultados -->
@@ -56,7 +52,7 @@
                                     <div class="form-group flex-grow-1">
                                         <label for="curp" style="font-size: 1rem; color: #333;">CURP</label>
                                         <input type="text" name="curp" id="curp" placeholder="Ingrese CURP"
-                                            autocomplete="" value="{{ optional($item)->curp ?? '' }}" class="form-control"
+                                            autocomplete="off" value="{{ optional($item)->curp ?? '' }}" class="form-control"
                                             style="font-size: 1rem;" />
                                     </div>
                                     <!-- Botón CONSULTAR -->
@@ -73,8 +69,18 @@
                                 <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" 
                                     {{ optional($item)->estatus ? 'checked' : '' }}>
                             </div>
-                            
-                            <br><br> <!-- Espacio adicional -->
+
+                           <!-- Campo oculto para id_cat_tipo_schema -->
+                            <x-template-form.template-form-input-hidden name="id_cat_tipo_schema"
+                                value="{{ optional($item)->id_cat_tipo_schema ?? '' }}" />
+
+                            <!-- Campo oculto para id_tbl_empleados_hraes -->
+                            <x-template-form.template-form-input-hidden name="id_tbl_empleados_hraes"
+                            value="{{ optional($item)->id_tbl_empleados_hraes ?? '' }}" />
+
+                            <br>
+                             
+                            <!-- Espacio adicional -->
 
                             <x-template-tittle.tittle-caption-secon tittle="Cloud" />
                             <!-- Contenedor principal con flexbox -->
@@ -133,5 +139,5 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT-->
-<!--<script src="{{ asset('assets/js/app/courses/tableinstructor/cloud.js') }}"></script>-->
+
 <script src="{{ asset('assets/js/app/courses/tableinstructor/form.js') }}"></script>

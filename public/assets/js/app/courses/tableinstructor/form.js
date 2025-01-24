@@ -31,14 +31,15 @@ function validarcurp() {
             console.log("Respuesta recibida:", response); // Depuración
             
             if (response && response.status && response.value) {
-
                 let data = response.value; // Acceder al objeto en "value"
 
                 // Asegúrate de que los IDs sean correctos
-                $('#remitente_nombre').text(data.nombre || 'N/A');
-                $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
-                $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
+                $('#remitente_nombre').text(data.nombre||'N/A');
+                $('#remitente_primer_apellido').text(data.primer_apellido||'N/A');
+                $('#remitente_segundo_apellido').text(data.segundo_apellido||'N/A');
                 $('#remitente_rfc').text(data.rfc || 'N/A');
+                $('#id_cat_tipo_schema').val(data.id_cat_tipo_schema||'N/A');
+                $('#id_tbl_empleados_hraes').val(data.id_tbl_empleados_hraes||'N/A');
 
                 notyfEM.success("CURP localizado con éxito.");
             } else {

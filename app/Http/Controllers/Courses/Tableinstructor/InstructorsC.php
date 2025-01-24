@@ -20,6 +20,35 @@ class InstructorsC extends Controller
     public function save(Request $request)
     {
         $instructorM = new InstructorM();
+        $now = Carbon::now(); // Fecha actual
+    
+        if (!$request->id_tbl_cursos) {
+            // Crear nuevo curso
+            $nuevoInstructor = 'TblInstructorM'::create([
+                'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
+                'id_cat_coordinacion' => $request->id_cat_coordinacion,
+                'id_cat_nombre_accion' => $request->id_cat_nombre_accion,
+                'id_cat_programa_institucional' => $request->id_cat_programa_institucional,
+                'id_cat_estatuto_organico' => $request->id_cat_estatuto_organico,
+                'programa_proyecto' => strtoupper($request->programa_proyecto),
+                'id_cat_beneficio' => $request->id_cat_beneficio,
+                'id_cat_organizacion' => $request->id_cat_organizacion,
+                'id_cat_tipo_accion' => $request->id_cat_tipo_accion,
+                'id_cat_modalidad' => $request->id_cat_modalidad,
+                'id_cat_categoria' => $request->id_cat_categoria,
+                'costo' => $request->costo,
+                'iva' => $request->iva,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'horas' => $request->horas,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+
+
+
+       /* $instructorM = new InstructorM();
         $messagesC = new MessagesC();
         $now = Carbon::now();
 
@@ -31,8 +60,9 @@ class InstructorsC extends Controller
             'fecha_usuario' => $now,
         ]);
 
-        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor guardado exitosamente.');
+        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor guardado exitosamente.');*/
     }
+}
 
     public function create()
     {
@@ -124,8 +154,6 @@ class InstructorsC extends Controller
                     'value' => null,
                 ], 200);
             }
-    
-            \Log::info('Resultados encontrados: ', $resultados); // Registro para verificar la respuesta
     
             return response()->json([
                 'status' => true,

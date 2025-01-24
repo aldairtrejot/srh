@@ -95,11 +95,11 @@ class InstructorM extends Model
     $empleado = DB::table('central.tbl_empleados_hraes')
     ->select([
         'id_tbl_empleados_hraes',
-        DB::raw('UPPER(rfc) AS RFC'),
-        DB::raw('UPPER(curp) AS CURP'),
-        DB::raw('UPPER(nombre) AS NOMBRE'),
-        DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-        DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+        DB::raw('UPPER(rfc) AS rfc'),
+        DB::raw('UPPER(curp) AS curp'),
+        DB::raw('UPPER(nombre) AS nombre'),
+        DB::raw('UPPER(primer_apellido) AS primer_apellido'),
+        DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
     ])
     ->where('curp', '=', $curp)
     ->first();
@@ -120,31 +120,58 @@ return null; // Devuelve null si no encuentra un registro en alguna de las tabla
 
     public function buscarEmpleadoHRAES($curp)
 {
-    return DB::table('public.tbl_empleados_hraes')
+    $empleado = DB::table ('public.tbl_empleados_hraes')
         ->select([
-            DB::raw('UPPER(rfc) AS RFC'),
-            DB::raw('UPPER(curp) AS CURP'),
-            DB::raw('UPPER(nombre) AS NOMBRE'),
-            DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-            DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+            'id_tbl_empleados_hraes',
+            DB::raw('UPPER(rfc) AS rfc'),
+            DB::raw('UPPER(curp) AS curp'),
+            DB::raw('UPPER(nombre) AS nombre'),
+            DB::raw('UPPER(primer_apellido) AS primer_apellido'),
+            DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
         ])
         ->where('curp', '=', $curp)
         ->first(); // Devuelve null si no encuentra un registro
+        // Consulta a la tabla en el esquema catalogos
+$catalogoInfo = DB::table('catalogos.cat_tipo_schema')
+->select('id_cat_tipo_schema')
+->where('id_cat_tipo_schema', '=', 2)
+->first();
+
+// Combina la información de ambas consultas
+if ($empleado && $catalogoInfo) {
+return (object) array_merge((array) $empleado, (array) $catalogoInfo);
+}
+
+return null; // Devuelve null si no encuentra un registro en alguna de las tablas
 }
 
 public function buscarEmpleadoTransferidos($curp)
 {
-    return DB::table('transferidos.tbl_empleados')
+    $empleado = DB::table ('transferidos.tbl_empleados')
         ->select([
-            DB::raw('UPPER(rfc) AS RFC'),
-            DB::raw('UPPER(curp) AS CURP'),
-            DB::raw('UPPER(nombre) AS NOMBRE'),
-            DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-            DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+            'id_tbl_empleados',
+            DB::raw('UPPER(rfc) AS rfc'),
+            DB::raw('UPPER(curp) AS curp'),
+            DB::raw('UPPER(nombre) AS nombre'),
+            DB::raw('UPPER(primer_apellido) AS primer_apellido'),
+            DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
         ])
         ->where('curp', '=', $curp)
         ->first(); // Devuelve null si no encuentra un registro
+        $catalogoInfo = DB::table('catalogos.cat_tipo_schema')
+->select('id_cat_tipo_schema')
+->where('id_cat_tipo_schema', '=', 3)
+->first();
+
+// Combina la información de ambas consultas
+if ($empleado && $catalogoInfo) {
+return (object) array_merge((array) $empleado, (array) $catalogoInfo);
 }
+
+return null; // Devuelve null si no encuentra un registro en alguna de las tablas
+
+}
+
 
     /*public function editCurp (string $id)
     {
