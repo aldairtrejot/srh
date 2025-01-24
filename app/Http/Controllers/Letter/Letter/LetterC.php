@@ -246,8 +246,18 @@ class LetterC extends Controller
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
+            /// Validación de no de  turno de sistema
+            if ($this->getMaxTurno($request->num_turno_sistema) == $letterM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->incrementarConsecutivo($request->num_turno_sistema);
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
+
+
+
             $data = [
-                'num_turno_sistema' => strtoupper($request->num_turno_sistema),
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'num_documento' => strtoupper($request->num_documento),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
@@ -255,7 +265,7 @@ class LetterC extends Controller
                 'num_flojas' => 1,
                 'num_tomos' => 0,
                 'horas_respuesta' => $request->horas_respuesta,
-                'id_cat_entidad' =>$request->id_cat_entidad,
+                'id_cat_entidad' => $request->id_cat_entidad,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_area' => $request->id_cat_area,
@@ -305,7 +315,7 @@ class LetterC extends Controller
                     'num_flojas' => 1,
                     'num_tomos' => 0,
                     'horas_respuesta' => $request->horas_respuesta,
-                    'id_cat_entidad' =>$request->id_cat_entidad,
+                    'id_cat_entidad' => $request->id_cat_entidad,
                     'asunto' => strtoupper($request->asunto),
                     'observaciones' => strtoupper($request->observaciones),
                     'id_cat_area' => $request->id_cat_area,
@@ -402,6 +412,41 @@ class LetterC extends Controller
         return response()->json([
             'value' => $value,
         ]);
+    }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    // Incrementacion del no consecutivo
+    private function incrementarConsecutivo($turno)
+    {
+        // Usamos una expresión regular para extraer el prefijo, el número consecutivo y el sufijo
+        if (preg_match('/^(.*\/)(\d{5})(\/\d{4})$/', $turno, $matches)) {
+            // Extraemos los componentes
+            $prefijo = $matches[1];  // DGP/
+            $numeroConsecutivo = $matches[2];  // 01254
+            $sufijo = $matches[3];  // /2025
+
+            // Incrementamos el número consecutivo
+            $nuevoNumero = str_pad($numeroConsecutivo + 1, 5, '0', STR_PAD_LEFT);  // Aseguramos que tenga 5 dígitos
+
+            // Concatenamos el nuevo número con el prefijo y el sufijo
+            $nuevoTurno = $prefijo . $nuevoNumero . $sufijo;
+
+            return $nuevoTurno;
+        }
+
+        // Si no coincide con el formato esperado, devolvemos null o un valor de error
+        return null;
     }
 }
 
