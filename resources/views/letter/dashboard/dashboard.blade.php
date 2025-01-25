@@ -34,52 +34,54 @@
 
                                     <x-template-charts.charts-carousel-panel isClass="carousel-item active"
                                         tittle="Correspondencia" value="106"
-                                        text="Se presentan los estatus de correspondencia organizados en barras de progreso, las cuales permiten visualizar el avance de manera clara. Además, la gráfica de dona ofrece una representación visual de la información general, desglosada por porcentajes, para facilitar la comprensión de los datos"
+                                        text="Los estatus de correspondencia se detallan a través de las barras de progreso, que permiten visualizar el avance de cada uno. Además, la gráfica de dona ofrece una representación visual de los registros que has capturado."
                                         idCanvas="north-america-chart" idLength="north-america-legend">
 
                                         <x-template-charts.charts-carousel-item tittle="Concluido" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Turnado" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="En proceso" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Rechazado" size="50%"
-                                            color="#c62828" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Vencido" size="50%"
-                                            color="#c62828" value="50" />
+                                            color="#BC955C" value="50" />
 
                                         <x-template-charts.charts-carousel-item tittle="Cancelado" size="50%"
-                                            color="#c62828" value="10" />
+                                            color="#BC955C" value="10" />
 
                                     </x-template-charts.charts-carousel-panel>
 
+                                  
                                     <x-template-charts.charts-carousel-panel isClass="carousel-item" tittle="Oficios"
                                         value="106" text="este es un texto" idCanvas="north-america-chart"
                                         idLength="north-america-legend">
 
                                         <x-template-charts.charts-carousel-item tittle="Concluido" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Turnado" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="En proceso" size="50%"
-                                            color="#0d47a1" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Rechazado" size="50%"
-                                            color="#c62828" value="10" />
+                                            color="#BC955C" value="10" />
 
                                         <x-template-charts.charts-carousel-item tittle="Vencido" size="50%"
-                                            color="#c62828" value="50" />
+                                            color="#BC955C" value="50" />
 
                                         <x-template-charts.charts-carousel-item tittle="Cancelado" size="50%"
-                                            color="#c62828" value="10" />
+                                            color="#BC955C" value="10" />
 
                                     </x-template-charts.charts-carousel-panel>
+
 
                                 </div>
                                 <a class="carousel-control-prev" href="#detailedReports" role="button"
