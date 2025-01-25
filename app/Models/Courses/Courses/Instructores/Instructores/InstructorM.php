@@ -95,11 +95,11 @@ class InstructorM extends Model
     $empleado = DB::table('central.tbl_empleados_hraes')
     ->select([
         'id_tbl_empleados_hraes',
-        DB::raw('UPPER(rfc) AS rfc'),
-        DB::raw('UPPER(curp) AS curp'),
-        DB::raw('UPPER(nombre) AS nombre'),
-        DB::raw('UPPER(primer_apellido) AS primer_apellido'),
-        DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
+        DB::raw('UPPER(rfc) AS _rfc'),
+        DB::raw('UPPER(curp) AS _curp'),
+        DB::raw('UPPER(nombre) AS _nombre'),
+        DB::raw('UPPER(primer_apellido) AS _primer_apellido'),
+        DB::raw('UPPER(segundo_apellido) AS _segundo_apellido'),
     ])
     ->where('curp', '=', $curp)
     ->first();
@@ -123,11 +123,11 @@ return null; // Devuelve null si no encuentra un registro en alguna de las tabla
     $empleado = DB::table ('public.tbl_empleados_hraes')
         ->select([
             'id_tbl_empleados_hraes',
-            DB::raw('UPPER(rfc) AS rfc'),
-            DB::raw('UPPER(curp) AS curp'),
-            DB::raw('UPPER(nombre) AS nombre'),
-            DB::raw('UPPER(primer_apellido) AS primer_apellido'),
-            DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
+            DB::raw('UPPER(rfc) AS _rfc'),
+            DB::raw('UPPER(curp) AS _curp'),
+            DB::raw('UPPER(nombre) AS _nombre'),
+            DB::raw('UPPER(primer_apellido) AS _primer_apellido'),
+            DB::raw('UPPER(segundo_apellido) AS _segundo_apellido'),
         ])
         ->where('curp', '=', $curp)
         ->first(); // Devuelve null si no encuentra un registro
@@ -150,11 +150,11 @@ public function buscarEmpleadoTransferidos($curp)
     $empleado = DB::table ('transferidos.tbl_empleados')
         ->select([
             'id_tbl_empleados',
-            DB::raw('UPPER(rfc) AS rfc'),
-            DB::raw('UPPER(curp) AS curp'),
-            DB::raw('UPPER(nombre) AS nombre'),
-            DB::raw('UPPER(primer_apellido) AS primer_apellido'),
-            DB::raw('UPPER(segundo_apellido) AS segundo_apellido'),
+            DB::raw('UPPER(rfc) AS _rfc'),
+            DB::raw('UPPER(curp) AS _curp'),
+            DB::raw('UPPER(nombre) AS _nombre'),
+            DB::raw('UPPER(primer_apellido) AS _primer_apellido'),
+            DB::raw('UPPER(segundo_apellido) AS _segundo_apellido'),
         ])
         ->where('curp', '=', $curp)
         ->first(); // Devuelve null si no encuentra un registro
