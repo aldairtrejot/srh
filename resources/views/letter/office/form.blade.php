@@ -44,11 +44,6 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_area"
                                     value="{{ optional($item)->id_cat_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_area"
-                                    value="{{ optional($item)->id_usuario_area ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="id_usuario_enlace"
-                                    value="{{ optional($item)->id_usuario_enlace ?? '' }}" />
 
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
                                     value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
@@ -142,11 +137,11 @@
 
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                            :selectEdit="$selectUserEdit" name="id_usuario_area_aux" tittle="Usuario"
+                                            :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
                                         <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace_aux" tittle="Enlace"
+                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
                                     </div>
                                 </div>

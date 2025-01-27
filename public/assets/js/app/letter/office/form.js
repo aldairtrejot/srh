@@ -27,8 +27,8 @@ function setCheckboxArea() {
         cleanSelect('#id_cat_area_documento'); // Limpiar select
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
-        cleanSelectMoreSelect('#id_usuario_area_aux'); //Se limpia el select
-        cleanSelectMoreSelect('#id_usuario_enlace_aux'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
     }
     //getRole(); //Validacion por roles
 }
