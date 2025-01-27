@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Letter\Office;
+use App\Http\Controllers\Letter\Other\ConsecutivoC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Models\Letter\Letter\LetterM;
 use App\Models\Letter\Office\OfficeM;
@@ -16,6 +17,7 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
+use Illuminate\Support\Facades\Log;
 
 class OfficeC extends Controller
 {
@@ -133,6 +135,8 @@ class OfficeC extends Controller
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionAreaM = new CollectionAreaM();
+        $consecutivoC = new ConsecutivoC();
+        $collectionAreaM = new CollectionAreaM();
 
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
@@ -141,8 +145,25 @@ class OfficeC extends Controller
         // aregar
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $officeM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO')));
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
+            // Validacion de es por area sea unico, de lo contrario se concatena la la variable
+            $noDocumentoAreaAux = $request->num_documento_area;
+            if ($es_por_area == 1) {
+                if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $officeM->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
+                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumento($request->id_cat_anio, $request->id_cat_area_documento));
+                }
+            }
+
+
+
             $data = [
-                'num_turno_sistema' => $request->num_turno_sistema,
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
@@ -151,7 +172,7 @@ class OfficeC extends Controller
                 'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
-                'num_documento_area' => $request->num_documento_area,
+                'num_documento_area' => strtoupper($noDocumentoAreaAux),
                 'id_cat_area_documento' => $request->id_cat_area_documento,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
@@ -199,5 +220,31 @@ class OfficeC extends Controller
 
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
+    }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
     }
 }

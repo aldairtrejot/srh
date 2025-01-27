@@ -34,8 +34,8 @@ $('#id_cat_area_documento').on('change', function () {
             },
             success: function (response) {
                 //proceso de select 
-                foreachSelect(response.selectEnlace, '#id_usuario_enlace_aux');
-                foreachSelect(response.selectUsuario, '#id_usuario_area_aux');
+                foreachSelectNull(response.selectEnlace, '#id_usuario_enlace_aux');
+                foreachSelectNull(response.selectUsuario, '#id_usuario_area_aux');
 
             },
         });
