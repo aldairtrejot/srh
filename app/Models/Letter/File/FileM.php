@@ -114,4 +114,28 @@ class FileM extends Model
 
         return $query;
     }
+
+    // La función retorna el valor mayor de los autoincrementables
+    public function getMaxNuSistem()
+    {
+        // Realizar la consulta usando DB::table
+        $maxNumTurno = DB::table('correspondencia.tbl_expediente')
+            ->selectRaw("
+                            MAX(CAST(REGEXP_REPLACE(num_turno_sistema, '^[^/]+/([0-9]{5})/.*$', '\\1') AS INTEGER)) AS max_num_turno
+                        ")
+            ->whereRaw("num_turno_sistema ~ '/[0-9]{5}/'")
+            ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
+
+        return $maxNumTurno;
+    }
+
+    public function getOnly($idCatArea, $idAnio)
+    {
+        return DB::table('correspondencia.tbl_expediente')
+            ->selectRaw('MAX(CAST(REGEXP_REPLACE(num_documento_area, \'^\\D*(\\d+).*\', \'\\1\') AS INT)) AS max_num')
+            ->whereRaw("num_documento_area ~ '/\\d{4}$'")
+            ->where('id_cat_area_documento', $idCatArea)
+            ->where('id_cat_anio', $idAnio)
+            ->first();  // Devuelve el primer (y único) resultado
+    }
 }

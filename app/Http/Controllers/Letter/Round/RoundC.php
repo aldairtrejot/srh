@@ -170,7 +170,7 @@ class RoundC extends Controller
                 'id_cat_area_documento' => $request->id_cat_area_documento,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_cat_area' => $request->id_cat_area_documento,
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -200,7 +200,7 @@ class RoundC extends Controller
                 'id_cat_area_documento' => $request->id_cat_area_documento,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_cat_area' => $request->id_cat_area_documento,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];

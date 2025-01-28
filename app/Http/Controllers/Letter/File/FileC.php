@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Http\Controllers\Letter\Log\LogC;
+use App\Http\Controllers\Letter\Other\ConsecutivoC;
 class FileC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -83,7 +84,7 @@ class FileC extends Controller
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_EXPEDIENTE'));
-        $item->es_por_area = false;
+        $item->es_por_area = true;
 
         $noLetter = "";//No de oficio se inicializa en vacio
 
@@ -130,6 +131,7 @@ class FileC extends Controller
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionAreaM = new CollectionAreaM();
+        $consecutivoC = new ConsecutivoC();
 
         $now = Carbon::now(); //Hora y fecha actual
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
@@ -138,8 +140,24 @@ class FileC extends Controller
         if (!isset($request->id_tbl_expediente)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
             //Agregar elementos
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $object->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_EXPEDIENTE')));
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
+            // Validacion de es por area sea unico, de lo contrario se concatena la la variable
+            $noDocumentoAreaAux = $request->num_documento_area;
+            if ($es_por_area == 1) {
+                if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $object->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
+                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumento($request->id_cat_anio, $request->id_cat_area_documento));
+                }
+            }
+
+
             $data = [
-                'num_turno_sistema' => $request->num_turno_sistema,
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
@@ -148,11 +166,11 @@ class FileC extends Controller
                 'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
-                'num_documento_area' => $request->num_documento_area,
+                'num_documento_area' => strtoupper($noDocumentoAreaAux),
                 'id_cat_area_documento' => $request->id_cat_area_documento,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_cat_area' => $request->id_cat_area_documento,
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -182,7 +200,7 @@ class FileC extends Controller
                 'id_cat_area_documento' => $request->id_cat_area_documento,
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_cat_area' => $request->id_cat_area_documento,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];
@@ -195,5 +213,31 @@ class FileC extends Controller
 
             return $messagesC->messageSuccessRedirect('file.list', 'Elemento modificado con éxito.');
         }
+    }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
     }
 }
