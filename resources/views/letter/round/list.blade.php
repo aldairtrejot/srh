@@ -49,10 +49,10 @@
                                         No. Correspondencia Asoc.
                                     </th>
                                     <th>
-                                        Fecha de Inicio
+                                        Fecha de emición
                                     </th>
                                     <th>
-                                        Fecha Fin
+                                        Fecha de aplicación
                                     </th>
                                     <th>
                                         Año

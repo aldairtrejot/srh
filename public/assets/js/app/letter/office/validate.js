@@ -4,8 +4,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let fecha_fin = document.getElementById('fecha_fin').value;
 
     if (//Validacion de campos requeridos y max caracteres
-        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
-        isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
+        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de emición') ||
+        isFieldEmpty($('#fecha_fin').val(), 'Fecha de aplicación') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
         isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
