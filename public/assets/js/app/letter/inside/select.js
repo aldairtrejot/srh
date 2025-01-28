@@ -10,6 +10,7 @@ $('#id_cat_area_documento').on('change', function () {
             data: {
                 id: idValue,
                 id_cat_anio: $('#id_cat_anio').val(),
+                name: 'correspondencia.rel_consecutivo_interno',
                 _token: token  // Usar el token extraído de la metaetiqueta
             },
             success: function (response) {

@@ -36489,8 +36489,10 @@ div.tagsinput span.tag a {
 
 /* Cambio de color */
 .content-wrapper {
-    background-image: url("../../images/imss/backgroud_imss_white.png");
-    /*   background: red; */
+    background-image: url("../../images/imss/backgroud_imss_white12.png");
+    background-attachment: fixed; /* Imagen de fondo fija */
+    background-size: cover; /* Ajusta el tamaño */
+    background-position: center; /* Centra la imagen */
     padding: 2.375rem 2.375rem;
     width: 100%;
     -webkit-flex-grow: 1;

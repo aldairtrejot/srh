@@ -52,10 +52,10 @@ function getDataDocument() {
             response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
             response.resultAnexosSalida ? disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida') : enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
 
-            templateCloud(false, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(false, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
-            templateCloud(false, container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
-            templateCloud(false, container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
+            templateCloud(true, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(true, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(true, container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
+            templateCloud(true, container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
         },
     });
 }
@@ -113,6 +113,7 @@ document.getElementById('file_anexo_salida').addEventListener('change', function
 
 function sendFile(file, id_entrada_salida, esOficio) {
     if (file) {
+        showSpinner();// Inicio de spinner
         let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
         data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
@@ -131,6 +132,7 @@ function sendFile(file, id_entrada_salida, esOficio) {
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
+                hideSpinner(); // Se oculta el spinner
                 if (response.status) { //Validacion si es que los cambios se han agregado correctamente
                     notyfEM.success("Documento agregado correctamente.");
                 } else {
