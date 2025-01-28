@@ -156,7 +156,7 @@ class OfficeC extends Controller
             $noDocumentoAreaAux = $request->num_documento_area;
             if ($es_por_area == 1) {
                 if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $officeM->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
-                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumento($request->id_cat_anio, $request->id_cat_area_documento));
+                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio'));
                 }
             }
 
@@ -188,7 +188,7 @@ class OfficeC extends Controller
             $logC->add('correspondencia.tbl_oficio', $data);
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-            $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
+            $collectionAreaM->iteratorConsecutivoAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio');
 
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento agregado con éxito.');
 

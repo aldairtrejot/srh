@@ -34,7 +34,7 @@ class CollectionAreaC extends Controller
         $collectionAreaM = new CollectionAreaM();
         $id_cat_anio = $request->id_cat_anio;
         $id = $request->id;
-        $consecutivo = $collectionAreaM->noDocumento($id_cat_anio, $id);
+        $consecutivo = $collectionAreaM->noDocumentoAux($id_cat_anio, $id, $request->name);
 
         return response()->json([
             'consecutivo' => $consecutivo,

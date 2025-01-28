@@ -152,7 +152,7 @@ class RoundC extends Controller
             $noDocumentoAreaAux = $request->num_documento_area;
             if ($es_por_area == 1) {
                 if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $object->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
-                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumento($request->id_cat_anio, $request->id_cat_area_documento));
+                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_circulares'));
                 }
             }
 
@@ -183,7 +183,7 @@ class RoundC extends Controller
 
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
-            $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
+            $collectionAreaM->iteratorConsecutivoAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio');
 
             return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
 
