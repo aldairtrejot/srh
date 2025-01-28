@@ -39,13 +39,12 @@ function generateFileHTML(boolx, template) {
                     <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
                         <i style="color: white" class="fa fa-download"></i>
                     </button>
-                    ${
-                        boolx ? `
+                    ${boolx ? `
                             <button onclick="deleteDocument('${template.uid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
                                 <i style="color: white" class="fa fa-trash"></i>
                             </button>
                         ` : ''
-                    }
+        }
                 </div>
             </div>
             <div class="custom-file-name">
@@ -72,6 +71,7 @@ function enableIput(idLabel, idIcon, idValue) {
 }
 
 function download(uid) {
+    //showSpinner();// Inicio de spinner
     // Crear una URL para la descarga
     let url = URL_DEFAULT.concat('/cloud/download');
 
@@ -100,6 +100,7 @@ function download(uid) {
 
     // Limpiar el formulario después de enviarlo
     document.body.removeChild(form);
+    //hideSpinner(); // Se oculta el spinner
 }
 
 //Se utiliza la funcion para descargar archivos de alfresco

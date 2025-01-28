@@ -100,10 +100,17 @@ class AlfrescoC extends Controller
                     ->header('Content-Length', strlen($body));
             } else {
                 curl_close($ch);
+                return redirect()->back()->with([
+                    'value' => 'error', //VALUE_IS(error, warning, success)
+                    'message' => 'Se produjo un problema al intentar completar la descarga.',
+                    'estatus' => 'true'
+                ]);
+                /*
                 return response()->json([
                     'estatus' => "Error: No se pudo obtener el archivo. Código de respuesta: $http_code",
                     'status' => false,
                 ]);
+                */
             }
         }
     }
