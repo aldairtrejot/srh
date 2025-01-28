@@ -33,9 +33,11 @@ function generateFileHTML(boolx, template) {
                     <button onclick="getInfo('${template.id}')" style="background: #003366" class="custom-button" title="Usuario">
                         <i style="color: white" class="fa fa-user"></i>
                     </button>
-                    <button onclick="seeDocument('${template.uid}')" style="background: #1D5B3B" class="custom-button" title="Ver" disabled>
+                    
+                    <button onclick="seeDocumentUid('${template.uid}')" style="background: #10312b" class="custom-button" title="Ver" disabled>
                         <i style="color: white" class="fa fa-eye"></i>
-                    </button> -->
+                    </button> 
+                    -->
                     <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
                         <i style="color: white" class="fa fa-download"></i>
                     </button>
@@ -104,7 +106,9 @@ function download(uid) {
 }
 
 //Se utiliza la funcion para descargar archivos de alfresco
-function seeDocument(uid) {
+function seeDocumentUid(uid) {
+    console.log('success');
+    /*
     $.ajax({
         url: URL_DEFAULT.concat('/cloud/see'),  // Ruta del servidor que devuelve la URL del documento
         type: 'POST',
@@ -125,5 +129,6 @@ function seeDocument(uid) {
             console.log("Error al hacer la solicitud AJAX: " + error);
         }
     });
+    */
 }
 
