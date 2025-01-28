@@ -252,6 +252,7 @@ Route::post('/tableinstructor/cloud/delete', [CloudtableinsC::class, 'delete'])-
 
 
 //ROUTE OFICIOS
+
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
 Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');
 Route::get('/office/create', [OfficeC::class, 'create'])->name('office.create')->middleware('auth');
@@ -264,11 +265,16 @@ Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('off
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
 Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
 Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
+
+
 //ROUTE_COUSER ---- >Alfresco
+
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo
 
+
 //ROUTE_COUSER ---- >Tabla Cursos
+
 Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')->middleware('auth');
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');

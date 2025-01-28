@@ -80,55 +80,6 @@
 
                             <br>
                              
-                            <!-- Espacio adicional -->
-
-                            <x-template-tittle.tittle-caption-secon tittle="Cloud" />
-                            <!-- Contenedor principal con flexbox -->
-                            <div class="main-container">
-                                <!-- Lado izquierdo -->
-                                <div class="left-side">
-                                    <br>
-                                    <div>
-                                        <div style="display: flex; align-items: center;">
-                                            <x-template-tittle.tittle-caption-secon tittle="CV (Max 1)" />
-                                            <label for="file_cv_entrada" id="label_cv_entrada"
-                                                style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                                <i class="fa fa-arrow-up" id="icon_cv_entrada"
-                                                    style="margin-right: 5px;"></i>
-                                                Cargar
-                                            </label>
-                                            <input type="file" id="file_cv_entrada" style="display: none;">
-                                        </div>
-
-                                        <div id="container_cv_entrada_vacio" class="rectangulo">
-                                            Sin contenido
-                                        </div>
-                                        <div id="container_cv_entrada"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Lado derecho -->
-                                <div class="right-side">
-                                    <br>
-                                    <div>
-                                        <div style="display: flex; align-items: center;">
-                                            <x-template-tittle.tittle-caption-secon tittle="Constancia (Max 1)" />
-                                            <label for="file_cons_entrada" id="label_cons_entrada"
-                                                style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                                <i class="fa fa-arrow-up" id="icon_cons_entrada"
-                                                    style="margin-right: 5px;"></i>
-                                                Cargar
-                                            </label>
-                                            <input type="file" id="file_cons_entrada" style="display: none;">
-                                        </div>
-                                        <div id="container_cons_entrada_vacio" class="rectangulo">
-                                            Sin contenido
-                                        </div>
-                                        <div id="container_cons_entrada"></div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <x-template-button.button-form-footer routeBack="{{ route('tableinstructor.list') }}" />
                         </form>
                     </div>

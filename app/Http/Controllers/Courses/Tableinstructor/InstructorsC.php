@@ -133,43 +133,48 @@ class InstructorsC extends Controller
 
     //BUSQUEDA DE CURP
     public function dataCurp(Request $request)
-    {
-        try {
-            $request->validate([
-                'curp' => 'required|string|size:18',
-            ]);
-    
-            $instructorM = new InstructorM();
-    
-            $centralCurp = $instructorM->centralCurp($request->curp);
-            $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
-            $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
-    
-            $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
-    
-            if (empty($resultados)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No se encontraron resultados para la CURP proporcionada.',
-                    'value' => null,
-                ], 200);
-            }
-    
-            return response()->json([
-                'status' => true,
-                'value' => $resultados,
-                'message' => 'Datos encontrados correctamente',
-            ], 200);
-    
-        } catch (\Exception $e) {
-            \Log::error('Error en dataCurp: ' . $e->getMessage());
+{
+    try {
+        \Log::info('Recibiendo CURP: ' . $request->curp);
+        $request->validate([
+            'curp' => 'required|string|size:18',
+        ]);
+
+        $instructorM = new InstructorM();
+
+        \Log::info('Buscando datos en centralCurp...');
+        $centralCurp = $instructorM->centralCurp($request->curp);
+
+        \Log::info('Buscando datos en buscarEmpleadoHRAES...');
+        $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
+
+        \Log::info('Buscando datos en buscarEmpleadoTransferidos...');
+        $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
+
+        $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
+
+        if (empty($resultados)) {
+            \Log::info('No se encontraron resultados para el CURP.');
             return response()->json([
                 'status' => false,
-                'message' => 'Error en el servidor: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'No se encontraron resultados para la CURP proporcionada.',
+                'value' => null,
+            ], 200);
         }
-    }
-    
-}
-   
 
+        \Log::info('Datos encontrados: ' . json_encode($resultados));
+        return response()->json([
+            'status' => true,
+            'value' => $resultados,
+            'message' => 'Datos encontrados correctamente',
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Error en dataCurp: ' . $e->getMessage());
+        return response()->json([
+            'status' => false,
+            'message' => 'Error en el servidor: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+}

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class TblcoursesM extends Model
 {
-    protected $table = 'capacitacion.tbl_cursos';
+    protected $table = 'administration.users';
     protected $primaryKey = 'id_tbl_cursos';
     public $timestamps = false;
 
