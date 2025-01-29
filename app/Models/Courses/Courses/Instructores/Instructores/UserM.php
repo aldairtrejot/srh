@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 
-class TblInstructorM extends Model
+class UserM extends Model
 {
     use HasFactory;
 

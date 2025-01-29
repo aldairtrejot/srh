@@ -41,7 +41,7 @@
                     $('#remitente_nombre').text(item._nombre);
                     $('#remitente_primer_apellido').text(item._primer_apellido);
                     $('#remitente_segundo_apellido').text(item._segundo_apellido);
-                    $('#remitente_rfc').text(item._rfc || 'N/A');
+                    $('#remitente_rfc').text(item._rfc);
                     $('#id_cat_tipo_schema').val(item.id_cat_tipo_schema);
                     $('#id_tbl_empleados_hraes').val(item.id_tbl_empleados_hraes);
     

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Courses\Tableinstructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
+use App\Models\Courses\Courses\Instructores\Instructores\UserM;
+use App\Models\Courses\Courses\Instructores\Instructores\TblinstructoresM;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -16,61 +18,42 @@ class InstructorsC extends Controller
         $tableInstructors = InstructorM::all();
         return view('courses.tableinstructor.list', compact('tableInstructors'));
     }
-
     public function save(Request $request)
     {
-        $instructorM = new InstructorM();
         $now = Carbon::now(); // Fecha actual
     
-        if (!$request->id_tbl_cursos) {
-            // Crear nuevo curso
-            $nuevoInstructor = 'TblInstructorM'::create([
-                'id_cat_tipo_cursos' => $request->id_cat_tipo_cursos,
-                'id_cat_coordinacion' => $request->id_cat_coordinacion,
-                'id_cat_nombre_accion' => $request->id_cat_nombre_accion,
-                'id_cat_programa_institucional' => $request->id_cat_programa_institucional,
-                'id_cat_estatuto_organico' => $request->id_cat_estatuto_organico,
-                'programa_proyecto' => strtoupper($request->programa_proyecto),
-                'id_cat_beneficio' => $request->id_cat_beneficio,
-                'id_cat_organizacion' => $request->id_cat_organizacion,
-                'id_cat_tipo_accion' => $request->id_cat_tipo_accion,
-                'id_cat_modalidad' => $request->id_cat_modalidad,
-                'id_cat_categoria' => $request->id_cat_categoria,
-                'costo' => $request->costo,
-                'iva' => $request->iva,
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'horas' => $request->horas,
+        if (!$request->id) {
+            // Crear nuevo usuario
+            $nuevoUsuario = UserM::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'email_verified_at' => $request->email_verified_at,
+                'password' => bcrypt($request->password), // Encriptar contraseña
+                'remember_token' => $request->remember_token,
+                'id_tbl_empleados_central' => $request->id_tbl_empleados_central,
+                'id_tbl_empleados_hraes' => $request->id_tbl_empleados_hraes,
+                'id_tbl_empleados_transferidos' => $request->id_tbl_empleados_transferidos,
+                'id_tbl_empleados_aux' => $request->id_tbl_empleados_aux,
+                'es_por_nomina' => $request->es_por_nomina,
                 'estatus' => $request->estatus ?? false,
-                'id_usuario_sistema' => Auth::user()->id,
+                'id_usuario' => Auth::id(), // Tomar el usuario autenticado
                 'fecha_usuario' => $now,
+                'id_cat_tipo_schema' => $request->id_cat_tipo_schema,
             ]);
-
-
-
-       /* $instructorM = new InstructorM();
-        $messagesC = new MessagesC();
-        $now = Carbon::now();
-
-        $request->validate(['estatus' => 'required|boolean',]);
-
-        $instructorM::create([
-            'estatus' => $request->estatus,
-            'id_usuario_sistema' => Auth::id(),
-            'fecha_usuario' => $now,
-        ]);
-
-        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor guardado exitosamente.');*/
+    
+            // Obtener ID del usuario creado
+            $idUsuario = $nuevoUsuario->id; 
+    
+            // Crear relación en la tabla de instructores
+            TblinstructoresM::create([
+                'id_usuario_sistema' => Auth::id(),
+                'id_usuario_empleado' => $idUsuario,
+                'id_tbl_instructores' => $request->id_tbl_instructores,
+                'fecha_usuario' => $now
+            ]);
+        }
     }
-}
-
-    public function create()
-    {
-        $item = new InstructorM();
-        $item->estatus = '';
-        return view('courses.tableinstructor.form', compact('item'));
-    }
-
+    
     public function searchTable(Request $request)
     {
         try {
