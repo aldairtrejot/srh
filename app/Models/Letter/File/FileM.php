@@ -55,6 +55,7 @@ class FileM extends Model
                         correspondencia.tbl_correspondencia.num_turno_sistema 
                 END AS num_documento
             '),
+                DB::raw('correspondencia.tbl_expediente.asunto AS asunto'),
                 DB::raw('correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema'),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
@@ -79,8 +80,7 @@ class FileM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.asunto)) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
 
