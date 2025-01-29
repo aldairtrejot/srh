@@ -56,6 +56,7 @@ class InsideM extends Model
                         correspondencia.tbl_correspondencia.num_turno_sistema 
                 END AS num_documento
             '),
+                DB::raw("UPPER(correspondencia.tbl_interno.asunto) AS asunto"),
                 DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 DB::raw("correspondencia.cat_anio.descripcion AS anio"),
@@ -79,8 +80,7 @@ class InsideM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_interno.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_interno.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_interno.asunto)) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
 
