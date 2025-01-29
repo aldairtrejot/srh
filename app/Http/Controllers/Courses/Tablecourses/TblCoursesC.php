@@ -121,6 +121,7 @@ class TblCoursesC extends Controller
     {
         $courseinstructorM = new CourseinstructorM();
         $now = Carbon::now(); // Fecha actual
+        $messagesC = new MessagesC();
     
         if (!$request->id_tbl_cursos) {
             // Crear nuevo curso
@@ -195,7 +196,7 @@ class TblCoursesC extends Controller
             }
         }
     
-        return redirect()->route('tablecourses.list')->with('success', 'Curso guardado exitosamente.');
+        return $messagesC->messageSuccessRedirect('tablecourses.list', 'Curso guardado exitosamente.');
     }
     public function edit(string $id)
     {
