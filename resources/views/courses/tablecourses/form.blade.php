@@ -121,4 +121,7 @@
                  </div>
              </div>
          </div>
+
+         <script src="{{ asset('assets/js/app/courses/tablecourses/validate.js') }}"></script>
+
      </x-template-app.app-layout>
