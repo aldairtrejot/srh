@@ -25,30 +25,35 @@ class Courses9C extends Controller
         $coursestipoacM = new CoursestipoacM();
         $messagesC = new MessagesC();
         $now = Carbon::now(); // Usando Carbon para la fecha actual
-        // Validar los datos del formulario
-        $request->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
-
-        // Crear usuario
-        $coursestipoacM::create([
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false, // Manejar estatus como false si es null
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now,
-        ]);
-
-        // Redirigir a la lista de cursos con un mensaje de éxito
-        //return redirect()->route('coursestipoac.list')->with('success', 'Curso guardado exitosamente.');
+    
+        if (!$request->id_cat_tipo_accion) {
+            // Crear nuevo curso
+            $nuevoCurso = $coursestipoacM::create([
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                
+            ]);
+        } else {
+            // Modificar curso existente
+            $data = [
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                
+            ];
+    
+            $coursestipoacM::where('id_cat_tipo_accion', $request->id_cat_tipo_accion)->update($data);
+        }
+    
+        // Redirigir con mensaje de éxito
         return $messagesC->messageSuccessRedirect('coursestipoac.list', 'Curso guardado exitosamente.');
     }
-
     public function create()
     {
         $item = new CoursestipoacM();
-        $item->id_cat_tipo_accion = '';  // Valor por defecto
-        $item->descripcion = '';    // Valor por defecto
-        $item->estatus = '';     
 
         return view('courses.coursestipoac.form', compact('item'));
     }
@@ -79,27 +84,12 @@ class Courses9C extends Controller
             }
             
     }
-    public function edit(Request $request, $id)
+    public function edit(string $id)
     {
-        $course = CoursestipoacM ::find($id);
-        $messagesC = new MessagesC();
+        $coursestipoacM = new CoursestipoacM();
+        $item = $coursestipoacM->edit($id);
 
-        if ($request->isMethod('post')) {
-            // Validar los datos del formulario
-            $request->validate([
-                'descripcion' => 'required|string|max:255',
-            ]);
-
-            // Actualizar los datos del curso
-            $course->descripcion = $request->input('descripcion');
-            $course->estatus = $request->input('estatus') ? true : false;
-            $course->save();
-
-            // Redirigir a la lista de cursos con un mensaje de éxito
-            //return redirect()->route('coursestipoac.list')->with('success', 'Curso actualizado exitosamente.');
-            return $messagesC->messageSuccessRedirect('coursestipoac.list', 'Curso actualizado exitosamente.');
-        }
-
-        return view('courses.coursestipoac.edit', compact('course'));
+        return view('courses.coursestipoac.form', compact('item'));
+       
     }
 }

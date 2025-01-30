@@ -23,6 +23,8 @@
 
                        <form action="{{ route('coursesprograma.save') }}" method="POST" class="form-sample">
                         @csrf
+                        <x-template-form.template-form-input-hidden name="id_cat_programa_institucional"
+                        value="{{ optional($item)->id_cat_programa_institucional ?? '' }}" />
 
                         <x-template-form.template-form-input-required label="Descripcion" type="textarea"
                             name="descripcion" placeholder="Descripcion"
