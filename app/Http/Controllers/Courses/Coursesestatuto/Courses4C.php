@@ -25,32 +25,35 @@ class Courses4C extends Controller
         $coursesestatutoM = new CoursesestatutoM();
         $messagesC = new MessagesC();
         $now = Carbon::now(); // Usando Carbon para la fecha actual
-        // Validar los datos del formulario
-        $request->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
-
-        // Crear usuario
-        $coursesestatutoM::create([
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false, // Manejar estatus como false si es null
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now, 
-            'nombre' => $request->nombre,
-        ]);
-
-        // Redirigir a la lista de cursos con un mensaje de éxito
-        //return redirect()->route('coursesestatuto.list')->with('success', 'Curso guardado exitosamente.');
+    
+        if (!$request->id_cat_estatuto_organico) {
+            // Crear nuevo curso
+            $nuevoCurso = $coursesestatutoM::create([
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                'nombre' => $request->nombre,
+            ]);
+        } else {
+            // Modificar curso existente
+            $data = [
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                'nombre' => $request->nombre,
+            ];
+    
+            $coursesestatutoM::where('id_cat_estatuto_organico', $request->id_cat_estatuto_organico)->update($data);
+        }
+    
+        // Redirigir con mensaje de éxito
         return $messagesC->messageSuccessRedirect('coursesestatuto.list', 'Curso guardado exitosamente.');
     }
-
     public function create()
     {
         $item = new CoursesestatutoM();
-        $item->id_cat_estatuto_organico = '';  // Valor por defecto
-        $item->descripcion = '';    // Valor por defecto
-        $item->estatus = ''; 
-        $item->nombre = '';    
 
         return view('courses.coursesestatuto.form', compact('item'));
     }
@@ -82,27 +85,13 @@ class Courses4C extends Controller
             }
             
     }
-    public function edit(Request $request, $id)
+    public function edit(string $id)
     {
-        $course = CoursesestatutoM ::find($id);
-        $messagesC = new MessagesC();
-        if ($request->isMethod('post')) {
-            // Validar los datos del formulario
-            $request->validate([
-                'descripcion' => 'required|string|max:255',
-            ]);
+        $coursesestatutoM = new CoursesestatutoM();
+        $item = $coursesestatutoM->edit($id);
 
-            // Actualizar los datos del curso
-            $course->descripcion = $request->input('descripcion');
-            $course->estatus = $request->input('estatus') ? true : false;
-            $course->nombre = $request->input('nombre');
-            $course->save();
-            return $messagesC->messageSuccessRedirect('coursesestatuto.list', 'Curso actualizado exitosamente.');
-            // Redirigir a la lista de cursos con un mensaje de éxito
-            //return redirect()->route('coursesestatuto.list')->with('success', 'Curso actualizado exitosamente.');
-        }
-
-        return view('courses.coursesestatuto.edit', compact('course'));
+        return view('courses.coursesestatuto.form', compact('item'));
+       
     }
     
 }

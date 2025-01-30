@@ -20,35 +20,39 @@ class Courses2C extends Controller
     return view('courses/coursescategoria/list', compact('coursescategoria'));
 }
 
-    public function save(Request $request)
-    {
-        $coursescategoriaM = new CoursescategoriaM();
-        $messagesC = new MessagesC();
-        $now = Carbon::now(); // Usando Carbon para la fecha actual
-        // Validar los datos del formulario
-        $request->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
+public function save(Request $request)
+{
+    $coursescategoriaM = new CoursescategoriaM();
+    $messagesC = new MessagesC();
+    $now = Carbon::now(); // Usando Carbon para la fecha actual
 
-        // Crear usuario
-        $coursescategoriaM::create([
+    if (!$request->id_cat_categoria) {
+        // Crear nuevo curso
+        $nuevoCurso = $coursescategoriaM::create([
             'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false, // Manejar estatus como false si es null 
+            'estatus' => $request->estatus ?? false,
             'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now, 
+            'fecha_usuario' => $now,
         ]);
+    } else {
+        // Modificar curso existente
+        $data = [
+            'descripcion' => $request->descripcion,
+            'estatus' => $request->estatus ?? false,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
 
-        // Redirigir a la lista de cursos con un mensaje de éxito
-        //return redirect()->route('coursescategoria.list')->with('success', 'Curso guardado exitosamente.');
-        return $messagesC->messageSuccessRedirect('coursescategoria.list', 'Curso guardado exitosamente.');
+        $coursescategoriaM::where('id_cat_categoria', $request->id_cat_categoria)->update($data);
     }
+
+    // Redirigir con mensaje de éxito
+    return $messagesC->messageSuccessRedirect('coursescategoria.list', 'Curso guardado exitosamente.');
+}
 
     public function create()
     {
-        $item = new CoursescategoriaM();
-        $item->id_cat_categoria = '';  // Set an empty value or default if needed
-        $item->descripcion = '';    // Set an empty value or default if needed
-        $item->estatus = '';     
+        $item = new CoursescategoriaM();  
 
         return view('courses.coursescategoria.form', compact('item'));
     }
@@ -80,27 +84,12 @@ class Courses2C extends Controller
             }
             
     }
-    public function edit(Request $request, $id)
+    public function edit(string $id)
     {
-        $course = CoursescategoriaM::find($id);
-        $messagesC = new MessagesC();
+        $coursescategoriaM = new CoursescategoriaM();
+        $item = $coursescategoriaM ->edit($id);
 
-        if ($request->isMethod('post')) {
-            // Validar los datos del formulario
-            $request->validate([
-                'descripcion' => 'required|string|max:255',
-            ]);
-
-            // Actualizar los datos del curso
-            $course->descripcion = $request->input('descripcion');
-            $course->estatus = $request->input('estatus') ? true : false;
-            $course->save();
-
-            // Redirigir a la lista de cursos con un mensaje de éxito
-            //return redirect()->route('coursescategoria.list')->with('success', 'Curso actualizado exitosamente.');
-            return $messagesC->messageSuccessRedirect('coursescategoria.list', 'Curso actualizado exitosamente.');
-        }
-
-        return view('courses.coursescategoria.edit', compact('course'));
+        return view('courses.coursescategoria.form', compact('item'));
+       
     }
 }

@@ -23,6 +23,9 @@
 
                        <form action="{{ route('coursescategoria.save') }}" method="POST" class="form-sample">
                         @csrf
+                        <x-template-form.template-form-input-hidden name="id_cat_categoria"
+                                    value="{{ optional($item)->id_cat_categoria ?? '' }}" />
+
                         <x-template-form.template-form-input-required label="Descripcion" type="text"
                             name="descripcion" placeholder="Descripcion"
                             grid="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" autocomplete=""
