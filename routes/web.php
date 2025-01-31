@@ -82,8 +82,6 @@ Route::post('/letter/cloud/data', [CloudLetterC::class, 'cloudData'])->name('let
 Route::post('/letter/cloud/anexos', [CloudLetterC::class, 'cloudAnexos'])->name('letter.cloud.anexos')->middleware('auth');
 Route::post('/letter/cloud/upload', [CloudLetterC::class, 'upload'])->name('letter.cloud.upload')->middleware('auth');
 Route::post('/letter/cloud/delete', [CloudLetterC::class, 'delete'])->name('letter.cloud.delete')->middleware('auth');
-// --- -- --- - -- - -- --
-
 
 //ROUTE INSIDE
 Route::get('/inside/list', [InsideC::class, 'list'])->name('inside.list')->middleware('auth');

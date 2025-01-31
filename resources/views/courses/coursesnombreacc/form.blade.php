@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Catalogo de cursos" caption="Modalidad" />
+                        <x-template-tittle.tittle-header tittle="Catalogo de cursos" caption="Nombre Acción" />
                     </div>
                 </div>
             </div>
@@ -21,7 +21,7 @@
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('coursesnombreacc.save') }}" method="POST" class="form-sample">
+                       <form action="{{ route('coursesnombreacc.save') }}" method="POST" class="form-sample" id="myForm">
                         @csrf
                         <x-template-form.template-form-input-hidden name="id_cat_nombre_accion"
                         value="{{ optional($item)->id_cat_nombre_accion ?? '' }}" />
@@ -48,4 +48,5 @@
             </div>
         </div>
     </div>
+    <script src="/srh/public/assets/js/app/courses/coursesnombreacc/validate.js"></script>
 </x-template-app.app-layout>

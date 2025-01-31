@@ -21,7 +21,7 @@
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('coursesprograma.save') }}" method="POST" class="form-sample">
+                       <form action="{{ route('coursesprograma.save') }}" method="POST" class="form-sample" id="myForm">
                         @csrf
                         <x-template-form.template-form-input-hidden name="id_cat_programa_institucional"
                         value="{{ optional($item)->id_cat_programa_institucional ?? '' }}" />
@@ -48,4 +48,5 @@
             </div>
         </div>
     </div>
+    <script src="/srh/public/assets/js/app/courses/coursesprograma/validate.js"></script>
 </x-template-app.app-layout>
