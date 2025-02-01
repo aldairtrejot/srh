@@ -18,17 +18,13 @@ class CommunicationC extends Controller
     // La función retorna los valores para mostrar la tabla
     public function table(Request $request)
     {
-        
         try {
             // Declaración de variables
             $communicationM = new CommunicationM();
             $iterator = $request->iteradorAux; // OFSET valor de paginador
             $searchValue = $request->searchValue; // Valor de búsqueda
-            Log::info('value-----');
             $value = $communicationM->list($iterator, $searchValue); // Llamamos al método list() con los parámetros necesarios
 
-            // Responder con los resultados
-            Log::info('This is an informational message' . $value);
             return response()->json([
                 'value' => $value,
                 'status' => true,
