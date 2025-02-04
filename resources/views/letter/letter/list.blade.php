@@ -51,16 +51,13 @@
                                         No. Documento
                                     </th>
                                     <th>
-                                    No. Turno
-                                    </th>
-                                    <th>
                                         Estatus
                                     </th>
                                     <th>
                                         Área
                                     </th>
                                     <th>
-                                        Fecha Doc.
+                                        Asunto
                                     </th>
                                     <th>
                                         Fecha de fin

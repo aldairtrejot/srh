@@ -138,7 +138,6 @@ function sendFile(file, id_entrada_salida, esOficio) {
 
 //La funcion elimina un documento
 function deleteDocument(uid) {
-
     $('#modalBackdrop').fadeIn();//Iniciar ventana modal
 
     $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar
