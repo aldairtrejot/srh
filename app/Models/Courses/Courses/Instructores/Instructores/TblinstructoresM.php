@@ -22,17 +22,4 @@ class TblinstructoresM extends Model{
         'nombre_constancia',
 
     ];
-
-    public function create ($id)
-    {
-        // Realizar la consulta utilizando el query builder de Laravel para editar
-        $relinstructor = DB::table('capacitacion.tbl_instructores')
-            ->where('id_usuario_sistema', $id)
-            ->value('id_usuario_empleado');
-
-        // Si no se encuentra información, retornamos null
-        return $relinstructor ?: null;
-    }
-
-
 }

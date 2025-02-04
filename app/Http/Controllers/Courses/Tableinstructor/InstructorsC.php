@@ -160,4 +160,13 @@ class InstructorsC extends Controller
         ], 500);
     }
 }
+
+
+public function create()
+    {
+        $item = new InstructorM();
+        dd($item); // Depurar la variable
+        return view('courses.tableinstructor.form', compact('item'));
+    }
+
 }

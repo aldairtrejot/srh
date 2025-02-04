@@ -11,10 +11,14 @@ class InstructorM extends Model
     protected $primaryKey = 'id_tbl_instructores';
     public $timestamps = false;
     protected $fillable = [
-        'id_usuario_empleado',
         'estatus',
         'id_usuario_sistema',
         'fecha_usuario',
+        'id_usuario_empleado',
+        'uid_constancias',
+        'uid_cv',
+        'nombre_cv',
+        'nombre_constancia',
     ];
 
     public function list($iterator, $searchValue)
