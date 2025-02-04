@@ -37,10 +37,10 @@ function generateFileHTML(boolx, template) {
                     <button onclick="seeDocumentUid('${template.uid}')" style="background: #10312b" class="custom-button" title="Ver">
                         <i style="color: white" class="fa fa-eye"></i>
                     </button> 
-                    <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
-                        <i style="color: white" class="fa fa-download"></i>
-                    </button>
                     ${boolx ? `
+                            <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
+                                <i style="color: white" class="fa fa-download"></i>
+                            </button>
                             <button onclick="deleteDocument('${template.uid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
                                 <i style="color: white" class="fa fa-trash"></i>
                             </button>
@@ -107,7 +107,7 @@ function download(uid) {
 //Se utiliza la funcion para ver archivos de alfresco
 function seeDocumentUid(uid) {
 
-    showSpinner();// Inicio de spinner
+    //showSpinner();// Inicio de spinner
     // Crear una URL para la descarga
     let url = URL_DEFAULT.concat('/cloud/see');
 
