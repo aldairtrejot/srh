@@ -107,7 +107,7 @@ function download(uid) {
 //Se utiliza la funcion para ver archivos de alfresco
 function seeDocumentUid(uid) {
 
-    showSpinner();// Inicio de spinner
+    //showSpinner();// Inicio de spinner
     // Crear una URL para la descarga
     let url = URL_DEFAULT.concat('/cloud/see');
 
