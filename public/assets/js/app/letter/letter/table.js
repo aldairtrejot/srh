@@ -90,10 +90,10 @@ function searchInit() {
                         </td>
                         <td>${object.folio_gestion}</td>
                         <td>${object.num_documento}</td>
-                        <td>${object.num_turno_sistema}</td>
+
                         <td>${object.estatus}</td>
                         <td>${object.area}</td>
-                        <td>${object.fecha_documento}</td>
+                        <td>${object.asunto}</td>
                         <td>${object.fecha_fin}</td>
                     </tr>
                 `;
