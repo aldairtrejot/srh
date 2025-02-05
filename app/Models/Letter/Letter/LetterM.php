@@ -299,12 +299,10 @@ class LetterM extends Model
     {
         // Realizar la consulta usando DB::table
         $maxNumTurno = DB::table('correspondencia.tbl_correspondencia')
-            ->selectRaw("
-                MAX(CAST(REGEXP_REPLACE(num_turno_sistema, '^[^/]+/([0-9]{5})/.*$', '\\1') AS INTEGER)) AS max_num_turno
-            ")
-            ->whereRaw("num_turno_sistema ~ '/[0-9]{5}/'")
+            ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
+            ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-
+    
         return $maxNumTurno;
     }
 }
