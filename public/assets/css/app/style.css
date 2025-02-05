@@ -50179,3 +50179,10 @@ select:disabled {
     margin: 0;
 }
 
+/* Estilo de los botones al pasar el cursor */
+.btn-hover-enlarge:hover {
+    transform: scale(1.2);
+    /* Aumenta el tamaño del botón al 120% */
+    transition: transform 0.3s ease-in-out;
+    /* Suaviza el cambio */
+}

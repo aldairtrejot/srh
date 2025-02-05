@@ -15,9 +15,51 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_correspondencia_interno) ? 'Modificar' : 'Agregar ' }} Comunicado"
-                            route="{{ route('communication.list') }}" />
+
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <div>
+                                <h2 class="card-title" style="margin-bottom: 0;">
+                                    {{ isset($item->id_tbl_correspondencia_interno) ? 'Modificar' : 'Agregar ' }}
+                                    Comunicado
+                                </h2>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <!-- Botón 1 -->
+                                <button class="btn btn-hover-enlarge"
+                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Asignar Consecutivo">
+                                    <i class="fa fa-refresh"></i>
+                                </button>
+
+                                <!-- Botón 2 -->
+                                <button class="btn btn-hover-enlarge"
+                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Solicitante">
+                                    <i class="fa fa-user-plus"></i>
+                                </button>
+
+                                <!-- Botón 3 -->
+                                <button class="btn btn-hover-enlarge"
+                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Destinatario">
+                                    <i class="fa fa-user-plus"></i>
+                                </button>
+
+                                <button class="btn btn-hover-enlarge"
+                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Tema">
+                                    <i class="fa fa-file-text"></i>
+                                </button>
+
+                                <!-- Botón de Regreso (Ancla) alineado a la derecha -->
+                                <a href="{{ route('communication.list') }}" class="btn btn-hover-enlarge"
+                                    style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none; display: inline-flex; justify-content: center; align-items: center;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
+                                    <i class="fas fa-arrow-left"></i>
+                                </a>
+                            </div>
+                        </div>
+
                         <div>
                             <form id="myForm" action="{{ route('file.save') }}" method="POST" class="form-sample">
                                 @csrf
