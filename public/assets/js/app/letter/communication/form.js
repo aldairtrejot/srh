@@ -13,8 +13,12 @@ $(document).ready(function () {
 function setData() {
     let fecha_captura = $('#fecha_captura').val();// Guardar valores de input
     $('#_labFechaCaptura').text(fecha_captura); // Asignar valores a label
-    let fecha_captura = $('#fecha_captura').val();// Guardar valores de input
-    $('#_labFechaCaptura').text(fecha_captura); // Asignar valores a label
+
+    let nameUser = $('#nameUser').val();// Guardar valores de input
+    $('#_labUsuario').text(nameUser); // Asignar valores a label
+
+    let nomArea = $('#nomArea').val();// Guardar valores de input
+    $('#_labNomArea').text(nomArea); // Asignar valores a label
 }
 
 

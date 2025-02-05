@@ -71,8 +71,9 @@
                                 <x-template-form.template-form-input-hidden name="fecha_captura"
                                     value="{{ optional($item)->fecha_captura ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="nameUser"
-                                    value="{{ optional($item)->nameUser ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="nameUser" value="{{ $nameUser }}" />
+
+                                <x-template-form.template-form-input-hidden name="nomArea" value="{{ $nomArea }}" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
