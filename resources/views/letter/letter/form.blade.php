@@ -102,7 +102,6 @@
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->fecha_documento ?? '' }}" />
 
-
                                 </div>
 
                                 <div class="row">

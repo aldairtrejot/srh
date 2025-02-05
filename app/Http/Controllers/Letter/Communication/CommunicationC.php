@@ -22,6 +22,9 @@ class CommunicationC extends Controller
         $item = new CommunicationM();
         $collectionEntidadM = new CollectionEntidadM();
 
+        //Definicion de variable de inicializacion
+        $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
+
         $selectEntidad = $collectionEntidadM->list();
         $selectEntidadEdit = [];
         return view('letter/communication/form', compact('selectEntidadEdit', 'selectEntidad', 'item'));
