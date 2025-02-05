@@ -7,8 +7,10 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de emición') ||
         isFieldEmpty($('#fecha_fin').val(), 'Fecha de aplicación') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
+        isFieldEmpty($('#destinatario').val(), 'Destinatario') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
         isExceedingLength($('#asunto').val(), 'Asunto', 190) ||
+        isExceedingLength($('#destinatario').val(), 'Destinatario', 190) ||
         isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
@@ -30,17 +32,19 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
     }
 
+    /*
     // Validar que la fecha de inicio no sea menor a la fecha de fin
     if (fecha_inicio > fecha_fin) {
         notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
         event.preventDefault();
         return; // Detener la ejecución aquí
     }
+        */
 
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
 
-
+/*
 //Validacion cuando se cambia el evento de fecha
 $('#fecha_inicio').change(function () {
     validateDate();
@@ -60,4 +64,4 @@ function validateDate() {
             notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
         }
     }
-}
+}*/

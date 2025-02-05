@@ -109,6 +109,11 @@
                                         value="{{ optional($item)->asunto ?: '' }}" />
 
                                     <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Destinatario"
+                                        name="destinatario" placeholder="Destinatario"
+                                        value="{{ optional($item)->destinatario ?: '' }}" />
+
+                                    <x-template-form.template-form-input-text-area
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones"
                                         name="observaciones" placeholder="OBSERVACIONES"
                                         value="{{ optional($item)->observaciones ?: '' }}" />
