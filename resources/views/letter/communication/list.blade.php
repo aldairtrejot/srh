@@ -15,6 +15,10 @@
                 </div>
             </div>
 
+
+            <style>
+                
+            </style>
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -43,16 +47,22 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
+                                        No. Oficio
                                     </th>
                                     <th>
-                                        No. Turno Asoc.
+                                        Tema
                                     </th>
                                     <th>
-                                        Año
+                                        Área
                                     </th>
                                     <th>
-                                        Asunto
+                                        Fecha
+                                    </th>
+                                    <th>
+                                        Oficio
+                                    </th>
+                                    <th>
+                                        Acuse
                                     </th>
                                 </tr>
                             </thead>

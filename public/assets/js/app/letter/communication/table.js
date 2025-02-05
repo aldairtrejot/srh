@@ -33,66 +33,69 @@ function searchInit() {
 
                     // Generar el HTML con template literals
                     const rowHTML = `
-                        <tr>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
-                                        <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${finalUrl}">
-                                            <span style="background:#1D5B3B" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-pencil item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Modificar
-                                        </a>
-                                        </a>
-                                         <a class="dropdown-item" href="${finalCloud}">
-                                            <span style="background:#8a6f19" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-cloud item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Cloud
-                                        </a>
-                                         <a class="dropdown-item" href="${urlReport}">
-                                            <span style="background:#707070" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-print item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Reporte
-                                        </a>
-                                        <!--
-                                        <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
-                                            <span style="background:#003366" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-user item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Usuario
-                                        </a>
-                                        <a class="dropdown-item" style="pointer-events: none; color: grey;">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
-                                        </a>
-                                        -->
-                                    </div>
+                    <tr>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
+                                    <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
+                                    <h6 class="dropdown-header">Acciones</h6>
+                                    <a class="dropdown-item" href="${finalUrl}">
+                                        <span style="background:#1D5B3B" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-pencil item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Modificar
+                                    </a>
                                 </div>
-                            </td>
-                            <td>${object.num_oficio}</td>
-                            <td>${object.fecha}</td>
-                            <td>${object.tema}</td>
-                            <td>${object.area}</td>
-                        </tr>
-                    `;
+                            </div>
+                        </td>
+                        <td>${object.num_oficio}</td>
+                        <td>${object.tema}</td>
+                        <td>${object.area}</td>
+                        <td>${object.fecha}</td>
+                        <td class="button-column">
+                            ${object.uuid_oficio == null ? `
+                                <button onclick="download('${object.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                        <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                                    </button>
+                            ` : `
+                                <div class="button-container">
+                                    <button onclick="download('${object.id}')" style="background: #10312b" class="custom-button" title="Ver">
+                                        <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                                    </button>
+                                    <button onclick="download('${object.id}')" class="custom-button" title="Descargar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                                    </button>
+                                    <button onclick="download('${object.id}')" style="background: #6A1B3D" class="custom-button" title="Descargar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            `}
+                        </td>
+                        <td class="button-column">
+                            ${object.uuid_acuse == null ? `
+                                <button onclick="download('${object.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                        <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                                    </button>
+                            ` : `
+                                <div class="button-container">
+                                    <button onclick="download('${object.id}')" style="background: #10312b" class="custom-button" title="Ver">
+                                        <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                                    </button>
+                                    <button onclick="download('${object.id}')" class="custom-button" title="Descargar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                                    </button>
+                                    <button onclick="download('${object.id}')" style="background: #6A1B3D" class="custom-button" title="Descargar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            `}
+                        </td>
+                    </tr>
+                `;
                     tbody.append(rowHTML);
                 });
                 emptyContent = false;

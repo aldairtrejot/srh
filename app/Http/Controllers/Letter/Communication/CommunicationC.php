@@ -21,8 +21,9 @@ class CommunicationC extends Controller
         try {
             // Declaración de variables
             $communicationM = new CommunicationM();
-            $iterator = $request->iteradorAux; // OFSET valor de paginador
+            $iterator = $request->iterator; // OFSET valor de paginador
             $searchValue = $request->searchValue; // Valor de búsqueda
+            Log::info($iterator);
             $value = $communicationM->list($iterator, $searchValue); // Llamamos al método list() con los parámetros necesarios
 
             return response()->json([

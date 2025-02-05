@@ -50117,5 +50117,65 @@ select:disabled {
     transform: translateX(20px);
 }
 
+/* Clase para centrar el botón cuando solo hay uno */
+.centered-button {
+    display: block;
+    margin: 0 auto;
+}
 
+/* Clase para el contenedor de los botones cuando hay varios (sin espacio entre los botones) */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 0px;
+    /* Sin espacio entre los botones */
+}
+
+/* Estilos adicionales para los botones */
+.custom-button {
+    background: #707070;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.custom-button:hover {
+    background: #555555;
+}
+
+.button-column {
+    text-align: center;
+}
+
+/* Establece un tamaño fijo para el botón */
+.custom-button {
+    background: #707070;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    /* Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
+    width: 30px;
+    /* Tamaño fijo del botón */
+    height: 30px;
+    /* Tamaño fijo del botón */
+    padding: 0;
+    /* Elimina el padding para evitar que se haga más grande */
+}
+
+/* Opcional: Para cuando el botón es el único y tiene un tamaño más consistente */
+.centered-button {
+    margin: 0 auto;
+}
+
+/* Icono dentro del botón */
+.custom-button i {
+    font-size: 1.2rem;
+    /* Ajusta el tamaño del icono */
+    margin: 0;
+}
 
