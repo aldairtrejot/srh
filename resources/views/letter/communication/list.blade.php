@@ -15,10 +15,6 @@
                 </div>
             </div>
 
-
-            <style>
-                
-            </style>
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
