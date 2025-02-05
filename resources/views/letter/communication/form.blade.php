@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Lineamientos" />
+                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Comunicados" />
                     </div>
                 </div>
             </div>
@@ -16,50 +16,34 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_expediente) ? 'Modificar' : 'Agregar ' }} Lineamientos"
-                            route="{{ route('file.list') }}" />
+                            tittle="{{ isset($item->id_tbl_correspondencia_interno) ? 'Modificar' : 'Agregar ' }} Comunicado"
+                            route="{{ route('communication.list') }}" />
                         <div>
                             <form id="myForm" action="{{ route('file.save') }}" method="POST" class="form-sample">
                                 @csrf
 
-                                <x-template-form.template-form-input-hidden name="bool_user_role"
-                                    value="{{  $letterAdminMatch }}" />
+                                <!-- item -> hidden -->
+                                <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_interno"
+                                    value="{{ optional($item)->id_tbl_correspondencia_interno ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_tbl_expediente"
-                                    value="{{ optional($item)->id_tbl_expediente ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="fecha_captura"
-                                    value="{{ optional($item)->fecha_captura ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="id_cat_anio"
-                                    value="{{ optional($item)->id_cat_anio ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="num_turno_sistema"
-                                    value="{{ optional($item)->num_turno_sistema ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="es_por_area"
-                                    value="{{ optional($item)->es_por_area ?? '' }}" />
-
-                                <!-- change -->
-                                <x-template-form.template-form-input-hidden name="id_cat_area"
-                                    value="{{ optional($item)->id_cat_area ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
-                                    value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">
                                     <div class="item">
-                                        <label class="etiqueta">No. Turno:</label>
-                                        <label id="_labNoCorrespondencia" class="valor"></label>
+                                        <label class="etiqueta">No. Oficio:</label>
+                                        <label id="_labNoOficio" class="valor"></label>
                                     </div>
                                     <div class="item">
                                         <label class="etiqueta">Fecha de captura:</label>
                                         <label id="_labFechaCaptura" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">Año:</label>
-                                        <label id="_labAño" class="valor"></label>
+                                        <label class="etiqueta">Nom. Área:</label>
+                                        <label id="_labNomArea" class="valor"></label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Usuario:</label>
+                                        <label id="_labUsuario" class="valor"></label>
                                     </div>
                                 </div>
 
@@ -67,41 +51,6 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
-                                        :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-
-                                    <x-template-form.template-form-input-required label="No. Doc" type="text"
-                                        name="num_documento_area" placeholder="NO. DOCUMENTO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
-                                        value="{{optional($item)->num_documento_area ?? '' }}" />
-                                </div>
-
-                                <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                        :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-
-                                    <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                        :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-                                </div>
-
-                                <div class="row">
-
-                                    <x-template-form.template-form-input-required label="Fecha de emición" type="date"
-                                        name="fecha_inicio" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
-                                        value="{{optional($item)->fecha_inicio ?? '' }}" />
-
-                                    <x-template-form.template-form-input-required label="Fecha de aplicación"
-                                        type="date" name="fecha_fin" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
-                                        value="{{optional($item)->fecha_fin ?? '' }}" />
-                                </div>
-
-                                <div class="row">
-
                                     <x-template-form.template-form-input-text-area
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto"
                                         name="asunto" placeholder="ASUNTO"
@@ -113,7 +62,40 @@
                                         value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
-                                <x-template-button.button-form-footer routeBack="{{ route('file.list') }}" />
+                                <div class="row">
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Tema"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Lugar"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+                                </div>
+
+                                <x-template-tittle.tittle-caption-secon
+                                    tittle="Información de destinatario y solicitante" />
+                                <div class="row">
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Solicitante"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Área / Zona"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Destinatario"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+
+                                    <x-template-form.template-form-input-required label="Cargo destinatario" type="text"
+                                        name="num_documento" placeholder="Cargo del destinatario"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" autocomplete=""
+                                        value="{{optional($item)->num_documento ?? '' }}" />
+                                </div>
+
+                                <x-template-button.button-form-footer routeBack="{{ route('communication.list') }}" />
 
                             </form>
                         </div>

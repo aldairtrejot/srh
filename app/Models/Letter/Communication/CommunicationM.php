@@ -7,6 +7,30 @@ use Illuminate\Support\Facades\DB;
 class CommunicationM extends Model
 {
 
+    protected $table = 'correspondencia.tbl_correspondencia_interno';
+    public $timestamps = false;
+    protected $primaryKey = 'id_tbl_correspondencia_interno';
+    protected $fillable = [
+        'consecutivo',
+        'fecha_asignacion',
+        'cargo_destinatario',
+        'asunto',
+        'observaciones',
+        'uuid_oficio',
+        'uuid_acuse',
+        'nombre_oficio',
+        'nombre_acuse',
+        'id_usuario',
+        'id_cat_area_interno',
+        'id_cat_solicitante',
+        'id_cat_destinatario',
+        'id_cat_tema',
+        'id_cat_entidad',
+        'estatus',
+        'id_usuario_captura',
+        'fecha_usuario_captura',
+    ];
+
     // La función lista la tabla para el inciio
     public function list($iterator, $searchValue)
     {

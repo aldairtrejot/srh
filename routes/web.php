@@ -130,7 +130,7 @@ Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middle
 //Communication
 Route::get('/communication/list', [CommunicationC::class, 'list'])->name('communication.list')->middleware('auth');
 Route::post('/communication/table', [CommunicationC::class, 'table'])->name('communication.table')->middleware('auth');
-
+Route::get('/communication/create', [CommunicationC::class, 'create'])->name('communication.create')->middleware('auth');
 
 /// GLOBAL DE CORRESPONDENCIA
 //ALFRESCO -> Descargar archivo
