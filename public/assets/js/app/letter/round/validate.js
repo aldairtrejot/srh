@@ -9,7 +9,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#destinatario').val(), 'Destinatario') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 190) ||
+        isExceedingLength($('#asunto').val(), 'Asunto', 300) ||
         isExceedingLength($('#destinatario').val(), 'Destinatario', 190) ||
         isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
         event.preventDefault();  // Evita el envío del formulario
