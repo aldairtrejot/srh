@@ -93,42 +93,52 @@ class InstructorM extends Model
     {
         return DB::table('central.tbl_empleados_hraes')
             ->select([
-                DB::raw('UPPER(rfc) AS RFC'),
-                DB::raw('UPPER(curp) AS CURP'),
-                DB::raw('UPPER(nombre) AS NOMBRE'),
-                DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-                DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+                DB::raw('UPPER(central.tbl_empleados_hraes.rfc) AS RFC'),
+                DB::raw('UPPER(central.tbl_empleados_hraes.curp) AS CURP'),
+                DB::raw('UPPER(central.tbl_empleados_hraes.nombre) AS NOMBRE'),
+                DB::raw('UPPER(central.tbl_empleados_hraes.primer_apellido) AS PRIMER_APELLIDO'),
+                DB::raw('UPPER(central.tbl_empleados_hraes.segundo_apellido) AS SEGUNDO_APELLIDO'),
+                'central.tbl_empleados_hraes.id_tbl_empleados_hraes AS id' ,
+                'ts.id_cat_tipo_schema AS id_schema',
             ])
-            ->where('curp', '=', $curp)
+            ->leftJoin('catalogos.cat_tipo_schema as ts', DB::raw('UPPER(ts.schema)'), '=', DB::raw("'CENTRAL'"))
+            ->where('central.tbl_empleados_hraes.curp', '=', $curp)
             ->first(); // Devuelve null si no encuentra un registro
     }
+    
 
     public function buscarEmpleadoHRAES($curp)
 {
     return DB::table('public.tbl_empleados_hraes')
         ->select([
-            DB::raw('UPPER(rfc) AS RFC'),
-            DB::raw('UPPER(curp) AS CURP'),
-            DB::raw('UPPER(nombre) AS NOMBRE'),
-            DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-            DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+            DB::raw('UPPER(public.tbl_empleados_hraes.rfc) AS RFC'),
+            DB::raw('UPPER(public.tbl_empleados_hraes.curp) AS CURP'),
+            DB::raw('UPPER(public.tbl_empleados_hraes.nombre) AS NOMBRE'),
+            DB::raw('UPPER(public.tbl_empleados_hraes.primer_apellido) AS PRIMER_APELLIDO'),
+            DB::raw('UPPER(public.tbl_empleados_hraes.segundo_apellido) AS SEGUNDO_APELLIDO'),
+            'public.tbl_empleados_hraes.id_tbl_empleados_hraes AS id',
+            'ts.id_cat_tipo_schema AS id_schema',
         ])
-        ->where('curp', '=', $curp)
-        ->first(); // Devuelve null si no encuentra un registro
+        ->leftJoin('catalogos.cat_tipo_schema as ts', DB::raw('UPPER(ts.schema)'), '=', DB::raw("'PUBLIC'"))
+        ->where('public.tbl_empleados_hraes.curp', '=', $curp)
+            ->first(); // Devuelve null si no encuentra un registro
 }
 
 public function buscarEmpleadoTransferidos($curp)
 {
     return DB::table('transferidos.tbl_empleados')
         ->select([
-            DB::raw('UPPER(rfc) AS RFC'),
-            DB::raw('UPPER(curp) AS CURP'),
-            DB::raw('UPPER(nombre) AS NOMBRE'),
-            DB::raw('UPPER(primer_apellido) AS PRIMER_APELLIDO'),
-            DB::raw('UPPER(segundo_apellido) AS SEGUNDO_APELLIDO'),
+            DB::raw('UPPER(transferidos.tbl_empleados.rfc) AS RFC'),
+            DB::raw('UPPER(transferidos.tbl_empleados.curp) AS CURP'),
+            DB::raw('UPPER(transferidos.tbl_empleados.nombre) AS NOMBRE'),
+            DB::raw('UPPER(transferidos.tbl_empleados.primer_apellido) AS PRIMER_APELLIDO'),
+            DB::raw('UPPER(transferidos.tbl_empleados.segundo_apellido) AS SEGUNDO_APELLIDO'),
+            'transferidos.tbl_empleados.id_tbl_empleados AS id',
+            'ts.id_cat_tipo_schema AS id_schema',
         ])
-        ->where('curp', '=', $curp)
-        ->first(); // Devuelve null si no encuentra un registro
+        ->leftJoin('catalogos.cat_tipo_schema as ts', DB::raw('UPPER(ts.schema)'), '=', DB::raw("'TRANSFERIDOS'"))
+        ->where('transferidos.tbl_empleados.curp', '=', $curp)
+            ->first(); // Devuelve null si no encuentra un registro
 }
 
     /*public function editCurp (string $id)

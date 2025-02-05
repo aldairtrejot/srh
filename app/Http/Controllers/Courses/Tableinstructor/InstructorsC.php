@@ -46,20 +46,17 @@ class InstructorsC extends Controller
     public function searchTable(Request $request)
     {
         try {
-
-            $iterator = $request->input('iterator'); //OFSET valor de paginador
+            $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue');
-            
 
             $instructorM = new InstructorM();
-            $value = $instructorM ->list($iterator, $searchValue);
+            $value = $instructorM->list($iterator, $searchValue);
 
-            return response()->json([ // Lógica para procesar la solicitud+
+            return response()->json([ 
                 'value' => $value,
                 'status' => true,
             ]);
-
-        } catch (\Exception $e) { // Manejo de errores  
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -102,8 +99,8 @@ class InstructorsC extends Controller
         return view('courses.tableinstructor.edit', compact('instructor'));
     }
 
-
-    //BUSQUEDA DE CURP
+    // BUSQUEDA DE CURP
+    // Método dataCurp en InstructorsC.php
     public function dataCurp(Request $request)
     {
         try {
@@ -113,37 +110,35 @@ class InstructorsC extends Controller
     
             $instructorM = new InstructorM();
     
+            // Obtener los datos de las fuentes
             $centralCurp = $instructorM->centralCurp($request->curp);
             $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
             $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
     
+            // Filtrar resultados vacíos
             $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
     
+            // Si no se encuentra nada, retorna un array vacío
             if (empty($resultados)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No se encontraron resultados para la CURP proporcionada.',
-                    'value' => null,
+                    'value' => [],
                 ], 200);
             }
     
-            \Log::info('Resultados encontrados: ', $resultados); // Registro para verificar la respuesta
-    
+            // Si se encuentran resultados, retornar la lista completa de resultados
             return response()->json([
                 'status' => true,
                 'value' => $resultados,
                 'message' => 'Datos encontrados correctamente',
             ], 200);
-    
         } catch (\Exception $e) {
-            \Log::error('Error en dataCurp: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Error en el servidor: ' . $e->getMessage(),
             ], 500);
         }
     }
-    
 }
-   
 
