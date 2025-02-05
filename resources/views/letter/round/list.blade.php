@@ -46,7 +46,7 @@
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Correspondencia Asoc.
+                                        No. Doc.
                                     </th>
                                     <th>
                                         Año
