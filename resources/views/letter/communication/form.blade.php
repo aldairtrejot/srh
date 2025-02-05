@@ -68,6 +68,12 @@
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_interno"
                                     value="{{ optional($item)->id_tbl_correspondencia_interno ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="fecha_captura"
+                                    value="{{ optional($item)->fecha_captura ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="nameUser"
+                                    value="{{ optional($item)->nameUser ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">
@@ -150,7 +156,9 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT-->
-<script src="{{ asset('assets/js/app/letter/file/form.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/communication/form.js') }}"></script>
+<!--
 <script src="{{ asset('assets/js/app/letter/file/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/file/validate.js') }}"></script>
+-->

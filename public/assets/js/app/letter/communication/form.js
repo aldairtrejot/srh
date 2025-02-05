@@ -3,18 +3,22 @@
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
+// Carga de formulario inicial
 $(document).ready(function () {
-    $('#num_documento_area').prop('disabled', true); //Desabilitar input
     $('select').selectpicker(); //Iniciar los select
-    //checkboxState();
-    setData(); //Establecer las variables de informacion general
-    //getRole(); //Obtener y definir los roles para no tener los input
-    //setCheckboxArea();
-    //tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
-    //tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
-    //getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
+    setData(); // Carga de encabezados de formulario
 });
 
+// La función establece los datos en el encabezado del formulario
+function setData() {
+    let fecha_captura = $('#fecha_captura').val();// Guardar valores de input
+    $('#_labFechaCaptura').text(fecha_captura); // Asignar valores a label
+    let fecha_captura = $('#fecha_captura').val();// Guardar valores de input
+    $('#_labFechaCaptura').text(fecha_captura); // Asignar valores a label
+}
+
+
+/*
 //La funcion activa o desactiva el valor de un checkbox de area
 function setCheckboxArea() {
     if ($('#es_por_area').val()) { //valor del  la variable check true
@@ -106,3 +110,4 @@ $('#num_correspondencia').on('input', function () {
         $('#_labArea').text(' _');
     }
 });
+*/

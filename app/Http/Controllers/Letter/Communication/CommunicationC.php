@@ -6,6 +6,7 @@ use App\Models\Letter\Collection\CollectionEntidadM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Communication\CommunicationM;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 // Hace referencia correspondencia interna
 class CommunicationC extends Controller
@@ -24,10 +25,11 @@ class CommunicationC extends Controller
 
         //Definicion de variable de inicializacion
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
+        $nameUser = Auth::user()->name; // Nombre de usuario
 
         $selectEntidad = $collectionEntidadM->list();
         $selectEntidadEdit = [];
-        return view('letter/communication/form', compact('selectEntidadEdit', 'selectEntidad', 'item'));
+        return view('letter/communication/form', compact('nameUser', 'selectEntidadEdit', 'selectEntidad', 'item'));
     }
 
     // La función retorna los valores para mostrar la tabla
