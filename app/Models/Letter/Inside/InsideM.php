@@ -27,6 +27,7 @@ class InsideM extends Model
         'id_usuario_area',
         'id_usuario_enlace',
         'id_cat_area',
+        'destinatario',
     ];
 
     public function edit(string $id)

@@ -7,9 +7,11 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de emición') ||
         isFieldEmpty($('#fecha_fin').val(), 'Fecha de aplicación') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
+        isFieldEmpty($('#destinatario').val(), 'Destinatario') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 100)) {
+        isExceedingLength($('#asunto').val(), 'Asunto', 300) ||
+        isExceedingLength($('#destinatario').val(), 'Destinatario', 190) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
     }
