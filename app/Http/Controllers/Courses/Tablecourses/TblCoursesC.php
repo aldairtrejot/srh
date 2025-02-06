@@ -112,6 +112,9 @@ class TblCoursesC extends Controller
         $selectInstructor = $instructorM->listinstructor();
         $selectInstructorEdit = [];
 
+        $item -> costo = 0;
+        $item -> iva = 16;
+
 
         return view('courses.tablecourses.form', compact('item', 'selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
     'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',

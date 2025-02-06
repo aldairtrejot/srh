@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class CoursesauditoriaM extends Model
 {
     protected $table = 'capacitacion.cat_auditoria';
-    protected $primaryKey = 'id_auditoria'; // Especifica la clave primaria
+    protected $primaryKey = 'id_cat_auditoria'; // Especifica la clave primaria
     public $timestamps = false;
     protected $fillable = [
         'descripcion',
@@ -21,7 +21,7 @@ class CoursesauditoriaM extends Model
         // Preparar la consulta base
         $query = DB::table('capacitacion.cat_auditoria')
         ->select([
-            'capacitacion.cat_auditoria.id_auditoriaAS id',
+            'capacitacion.cat_auditoria.id_cat_auditoria AS id',
             DB::raw('UPPER(capacitacion.cat_auditoria.descripcion) AS descripcion'),
             DB::raw('CASE WHEN capacitacion.cat_auditoria.estatus = 1 THEN TRUE ELSE FALSE END AS estatus')
         ]); 
@@ -38,7 +38,7 @@ class CoursesauditoriaM extends Model
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('capacitacion.cat_auditoria.id_auditoria', 'ASC')
+        $query->orderBy('capacitacion.cat_auditoria.id_cat_auditoria', 'ASC')
             ->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
@@ -49,7 +49,7 @@ class CoursesauditoriaM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_auditoria')
-            ->where('id_auditoria', $id)
+            ->where('id_cat_auditoria', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
@@ -58,10 +58,10 @@ class CoursesauditoriaM extends Model
     public function edittblcourses($id)
     {
         $query = DB::table('capacitacion.cat_auditoria')
-    ->select(['capacitacion.cat_auditoria.id_auditoria AS id',
+    ->select(['capacitacion.cat_auditoria.id_cat_auditoria AS id',
                 DB::raw('UPPER(capacitacion.cat_auditoria.descripcion) AS descripcion')])
 
-    ->where('capacitacion.cat_auditoria.id_auditoria', '=', $id);
+    ->where('capacitacion.cat_auditoria.id_cat_auditoria', '=', $id);
 
 // Retornamos el usuario o null si no se encuentra
 $result = $query->first();

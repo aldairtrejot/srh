@@ -60,7 +60,7 @@ function renderTable(response) {
 
     if (response.value && response.value.length > 0) {
         response.value.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/coursesauditoria/edit/${object.id_auditoria}`;
+            const finalUrl = `${URL_DEFAULT}/coursesauditoria/edit/${object.id_cat_auditoria}`;
             const rowHTML = `
                 <tr>
                     <td>
@@ -78,7 +78,7 @@ function renderTable(response) {
                                     </span>
                                     Modificar
                                 </a>
-                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_auditoria})">
+                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_auditoria})">
                                     <span style="background:#6A1B3D" class="icon-container-template">
                                         <div style="text-align: center;">
                                             <i class="fa fa-trash item-icon-menu"></i>
