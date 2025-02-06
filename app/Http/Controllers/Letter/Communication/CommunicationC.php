@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Letter\Communication;
 
+use App\Models\Letter\Collection\CollectionAreaInternoM;
 use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
 use App\Models\Letter\Collection\CollectionDateM;
+use App\Models\Letter\Collection\CollectionDestinatarioM;
 use App\Models\Letter\Collection\CollectionEntidadM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionSolicitanteM;
@@ -33,6 +35,8 @@ class CommunicationC extends Controller
         $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
         $collectionTemaM = new CollectionTemaM();
         $collectionSolicitanteM = new CollectionSolicitanteM();
+        $collectionAreaInternoM = new CollectionAreaInternoM();
+        $collectionDestinatarioM = new CollectionDestinatarioM();
 
         //Definicion de variable de inicializacion
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
@@ -50,8 +54,14 @@ class CommunicationC extends Controller
         $selectSolicitante = $collectionSolicitanteM->list();
         $selectSolicitanteEdit = [];
 
+        $selectArea = $collectionAreaInternoM->list();
+        $selectAreaEdit = [];
 
-        return view('letter/communication/form', compact('selectSolicitanteEdit', 'selectSolicitante', 'selectTemaEdit', 'selectTema', 'nomArea', 'nameUser', 'selectEntidadEdit', 'selectEntidad', 'item'));
+        $selectDestinatario = $collectionDestinatarioM->list();
+        $selectDestinatarioEdit = [];
+
+
+        return view('letter/communication/form', compact('selectDestinatarioEdit', 'selectDestinatario', 'selectAreaEdit', 'selectArea', 'selectSolicitanteEdit', 'selectSolicitante', 'selectTemaEdit', 'selectTema', 'nomArea', 'nameUser', 'selectEntidadEdit', 'selectEntidad', 'item'));
     }
 
     // La función retorna los valores para mostrar la tabla

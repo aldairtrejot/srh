@@ -12,6 +12,19 @@
                 </div>
             </div>
 
+            <!-- MODAL-->
+            <x-template-modal.modal-small tittle="Actualizar número de oficio." idModal="modalBackdrop"
+                idCancel="cancelBtn" idConfirm="confirmBtn" functionConfirm="confirmRefreshOficio();" valueInput=""
+                idInput="" />
+
+            <!-- MODAL-->
+            <x-template-modal.modal-template tittle="Agregar solicitante" idModal="modalSolicitante"
+                idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();">
+
+                <h1>hola</h1>
+
+            </x-template-modal.modal-template>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -25,14 +38,14 @@
                             </div>
                             <div class="d-flex align-items-center">
                                 <!-- Botón 1 -->
-                                <button class="btn btn-hover-enlarge"
+                                <button class="btn btn-hover-enlarge" onclick="refreshOficio();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
                                     <i class="fa fa-refresh"></i>
                                 </button>
 
                                 <!-- Botón 2 -->
-                                <button class="btn btn-hover-enlarge"
+                                <button class="btn btn-hover-enlarge" onclick="addSolicitante();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Solicitante">
                                     <i class="fa fa-user-plus"></i>
@@ -126,19 +139,19 @@
                                 <x-template-tittle.tittle-caption-secon
                                     tittle="Información de destinatario y solicitante" />
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectSolicitante"
-                                        :selectEdit="$selectSolicitanteEdit" name="id_cat_solicitante" tittle="Solicitante"
+                                    <x-template-form.template-form-select-required :selectValue="$selectArea"
+                                        :selectEdit="$selectAreaEdit" name="id_cat_area_interno" tittle="Área / Zona"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
-                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_area_interno" tittle="Área / Zona"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+                                    <x-template-form.template-form-select-required :selectValue="$selectSolicitante"
+                                        :selectEdit="$selectSolicitanteEdit" name="id_cat_solicitante"
+                                        tittle="Solicitante" grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_destinatario" tittle="Destinatario"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
+                                    <x-template-form.template-form-select-required :selectValue="$selectDestinatario"
+                                        :selectEdit="$selectDestinatarioEdit" name="id_cat_destinatario"
+                                        tittle="Destinatario" grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-input-required label="Cargo destinatario" type="text"
                                         name="cargo_destinatario" placeholder="Cargo del destinatario"
@@ -160,6 +173,7 @@
 
 <!-- CODE SCRIPT-->
 <script src="{{ asset('assets/js/app/letter/communication/form.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/communication/button.js') }}"></script>
 <!--
 <script src="{{ asset('assets/js/app/letter/file/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
