@@ -11,14 +11,10 @@ $(document).ready(function () {
 
 // La función establece los datos en el encabezado del formulario
 function setData() {
-    let fecha_captura = $('#fecha_captura').val();// Guardar valores de input
-    $('#_labFechaCaptura').text(fecha_captura); // Asignar valores a label
-
-    let nameUser = $('#nameUser').val();// Guardar valores de input
-    $('#_labUsuario').text(nameUser); // Asignar valores a label
-
-    let nomArea = $('#nomArea').val();// Guardar valores de input
-    $('#_labNomArea').text(nomArea); // Asignar valores a label
+    $('#_labFechaCaptura').text($('#fecha_captura').val()); // Asignar valores a labelput
+    $('#_labUsuario').text($('#nameUser').val()); // Asignar valores a label
+    $('#_labNomArea').text($('#nomArea').val()); // Asignar valores a label
+    $('#_labNoOficio').text($('#consecutivo').val()); // Asignar valores a label
 }
 
 

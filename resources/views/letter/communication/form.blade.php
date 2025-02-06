@@ -114,8 +114,8 @@
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_tema" tittle="Tema"
+                                    <x-template-form.template-form-select-required :selectValue="$selectTema"
+                                        :selectEdit="$selectTemaEdit" name="id_cat_tema" tittle="Tema"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
@@ -126,8 +126,8 @@
                                 <x-template-tittle.tittle-caption-secon
                                     tittle="Información de destinatario y solicitante" />
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_solicitante" tittle="Solicitante"
+                                    <x-template-form.template-form-select-required :selectValue="$selectSolicitante"
+                                        :selectEdit="$selectSolicitanteEdit" name="id_cat_solicitante" tittle="Solicitante"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
