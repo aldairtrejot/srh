@@ -171,6 +171,7 @@ class FileC extends Controller
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
                 'id_cat_area' => $request->id_cat_area_documento,
+                'destinatario' => strtoupper($request->destinatario),
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -203,6 +204,7 @@ class FileC extends Controller
                 'id_cat_area' => $request->id_cat_area_documento,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
+                'destinatario' => strtoupper($request->destinatario),
             ];
 
             $object::where('id_tbl_expediente', $request->id_tbl_expediente)

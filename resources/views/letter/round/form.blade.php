@@ -90,7 +90,7 @@
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Fecha de emición" type="date"
+                                    <x-template-form.template-form-input-required label="Fecha de emisión" type="date"
                                         name="fecha_inicio" placeholder=""
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
                                         value="{{optional($item)->fecha_inicio ?? '' }}" />

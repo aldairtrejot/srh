@@ -52,7 +52,7 @@
                                     <label id="_noAnio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Fecha de emición:</label>
+                                    <label class="etiqueta">Fecha de emisión:</label>
                                     <label id="_fechaInicio" class="valor"></label>
                                 </div>
                                 <div class="item">
