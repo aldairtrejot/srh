@@ -27,7 +27,7 @@
                                 <!-- Botón 1 -->
                                 <button class="btn btn-hover-enlarge"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh Consecutivo">
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
                                     <i class="fa fa-refresh"></i>
                                 </button>
 

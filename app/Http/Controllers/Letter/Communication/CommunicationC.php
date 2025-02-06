@@ -32,7 +32,7 @@ class CommunicationC extends Controller
         $nameUser = Auth::user()->name; // Nombre de usuario
         $nomArea = ' _';
         $id_cat_anio = $collectionDateM->idYear();
-        $item->consecutivo =
+        //$item->consecutivo = 
 
         $selectEntidad = $collectionEntidadM->list();
         $selectEntidadEdit = [];
