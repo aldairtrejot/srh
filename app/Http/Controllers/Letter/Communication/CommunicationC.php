@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Letter\Communication;
 
+use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
+use App\Models\Letter\Collection\CollectionDateM;
 use App\Models\Letter\Collection\CollectionEntidadM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Communication\CommunicationM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Log;
 // Hace referencia correspondencia interna
 class CommunicationC extends Controller
@@ -22,11 +25,14 @@ class CommunicationC extends Controller
     {
         $item = new CommunicationM();
         $collectionEntidadM = new CollectionEntidadM();
+        $collectionDateM = new CollectionDateM();
 
         //Definicion de variable de inicializacion
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $nameUser = Auth::user()->name; // Nombre de usuario
         $nomArea = ' _';
+        $id_cat_anio = $collectionDateM->idYear();
+        $item->consecutivo =
 
         $selectEntidad = $collectionEntidadM->list();
         $selectEntidadEdit = [];

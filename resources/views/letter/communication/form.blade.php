@@ -75,6 +75,8 @@
 
                                 <x-template-form.template-form-input-hidden name="nomArea" value="{{ $nomArea }}" />
 
+                                <x-template-form.template-form-input-hidden name="consecutivo"
+                                    value="{{ optional($item)->consecutivo ?? '' }}" />
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">
@@ -113,11 +115,11 @@
 
                                 <div class="row">
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Tema"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_tema" tittle="Tema"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Lugar"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_entidad" tittle="Lugar"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
                                 </div>
 
@@ -125,23 +127,23 @@
                                     tittle="Información de destinatario y solicitante" />
                                 <div class="row">
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Solicitante"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_solicitante" tittle="Solicitante"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Área / Zona"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_area_interno" tittle="Área / Zona"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
                                 </div>
 
                                 <div class="row">
                                     <x-template-form.template-form-select-required :selectValue="$selectEntidad"
-                                        :selectEdit="$selectEntidadEdit" name="id_cat_remitente" tittle="Destinatario"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_destinatario" tittle="Destinatario"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" />
 
                                     <x-template-form.template-form-input-required label="Cargo destinatario" type="text"
-                                        name="num_documento" placeholder="Cargo del destinatario"
+                                        name="cargo_destinatario" placeholder="Cargo del destinatario"
                                         grid="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" autocomplete=""
-                                        value="{{optional($item)->num_documento ?? '' }}" />
+                                        value="{{optional($item)->cargo_destinatario ?? '' }}" />
                                 </div>
 
                                 <x-template-button.button-form-footer routeBack="{{ route('communication.list') }}" />
