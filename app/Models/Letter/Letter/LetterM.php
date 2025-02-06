@@ -138,6 +138,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.num_documento AS num_documento',
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY') AS fecha_documento"),
                 'correspondencia.tbl_correspondencia.num_flojas AS num_flojas',
                 'correspondencia.tbl_correspondencia.num_tomos AS num_tomos',
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
