@@ -179,7 +179,7 @@ class InsideC extends Controller
                 'id_usuario_area' => $request->id_usuario_area,
                 'id_usuario_enlace' => $request->id_usuario_enlace,
                 'id_cat_area' => $request->id_cat_area_documento,
-                'destinatario' => $request->destinatario,
+                'destinatario' => strtoupper($request->destinatario),
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -212,7 +212,7 @@ class InsideC extends Controller
                 'id_cat_area' => $request->id_cat_area_documento,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
-                'destinatario' => $request->destinatario,
+                'destinatario' => strtoupper($request->destinatario),
             ];
 
             $object::where('id_tbl_interno', $request->id_tbl_interno)
