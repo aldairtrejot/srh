@@ -55,13 +55,10 @@
                                         No. Turno Asoc.
                                     </th>
                                     <th>
-                                        Fecha de Inicio
-                                    </th>
-                                    <th>
-                                        Fecha Fin
-                                    </th>
-                                    <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        Asunto
                                     </th>
                                 </tr>
                             </thead>

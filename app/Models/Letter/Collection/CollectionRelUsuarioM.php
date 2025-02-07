@@ -45,4 +45,20 @@ class CollectionRelUsuarioM extends Model
         $result = $query->first();
         return $result;
     }
+
+    // La función obtiene el id de area y id de uaurio, a apartir del enlace
+    public function idAreaUser($idEnlace)
+    {
+        return DB::table('correspondencia.rel_enlace_usuario')
+            ->join('correspondencia.cat_area', 'correspondencia.rel_enlace_usuario.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('correspondencia.rel_area_usuario', 'correspondencia.cat_area.id_cat_area', '=', 'correspondencia.rel_area_usuario.id_cat_area')
+            ->where('correspondencia.rel_enlace_usuario.id_usuario', '=', $idEnlace)
+            ->where('correspondencia.rel_area_usuario.estatus', '=', true)  // Asegúrate que 'estatus' sea booleano o compara contra 1 si es necesario
+            ->select(
+                'correspondencia.rel_enlace_usuario.id_rel_enlace_usuario AS id',
+                'correspondencia.rel_enlace_usuario.id_cat_area AS id_cat_area',
+                'correspondencia.rel_area_usuario.id_usuario AS id_usuario'
+            )
+            ->first();  // Retorna solo el primer registro
+    }
 }

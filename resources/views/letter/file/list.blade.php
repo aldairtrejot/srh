@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Expedientes</h5>
+                            <h5 class="font-weight-normal mb-0">Lineamientos</h5>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Expedientes</h4>
+                                <h4 class="card-title">Lineamientos</h4>
                                 <p class="card-description">
                                     ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
                                         class="text-danger" style="margin-left: 10px;">
@@ -49,13 +49,10 @@
                                         No. Turno Asoc.
                                     </th>
                                     <th>
-                                        Fecha de Inicio
-                                    </th>
-                                    <th>
-                                        Fecha Fin
-                                    </th>
-                                    <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        Asunto
                                     </th>
                                 </tr>
                             </thead>

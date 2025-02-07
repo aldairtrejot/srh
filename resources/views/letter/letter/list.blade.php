@@ -45,7 +45,7 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
+                                        Fólio de gestión
                                     </th>
                                     <th>
                                         No. Documento
@@ -54,13 +54,10 @@
                                         Estatus
                                     </th>
                                     <th>
-                                        Tramite
-                                    </th>
-                                    <th>
                                         Área
                                     </th>
                                     <th>
-                                        Fecha de incio
+                                        Asunto
                                     </th>
                                     <th>
                                         Fecha de fin

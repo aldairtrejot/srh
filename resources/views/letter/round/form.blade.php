@@ -40,6 +40,13 @@
                                 <x-template-form.template-form-input-hidden name="es_por_area"
                                     value="{{ optional($item)->es_por_area ?? '' }}" />
 
+                                <!-- change -->
+                                <x-template-form.template-form-input-hidden name="id_cat_area"
+                                    value="{{ optional($item)->id_cat_area ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
+                                    value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de documento" />
                                 <div class="contenedor">
@@ -61,68 +68,55 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="No. Correspondencia Asoc."
-                                        type="text" name="num_correspondencia"
-                                        placeholder="NO. CORRESPONDENCIA ASOCIADO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{$noLetter ?? '' }}" />
+                                    <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
+                                        :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
-                                    <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
+                                    <x-template-form.template-form-input-required label="No. Doc" type="text"
+                                        name="num_documento_area" placeholder="NO. DOCUMENTO"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                        value="{{optional($item)->num_documento_area ?? '' }}" />
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-select-required :selectValue="$selectUser"
+                                        :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
+
+                                    <x-template-form.template-form-select-required :selectValue="$selectEnlace"
+                                        :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
+                                </div>
+
+                                <div class="row">
+
+                                    <x-template-form.template-form-input-required label="Fecha de emisión" type="date"
                                         name="fecha_inicio" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
                                         value="{{optional($item)->fecha_inicio ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha fin" type="date"
-                                        name="fecha_fin" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                    <x-template-form.template-form-input-required label="Fecha de aplicación"
+                                        type="date" name="fecha_fin" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
                                         value="{{optional($item)->fecha_fin ?? '' }}" />
                                 </div>
 
                                 <div class="row">
 
-                                    <x-template-form.template-form-input-required label="Asunto" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto"
                                         name="asunto" placeholder="ASUNTO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{optional($item)->asunto ?? '' }}" />
+                                        value="{{ optional($item)->asunto ?: '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Observaciones" type="text"
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Destinatario"
+                                        name="destinatario" placeholder="Destinatario"
+                                        value="{{ optional($item)->destinatario ?: '' }}" />
+
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones"
                                         name="observaciones" placeholder="OBSERVACIONES"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" autocomplete=""
-                                        value="{{optional($item)->observaciones ?? '' }}" />
-                                </div>
-
-                                <x-template-tittle.tittle-caption-secon tittle="Otros" />
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="form-check form-check-flat form-check-primary">
-                                            <label class="form-check-label">
-                                                <input type="checkbox" class="form-check-input" id="idcheckboxTemplate"
-                                                    title="Marca este checkbox si no tienes un número de correspondencia.">
-                                                ¿No tengo un No. de Correspondencia?
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-                                <div id="mostrar_ocultar_no_area">
-                                    <!--
-                                    <p class="texto-centro">
-                                        Si no cuentas con un número de correspondencia, selecciona el área
-                                        correspondiente para asignar uno en su lugar.
-                                    </p>
--->
-                                    <div class="row">
-                                        <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
-                                            :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-
-                                        <x-template-form.template-form-input-required label="No. Doc" type="text"
-                                            name="num_documento_area" placeholder="NO. DOCUMENTO"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                            value="{{optional($item)->num_documento_area ?? '' }}" />
-                                    </div>
+                                        value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
                                 <x-template-button.button-form-footer routeBack="{{ route('round.list') }}" />

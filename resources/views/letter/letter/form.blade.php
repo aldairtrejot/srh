@@ -92,6 +92,20 @@
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_documento ?? '' }}" />
 
+                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
+                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->folio_gestion ?? '' }}" />
+
+                                    <x-template-form.template-form-input-required label="Fecha de doc." type="date"
+                                        name="fecha_documento" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{optional($item)->fecha_documento ?? '' }}" />
+
+                                </div>
+
+                                <div class="row">
+
                                     <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
                                         name="fecha_inicio" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
@@ -101,10 +115,16 @@
                                         name="fecha_fin" placeholder=""
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->fecha_fin ?? '' }}" />
+
+                                    <x-template-form.template-form-input-check
+                                        idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box"
+                                        label="¿El documento es físico?" />
+
                                 </div>
 
                                 <div class="row">
 
+                                    <!--
                                     <x-template-form.template-form-input-required label="No. hojas" type="integer"
                                         name="num_flojas" placeholder="NO. HOJAS"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
@@ -114,31 +134,16 @@
                                         name="num_tomos" placeholder="NO. TOMOS"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->num_tomos ?? '' }}" />
+-->
+                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad"
+                                        :selectEdit="$selectEntidadEdit" name="id_cat_entidad" tittle="Entidad"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" />
+
 
                                     <x-template-form.template-form-input-required label="Horas respuesta" type="integer"
                                         name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{optional($item)->horas_respuesta ?? '' }}" />
-
-                                </div>
-
-                                <div class="row">
-
-                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text"
-                                        name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" autocomplete=""
-                                        value="{{optional($item)->folio_gestion ?? '' }}" />
-
-                                    <x-template-form.template-form-input-check
-                                        idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box"
-                                        label="¿El documento es físico?" />
-
-                                </div>
-
-                                <div class="row">
-                                    <x-template-form.template-form-input-text-area
-                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Lugar" name="lugar"
-                                        placeholder="LUGAR" value="{{ optional($item)->lugar ?: '' }}" />
                                 </div>
 
                                 <div class="row">
@@ -155,7 +160,7 @@
                                         value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
-                                <x-template-tittle.tittle-caption-secon tittle="Área de atención" />
+                                <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
                                 <div class="row">
 
                                     <x-template-form.template-form-select-required :selectValue="$selectArea"

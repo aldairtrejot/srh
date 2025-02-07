@@ -21,8 +21,23 @@ $(document).ready(function () {
     });
 });
 
+function getRole() {
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+    if (!new_variable) { //Condicion para inabilitar las opciones
+        disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+        disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+    } else {
+        enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+        enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+    }
+}
 //La funcion lista los documentos que existen en el cloud
 function getDataDocument() {
+
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+
     let container_anexo_entrada_vacio = $('#container_anexo_entrada_vacio');
     let container_anexo_entrada = $('#container_anexo_entrada');
     let container_oficio_entrada_vacio = $('#container_oficio_entrada_vacio');
@@ -40,11 +55,13 @@ function getDataDocument() {
             let oficosEntrada = response.oficosEntrada;
 
             //Habilita o desabilita los botones de agregar
-            response.resultOficioEntrada ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
-            response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+            response.resultOficioEntrada || !new_variable ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+            response.resultAnexosEntrada || !new_variable ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
 
-            templateCloud(container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+
+
         },
     });
 }
@@ -87,6 +104,7 @@ document.getElementById('file_anexo_entrada').addEventListener('change', functio
 
 function sendFile(file, id_entrada_salida, esOficio) {
     if (file) {
+        showSpinner();// Inicio de spinner
         let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
         data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
@@ -105,6 +123,8 @@ function sendFile(file, id_entrada_salida, esOficio) {
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
+                console.log(response);
+                hideSpinner(); // Se oculta el spinner
                 if (response.status) { //Validacion si es que los cambios se han agregado correctamente
                     notyfEM.success("Documento agregado correctamente.");
                 } else {
@@ -118,7 +138,6 @@ function sendFile(file, id_entrada_salida, esOficio) {
 
 //La funcion elimina un documento
 function deleteDocument(uid) {
-
     $('#modalBackdrop').fadeIn();//Iniciar ventana modal
 
     $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar

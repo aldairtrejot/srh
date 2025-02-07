@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Letter\Collection;
 
 use App\Models\Administration\UserM;
 use App\Models\Letter\Collection\CollectionAreaM;
+use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionRelEnlaceM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
+use App\Models\Letter\Collection\CollectionUnidadM;
 use App\Models\Letter\Letter\LetterM;
 use Illuminate\Http\Request;
+
 
 class CollectionAreaC extends Controller
 {
@@ -31,7 +34,7 @@ class CollectionAreaC extends Controller
         $collectionAreaM = new CollectionAreaM();
         $id_cat_anio = $request->id_cat_anio;
         $id = $request->id;
-        $consecutivo = $collectionAreaM->noDocumento($id_cat_anio, $id);
+        $consecutivo = $collectionAreaM->noDocumentoAux($id_cat_anio, $id, $request->name);
 
         return response()->json([
             'consecutivo' => $consecutivo,
@@ -47,18 +50,25 @@ class CollectionAreaC extends Controller
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionTramiteM = new CollectionTramiteM();
         $collectionAreaM = new CollectionAreaM();
+        $collectionUnidadM = new CollectionUnidadM();
+        $collectionCoordinacionM = new CollectionCoordinacionM();
 
         $idArea = $request->id; //Obtenemos el id que el usuario selecciono en el combo de area
         $selectEnlace = $collectionRelEnlaceM->idUsuarioByArea($idArea); //Obtenemos el catalogo de enlaces
         $selectUsuario = $collectionRelUsuarioM->idUsuarioByArea($idArea);
         $selectTramite = $collectionTramiteM->list($idArea);
+        $selectUnidad = $collectionUnidadM->listOfUnidad($idArea);
+        $selectCoor = $collectionCoordinacionM->listOfArea($idArea);
         $clave = $collectionAreaM->getClave($idArea);
+
 
         return response()->json([
             'clave' => $clave,
             'selectEnlace' => $selectEnlace,
             'selectUsuario' => $selectUsuario,
             'selectTramite' => $selectTramite,
+            'selectUnidad' => $selectUnidad,
+            'selectCoor' => $selectCoor,
             'status' => true,
         ]);
     }

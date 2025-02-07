@@ -38,6 +38,21 @@ class CollectionCoordinacionM extends Model
         $result = $query->first();
         return $result;
     }
+
+    // La función lista la coordinacinaón dependiendo del area que se ha cargado
+    public function listOfArea($idArea)
+    {
+        $query = DB::table('correspondencia.cat_coordinacion')
+            ->select(
+                'correspondencia.cat_coordinacion.id_cat_coordinacion AS id',
+                DB::raw('UPPER(correspondencia.cat_coordinacion.descripcion) AS descripcion')
+            )
+            ->join('correspondencia.rel_area_coordinacion', 'correspondencia.cat_coordinacion.id_cat_coordinacion', '=', 'correspondencia.rel_area_coordinacion.id_cat_coordinacion')
+            ->where('correspondencia.rel_area_coordinacion.id_cat_area', $idArea)
+            ->get();
+
+        return $query;
+    }
 }
 
 /*
