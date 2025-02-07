@@ -164,9 +164,11 @@
 
 <!-- CODE SCRIPT-->
 <script src="{{ asset('assets/js/app/letter/communication/form.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/communication/button.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/communication/modal.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/communication/select.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/communication/consecutivo.js') }}"></script>
 <!--
-<script src="{{ asset('assets/js/app/letter/file/select.js') }}"></script>
+
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/file/validate.js') }}"></script>
 -->

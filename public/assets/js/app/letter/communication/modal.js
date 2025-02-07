@@ -82,7 +82,7 @@ $('#cancelBtn_tema').click(function () { //Se pulsa el boton de cancelar
 // GUARDAR CONTENIDO
 // Guardar o validar contenido de No oficio
 function confirmRefreshOficio() {
-    console.log('confirm');
+    updateIterator(true); // Ser establece la variable en verdadero para mandar mensaje de exito, si es falso no manda mensaje
 }
 
 // Guardar o validar contenido Solicitante

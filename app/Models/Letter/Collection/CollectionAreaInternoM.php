@@ -20,4 +20,15 @@ class CollectionAreaInternoM extends Model
 
         return $result;
     }
+
+    // La función obtiene la clave para mostrarla en pantalla dependiendo del id de area que se le pase
+    public function getClave($id)
+    {
+        $result = DB::table('correspondencia.cat_area_interno')
+            ->selectRaw('correspondencia.cat_area_interno.clave AS clave')
+            ->where('correspondencia.cat_area_interno.id_cat_area_interno', '=', $id)
+            ->first();
+
+        return $result->clave;
+    }
 }
