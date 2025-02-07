@@ -1,6 +1,7 @@
 <!-- TEMPLATE APP -->
 <x-template-app.app-layout>
     <?php include(resource_path('views/config.php')); ?>
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="main-panel">
         <div class="content-wrapper">
@@ -12,18 +13,8 @@
                 </div>
             </div>
 
-            <!-- MODAL-->
-            <x-template-modal.modal-small tittle="Actualizar número de oficio." idModal="modalBackdrop"
-                idCancel="cancelBtn" idConfirm="confirmBtn" functionConfirm="confirmRefreshOficio();" valueInput=""
-                idInput="" />
-
-            <!-- MODAL-->
-            <x-template-modal.modal-template tittle="Agregar solicitante" idModal="modalSolicitante"
-                idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();">
-
-                <h1>hola</h1>
-
-            </x-template-modal.modal-template>
+            <!-- View->modal -->
+            @include('letter.communication.modal')
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
