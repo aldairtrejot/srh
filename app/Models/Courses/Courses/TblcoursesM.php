@@ -43,7 +43,7 @@ class TblcoursesM extends Model
                 DB::raw("UPPER(curso.descripcion) AS categoria_tipo_curso"),
                 DB::raw("UPPER(taccion.descripcion) AS categoria_tipo_accion"),
                 DB::raw("UPPER(pinstitucional.nombre) AS categoria_programa_institucional"),
-                DB::raw("CONCAT('$ ', (cursos.costo * (cursos.iva * 0.01)) + cursos.costo) AS costo_total"),
+                DB::raw("CONCAT((cursos.costo * (cursos.iva * 0.01)) + cursos.costo) AS costo_total"),
                 DB::raw("TO_CHAR(cursos.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(cursos.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
                 'cursos.horas AS horas_curso',

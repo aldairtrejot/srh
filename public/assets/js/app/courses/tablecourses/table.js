@@ -116,7 +116,7 @@ function searchInit() {
                             <td>${object.categoria_tipo_curso}</td>
                             <td>${object.categoria_tipo_accion}</td>
                             <td>${object.categoria_programa_institucional}</td>
-                            <td>${object.costo_total}</td>
+                            <td>${'$ ' + object.costo_total}</td>
                             <td>${object.fecha_inicio}</td>
                             <td>${object.fecha_fin}</td>
                             <td>${object.horas_curso}</td>
