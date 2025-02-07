@@ -114,9 +114,10 @@ class TblCoursesC extends Controller
 
         $item -> costo = 0;
         $item -> iva = 16;
+        $costot = 0;
 
 
-        return view('courses.tablecourses.form', compact('item', 'selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
+        return view('courses.tablecourses.form', compact('item','costot', 'selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
     'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',
 'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit','selectInstructor','selectInstructorEdit'));
     }
@@ -202,63 +203,66 @@ class TblCoursesC extends Controller
         return $messagesC->messageSuccessRedirect('tablecourses.list', 'Curso guardado exitosamente.');
     }
     public function edit(string $id)
-    {
-        $tblcoursesM = new TblcoursesM();
-        $coursesM = new CoursesM();
-        $coursestipocurM = new CoursestipocurM();
-        $coursestipoacM = new CoursestipoacM();
-        $coursescoordinacionM = new CoursescoordinacionM();
-        $coursesnombreaccM = new CoursesnombreaccM();
-        $coursesprogramaM = new CoursesprogramaM();
-        $coursesestatutoM = new CoursesestatutoM();
-        $coursesorganizacionM = new CoursesorganizacionM();
-        $coursesmodalidadM = new CoursesmodalidadM();
-        $coursescategoriaM = new CoursescategoriaM();
-        $instructorM = new InstructorM();
-        $relcoursesM = new RelcoursesM();
+{
+    $tblcoursesM = new TblcoursesM();
+    $coursesM = new CoursesM();
+    $coursestipocurM = new CoursestipocurM();
+    $coursestipoacM = new CoursestipoacM();
+    $coursescoordinacionM = new CoursescoordinacionM();
+    $coursesnombreaccM = new CoursesnombreaccM();
+    $coursesprogramaM = new CoursesprogramaM();
+    $coursesestatutoM = new CoursesestatutoM();
+    $coursesorganizacionM = new CoursesorganizacionM();
+    $coursesmodalidadM = new CoursesmodalidadM();
+    $coursescategoriaM = new CoursescategoriaM();
+    $instructorM = new InstructorM();
+    $relcoursesM = new RelcoursesM();
 
-        $item = $tblcoursesM->edit($id); 
+    $item = $tblcoursesM->edit($id); // Obtener el curso que se está editando
 
-        $selectBeneficio = $coursesM->listbeneficio(); //Catalogo de beneficio
-        $selectBeneficioEdit = isset($item->id_cat_beneficio) ? $coursesM->edittblcourses($item->id_cat_beneficio) : []; 
+    // Calcular el costo total
+    $costot = $item->costo + ($item->costo * ($item->iva / 100)); // Ejemplo de cálculo, depende de la lógica del negocio
 
-        $selectTipocurso = $coursestipocurM->listtipocurso(); //Catalogo de Tipo Curso
-        $selectTipoCursoEdit = isset($item->id_cat_tipo_cursos) ? $coursestipocurM->edittblcourses($item->id_cat_tipo_cursos) :[]; 
+    $selectBeneficio = $coursesM->listbeneficio(); // Catalogo de beneficio
+    $selectBeneficioEdit = isset($item->id_cat_beneficio) ? $coursesM->edittblcourses($item->id_cat_beneficio) : []; 
 
-        $selectTipoaccion = $coursestipoacM->listtipoaccion(); //Catalogo de Tipo Accion
-        $selectTipoAccionEdit = isset($item->id_cat_tipo_accion) ? $coursestipoacM->edittblcourses($item->id_cat_tipo_accion) : []; 
+    $selectTipocurso = $coursestipocurM->listtipocurso(); // Catalogo de Tipo Curso
+    $selectTipoCursoEdit = isset($item->id_cat_tipo_cursos) ? $coursestipocurM->edittblcourses($item->id_cat_tipo_cursos) :[]; 
 
-        $selectCoordinacion = $coursescoordinacionM->listcoordinacion(); //Catalogo Coordinacion
-        $selectCoordinacionEdit = isset($item->id_cat_coordinacion) ? $coursescoordinacionM->edittblcourses($item->id_cat_coordinacion) : []; 
+    $selectTipoaccion = $coursestipoacM->listtipoaccion(); // Catalogo de Tipo Accion
+    $selectTipoAccionEdit = isset($item->id_cat_tipo_accion) ? $coursestipoacM->edittblcourses($item->id_cat_tipo_accion) : []; 
 
-        $selectNomaccion = $coursesnombreaccM->listnomaccion(); //Catalogo Nombre Accion
-        $selectNomaccionEdit = isset($item->id_cat_nombre_accion) ? $coursesnombreaccM->edittblcourses($item->id_cat_nombre_accion) : []; 
+    $selectCoordinacion = $coursescoordinacionM->listcoordinacion(); // Catalogo Coordinacion
+    $selectCoordinacionEdit = isset($item->id_cat_coordinacion) ? $coursescoordinacionM->edittblcourses($item->id_cat_coordinacion) : []; 
 
-        $selectPrograma = $coursesprogramaM->listprograma(); //Catalogo Programa Institucional
-        $selectProgramaEdit = isset($item->id_cat_programa_institucional) ? $coursesprogramaM->edittblcourses($item->id_cat_programa_institucional) : [];
+    $selectNomaccion = $coursesnombreaccM->listnomaccion(); // Catalogo Nombre Accion
+    $selectNomaccionEdit = isset($item->id_cat_nombre_accion) ? $coursesnombreaccM->edittblcourses($item->id_cat_nombre_accion) : []; 
 
-        $selectEstatuto = $coursesestatutoM->listestatuto();
-        $selectEstatutoEdit = isset($item->id_cat_estatuto_organico) ? $coursesestatutoM->edittblcourses($item->id_cat_estatuto_organico) : [];
+    $selectPrograma = $coursesprogramaM->listprograma(); // Catalogo Programa Institucional
+    $selectProgramaEdit = isset($item->id_cat_programa_institucional) ? $coursesprogramaM->edittblcourses($item->id_cat_programa_institucional) : [];
 
-        $selectOrganizacion = $coursesorganizacionM->listorganizacion();
-        $selecOrganizacionEdit = isset($item->id_cat_organizacion) ? $coursesorganizacionM->edittblcourses($item->id_cat_organizacion) : [];
+    $selectEstatuto = $coursesestatutoM->listestatuto();
+    $selectEstatutoEdit = isset($item->id_cat_estatuto_organico) ? $coursesestatutoM->edittblcourses($item->id_cat_estatuto_organico) : [];
 
-        $selectModalidad = $coursesmodalidadM->listmodalidad();
-        $selectModalidadEdit = isset($item->id_cat_modalidad) ? $coursesmodalidadM->edittblcourses($item->id_cat_modalidad) : [];
+    $selectOrganizacion = $coursesorganizacionM->listorganizacion();
+    $selecOrganizacionEdit = isset($item->id_cat_organizacion) ? $coursesorganizacionM->edittblcourses($item->id_cat_organizacion) : [];
 
-        $selectCategoria = $coursescategoriaM->listcategoria();
-        $selectCategoriaEdit = isset($item->id_cat_categoria) ? $coursescategoriaM->edittblcourses($item->id_cat_categoria) : [];
+    $selectModalidad = $coursesmodalidadM->listmodalidad();
+    $selectModalidadEdit = isset($item->id_cat_modalidad) ? $coursesmodalidadM->edittblcourses($item->id_cat_modalidad) : [];
 
-        $idinstructor = $relcoursesM ->relinstructor($item->id_tbl_cursos);
-        $selectInstructor = $instructorM->listinstructor();
-        $selectInstructorEdit = isset($idinstructor) ? $instructorM->edittblinstructores($idinstructor) : [];
+    $selectCategoria = $coursescategoriaM->listcategoria();
+    $selectCategoriaEdit = isset($item->id_cat_categoria) ? $coursescategoriaM->edittblcourses($item->id_cat_categoria) : [];
 
+    $idinstructor = $relcoursesM->relinstructor($item->id_tbl_cursos);
+    $selectInstructor = $instructorM->listinstructor();
+    $selectInstructorEdit = isset($idinstructor) ? $instructorM->edittblinstructores($idinstructor) : [];
 
+    // Devolver la vista con el costo total calculado
+    return view('courses.tablecourses.form', compact('item', 'costot', 'selectBeneficio', 'selectBeneficioEdit', 'selectTipocurso', 'selectTipoCursoEdit', 'selectTipoaccion', 'selectTipoAccionEdit',
+    'selectCoordinacion', 'selectCoordinacionEdit', 'selectNomaccion', 'selectNomaccionEdit', 'selectPrograma', 'selectProgramaEdit', 'selectEstatuto', 'selectEstatutoEdit', 'selectOrganizacion', 'selecOrganizacionEdit',
+    'selectModalidad', 'selectModalidadEdit', 'selectCategoria', 'selectCategoriaEdit', 'selectInstructor', 'selectInstructorEdit'));
+}
 
-        return view('courses.tablecourses.form', compact('item','selectBeneficio','selectBeneficioEdit','selectTipocurso','selectTipoCursoEdit','selectTipoaccion','selectTipoAccionEdit',
-    'selectCoordinacion', 'selectCoordinacionEdit','selectNomaccion','selectNomaccionEdit','selectPrograma','selectProgramaEdit','selectEstatuto','selectEstatutoEdit','selectOrganizacion','selecOrganizacionEdit',
-'selectModalidad','selectModalidadEdit','selectCategoria','selectCategoriaEdit','selectInstructor','selectInstructorEdit'));
-    }
       
 }
 
