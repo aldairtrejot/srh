@@ -5,7 +5,7 @@
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
-
+//Cambops
 // La función actualiza el no de oficio, si es que ya se ha asignado uno
 function updateIterator(message) {
     $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
