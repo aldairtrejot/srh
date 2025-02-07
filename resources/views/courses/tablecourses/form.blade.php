@@ -54,22 +54,14 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Costos" />
                                 <div class="row">
                                     <x-template-form.template-form-input-required label="Costo" type="text"
-                                        name="costo" id="costo" placeholder="Costo"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{ optional($item)->costo ?? '' }}" />
-                                
-                                    <x-template-form.template-form-input-required label="Iva" type="text"
-                                        name="iva" id="iva" placeholder="Iva"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{ optional($item)->iva ?? '' }}" />
-                                
-                                    <x-template-form.template-form-input-required label="Costo Total" type="text"
-                                        name="costo_total" id="costo_total" placeholder="Costo Total"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{$costot}}" readonly />
-                                </div>
-                                
+                                name="costo" placeholder="Costo"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                value="{{ optional($item)->costo ?? '' }}" />
 
+                                <x-template-form.template-form-input-required label="Iva" type="text"
+                                name="iva" placeholder="Iva"
+                                grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                value="{{ optional($item)->iva ?? '' }}" />
                                 </div>
 
                                 <x-template-tittle.tittle-caption-secon tittle="Instructor de Curso" />
@@ -131,7 +123,5 @@
          </div>
 
          <script src="{{ asset('assets/js/app/courses/tablecourses/validate.js') }}"></script>
-         <script src="{{ asset('assets/js/app/courses/tablecourses/total.js') }}"></script>
-
 
      </x-template-app.app-layout>
