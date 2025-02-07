@@ -21,7 +21,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#"
                     data-toggle="dropdown">
-                    <i style="color:#fff" class="fa fa-bell mx-0"></i>
+                    <i style="color:#fff" class="icon-bell mx-0"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list"
                     aria-labelledby="notificationDropdown">
@@ -33,7 +33,7 @@
                             </div>
                         </div>
                         <div class="preview-item-content">
-                            <h6 class="preview-subject font-weight-normal">Estatus</h6>
+                            <h6 class="preview-subject font-weight-normal">Usuario</h6>
                             <p class="font-weight-light small-text mb-0 text-muted">
                                 @if(session('SESSION_ROLE_USER'))
                                     Activo
@@ -47,7 +47,7 @@
             </li>
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                    <i style="color:#fff; font-size: 22px;" class="fa fa-cog mx-0"></i>
+                    <img src="{{ asset('assets/images/app/icon_user.png') }}" alt="profile" />
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                     <a class="dropdown-item" id="changePassword">

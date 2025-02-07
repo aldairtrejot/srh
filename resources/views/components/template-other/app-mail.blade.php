@@ -10,7 +10,7 @@
         <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_email" value="" />
 
         <p>Ingresa el nombre y correo del <strong style="color:rgb(46, 45, 45);">destinatario</strong> para enviar la
-            información del F. Gestión: <label id="noTurnoSistemaEmail"></label>, para su seguimiento.</p>
+            información del No. de turno: <label id="noTurnoSistemaEmail"></label>, para su seguimiento.</p>
 
         <div class="custom-input-container">
             <label class="custom-input-label" for="customTextInput">Nombre</label>

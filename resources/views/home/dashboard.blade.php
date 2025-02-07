@@ -19,13 +19,15 @@
                     <div class="row">
                         <!-- item menu users-->
                         @if($adminMatch)
-                            <x-template-button-dash title="Usuarios del sistema" field="ADMINISTRACIÓN"
-                                href="{{ route('user.list') }}" icon="fas fa-cogs" description="Administración" />
+                            <x-template-button-dash class="card card-administration" title="Usuarios del sistema"
+                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="4006"
+                                description="Total de usuarios" />
                         @endif
                         <!-- item menu users-->
-                        @if($letterMatch)
-                            <x-template-button-dash title="Gestión de control" field="GESTIÓN DE CONTROL"
-                                href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
+                        @if($adminMatch)
+                            <x-template-button-dash class="card card-administration" title="Roles del sistema"
+                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="12"
+                                description="Total de roles" />
                         @endif
                     </div>
 
@@ -86,4 +88,5 @@
                 </div>
             </div>
         </div>
+    </div>
 </x-template-app.app-layout>

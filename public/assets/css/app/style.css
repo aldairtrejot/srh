@@ -36489,10 +36489,8 @@ div.tagsinput span.tag a {
 
 /* Cambio de color */
 .content-wrapper {
-    background-image: url("../../images/imss/backgroud_imss_white12.png");
-    background-attachment: fixed; /* Imagen de fondo fija */
-    background-size: cover; /* Ajusta el tamaño */
-    background-position: center; /* Centra la imagen */
+    background-image: url("../../images/imss/backgroud_imss_white.png");
+    /*   background: red; */
     padding: 2.375rem 2.375rem;
     width: 100%;
     -webkit-flex-grow: 1;
@@ -50077,12 +50075,11 @@ select:disabled {
 }
 
 /* Limitar la altura del dropdown de selectpicker y agregar scroll */
-/*
 .bootstrap-select .dropdown-menu {
-    max-height: 200px; 
-    overflow-y: auto; 
+    max-height: 200px; /* Ajusta la altura máxima */
+    overflow-y: auto; /* Añade scroll si excede la altura */
 }
-*/
+
 
 /* cahenges */
 .toggle-switch {
@@ -50117,125 +50114,5 @@ select:disabled {
     transform: translateX(20px);
 }
 
-/* Clase para centrar el botón cuando solo hay uno */
-.centered-button {
-    display: block;
-    margin: 0 auto;
-}
 
-/* Clase para el contenedor de los botones cuando hay varios (sin espacio entre los botones) */
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 0px;
-    /* Sin espacio entre los botones */
-}
 
-/* Estilos adicionales para los botones */
-.custom-button {
-    background: #707070;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-}
-
-.custom-button:hover {
-    background: #555555;
-}
-
-.button-column {
-    text-align: center;
-}
-
-/* Establece un tamaño fijo para el botón */
-.custom-button {
-    background: #707070;
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    /* Centra horizontalmente */
-    align-items: center;
-    /* Centra verticalmente */
-    width: 30px;
-    /* Tamaño fijo del botón */
-    height: 30px;
-    /* Tamaño fijo del botón */
-    padding: 0;
-    /* Elimina el padding para evitar que se haga más grande */
-}
-
-/* Opcional: Para cuando el botón es el único y tiene un tamaño más consistente */
-.centered-button {
-    margin: 0 auto;
-}
-
-/* Icono dentro del botón */
-.custom-button i {
-    font-size: 1.2rem;
-    /* Ajusta el tamaño del icono */
-    margin: 0;
-}
-
-/* Estilo de los botones al pasar el cursor */
-.btn-hover-enlarge:hover {
-    transform: scale(1.2);
-    /* Aumenta el tamaño del botón al 120% */
-    transition: transform 0.3s ease-in-out;
-    /* Suaviza el cambio */
-}
-
-/* Nueva clase para el contenido del modal */
-.custom-modal-content {
-    background-color: white;
-    /* Fondo blanco */
-    border-radius: 0 !important;
-    /* Sin bordes en el modal */
-    display: flex;
-    flex-direction: column;
-    padding: 0px;
-}
-
-/* Nueva clase para la franja verde del título */
-.custom-modal-header {
-    background-color: white; /* #10312b !important;*/
-    color: white;
-    padding: 6px 0 !important;
-    /* Espaciado vertical sin márgenes horizontales */
-    margin: 0 !important;
-    /* Eliminar márgenes para que ocupe todo el ancho */
-    text-align: center;
-    width: 100% !important;
-    /* Asegura que el encabezado ocupe todo el ancho */
-    box-sizing: border-box !important;
-    /* Asegura que el padding no afecte el ancho total */
-    border-bottom: 7px solid white;
-    /* Línea gris debajo del título */
-}
-
-/* Nueva clase para el contenido del modal */
-.custom-modal-body {
-    padding: 20px !important;
-    /* Asegura el padding deseado */
-    flex-grow: 1;
-    overflow-y: auto;
-    /* Permite desplazamiento si el contenido es largo */
-}
-
-/* Nueva clase para los botones */
-.custom-modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px;
-}
-
-.custom-modal-buttons button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-left: 10px;
-    /* Espacio entre los botones */
-}

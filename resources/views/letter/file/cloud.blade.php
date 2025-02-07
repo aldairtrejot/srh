@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Lineamientos</h5>
+                            <h5 class="font-weight-normal mb-0">Expediente</h5>
                         </div>
                     </div>
                 </div>
@@ -52,11 +52,11 @@
                                     <label id="_noAnio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Fecha de emisión:</label>
+                                    <label class="etiqueta">Fecha de inicio:</label>
                                     <label id="_fechaInicio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Fecha de aplicación:</label>
+                                    <label class="etiqueta">Fecha fin:</label>
                                     <label id="_fechaFin" class="valor"></label>
                                 </div>
                             </div>

@@ -23,11 +23,10 @@ class FileM extends Model
         'es_por_area',
         'num_documento_area',
         'id_cat_area_documento',
-        'id_usuario_captura',
+
         'id_usuario_area',
         'id_usuario_enlace',
         'id_cat_area',
-        'destinatario',
     ];
 
     public function edit(string $id)
@@ -56,7 +55,6 @@ class FileM extends Model
                         correspondencia.tbl_correspondencia.num_turno_sistema 
                 END AS num_documento
             '),
-                DB::raw('correspondencia.tbl_expediente.asunto AS asunto'),
                 DB::raw('correspondencia.tbl_expediente.num_turno_sistema AS num_turno_sistema'),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_expediente.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
@@ -81,7 +79,8 @@ class FileM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_expediente.asunto)) LIKE ?", ['%' . $searchValue . '%']);
+                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_expediente.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
 
@@ -114,29 +113,5 @@ class FileM extends Model
             ->first(); // Usamos `first` para obtener solo un resultado
 
         return $query;
-    }
-
-    // La función retorna el valor mayor de los autoincrementables
-    public function getMaxNuSistem()
-    {
-        // Realizar la consulta usando DB::table
-        $maxNumTurno = DB::table('correspondencia.tbl_expediente')
-            ->selectRaw("
-                            MAX(CAST(REGEXP_REPLACE(num_turno_sistema, '^[^/]+/([0-9]{5})/.*$', '\\1') AS INTEGER)) AS max_num_turno
-                        ")
-            ->whereRaw("num_turno_sistema ~ '/[0-9]{5}/'")
-            ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-
-        return $maxNumTurno;
-    }
-
-    public function getOnly($idCatArea, $idAnio)
-    {
-        return DB::table('correspondencia.tbl_expediente')
-            ->selectRaw('MAX(CAST(REGEXP_REPLACE(num_documento_area, \'^\\D*(\\d+).*\', \'\\1\') AS INT)) AS max_num')
-            ->whereRaw("num_documento_area ~ '/\\d{4}$'")
-            ->where('id_cat_area_documento', $idCatArea)
-            ->where('id_cat_anio', $idAnio)
-            ->first();  // Devuelve el primer (y único) resultado
     }
 }

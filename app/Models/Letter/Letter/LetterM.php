@@ -18,6 +18,7 @@ class LetterM extends Model
         'num_flojas',
         'num_tomos',
         'horas_respuesta',
+        'lugar',
         'asunto',
         'observaciones',
         'fecha_usuario',
@@ -39,8 +40,6 @@ class LetterM extends Model
         'es_doc_fisico',
         'son_mas_remitentes',
         'remitente',
-        'fecha_documento',
-        'id_cat_entidad',
     ];
 
     public function edit(string $id)
@@ -59,14 +58,12 @@ class LetterM extends Model
         $query = DB::table('correspondencia.tbl_correspondencia')
             ->select([
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
-                //DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
                 DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
                 DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
-                //DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento::date, 'DD/MM/YYYY') AS fecha_documento"),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin")
             ])
             ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
@@ -89,13 +86,12 @@ class LetterM extends Model
 
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
-                $query->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
+                $query->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_tramite.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
@@ -138,10 +134,10 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.num_documento AS num_documento',
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
-                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY') AS fecha_documento"),
                 'correspondencia.tbl_correspondencia.num_flojas AS num_flojas',
                 'correspondencia.tbl_correspondencia.num_tomos AS num_tomos',
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
+                'correspondencia.tbl_correspondencia.lugar AS lugar',
                 'correspondencia.tbl_correspondencia.asunto AS asunto',
                 'correspondencia.tbl_correspondencia.folio_gestion AS folio_gestion',
                 'correspondencia.tbl_correspondencia.observaciones AS observaciones',
@@ -157,7 +153,6 @@ class LetterM extends Model
                 'correspondencia.cat_unidad.descripcion AS unidad',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.puesto_remitente AS puesto_remitente',
-                'correspondencia.cat_entidad.descripcion AS entidad'
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
@@ -166,7 +161,6 @@ class LetterM extends Model
             ->leftJoin('correspondencia.cat_clave', 'correspondencia.tbl_correspondencia.id_cat_clave', '=', 'correspondencia.cat_clave.id_cat_clave')
             ->leftJoin('correspondencia.cat_unidad', 'correspondencia.tbl_correspondencia.id_cat_unidad', '=', 'correspondencia.cat_unidad.id_cat_unidad')
             ->leftJoin('correspondencia.cat_coordinacion', 'correspondencia.tbl_correspondencia.id_cat_coordinacion', '=', 'correspondencia.cat_coordinacion.id_cat_coordinacion')
-            ->leftJoin('correspondencia.cat_entidad', 'correspondencia.tbl_correspondencia.id_cat_entidad', '=', 'correspondencia.cat_entidad.id_cat_entidad')
             ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
             ->first(); // Obtener solo el primer resultado
 
@@ -189,14 +183,12 @@ class LetterM extends Model
     //Valida el no de turno exista
     public function validateNoTurno($noTurno)
     {
-        // Usamos whereRaw con binding para evitar problemas de inyección SQL
         $turno = DB::table('correspondencia.tbl_correspondencia')
-            ->whereRaw('UPPER(TRIM(num_turno_sistema)) = UPPER(TRIM(?))', [$noTurno])
-            ->orWhereRaw('UPPER(TRIM(folio_gestion)) = UPPER(TRIM(?))', [$noTurno])
-            ->value('id_tbl_correspondencia'); // Recuperamos el valor de id_tbl_correspondencia
+            ->where('num_turno_sistema', $noTurno)
+            ->value('correspondencia.tbl_correspondencia.id_tbl_correspondencia');
 
-        // Retornamos el valor, si no se encuentra, será null
-        return $turno;
+        // Si no se encuentra información, retornamos null
+        return $turno ?: null;
     }
 
     public function validateNoTurnoArea($noTurno)
@@ -295,15 +287,5 @@ class LetterM extends Model
         return $result;
     }
 
-    // La función retorna el valor mayor de los autoincrementables
-    public function getMaxNuSistem()
-    {
-        // Realizar la consulta usando DB::table
-        $maxNumTurno = DB::table('correspondencia.tbl_correspondencia')
-            ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
-            ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
-            ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-    
-        return $maxNumTurno;
-    }
+
 }

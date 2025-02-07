@@ -4,7 +4,7 @@
         </h2>
     </div>
     <div>
-        <a href="{{ $route }}" class="btn btn-hover-enlarge"
+        <a href="{{ $route }}" class="btn"
             style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none; display: inline-flex; justify-content: center; align-items: center;"
             data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
             <i class="fas fa-arrow-left"></i>

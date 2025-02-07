@@ -1,9 +1,6 @@
 <?php
 
 use App\Http\Controllers\Email\EmailC;
-use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
-use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
-use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
@@ -41,9 +38,8 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
-
-
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
@@ -129,12 +125,6 @@ Route::post('/file/cloud/upload', [CloudFileC::class, 'upload'])->name('file.clo
 Route::post('/file/cloud/delete', [CloudFileC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
 Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middleware('auth');
 
-//Communication
-Route::get('/communication/list', [CommunicationC::class, 'list'])->name('communication.list')->middleware('auth');
-Route::post('/communication/table', [CommunicationC::class, 'table'])->name('communication.table')->middleware('auth');
-Route::get('/communication/create', [CommunicationC::class, 'create'])->name('communication.create')->middleware('auth');
-Route::post('/communication/area', [CollectionAreaInternoC::class, 'list'])->name('communication.area')->middleware('auth');
-Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refreshNoOficio'])->name('communication.noOficio')->middleware('auth');
 
 /// GLOBAL DE CORRESPONDENCIA
 //ALFRESCO -> Descargar archivo

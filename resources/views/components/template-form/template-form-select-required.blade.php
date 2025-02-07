@@ -1,12 +1,3 @@
-<!--
-<style>
-    
-    .bootstrap-select .dropdown-menu {
-    max-height: 200px; 
-    overflow-y: auto; 
-}
-</style>
--->
 
 <div class="{{ $grid }}">
     <div class="form-group row">

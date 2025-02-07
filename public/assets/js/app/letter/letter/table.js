@@ -59,7 +59,7 @@ function searchInit() {
                                         </span>
                                         Reporte
                                     </a>
-                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.folio_gestion}')">
+                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.num_turno_sistema}')">
                                         <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-location-arrow item-icon-menu"></i>
@@ -88,12 +88,12 @@ function searchInit() {
                                 </div>
                             </div>
                         </td>
-                        <td>${object.folio_gestion}</td>
+                        <td>${object.num_turno_sistema}</td>
                         <td>${object.num_documento}</td>
-
                         <td>${object.estatus}</td>
+                        <td>${object.tramite}</td>
                         <td>${object.area}</td>
-                        <td>${object.asunto}</td>
+                        <td>${object.fecha_inicio}</td>
                         <td>${object.fecha_fin}</td>
                     </tr>
                 `;

@@ -52,11 +52,11 @@
                                     <label id="_noAnio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Fecha de emisión:</label>
+                                    <label class="etiqueta">Fecha de inicio:</label>
                                     <label id="_fechaInicio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Fecha de aplicación:</label>
+                                    <label class="etiqueta">Fecha fin:</label>
                                     <label id="_fechaFin" class="valor"></label>
                                 </div>
                             </div>

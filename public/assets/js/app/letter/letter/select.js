@@ -14,8 +14,6 @@ $('#id_cat_area').on('change', function () {
                 //proceso de select 
                 foreachSelectNull(response.selectEnlace, '#id_usuario_enlace');
                 foreachSelectNull(response.selectUsuario, '#id_usuario_area');
-                foreachSelectNull(response.selectUnidad, '#id_cat_unidad');
-                foreachSelectNull(response.selectCoor, '#id_cat_coordinacion');
                 foreachSelect(response.selectTramite, '#id_cat_tramite');
 
                 cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
@@ -27,8 +25,6 @@ $('#id_cat_area').on('change', function () {
         cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
         cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
         cleanSelectMoreSelect('#id_cat_tramite'); //Se limpia el select
-        cleanSelectMoreSelect('#id_cat_unidad'); //Se limpia el select
-        cleanSelectMoreSelect('#id_cat_coordinacion'); //Se limpia el select
         cleanSelectMoreSelect('#id_cat_clave'); //Se limpia el select
         clearClaveData(); //Limpieza de encabezado
         setClaveInNuSystem('-'); // modificación de no de correspondencia

@@ -9,10 +9,7 @@ $(document).ready(function () {
     //checkboxState();
     setData(); //Establecer las variables de informacion general
     //getRole(); //Obtener y definir los roles para no tener los input
-    //setCheckboxArea();
-    //tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
-    //tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
-    //getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
+    setCheckboxArea();
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area
@@ -27,8 +24,6 @@ function setCheckboxArea() {
         cleanSelect('#id_cat_area_documento'); // Limpiar select
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
-        cleanSelectMoreSelect('#id_usuario_area_aux'); //Se limpia el select
-        cleanSelectMoreSelect('#id_usuario_enlace_aux'); //Se limpia el select
     }
     //getRole(); //Validacion por roles
 }
@@ -53,7 +48,6 @@ function getRole() {
         $('#idcheckboxTemplate').prop('disabled', true);
 
         $('#id_cat_area_documento').prop('disabled', true);
-
         $('#id_cat_area_documento').selectpicker('refresh');
     }
 }
@@ -65,12 +59,6 @@ function setData() {
 
     let num_turno_sistema = $('#num_turno_sistema').val();//fecha de captura
     $('#_labNoCorrespondencia').text(num_turno_sistema); //establecer los varoles
-
-    let usuario = $('#usuario').val();//usuario
-    $('#_labUsuario').text(usuario); //establecer los varoles
-
-    let enlace = $('#enlace').val();//Enlace
-    $('#_labEnlace').text(enlace); //establecer los varoles
 
     getData();//Se hace busqueda de la informacion
 }
@@ -94,15 +82,3 @@ function getData() {
     });
 }
 
-
-// Se dectecta el cambio de valor de No de correspondencia asoc, con el fin de obtener el usuario y enlace si es que es correcto
-$('#num_correspondencia').on('input', function () {
-    let value = $(this).val().trim();  // Obtener el valor del campo de texto
-    if (value !== '') { // Validacion para que el campo no este en blanco
-        getNoDocument(value, '#_labUsuario', '#_labEnlace', '#_labArea', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace', '#id_tbl_correspondencia');
-    } else {
-        $('#_labUsuario').text(' _');
-        $('#_labEnlace').text(' _');
-        $('#_labArea').text(' _');
-    }
-});

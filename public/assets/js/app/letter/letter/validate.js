@@ -9,10 +9,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#num_documento').val(), 'No. Documento') ||
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
         isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
-        //isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
+        isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
         isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
-        isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
-        isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#id_cat_area').val(), 'Área') ||
         isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
@@ -26,8 +24,9 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 50) ||
         isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 400) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
+        isExceedingLength($('#lugar').val(), 'Lugar', 250) ||
+        isExceedingLength($('#asunto').val(), 'Asunto', 130) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 130)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
     }
@@ -102,14 +101,13 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
-    /*
     // Validacion de no document sea unico
     let isValid = getNoUnique($('#id_tbl_correspondencia').val(), $('#num_documento').val(), 'num_documento');
     if (isValid) {
         notyfEM.error('El No. Documento ya está registrado.');
         event.preventDefault();  // Detener el envío si la validación falla
         return;  // Detener la ejecución aquí
-    }*/
+    }
 
     let isValidG = getNoUnique($('#id_tbl_correspondencia').val(), $('#folio_gestion').val(), 'folio_gestion');
     if (isValidG) {
