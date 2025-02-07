@@ -43,13 +43,13 @@
                                 </button>
 
                                 <!-- Botón 3 -->
-                                <button class="btn btn-hover-enlarge"
+                                <button class="btn btn-hover-enlarge" onclick="addDestinatario();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Destinatario">
                                     <i class="fa fa-user-plus"></i>
                                 </button>
 
-                                <button class="btn btn-hover-enlarge"
+                                <button class="btn btn-hover-enlarge" onclick="addTema();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Tema">
                                     <i class="fa fa-file-text"></i>

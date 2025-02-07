@@ -19,6 +19,20 @@ $(document).ready(function () {
             $('#modalSolicitante').fadeOut(); // Ocultar la ventana modal
         }
     });
+
+    // Refresh add solicitante
+    $(window).click(function (event) {
+        if ($(event.target).is('#modalDestinatario')) {
+            $('#modalDestinatario').fadeOut(); // Ocultar la ventana modal
+        }
+    });
+
+    // Refresh add solicitante
+    $(window).click(function (event) {
+        if ($(event.target).is('#modalTema')) {
+            $('#modalTema').fadeOut(); // Ocultar la ventana modal
+        }
+    });
 });
 
 // ACTIVACION DE MODAL
@@ -32,6 +46,15 @@ function refreshOficio() {
     $('#modalBackdrop').fadeIn();//Iniciar ventana modal
 }
 
+// LA funcion activa el modal solicitante
+function addDestinatario() {
+    $('#modalDestinatario').fadeIn();//Iniciar ventana modal
+}
+
+// LA funcion activa el modal solicitante
+function addTema() {
+    $('#modalTema').fadeIn();//Iniciar ventana modal
+}
 
 
 // OCULTA MODAL
@@ -43,6 +66,16 @@ $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar
 // Cerrar modal refresh SOLICITANTE
 $('#cancelBtn_solicitante').click(function () { //Se pulsa el boton de cancelar
     $('#modalSolicitante').fadeOut(); // Cerrar la ventana modal
+});
+
+// Cerrar modal refresh DESTINATARIO
+$('#cancelBtn_destinatario').click(function () { //Se pulsa el boton de cancelar
+    $('#modalDestinatario').fadeOut(); // Cerrar la ventana modal
+});
+
+// Cerrar modal refresh TEMA
+$('#cancelBtn_tema').click(function () { //Se pulsa el boton de cancelar
+    $('#modalTema').fadeOut(); // Cerrar la ventana modal
 });
 
 
