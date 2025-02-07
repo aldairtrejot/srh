@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class TblinstructoresM extends Model{
+class TblinstructoresM extends Model
+{
     protected $table = 'capacitacion.tbl_instructores';
     protected $primaryKey = 'id_tbl_instructores';
     public $timestamps = false;

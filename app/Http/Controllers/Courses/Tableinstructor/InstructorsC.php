@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Courses\Tableinstructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
-use App\Models\Courses\Courses\Instructores\Instructores\UserM;
-use App\Models\Courses\Courses\Instructores\Instructores\TblinstructoresM;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;  
 use App\Http\Controllers\Admin\MessagesC;
 
 class InstructorsC extends Controller
@@ -18,59 +18,68 @@ class InstructorsC extends Controller
         $tableInstructors = InstructorM::all();
         return view('courses.tableinstructor.list', compact('tableInstructors'));
     }
+
     public function save(Request $request)
-    {
-        $now = Carbon::now(); // Fecha actual
-    
-        if (!$request->id) {
-            // Crear nuevo usuario
-            $nuevoUsuario = UserM::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'email_verified_at' => $request->email_verified_at,
-                'password' => bcrypt($request->password), // Encriptar contraseña
-                'remember_token' => $request->remember_token,
-                'id_tbl_empleados_central' => $request->id_tbl_empleados_central,
-                'id_tbl_empleados_hraes' => $request->id_tbl_empleados_hraes,
-                'id_tbl_empleados_transferidos' => $request->id_tbl_empleados_transferidos,
-                'id_tbl_empleados_aux' => $request->id_tbl_empleados_aux,
-                'es_por_nomina' => $request->es_por_nomina,
-                'estatus' => $request->estatus ?? false,
-                'id_usuario' => Auth::id(), // Tomar el usuario autenticado
-                'fecha_usuario' => $now,
-                'id_cat_tipo_schema' => $request->id_cat_tipo_schema,
-            ]);
-    
-            // Obtener ID del usuario creado
-            $idUsuario = $nuevoUsuario->id; 
-    
-            // Crear relación en la tabla de instructores
-            TblinstructoresM::create([
-                'id_usuario_sistema' => Auth::id(),
-                'id_usuario_empleado' => $idUsuario,
-                'id_tbl_instructores' => $request->id_tbl_instructores,
-                'fecha_usuario' => $now
-            ]);
+{
+    \Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
+    \Log::info('📩 Datos recibidos en request:', $request->all());
+
+    try {
+        $now = Carbon::now();
+        $messagesC = new MessagesC();
+        $request->validate([
+            'curp' => 'required|string|size:18',
+        ]);
+
+        // Obtener usuario desde el modelo
+        $instructorM = new InstructorM();
+        $idUsuario = $instructorM->obtenerOcrearUsuarioPorCurp($request->curp);
+
+        if (!$idUsuario) {
+            \Log::error('❌ No se pudo obtener un ID de usuario.');
+            return $messagesC->messageErrorRedirect('tableinstructor.list', 'No se pudo obtener un usuario válido.');
         }
+
+        \Log::info('✅ Usuario registrado en administration.users con ID: ' . $idUsuario);
+
+        // Guardar en `capacitacion.tbl_instructores`
+        $idInstructor = $instructorM->obtenerOcrearInstructor($request->curp, $request->estatus);
+
+        if (!$idInstructor) {
+            \Log::error('❌ No se pudo registrar el instructor en capacitacion.tbl_instructores.');
+            return $messagesC->messageErrorRedirect('tableinstructor.list', 'No se pudo registrar el instructor.');
+        }
+
+        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor registrado correctamente.');
+
+    } catch (\Exception $e) {
+        \Log::error('🔥 Error en save(): ' . $e->getMessage());
+        return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error en el servidor: ' . $e->getMessage());
     }
-    
+}
+
+
+    public function create()
+    {
+        $item = new InstructorM();
+        return view('courses.tableinstructor.form', compact('item'));
+    }
+
+
     public function searchTable(Request $request)
     {
         try {
-
-            $iterator = $request->input('iterator'); //OFSET valor de paginador
+            $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue');
-            
 
             $instructorM = new InstructorM();
-            $value = $instructorM ->list($iterator, $searchValue);
+            $value = $instructorM->list($iterator, $searchValue);
 
-            return response()->json([ // Lógica para procesar la solicitud+
+            return response()->json([ 
                 'value' => $value,
                 'status' => true,
             ]);
-
-        } catch (\Exception $e) { // Manejo de errores  
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -113,60 +122,46 @@ class InstructorsC extends Controller
         return view('courses.tableinstructor.edit', compact('instructor'));
     }
 
-
-    //BUSQUEDA DE CURP
+    // BUSQUEDA DE CURP
+    // Método dataCurp en InstructorsC.php
     public function dataCurp(Request $request)
 {
     try {
-        \Log::info('Recibiendo CURP: ' . $request->curp);
         $request->validate([
             'curp' => 'required|string|size:18',
         ]);
 
+        \Log::info("CURP recibida: " . $request->curp); // 📌 Depuración: Verificar que la CURP llegue al servidor
+        $messagesC = new MessagesC();
         $instructorM = new InstructorM();
 
-        \Log::info('Buscando datos en centralCurp...');
+        // Obtener los datos
         $centralCurp = $instructorM->centralCurp($request->curp);
-
-        \Log::info('Buscando datos en buscarEmpleadoHRAES...');
         $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
-
-        \Log::info('Buscando datos en buscarEmpleadoTransferidos...');
         $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
 
-        $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
+        // Validar y devolver un objeto, no un array vacío
+        $resultado = $centralCurp ?? $empleadoHRAES ?? $empleadoTransferidos;
 
-        if (empty($resultados)) {
-            \Log::info('No se encontraron resultados para el CURP.');
+        if ($resultado) {
             return response()->json([
-                'status' => false,
-                'message' => 'No se encontraron resultados para la CURP proporcionada.',
-                'value' => null,
+                'status' => true,
+                'value' => is_array($resultado) ? (object) $resultado[0] : (object) $resultado, // 📌 Garantiza que siempre sea un objeto
+                $messagesC->messageSuccessRedirect('tableinstructor.create', 'CURP.'),
             ], 200);
         }
 
-        \Log::info('Datos encontrados: ' . json_encode($resultados));
+        // Si no se encuentran datos
         return response()->json([
-            'status' => true,
-            'value' => $resultados,
-            'message' => 'Datos encontrados correctamente',
+            'status' => false,
+            'value' => null, // 📌 Importante para evitar `undefined`
+            $messagesC->messageSuccessRedirect('tableinstructor.create', 'CURP.'),
         ], 200);
-
     } catch (\Exception $e) {
-        \Log::error('Error en dataCurp: ' . $e->getMessage());
         return response()->json([
             'status' => false,
             'message' => 'Error en el servidor: ' . $e->getMessage(),
         ], 500);
     }
 }
-
-
-public function create()
-    {
-        $item = new InstructorM();
-        dd($item); // Depurar la variable
-        return view('courses.tableinstructor.form', compact('item'));
-    }
-
 }

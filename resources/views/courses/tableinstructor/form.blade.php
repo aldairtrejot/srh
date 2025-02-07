@@ -63,12 +63,17 @@
                                 </div>
                             </div>
 
-                            <!-- Campo Estatus -->
-                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                                <label for="estatus">Estatus</label>
-                                <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" 
-                                    {{ optional($item)->estatus ? 'checked' : '' }}>
-                            </div>
+                       <!-- Campo Estatus -->
+<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+    <label for="estatus">Estatus</label>
+
+    <!-- Campo oculto para asegurar que "estatus" siempre se envíe -->
+    <input type="hidden" name="estatus" value="0">
+
+    <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" value="1"
+        {{ old('estatus', optional($item)->estatus ?? false) ? 'checked' : '' }}>
+</div>
+
 
                            <!-- Campo oculto para id_cat_tipo_schema -->
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_schema"

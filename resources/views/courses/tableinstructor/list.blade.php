@@ -71,7 +71,6 @@
 
  <!-- CODE SCRIPT-->
  <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
- <script src="{{ asset('assets/js/app/default/url.js') }}"></script>
 </x-template-app.app-layout>
 
    
