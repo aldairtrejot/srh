@@ -21,7 +21,6 @@ function searchInit() {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            console.log(response);
             const tbody = $('#template-table tbody');
             tbody.empty(); // Limpiar la tabla
 
