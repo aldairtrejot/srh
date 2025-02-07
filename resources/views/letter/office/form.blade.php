@@ -44,13 +44,9 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_area"
                                     value="{{ optional($item)->id_cat_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_area"
-                                    value="{{ optional($item)->id_usuario_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_enlace"
-                                    value="{{ optional($item)->id_usuario_enlace ?? '' }}" />
-
-
+                                <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
+                                    value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Letter\Letter;
 
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
+use App\Models\Letter\Collection\CollectionEntidadM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
@@ -46,6 +47,7 @@ class LetterC extends Controller
         $collectionDateM = new CollectionDateM();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRemitenteM = new CollectionRemitenteM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
@@ -53,6 +55,12 @@ class LetterC extends Controller
         $item->rfc_remitente_bool = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
         $item->es_doc_fisico = true; // Inicio de variables
         $item->son_mas_remitentes = false; // Inicio de variables
+
+        $item->num_flojas = 1; // Inicio de variables
+        $item->num_tomos = 0; // Inicio de variables
+        $item->horas_respuesta = 0; // Inicio de variables
+
+
 
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
@@ -63,7 +71,7 @@ class LetterC extends Controller
         $selectEnlace = []; //Catalogo de Area - enlace, al crear comienza en vacio 
         $selectEnlaceEdit = []; //Catalogo de Area - enlace, al crear comienza en vacio 
 
-        $selectUnidad = $collectionUnidadM->list();//Catalogo de unidad
+        $selectUnidad = [];//Catalogo de unidad
         $selectUnidadEdit = []; //Catalogo de Unidad, al crear comienza en vacio 
 
         $selectCoordinacion = []; //Catalogos de coordinacion vacios
@@ -81,7 +89,10 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function edit(string $id)
@@ -96,6 +107,7 @@ class LetterC extends Controller
         $collectionTramiteM = new CollectionTramiteM();
         $collectionRemitenteM = new CollectionRemitenteM();
         $collectionClaveM = new CollectionClaveM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -135,7 +147,10 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function table(Request $request)
@@ -231,16 +246,25 @@ class LetterC extends Controller
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
+            
+            /// Validación de no de  turno de sistema
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA')));
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
             $data = [
-                'num_turno_sistema' => strtoupper($request->num_turno_sistema),
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'num_documento' => strtoupper($request->num_documento),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
-                'num_flojas' => $request->num_flojas,
-                'num_tomos' => $request->num_tomos,
+                'num_flojas' => 1,
+                'num_tomos' => 0,
                 'horas_respuesta' => $request->horas_respuesta,
-                'lugar' => strtoupper($request->lugar),
+                'id_cat_entidad' => $request->id_cat_entidad,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_area' => $request->id_cat_area,
@@ -258,6 +282,7 @@ class LetterC extends Controller
                 'es_doc_fisico' => $es_doc_fisico,
                 'son_mas_remitentes' => $son_mas_remitentes,
                 'remitente' => strtoupper($request->remitente),
+                'fecha_documento' => $request->fecha_documento,
 
                 // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
@@ -286,10 +311,10 @@ class LetterC extends Controller
                     'num_documento' => $request->num_documento,
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,
-                    'num_flojas' => $request->num_flojas,
-                    'num_tomos' => $request->num_tomos,
+                    'num_flojas' => 1,
+                    'num_tomos' => 0,
                     'horas_respuesta' => $request->horas_respuesta,
-                    'lugar' => strtoupper($request->lugar),
+                    'id_cat_entidad' => $request->id_cat_entidad,
                     'asunto' => strtoupper($request->asunto),
                     'observaciones' => strtoupper($request->observaciones),
                     'id_cat_area' => $request->id_cat_area,
@@ -307,6 +332,7 @@ class LetterC extends Controller
                     'es_doc_fisico' => $es_doc_fisico,
                     'son_mas_remitentes' => $son_mas_remitentes,
                     'remitente' => strtoupper($request->remitente),
+                    'fecha_documento' => $request->fecha_documento,
 
                     'id_usuario_sistema' => Auth::user()->id,
                     'fecha_usuario' => $now,
@@ -386,6 +412,56 @@ class LetterC extends Controller
             'value' => $value,
         ]);
     }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
+    }
+    // Incrementacion del no consecutivo
+    /*
+    private function incrementarConsecutivo($turno)
+    {
+        // Usamos una expresión regular para extraer el prefijo, el número consecutivo y el sufijo
+        if (preg_match('/^(.*\/)(\d{5})(\/\d{4})$/', $turno, $matches)) {
+            // Extraemos los componentes
+            $prefijo = $matches[1];  // DGP/
+            $numeroConsecutivo = $matches[2];  // 01254
+            $sufijo = $matches[3];  // /2025
+
+            // Incrementamos el número consecutivo
+            $nuevoNumero = str_pad($numeroConsecutivo + 1, 5, '0', STR_PAD_LEFT);  // Aseguramos que tenga 5 dígitos
+
+            // Concatenamos el nuevo número con el prefijo y el sufijo
+            $nuevoTurno = $prefijo . $nuevoNumero . $sufijo;
+
+            return $nuevoTurno;
+        }
+
+        // Si no coincide con el formato esperado, devolvemos null o un valor de error
+        return null;
+    }
+        */
 }
 
 

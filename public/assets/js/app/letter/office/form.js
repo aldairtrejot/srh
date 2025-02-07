@@ -27,12 +27,9 @@ function setCheckboxArea() {
         cleanSelect('#id_cat_area_documento'); // Limpiar select
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
+        cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
     }
-
-    //Limpieza de variables
-    $('#id_cat_area').val('');
-    $('#id_usuario_area').val('');
-    $('#id_usuario_enlace').val('');
     //getRole(); //Validacion por roles
 }
 
@@ -102,7 +99,7 @@ function getData() {
 $('#num_correspondencia').on('input', function () {
     let value = $(this).val().trim();  // Obtener el valor del campo de texto
     if (value !== '') { // Validacion para que el campo no este en blanco
-        getNoDocument(value, '#_labUsuario', '#_labEnlace', '#_labArea', $('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val());
+        getNoDocument(value, '#_labUsuario', '#_labEnlace', '#_labArea', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace', '#id_tbl_correspondencia');
     } else {
         $('#_labUsuario').text(' _');
         $('#_labEnlace').text(' _');

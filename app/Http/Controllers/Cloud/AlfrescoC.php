@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Cloud;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -100,68 +100,76 @@ class AlfrescoC extends Controller
                     ->header('Content-Length', strlen($body));
             } else {
                 curl_close($ch);
+                return redirect()->back()->with([
+                    'value' => 'error', //VALUE_IS(error, warning, success)
+                    'message' => 'Se produjo un problema al intentar completar la descarga.',
+                    'estatus' => 'true'
+                ]);
+                /*
                 return response()->json([
                     'estatus' => "Error: No se pudo obtener el archivo. Código de respuesta: $http_code",
                     'status' => false,
                 ]);
+                */
             }
         }
     }
 
     public function see(Request $request)
     {
-        // Obtener el nombre de usuario y la contraseña desde las variables de entorno
-        $username = env('ALFRESCO_USER'); // Credenciales para la autenticación básica
-        $password = env('ALFRESCO_PASS'); // Credenciales para la autenticación básica
+        // UUID del archivo en Alfresco
+        $uuid = $request->uid;
 
-        // El UID del archivo que deseas ver
-        $nodeId = $request->uid;
+        // Configuración de autenticación
+        $username = env('ALFRESCO_USER');
+        $password = env('ALFRESCO_PASS');
 
-        // Construir la URL completa de la API de Alfresco para obtener el contenido del archivo
-        $alfresco_url = 'http://172.16.17.12:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{node-id}/content';
-        $url = str_replace('{node-id}', $nodeId, $alfresco_url);  // Reemplazar {node-id} por el UID del archivo
+        // Construye la URL para descargar el archivo
+        $urlSee = env('ALFRESCO_SEE');
+        $url = str_replace('{uuid}', $uuid, $urlSee);
 
-        // Inicializar cURL
-        $ch = curl_init();
+        // Inicializa cURL para descargar el archivo
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/pdf, image/png, image/jpeg'));
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-        // Configurar opciones de cURL
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  // Para recibir la respuesta como una cadena
-        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");  // Autenticación básica
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // Seguir cualquier redirección
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);  // Aceptar JSON en la respuesta
-
-        // Ejecutar la solicitud
+        // Ejecuta la solicitud
         $response = curl_exec($ch);
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE); // Obtener tipo de contenido
 
-        // Comprobar si hubo un error
-        if (curl_errno($ch)) {
-            // Si ocurre un error en la solicitud cURL
-            return response()->json([
-                'estatus' => 'Error de cURL: ' . curl_error($ch),
-                'status' => false,
+        curl_close($ch);
+
+        // Verifica si hubo un error
+        if ($response === FALSE || $http_status != 200) {
+            return redirect()->back()->with([
+                'value' => 'error', //VALUE_IS(error, warning, success)
+                'message' => 'Se produjo un error al intentar abrir el documento.',
+                'estatus' => 'true'
             ]);
         } else {
-            // Obtener el código de respuesta HTTP
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            // Si la solicitud fue exitosa (código HTTP 200)
-            if ($http_code == 200) {
-                curl_close($ch);
-
-                // Devolver la URL para abrir el archivo en una nueva pestaña del navegador
-                return response()->json([
-                    'url' => $url,  // URL del archivo para abrir en el navegador
-                    'status' => true,
-                ]);
+            // Detecta el tipo de archivo y ajusta los encabezados apropiadamente
+            if (strpos($content_type, 'application/pdf') !== false) {
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: inline; filename="documento.pdf"');
+            } elseif (strpos($content_type, 'image/png') !== false) {
+                header('Content-Type: image/png');
+                header('Content-Disposition: inline; filename="documento.png"');
+            } elseif (strpos($content_type, 'image/jpeg') !== false) {
+                header('Content-Type: image/jpeg');
+                header('Content-Disposition: inline; filename="documento.jpg"');
             } else {
-                // En caso de error, devolver el código de error y el mensaje
-                curl_close($ch);
-                return response()->json([
-                    'estatus' => "Error de autenticación o acceso al archivo. Código de respuesta: $http_code",
-                    'status' => false,
-                ]);
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: inline; filename="documento.pdf"');
             }
+
+            // Establece la longitud del contenido
+            header('Content-Length: ' . strlen($response));
+
+            // Envía el contenido del archivo al navegador
+            echo $response;
         }
     }
 }
