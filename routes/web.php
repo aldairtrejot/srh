@@ -3,6 +3,7 @@
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
+use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
@@ -139,6 +140,9 @@ Route::post('/communication/area', [CollectionAreaInternoC::class, 'list'])->nam
 Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refreshNoOficio'])->name('communication.noOficio')->middleware('auth');
 
 /// GLOBAL DE CORRESPONDENCIA
+// SOLICTANTES -> AGREGAR UNO NUEVO
+Route::post('/solicitante/add', [CollectionSolicitanteC::class, 'addSolcitante'])->name('solicitante.add')->middleware('auth');
+
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
 //ALFRESCO -> ver archivo

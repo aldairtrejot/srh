@@ -167,7 +167,7 @@
 <script src="{{ asset('assets/js/app/letter/communication/modal.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/communication/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/communication/consecutivo.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/communication/solicitante.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/function/solicitante.js') }}"></script>
 
 <!--
 
