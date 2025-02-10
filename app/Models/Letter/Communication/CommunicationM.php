@@ -29,6 +29,8 @@ class CommunicationM extends Model
         'estatus',
         'id_usuario_captura',
         'fecha_usuario_captura',
+        'id_usuario_sistema',
+        'fecha_usuario',
     ];
 
     // La función lista la tabla para el inciio

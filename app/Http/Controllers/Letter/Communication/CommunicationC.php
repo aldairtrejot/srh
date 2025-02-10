@@ -13,6 +13,9 @@ use App\Models\Letter\Collection\CollectionTemaM;
 use App\Models\Letter\Communication\CommunicationM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Letter\Log\LogC;
+use App\Http\Controllers\Admin\MessagesC;
+use Carbon\Carbon;
 
 
 use Illuminate\Support\Facades\Log;
@@ -85,6 +88,54 @@ class CommunicationC extends Controller
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    // LA función guarda los datos 
+    public function save(Request $request)
+    {
+        // Class
+        $now = Carbon::now(); //Hora y fecha actual
+        $messagesC = new MessagesC(); // Messages
+        $logC = new LogC(); // Save data
+        $communicationM = new CommunicationM(); // Class Major
+        $collectionDateM = new CollectionDateM(); // Date
+        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
+
+        if (!isset($request->id_tbl_correspondencia_interno)) { // Agregar elemento
+            $data = [
+                'consecutivo' => strtoupper($request->consecutivo),
+                'fecha_asignacion' => $request->fecha_captura,//Carbon::createFromFormat('d/m/Y', $request->fecha_asignacion)->format('Y-m-d'),
+                'cargo_destinatario' => strtoupper($request->cargo_destinatario),
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_usuario' => Auth::user()->id,
+                'id_cat_area_interno' => $request->id_cat_area_interno,
+                'id_cat_solicitante' => $request->id_cat_solicitante,
+                'id_cat_destinatario' => $request->id_cat_destinatario,
+                'id_cat_tema' => $request->id_cat_tema,
+                'id_cat_entidad' => $request->id_cat_entidad,
+                'estatus' => true,
+
+                // Datos del sistema
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+
+                // Datos de captura por primera vez
+                'id_usuario_captura' => Auth::user()->id,
+                'fecha_usuario_captura' => $now,
+            ];
+
+            // Crear el registro en la base de datos utilizando el arreglo
+            $communicationM::create($data);
+
+            // Opcional: Guardar el log con los valores insertados (si se necesita)
+            $logC->add('correspondencia.tbl_correspondencia_interno', $data);
+            $collectionConsecutivoInternoM->iteratorConsecutivo($collectionDateM->idYear(), config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'));
+
+            return $messagesC->messageSuccessRedirect('communication.list', 'Elemento agregado con éxito.');
+        } else { // Modificar elemento
+            echo 'Erro';
         }
     }
 }

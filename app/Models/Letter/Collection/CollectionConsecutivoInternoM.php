@@ -18,4 +18,14 @@ class CollectionConsecutivoInternoM extends Model
 
         return $query;
     }
+
+    //La funcion actualiza el consecutivo
+    public function iteratorConsecutivo($idYear, $idDoc)
+    {
+        // Usando Query Builder para hacer el UPDATE
+        DB::table('correspondencia.cat_consecutivo_interno')
+            ->where('id_cat_anio', $idYear)
+            ->where('id_cat_tipo_documento', $idDoc)
+            ->increment('valor', 1); // Aumenta el campo 'consecutivo' en 1
+    }
 }

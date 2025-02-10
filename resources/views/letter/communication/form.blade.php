@@ -35,14 +35,14 @@
                                     <i class="fa fa-refresh"></i>
                                 </button>
 
-                                <!-- Botón 2 -->
+                                <!--
                                 <button class="btn btn-hover-enlarge" onclick="addSolicitante();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Solicitante">
                                     <i class="fa fa-user-plus"></i>
                                 </button>
 
-                                <!-- Botón 3 -->
+
                                 <button class="btn btn-hover-enlarge" onclick="addDestinatario();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Destinatario">
@@ -54,8 +54,8 @@
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Tema">
                                     <i class="fa fa-file-text"></i>
                                 </button>
+                                 -->
 
-                                <!-- Botón de Regreso (Ancla) alineado a la derecha -->
                                 <a href="{{ route('communication.list') }}" class="btn btn-hover-enlarge"
                                     style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none; display: inline-flex; justify-content: center; align-items: center;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
@@ -65,7 +65,7 @@
                         </div>
 
                         <div>
-                            <form id="myForm" action="{{ route('file.save') }}" method="POST" class="form-sample">
+                            <form id="myForm" action="{{ route('communication.save') }}" method="POST" class="form-sample">
                                 @csrf
 
                                 <!-- item -> hidden -->
