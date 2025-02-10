@@ -151,6 +151,8 @@ Route::post('/solicitante/add', [CollectionSolicitanteC::class, 'addSolcitante']
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
 //ALFRESCO -> ver archivo
 Route::post('/cloud/see', [AlfrescoC::class, 'see'])->name('cloud.see')->middleware('auth');
+// ALFRESCO DELETE
+Route::post('/cloud/delete', [AlfrescoC::class, 'delete'])->name('cloud.delete')->middleware('auth');
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');
 // CONSECUTIVO DE AREA ->

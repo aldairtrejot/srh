@@ -77,5 +77,6 @@
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/communication/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
 
 </x-template-app.app-layout>
