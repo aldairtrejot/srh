@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Letter\Communication;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Administration\UserM;
 use App\Models\Letter\Collection\CollectionAreaInternoM;
+use App\Models\Letter\Collection\CollectionConfigCloudInternoM;
 use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
 use App\Models\Letter\Collection\CollectionDateM;
 use App\Models\Letter\Collection\CollectionDestinatarioM;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
+use App\Models\Letter\Cloud\CloudConfigM;
 
 
 use Illuminate\Support\Facades\Log;
@@ -238,6 +240,69 @@ class CommunicationC extends Controller
 
         return response()->json([
             'status' => $status,
+        ]);
+    }
+
+    // LA función sube el archivo a alfresco 
+    public function addOficio(Request $request)
+    {
+
+        $logC = new LogC();
+        $alfrescoC = new AlfrescoC();
+        $cloudConfigM = new CloudConfigM();
+        $communicationM = new CommunicationM(); // Class Major
+        $collectionConfigCloudInternoM = new CollectionConfigCloudInternoM();
+
+        //Value
+        $now = Carbon::now(); //Hora y fecha actual
+        $messages = 'Se presentó un error en el proceso.';
+        $status = false;
+
+        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
+            $file = $request->file('file');// Obtener el archivo cargado
+
+            $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
+            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a MB
+
+            $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $validExtensions = explode(',', $fileExtension->valor);// Convertimos la cadena de extensiones válidas en un array
+
+            if ($tamanoArchivoMB > $maxSize->valor) { //Validacion por tamaño maximo de archivo
+                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';//. $maxSize . ' MB.';
+            } else if (!in_array($extensionArchivo, $validExtensions)) { //Validacion de extensiones
+                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+            } else {
+                // Agregar archivo, pero se obtienen el uid de la carpeta asi como el año del documento
+                $id_anio = $communicationM->getIdAnio($request->id); // Se obtiene el id de anio de archivo
+                // Se obtienen el uuid de la carpeta donde se guardara el archivo
+                $uuid = $collectionConfigCloudInternoM->getUuid($id_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'));
+
+                $result = $alfrescoC->add($file, $uuid); // Se sube el archivo a alfresco
+                log::info($result);
+                //Validacion
+                if ($result) {// Manda el uuid para que se agregue a la tabla
+                    $data = [
+                        'uuid_oficio' => $result,
+                        // Datos del sistema
+                        'id_usuario_sistema' => Auth::user()->id,
+                        'fecha_usuario' => $now,
+                    ];
+
+                    $communicationM::where('id_tbl_correspondencia_interno', $request->id)
+                        ->update($data);
+                    $data['id_tbl_correspondencia_interno'] = $request->uuid;
+                    $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
+                    $status = true;
+
+                }
+            }
+        }
+
+
+        return response()->json([
+            'status' => $status,
+            'messages' => $messages,
         ]);
     }
 }

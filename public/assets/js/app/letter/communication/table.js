@@ -55,7 +55,7 @@ function searchInit() {
                         <td>${object.fecha}</td>
                         <td class="button-column">
                             ${object.uuid_oficio == null ? `
-                                <button  style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                <button  onclick="addFileOficio('${object.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
                                         <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
                                     </button>
                             ` : `

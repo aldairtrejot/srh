@@ -78,6 +78,9 @@
     <x-template-modal.modal-delete tittleModal="id_modal_delete_oficio" idInput="id_uuid_oficio" valueInput=""
         cancelModal="id_modal_calcel_oficio" confirmButton="" functionConfirm="confirmModalOficio();" />
 
+    <input type="file" class="file-input-oficio" style="display: none;" />
+    <input type="text" id="id_oficio" style="display: none;" />
+
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
