@@ -243,6 +243,39 @@ class CommunicationC extends Controller
         ]);
     }
 
+    // La funcion elimina el archivo de alfresco y actualiza la tabla;
+    public function updateAcuse(Request $request)
+    {
+        // Class
+        $logC = new LogC(); // Save data
+        $alfrescoC = new AlfrescoC();
+        $communicationM = new CommunicationM(); // Class Major
+        $now = Carbon::now(); //Hora y fecha actual
+
+        // Eliminar doc de alfresco
+        // La variable status obtiene verdadero o falso si es que se elimina el archivo por su uuid
+        $status = $alfrescoC->delete($request->uuid);
+
+        if ($status) { // Se elimino con éxito por lo tanto se actualiza de la tabla como null
+            $data = [
+                'uuid_acuse' => NULL,
+                // Datos del sistema
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+
+            $communicationM::where('uuid_acuse', $request->uuid)
+                ->update($data);
+            $data['uuid_acuse'] = $request->uuid;
+            $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
+            $status = true;
+        }
+
+        return response()->json([
+            'status' => $status,
+        ]);
+    }
+
     // LA función sube el archivo a alfresco 
     public function addOficio(Request $request)
     {
@@ -291,7 +324,70 @@ class CommunicationC extends Controller
 
                     $communicationM::where('id_tbl_correspondencia_interno', $request->id)
                         ->update($data);
-                    $data['id_tbl_correspondencia_interno'] = $request->uuid;
+                    $data['id_tbl_correspondencia_interno'] = $request->id;
+                    $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
+                    $status = true;
+
+                }
+            }
+        }
+
+
+        return response()->json([
+            'status' => $status,
+            'messages' => $messages,
+        ]);
+    }
+
+    // LA función sube el archivo a alfresco  -> ACUSE
+    public function addAcuse(Request $request)
+    {
+
+        $logC = new LogC();
+        $alfrescoC = new AlfrescoC();
+        $cloudConfigM = new CloudConfigM();
+        $communicationM = new CommunicationM(); // Class Major
+        $collectionConfigCloudInternoM = new CollectionConfigCloudInternoM();
+
+        //Value
+        $now = Carbon::now(); //Hora y fecha actual
+        $messages = 'Se presentó un error en el proceso.';
+        $status = false;
+
+        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
+            $file = $request->file('file');// Obtener el archivo cargado
+
+            $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
+            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a MB
+
+            $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $validExtensions = explode(',', $fileExtension->valor);// Convertimos la cadena de extensiones válidas en un array
+
+            if ($tamanoArchivoMB > $maxSize->valor) { //Validacion por tamaño maximo de archivo
+                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';//. $maxSize . ' MB.';
+            } else if (!in_array($extensionArchivo, $validExtensions)) { //Validacion de extensiones
+                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+            } else {
+                // Agregar archivo, pero se obtienen el uid de la carpeta asi como el año del documento
+                $id_anio = $communicationM->getIdAnio($request->id); // Se obtiene el id de anio de archivo
+                // Se obtienen el uuid de la carpeta donde se guardara el archivo
+                $uuid = $collectionConfigCloudInternoM->getUuid($id_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'));
+
+                $result = $alfrescoC->add($file, $uuid); // Se sube el archivo a alfresco
+                log::info($result);
+                //Validacion
+                if ($result) {// Manda el uuid para que se agregue a la tabla
+                    $data = [
+                        'uuid_acuse' => $result,
+                        // Datos del sistema
+                        'id_usuario_sistema' => Auth::user()->id,
+                        'fecha_usuario' => $now,
+                    ];
+
+                    $communicationM::where('id_tbl_correspondencia_interno', $request->id)
+                        ->update($data);
+                    $data['id_tbl_correspondencia_interno'] = $request->id;
                     $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
                     $status = true;
 

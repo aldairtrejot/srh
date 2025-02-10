@@ -74,18 +74,18 @@ function searchInit() {
                         </td>
                         <td class="button-column">
                             ${object.uuid_acuse == null ? `
-                                <button onclick="seeDocumentUid('${object.uuid_acuse}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                <button onclick="addFileAcuse('${object.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
                                         <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
                                     </button>
                             ` : `
                                 <div class="button-container">
-                                    <button onclick="download('${object.uuid_acuse}')" style="background: #10312b" class="custom-button" title="Ver">
+                                    <button onclick="seeDocumentUid('${object.uuid_acuse}')" style="background: #10312b" class="custom-button" title="Ver">
                                         <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
                                     </button>
-                                    <button onclick="download('${object.id}')" class="custom-button" title="Descargar">
+                                    <button onclick="download('${object.uuid_acuse}')" class="custom-button" title="Descargar">
                                         <i style="color: white; font-size: 15px" class="fa fa-download"></i>
                                     </button>
-                                    <button onclick="download('${object.id}')" style="background: #6A1B3D" class="custom-button" title="Descargar">
+                                    <button onclick="openModalAcuse('${object.uuid_acuse}')" style="background: #6A1B3D" class="custom-button" title="Descargar">
                                         <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
                                     </button>
                                 </div>

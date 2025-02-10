@@ -78,8 +78,15 @@
     <x-template-modal.modal-delete tittleModal="id_modal_delete_oficio" idInput="id_uuid_oficio" valueInput=""
         cancelModal="id_modal_calcel_oficio" confirmButton="" functionConfirm="confirmModalOficio();" />
 
+    <x-template-modal.modal-delete tittleModal="id_modal_delete_acuse" idInput="id_uuid_acuse" valueInput=""
+        cancelModal="id_modal_calcel_acuse" confirmButton="" functionConfirm="confirmModalAcuse();" />
+
+    <!-- item with add -->
     <input type="file" class="file-input-oficio" style="display: none;" />
     <input type="text" id="id_oficio" style="display: none;" />
+
+    <input type="file" class="file-input-acuse" style="display: none;" />
+    <input type="text" id="id_acuse" style="display: none;" />
 
 
     <!-- CODE SCRIPT-->

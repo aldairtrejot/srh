@@ -141,8 +141,9 @@ Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refr
 Route::post('/communication/save', [CommunicationC::class, 'save'])->name('communication.save')->middleware('auth');
 Route::get('/communication/edit/{id}', [CommunicationC::class, 'edit'])->name('communication.edit')->middleware('auth');
 Route::post('/communication/updateOficio', [CommunicationC::class, 'updateOficio'])->name('communication.updateOficio')->middleware('auth');
+Route::post('/communication/updateAcuse', [CommunicationC::class, 'updateAcuse'])->name('communication.updateAcuse')->middleware('auth');
 Route::post('/communication/addOficio', [CommunicationC::class, 'addOficio'])->name('communication.addOficio')->middleware('auth');
-
+Route::post('/communication/addAcuse', [CommunicationC::class, 'addAcuse'])->name('communication.addAcuse')->middleware('auth');
 
 
 /// GLOBAL DE CORRESPONDENCIA
