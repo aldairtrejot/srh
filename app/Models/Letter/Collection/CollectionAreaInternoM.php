@@ -21,6 +21,22 @@ class CollectionAreaInternoM extends Model
         return $result;
     }
 
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_area_interno')
+            ->select([
+                'correspondencia.cat_area_interno.id_cat_area_interno AS id',
+                DB::raw('correspondencia.cat_area_interno.id_cat_area_interno AS id, 
+                         UPPER(correspondencia.cat_area_interno.descripcion) || \' (\' || 
+                         UPPER(correspondencia.cat_area_interno.clave) || \')\' AS descripcion')
+            ])
+            ->where('correspondencia.cat_area_interno.id_cat_area_interno', '=', $id);
+
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
+
     // La función obtiene la clave para mostrarla en pantalla dependiendo del id de area que se le pase
     public function getClave($id)
     {

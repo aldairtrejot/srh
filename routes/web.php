@@ -139,6 +139,9 @@ Route::get('/communication/create', [CommunicationC::class, 'create'])->name('co
 Route::post('/communication/area', [CollectionAreaInternoC::class, 'list'])->name('communication.area')->middleware('auth');
 Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refreshNoOficio'])->name('communication.noOficio')->middleware('auth');
 Route::post('/communication/save', [CommunicationC::class, 'save'])->name('communication.save')->middleware('auth');
+Route::get('/communication/edit/{id}', [CommunicationC::class, 'edit'])->name('communication.edit')->middleware('auth');
+
+
 
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO

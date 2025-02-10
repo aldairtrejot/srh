@@ -26,9 +26,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = URL_DEFAULT.concat(`/file/edit/${object.id}`);
-                    const finalCloud = URL_DEFAULT.concat(`/file/cloud/${object.id}`);
-                    const urlReport = URL_DEFAULT.concat(`/file/generate-pdf/${object.id}`);
+                    const finalUrl = URL_DEFAULT.concat(`/communication/edit/${object.id}`);
 
                     // Generar el HTML con template literals
                     const rowHTML = `

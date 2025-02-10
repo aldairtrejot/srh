@@ -11,7 +11,7 @@ $(document).ready(function () {
 
 // La función establece los datos en el encabezado del formulario
 function setData() {
-    $('#_labFechaCaptura').text($('#fecha_captura').val()); // Asignar valores a labelput
+    $('#_labFechaCaptura').text($('#fecha_asignacion').val()); // Asignar valores a labelput
     $('#_labUsuario').text($('#nameUser').val()); // Asignar valores a label
     $('#_labNomArea').text($('#nomArea').val()); // Asignar valores a label
     $('#_labNoOficio').text($('#consecutivo').val()); // Asignar valores a label

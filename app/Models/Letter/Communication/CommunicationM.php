@@ -71,4 +71,15 @@ class CommunicationM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_correspondencia_interno')
+            ->where('id_tbl_correspondencia_interno', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
 }

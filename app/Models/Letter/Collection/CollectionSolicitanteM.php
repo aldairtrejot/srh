@@ -36,6 +36,23 @@ class CollectionSolicitanteM extends Model
         return $result;
     }
 
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_solicitante')
+            ->select([
+                'correspondencia.cat_solicitante.id_cat_solicitante AS id',
+                DB::raw('correspondencia.cat_solicitante.id_cat_solicitante AS id, 
+                         UPPER(correspondencia.cat_solicitante.nombre) || \' \' || 
+                         UPPER(correspondencia.cat_solicitante.primer_apellido) || \' \' || 
+                         UPPER(correspondencia.cat_solicitante.segundo_apellido) AS descripcion')
+            ])
+            ->where('correspondencia.cat_solicitante.id_cat_solicitante', '=', $id);
+
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
+
     //LA funcion obtiene solo el solicitante por nombre, para mostrar en el catalogo
     public function editByName($name)
     {

@@ -23,4 +23,23 @@ class CollectionDestinatarioM extends Model
 
         return $result;
     }
+
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_destinatario')
+            ->select([
+                'correspondencia.cat_destinatario.id_cat_destinatario AS id',
+                DB::raw('CASE 
+                             WHEN es_mas_remitente THEN UPPER(correspondencia.cat_destinatario.descripcion)
+                             ELSE UPPER(correspondencia.cat_destinatario.nombre) || \' \' || 
+                                  UPPER(correspondencia.cat_destinatario.primer_apellido) || \' \' || 
+                                  UPPER(correspondencia.cat_destinatario.segundo_apellido)
+                         END AS descripcion')
+            ])
+            ->where('correspondencia.cat_destinatario.id_cat_destinatario', '=', $id);
+
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
 }

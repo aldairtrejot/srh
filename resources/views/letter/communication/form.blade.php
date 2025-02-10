@@ -29,11 +29,14 @@
                             </div>
                             <div class="d-flex align-items-center">
                                 <!-- Botón 1 -->
-                                <button class="btn btn-hover-enlarge" onclick="refreshOficio();"
-                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
-                                    <i class="fa fa-refresh"></i>
-                                </button>
+                                 @if (!isset($item->id_tbl_correspondencia_interno))
+                                    <button class="btn btn-hover-enlarge" onclick="refreshOficio();"
+                                        style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                 @endif
+            
 
                                 <!--
                                 <button class="btn btn-hover-enlarge" onclick="addSolicitante();"
@@ -72,8 +75,8 @@
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_interno"
                                     value="{{ optional($item)->id_tbl_correspondencia_interno ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="fecha_captura"
-                                    value="{{ optional($item)->fecha_captura ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="fecha_asignacion"
+                                    value="{{ optional($item)->fecha_asignacion ?? '' }}" />
 
                                 <x-template-form.template-form-input-hidden name="nameUser" value="{{ $nameUser }}" />
 
@@ -168,9 +171,5 @@
 <script src="{{ asset('assets/js/app/letter/communication/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/communication/consecutivo.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/solicitante.js') }}"></script>
-
-<!--
-
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/file/validate.js') }}"></script>
--->
+<script src="{{ asset('assets/js/app/letter/communication/validate.js') }}"></script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Communication;
 
+use App\Models\Administration\UserM;
 use App\Models\Letter\Collection\CollectionAreaInternoM;
 use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
 use App\Models\Letter\Collection\CollectionDateM;
@@ -42,7 +43,7 @@ class CommunicationC extends Controller
         $collectionDestinatarioM = new CollectionDestinatarioM();
 
         //Definicion de variable de inicializacion
-        $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
+        $item->fecha_asignacion = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $nameUser = Auth::user()->name; // Nombre de usuario
         $nomArea = ' _'; // Inicio de variables
         $item->consecutivo = $collectionConsecutivoInternoM->getMaxConsecutivo(config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'), $collectionDateM->idYear())->iterator;
@@ -62,6 +63,47 @@ class CommunicationC extends Controller
 
         $selectDestinatario = $collectionDestinatarioM->list();
         $selectDestinatarioEdit = [];
+
+
+        return view('letter/communication/form', compact('selectDestinatarioEdit', 'selectDestinatario', 'selectAreaEdit', 'selectArea', 'selectSolicitanteEdit', 'selectSolicitante', 'selectTemaEdit', 'selectTema', 'nomArea', 'nameUser', 'selectEntidadEdit', 'selectEntidad', 'item'));
+    }
+
+    // La función modifica
+    public function edit($id)
+    {
+        // Class
+        $communicationM = new CommunicationM();
+        $collectionEntidadM = new CollectionEntidadM();
+        $collectionDateM = new CollectionDateM();
+        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
+        $collectionTemaM = new CollectionTemaM();
+        $collectionSolicitanteM = new CollectionSolicitanteM();
+        $collectionAreaInternoM = new CollectionAreaInternoM();
+        $collectionDestinatarioM = new CollectionDestinatarioM();
+        $userM = new UserM();
+        $collectionAreaInternoM = new CollectionAreaInternoM();
+
+        //Definicion de variable de inicializacion
+        $item = $communicationM->edit($id);
+        $nameUser = $userM->getName($item->id_usuario);
+        $nomArea = $collectionAreaInternoM->getClave($item->id_cat_area_interno);
+
+
+        // Declaración de catalogos
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
+
+        $selectTema = $collectionTemaM->list();
+        $selectTemaEdit = isset($item->id_cat_tema) ? $collectionTemaM->edit($item->id_cat_tema) : [];
+
+        $selectSolicitante = $collectionSolicitanteM->list();
+        $selectSolicitanteEdit = isset($item->id_cat_solicitante) ? $collectionSolicitanteM->edit($item->id_cat_solicitante) : [];
+
+        $selectArea = $collectionAreaInternoM->list();
+        $selectAreaEdit = isset($item->id_cat_area_interno) ? $collectionAreaInternoM->edit($item->id_cat_area_interno) : [];
+
+        $selectDestinatario = $collectionDestinatarioM->list();
+        $selectDestinatarioEdit = isset($item->id_cat_destinatario) ? $collectionDestinatarioM->edit($item->id_cat_destinatario) : [];
 
 
         return view('letter/communication/form', compact('selectDestinatarioEdit', 'selectDestinatario', 'selectAreaEdit', 'selectArea', 'selectSolicitanteEdit', 'selectSolicitante', 'selectTemaEdit', 'selectTema', 'nomArea', 'nameUser', 'selectEntidadEdit', 'selectEntidad', 'item'));
@@ -103,9 +145,13 @@ class CommunicationC extends Controller
         $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
 
         if (!isset($request->id_tbl_correspondencia_interno)) { // Agregar elemento
+            
+            // Se establece el consecutivo actual
+            $request->consecutivo = $collectionConsecutivoInternoM->getMaxConsecutivo(config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'), $collectionDateM->idYear())->iterator;
+           
             $data = [
                 'consecutivo' => strtoupper($request->consecutivo),
-                'fecha_asignacion' => $request->fecha_captura,//Carbon::createFromFormat('d/m/Y', $request->fecha_asignacion)->format('Y-m-d'),
+                'fecha_asignacion' => $request->fecha_asignacion,//Carbon::createFromFormat('d/m/Y', $request->fecha_asignacion)->format('Y-m-d'),
                 'cargo_destinatario' => strtoupper($request->cargo_destinatario),
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
@@ -135,7 +181,29 @@ class CommunicationC extends Controller
 
             return $messagesC->messageSuccessRedirect('communication.list', 'Elemento agregado con éxito.');
         } else { // Modificar elemento
-            echo 'Erro';
+            $data = [
+                'cargo_destinatario' => strtoupper($request->cargo_destinatario),
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_cat_area_interno' => $request->id_cat_area_interno,
+                'id_cat_solicitante' => $request->id_cat_solicitante,
+                'id_cat_destinatario' => $request->id_cat_destinatario,
+                'id_cat_tema' => $request->id_cat_tema,
+                'id_cat_entidad' => $request->id_cat_entidad,
+
+                // Datos del sistema
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+
+            // Edit
+            $communicationM::where('id_tbl_correspondencia_interno', $request->id_tbl_correspondencia_interno)
+                ->update($data);
+            $data['id_tbl_correspondencia_interno'] = $request->id_tbl_correspondencia_interno;
+            $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
+
+            return $messagesC->messageSuccessRedirect('communication.list', 'Elemento modificado con éxito.');
+
         }
     }
 }
