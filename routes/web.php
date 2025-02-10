@@ -140,6 +140,7 @@ Route::post('/communication/area', [CollectionAreaInternoC::class, 'list'])->nam
 Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refreshNoOficio'])->name('communication.noOficio')->middleware('auth');
 Route::post('/communication/save', [CommunicationC::class, 'save'])->name('communication.save')->middleware('auth');
 Route::get('/communication/edit/{id}', [CommunicationC::class, 'edit'])->name('communication.edit')->middleware('auth');
+Route::post('/communication/updateOficio', [CommunicationC::class, 'updateOficio'])->name('communication.updateOficio')->middleware('auth');
 
 
 

@@ -74,9 +74,15 @@
         </div>
     </div>
 
+    <!-- CODE DELETE OFICIO-->
+    <x-template-modal.modal-delete tittleModal="id_modal_delete_oficio" idInput="id_uuid_oficio" valueInput=""
+        cancelModal="id_modal_calcel_oficio" confirmButton="" functionConfirm="confirmModalOficio();" />
+
+
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/communication/table.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/communication/cloud.js') }}"></script>
 
 </x-template-app.app-layout>

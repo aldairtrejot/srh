@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Communication;
 
+use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Administration\UserM;
 use App\Models\Letter\Collection\CollectionAreaInternoM;
 use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
@@ -145,10 +146,10 @@ class CommunicationC extends Controller
         $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
 
         if (!isset($request->id_tbl_correspondencia_interno)) { // Agregar elemento
-            
+
             // Se establece el consecutivo actual
             $request->consecutivo = $collectionConsecutivoInternoM->getMaxConsecutivo(config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'), $collectionDateM->idYear())->iterator;
-           
+
             $data = [
                 'consecutivo' => strtoupper($request->consecutivo),
                 'fecha_asignacion' => $request->fecha_asignacion,//Carbon::createFromFormat('d/m/Y', $request->fecha_asignacion)->format('Y-m-d'),
@@ -205,5 +206,38 @@ class CommunicationC extends Controller
             return $messagesC->messageSuccessRedirect('communication.list', 'Elemento modificado con éxito.');
 
         }
+    }
+
+    // La funcion elimina el archivo de alfresco y actualiza la tabla;
+    public function updateOficio(Request $request)
+    {
+        // Class
+        $logC = new LogC(); // Save data
+        $alfrescoC = new AlfrescoC();
+        $communicationM = new CommunicationM(); // Class Major
+        $now = Carbon::now(); //Hora y fecha actual
+
+        // Eliminar doc de alfresco
+        // La variable status obtiene verdadero o falso si es que se elimina el archivo por su uuid
+        $status = $alfrescoC->delete($request->uuid);
+
+        if ($status) { // Se elimino con éxito por lo tanto se actualiza de la tabla como null
+            $data = [
+                'uuid_oficio' => NULL,
+                // Datos del sistema
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+
+            $communicationM::where('uuid_oficio', $request->uuid)
+                ->update($data);
+            $data['uuid_oficio'] = $request->uuid;
+            $logC->edit('correspondencia.tbl_correspondencia_interno', $data);
+            $status = true;
+        }
+
+        return response()->json([
+            'status' => $status,
+        ]);
     }
 }

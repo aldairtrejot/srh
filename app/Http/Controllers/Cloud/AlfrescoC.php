@@ -174,14 +174,14 @@ class AlfrescoC extends Controller
     }
 
     // La funcion elimina un archivo de alfresco, espera como parametro el uuid y retorna true si se elimino, y falso si no
-    public function delete(Request $request)
+    public function delete($uuidx)
     {
         // Obtener las credenciales y la URL base desde el archivo .env
         $username = env('ALFRESCO_USER');    // Usuario de Alfresco
         $password = env('ALFRESCO_PASS');    // Contraseña de Alfresco
 
         // UUID del archivo a eliminar (fijo en este caso)
-        $uuid = $request->uid;  // UUID fijo
+        $uuid = $uuidx;  // UUID fijo
 
         // Obtener la URL para la eliminación desde .env y reemplazar el placeholder {uuid}
         $urlDelete = env('ALFRESCO_DELETE');
