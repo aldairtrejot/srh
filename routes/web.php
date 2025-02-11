@@ -153,7 +153,8 @@ Route::get('/request/create', [RequestC::class, 'create'])->name('request.create
 Route::post('/request/noOficio', [CollectionIteradorInternoC::class, 'refreshNoRequerimiento'])->name('request.noOficio')->middleware('auth');
 Route::post('/request/save', [RequestC::class, 'save'])->name('request.save')->middleware('auth');
 Route::get('/request/edit/{id}', [RequestC::class, 'edit'])->name('request.edit')->middleware('auth');
-
+Route::post('/request/saveFile', [RequestC::class, 'saveFile'])->name('request.saveFile')->middleware('auth');
+Route::post('/request/deleteFile', [RequestC::class, 'deleteFile'])->name('request.deleteFile')->middleware('auth');
 
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO

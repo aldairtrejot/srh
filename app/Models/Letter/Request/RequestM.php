@@ -73,4 +73,20 @@ class RequestM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+
+    public function getIdAnio($id)
+    {
+        $query = DB::table('correspondencia.cat_anio')
+            ->join(
+                'correspondencia.tbl_requerimiento_interno',
+                DB::raw('CAST(correspondencia.cat_anio.descripcion AS INTEGER)'),
+                '=',
+                DB::raw('EXTRACT(YEAR FROM correspondencia.tbl_requerimiento_interno.fecha_asignacion)')
+            )
+            ->where('correspondencia.tbl_requerimiento_interno.id_tbl_requerimiento_interno', $id)
+            ->select('correspondencia.cat_anio.id_cat_anio as id')
+            ->first();
+
+        return $query->id;
+    }
 }
