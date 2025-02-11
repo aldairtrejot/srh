@@ -7,6 +7,13 @@ $(document).ready(function () {
         }
     });
 
+    // Refresh add solicitante
+    $(window).click(function (event) {
+        if ($(event.target).is('#modalSolicitante')) {
+            $('#modalSolicitante').fadeOut(); // Ocultar la ventana modal
+        }
+    });
+
   // LA funcion activa el modal solicitante
 function refreshOficio() {
     $('#modalBackdrop').fadeIn();//Iniciar ventana modal
@@ -18,9 +25,19 @@ function refreshOficio() {
     });
 });
 
+// Cerrar modal refresh SOLICITANTE
+$('#cancelBtn_solicitante').click(function () { //Se pulsa el boton de cancelar
+    $('#modalSolicitante').fadeOut(); // Cerrar la ventana modal
+});
+
+
 // Función para abrir el modal de Auditoría
 function refreshOficio() {
     $('#modalBackdrop').fadeIn(); // Mostrar la ventana modal
+}
+// LA funcion activa el modal solicitante
+function addSolicitante() {
+    $('#modalSolicitante').fadeIn();//Iniciar ventana modal
 }
 
 // Función para confirmar la auditoría dentro del modal
@@ -28,4 +45,11 @@ function confirmRefreshOficio() {
     console.log('Se está realizando la auditoría del oficio...');
     // Aquí puedes agregar la lógica para enviar datos o actualizar información
     $('#modalBackdrop').fadeOut(); // Cerrar el modal después de la confirmación
+    $('#modalSolicitante').fadeIn();//Iniciar ventana modal
 }
+
+// Guardar o validar contenido Solicitante
+function confirmSolicitante() {
+    console.log('confirm sol');
+}
+
