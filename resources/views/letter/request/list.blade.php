@@ -23,7 +23,7 @@
                             <div>
                                 <h4 class="card-title">Notas de Requerimiento</h4>
                                 <p class="card-description">
-                                    ¿Deseas agregar un registro? <a href="{{ route('communication.create') }}"
+                                    ¿Deseas agregar un registro? <a href="{{ route('request.create') }}"
                                         class="text-danger" style="margin-left: 10px;">
                                         <i class="fa fa-arrow-up"></i> Agregar Registro
                                     </a>

@@ -149,6 +149,7 @@ Route::post('/communication/addAcuse', [CommunicationC::class, 'addAcuse'])->nam
 // REQUEST
 Route::get('/request/list', [RequestC::class, 'list'])->name('request.list')->middleware('auth');
 Route::post('/request/table', [RequestC::class, 'table'])->name('request.table')->middleware('auth');
+Route::get('/request/create', [RequestC::class, 'create'])->name('request.create')->middleware('auth');
 
 
 /// GLOBAL DE CORRESPONDENCIA
