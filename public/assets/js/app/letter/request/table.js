@@ -26,7 +26,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = URL_DEFAULT.concat(`/communication/edit/${object.id}`);
+                    const finalUrl = URL_DEFAULT.concat(`/request/edit/${object.id}`);
 
                     // Generar el HTML con template literals
                     const rowHTML = `

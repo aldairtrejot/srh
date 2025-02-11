@@ -25,4 +25,21 @@ class CollectionIteradorInternoC extends Controller
             'status' => true,
         ]);
     }
+
+    // Actualiza el No de oficio
+    public function refreshNoRequerimiento()
+    {
+        // Class
+        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
+        $collectionDateM = new CollectionDateM();
+
+        // Se asigna el nuevo no de oficio para su asignación
+        $result = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_REQUERIMRNTOS_INTERNO'));
+
+        // Resultado
+        return response()->json([
+            'result' => $result,
+            'status' => true,
+        ]);
+    }
 }

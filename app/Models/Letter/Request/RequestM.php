@@ -61,4 +61,16 @@ class RequestM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
+    // La función modifica el elemento por su id 
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_requerimiento_interno')
+            ->where('id_tbl_requerimiento_interno', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
 }

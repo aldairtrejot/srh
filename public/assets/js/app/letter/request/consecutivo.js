@@ -10,7 +10,7 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 function updateIterator(status) {
     $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
     $.ajax({
-        url: URL_DEFAULT.concat('/communication/noOficio'),
+        url: URL_DEFAULT.concat('/request/noOficio'),
         type: 'POST',
         data: {
             _token: token  // Usar el token extraído de la metaetiqueta
@@ -23,7 +23,7 @@ function updateIterator(status) {
 
             // Si se pasa el parametro de verdadero se manda el msj, de lo contrario no se manda nada
             if (status) {
-                notyfEM.success("No. Oficio actualizado."); // status success
+                notyfEM.success("No. Nota actualizado."); // status success
             }
 
         },

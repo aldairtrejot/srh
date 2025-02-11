@@ -1,5 +1,5 @@
 // Validacion de fórmulario
-document.getElementById("myForm").addEventListener("submit", function (event) {
+document.getElementById("myForm12").addEventListener("submit", function (event) {
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
