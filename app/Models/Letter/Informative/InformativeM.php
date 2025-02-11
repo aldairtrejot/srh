@@ -60,6 +60,34 @@ class InformativeM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
+    // La función modifica el elemento por su id 
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_notas_interno')
+            ->where('id_tbl_notas_interno', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
+
+    public function getIdAnio($id)
+    {
+        $query = DB::table('correspondencia.cat_anio')
+            ->join(
+                'correspondencia.tbl_notas_interno',
+                DB::raw('CAST(correspondencia.cat_anio.descripcion AS INTEGER)'),
+                '=',
+                DB::raw('EXTRACT(YEAR FROM correspondencia.tbl_notas_interno.fecha_asignacion)')
+            )
+            ->where('correspondencia.tbl_notas_interno.id_tbl_notas_interno', $id)
+            ->select('correspondencia.cat_anio.id_cat_anio as id')
+            ->first();
+
+        return $query->id;
+    }
 }
 
 /*
@@ -127,33 +155,9 @@ class RequestM extends Model
         return $query->get();
     }
 
-    // La función modifica el elemento por su id 
-    public function edit(string $id)
-    {
-        // Realizamos la consulta utilizando el Query Builder de Laravel
-        $query = DB::table('correspondencia.tbl_requerimiento_interno')
-            ->where('id_tbl_requerimiento_interno', $id)
-            ->first(); // Usamos first() para obtener un único registro
 
-        // Retornamos el usuario o null si no se encuentra
-        return $query ?? null;
-    }
 
-    public function getIdAnio($id)
-    {
-        $query = DB::table('correspondencia.cat_anio')
-            ->join(
-                'correspondencia.tbl_requerimiento_interno',
-                DB::raw('CAST(correspondencia.cat_anio.descripcion AS INTEGER)'),
-                '=',
-                DB::raw('EXTRACT(YEAR FROM correspondencia.tbl_requerimiento_interno.fecha_asignacion)')
-            )
-            ->where('correspondencia.tbl_requerimiento_interno.id_tbl_requerimiento_interno', $id)
-            ->select('correspondencia.cat_anio.id_cat_anio as id')
-            ->first();
 
-        return $query->id;
-    }
 }
 
 */

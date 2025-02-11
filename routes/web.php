@@ -164,6 +164,8 @@ Route::get('/informative/create', [InformativeC::class, 'create'])->name('inform
 Route::post('/informative/noOficio', [CollectionIteradorInternoC::class, 'refreshNoInformativo'])->name('informative.noOficio')->middleware('auth');
 Route::post('/informative/save', [InformativeC::class, 'save'])->name('informative.save')->middleware('auth');
 Route::get('/informative/edit/{id}', [InformativeC::class, 'edit'])->name('informative.edit')->middleware('auth');
+Route::post('/informative/saveFile', [InformativeC::class, 'saveFile'])->name('informative.saveFile')->middleware('auth');
+Route::post('/informative/deleteFile', [InformativeC::class, 'deleteFile'])->name('informative.deleteFile')->middleware('auth');
 
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO

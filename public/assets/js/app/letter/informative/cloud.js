@@ -23,7 +23,7 @@ function openModalOificio(uid) {
 // La función elimina en alfrsco el uuid del doc, asi como actualiza la tabla dejandola vacia
 function confirmModalOficio() {
     $.ajax({
-        url: URL_DEFAULT.concat('/request/deleteFile'),
+        url: URL_DEFAULT.concat('/informative/deleteFile'),
         type: 'POST',
         data: {
             uuid: $('#id_uuid_oficio').val(),
@@ -66,7 +66,7 @@ $('.file-input-oficio').on('change', function (event) {
             data.append('file', file);
             data.append('id', $('#id_oficio').val());
             $.ajax({
-                url: URL_DEFAULT.concat("/request/saveFile"),
+                url: URL_DEFAULT.concat("/informative/saveFile"),
                 type: 'POST',
                 data:
                     data, // Enviar directamente el FormData

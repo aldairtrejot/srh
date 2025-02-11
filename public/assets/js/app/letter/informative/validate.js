@@ -1,13 +1,12 @@
 // Validacion de fórmulario
-document.getElementById("myForm1").addEventListener("submit", function (event) {
+document.getElementById("myForm").addEventListener("submit", function (event) {
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#fecha_documento').val(), 'Fecha de documento') ||
-        isFieldEmpty($('#fecha_termino').val(), 'Fecha de Termino') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
-        isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
-        isFieldEmpty($('#id_cat_solicitante').val(), 'Solicitante') ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 300) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 150)) {
+        isFieldEmpty($('#id_cat_destinatario').val(), 'Destinatario') ||
+        isFieldEmpty($('#id_cat_solicitante').val(), 'Elaboro') ||
+        isFieldEmpty($('#id_cat_solicitante_2').val(), 'De') ||
+        isExceedingLength($('#asunto').val(), 'Asunto', 300)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
     }
