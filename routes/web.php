@@ -6,6 +6,7 @@ use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\File\CloudFileC;
+use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
@@ -155,6 +156,11 @@ Route::post('/request/save', [RequestC::class, 'save'])->name('request.save')->m
 Route::get('/request/edit/{id}', [RequestC::class, 'edit'])->name('request.edit')->middleware('auth');
 Route::post('/request/saveFile', [RequestC::class, 'saveFile'])->name('request.saveFile')->middleware('auth');
 Route::post('/request/deleteFile', [RequestC::class, 'deleteFile'])->name('request.deleteFile')->middleware('auth');
+
+// INFORMATIVE
+Route::get('/informative/list', [InformativeC::class, 'list'])->name('informative.list')->middleware('auth');
+Route::post('/informative/table', [InformativeC::class, 'table'])->name('informative.table')->middleware('auth');
+
 
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO
