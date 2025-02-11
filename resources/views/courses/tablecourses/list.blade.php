@@ -14,6 +14,8 @@
                     </div>
                 </div>
             </div>
+            <!-- View->modal -->
+            @include('courses.tablecourses.modal')
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -83,5 +85,6 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/tablecourses/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/courses/tablecourses/modal.js') }}"></script>
 
 </x-template-app.app-layout>
