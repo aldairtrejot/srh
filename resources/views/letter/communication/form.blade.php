@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Comunicados" />
+                        <x-template-tittle.tittle-header tittle="Coordinación de Recursos Humanos" caption="Oficios" />
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                             <div>
                                 <h2 class="card-title" style="margin-bottom: 0;">
                                     {{ isset($item->id_tbl_correspondencia_interno) ? 'Modificar' : 'Agregar ' }}
-                                    Comunicado
+                                    Oficio
                                 </h2>
                             </div>
                             <div class="d-flex align-items-center">

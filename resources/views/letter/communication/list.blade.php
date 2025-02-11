@@ -8,8 +8,8 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Comunicados</h5>
+                            <h3 class="font-weight-bold">Coordinación de Recursos Humanos</h3>
+                            <h5 class="font-weight-normal mb-0">Oficios</h5>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Comunicados</h4>
+                                <h4 class="card-title">Oficios</h4>
                                 <p class="card-description">
                                     ¿Deseas agregar un registro? <a href="{{ route('communication.create') }}"
                                         class="text-danger" style="margin-left: 10px;">
