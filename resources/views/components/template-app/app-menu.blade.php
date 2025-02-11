@@ -39,8 +39,8 @@
                 <div class="collapse" id="ui-basic_corres">
                     <ul class="nav flex-column sub-menu">
                         <!--
-                                                                                <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
-                                                        -->
+                                                                                    <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
+                                                            -->
                         <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
                         @if($letterAdminMatch)
@@ -65,6 +65,8 @@
                 <div class="collapse" id="ui-basic_corres-x">
                     <ul class="nav flex-column sub-menu">
                         <li class="nav-item"><a class="nav-link" href="{{ route('communication.list') }}">Oficios</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('request.list') }}">Requerimiento</a>
                         </li>
                     </ul>
                 </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\File\CloudFileC;
+use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
@@ -144,6 +145,10 @@ Route::post('/communication/updateOficio', [CommunicationC::class, 'updateOficio
 Route::post('/communication/updateAcuse', [CommunicationC::class, 'updateAcuse'])->name('communication.updateAcuse')->middleware('auth');
 Route::post('/communication/addOficio', [CommunicationC::class, 'addOficio'])->name('communication.addOficio')->middleware('auth');
 Route::post('/communication/addAcuse', [CommunicationC::class, 'addAcuse'])->name('communication.addAcuse')->middleware('auth');
+
+// REQUEST
+Route::get('/request/list', [RequestC::class, 'list'])->name('request.list')->middleware('auth');
+Route::post('/request/table', [RequestC::class, 'table'])->name('request.table')->middleware('auth');
 
 
 /// GLOBAL DE CORRESPONDENCIA
