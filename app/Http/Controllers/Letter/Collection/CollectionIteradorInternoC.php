@@ -42,4 +42,21 @@ class CollectionIteradorInternoC extends Controller
             'status' => true,
         ]);
     }
+
+    // Actualiza el No de nota informativa
+    public function refreshNoInformativo()
+    {
+        // Class
+        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
+        $collectionDateM = new CollectionDateM();
+
+        // Se asigna el nuevo no de oficio para su asignación
+        $result = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_NOTAS_INTERNO'));
+
+        // Resultado
+        return response()->json([
+            'result' => $result,
+            'status' => true,
+        ]);
+    }
 }

@@ -5,7 +5,14 @@ namespace App\Http\Controllers\Letter\Informative;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Informative\InformativeM;
 use Illuminate\Http\Request;
-
+use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
+use App\Models\Letter\Collection\CollectionSolicitanteM;
+use App\Models\Letter\Collection\CollectionDateM;
+use App\Models\Letter\Collection\CollectionDestinatarioM;
+use App\Http\Controllers\Letter\Log\LogC;
+use App\Http\Controllers\Admin\MessagesC;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 class InformativeC extends Controller
 {
     // Retorna la vista para Notas de requerimiento
@@ -38,67 +45,34 @@ class InformativeC extends Controller
             ], 500);
         }
     }
-}
-
-/*
-<?php
-
-namespace App\Http\Controllers\Letter\Request;
-
-use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
-use App\Models\Letter\Collection\CollectionSolicitanteM;
-use App\Http\Controllers\Controller;
-use App\Models\Letter\Request\RequestM;
-use Illuminate\Http\Request;
-use App\Models\Letter\Collection\CollectionDateM;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Letter\Log\LogC;
-use App\Http\Controllers\Admin\MessagesC;
-use Carbon\Carbon;
-use App\Http\Controllers\Cloud\AlfrescoC;
-use App\Models\Letter\Cloud\CloudConfigM;
-use App\Models\Letter\Collection\CollectionConfigCloudInternoM;
-use Illuminate\Support\Facades\Log;
-class RequestC extends Controller
-{
-
-
 
     public function create()
     {
         // Class
-        $item = new RequestM();
+        $item = new InformativeM();
         $collectionDateM = new CollectionDateM();
         $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
         $collectionSolicitanteM = new CollectionSolicitanteM();
+        $collectionDestinatarioM = new CollectionDestinatarioM();
 
         //Definicion de variable de inicializacion
         $item->fecha_asignacion = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
-        $item->consecutivo = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_REQUERIMRNTOS_INTERNO'));
+        $item->consecutivo = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_NOTAS_INTERNO'));
 
         // Declaración de catalogos
         $selectSolicitante = $collectionSolicitanteM->list();
         $selectSolicitanteEdit = [];
 
-        return view('letter/request/form', compact('selectSolicitanteEdit', 'selectSolicitante', 'item'));
-    }
-
-    // La función modifica
-    public function edit($id)
-    {
-        // Class
-        $requestM = new RequestM();
-        $item = $requestM->edit($id);
-        $collectionDateM = new CollectionDateM();
-        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
-        $collectionSolicitanteM = new CollectionSolicitanteM();
-
         // Declaración de catalogos
-        $selectSolicitante = $collectionSolicitanteM->list();
-        $selectSolicitanteEdit = isset($item->id_cat_solicitante) ? $collectionSolicitanteM->edit($item->id_cat_solicitante) : [];
+        $selectSolicitante_2 = $collectionSolicitanteM->list();
+        $selectSolicitanteEdit_2 = [];
 
-        return view('letter/request/form', compact('selectSolicitanteEdit', 'selectSolicitante', 'item'));
+        $selectDestinatario = $collectionDestinatarioM->list();
+        $selectDestinatarioEdit = [];
+
+        return view('letter/informative/form', compact('selectDestinatarioEdit', 'selectDestinatario', 'selectSolicitanteEdit_2', 'selectSolicitante_2', 'selectSolicitanteEdit', 'selectSolicitante', 'item'));
     }
+
     // LA función guarda los datos 
     public function save(Request $request)
     {
@@ -106,23 +80,23 @@ class RequestC extends Controller
         $now = Carbon::now(); //Hora y fecha actual
         $messagesC = new MessagesC(); // Messages
         $logC = new LogC(); // Save data
-        $requestM = new RequestM(); // Class Major
+        $informativeM = new InformativeM(); // Class Major
         $collectionDateM = new CollectionDateM(); // Date
         $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
 
-        if (!isset($request->id_tbl_requerimiento_interno)) { // Agregar elemento
+        if (!isset($request->id_tbl_notas_interno)) { // Agregar elemento
 
             // Se establece el consecutivo actual
-            $request->consecutivo = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_REQUERIMRNTOS_INTERNO'));
+            $request->consecutivo = $collectionConsecutivoInternoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_NOTAS_INTERNO'));
 
             $data = [
                 'consecutivo' => strtoupper($request->consecutivo),
                 'fecha_asignacion' => $request->fecha_asignacion,//Carbon::createFromFormat('d/m/Y', $request->fecha_asignacion)->format('Y-m-d'),
                 'fecha_documento' => $request->fecha_documento,
-                'fecha_termino' => $request->fecha_termino,
-                'observaciones' => strtoupper($request->observaciones),
                 'asunto' => strtoupper($request->asunto),
                 'id_cat_solicitante' => $request->id_cat_solicitante,
+                'id_cat_solicitante_2' => $request->id_cat_solicitante_2,
+                'id_cat_destinatario' => $request->id_cat_destinatario,
                 'estatus' => true,
 
                 // Datos del sistema
@@ -135,13 +109,13 @@ class RequestC extends Controller
             ];
 
             // Crear el registro en la base de datos utilizando el arreglo
-            $requestM::create($data);
+            $informativeM::create($data);
 
             // Opcional: Guardar el log con los valores insertados (si se necesita)
-            $logC->add('correspondencia.tbl_requerimiento_interno', $data);
-            $collectionConsecutivoInternoM->iteratorConsecutivo($collectionDateM->idYear(), config('custom_config.CP_TABLE_REQUERIMRNTOS_INTERNO'));
+            $logC->add('correspondencia.tbl_notas_interno', $data);
+            $collectionConsecutivoInternoM->iteratorConsecutivo($collectionDateM->idYear(), config('custom_config.CP_TABLE_NOTAS_INTERNO'));
 
-            return $messagesC->messageSuccessRedirect('request.list', 'Elemento agregado con éxito.');
+            return $messagesC->messageSuccessRedirect('informative.list', 'Elemento agregado con éxito.');
         } else { // Modificar elemento
             $data = [
                 'fecha_documento' => $request->fecha_documento,
@@ -155,7 +129,7 @@ class RequestC extends Controller
                 'fecha_usuario' => $now,
             ];
             // Edit
-            $requestM::where('id_tbl_requerimiento_interno', $request->id_tbl_requerimiento_interno)
+            $informativeM::where('id_tbl_requerimiento_interno', $request->id_tbl_requerimiento_interno)
                 ->update($data);
             $data['tbl_requerimiento_interno'] = $request->id_tbl_requerimiento_interno;
             $logC->edit('correspondencia.tbl_requerimiento_interno', $data);
@@ -164,6 +138,51 @@ class RequestC extends Controller
 
         }
     }
+
+    // La función modifica
+    public function edit($id)
+    {
+        // Class
+        $informativeM = new InformativeM();
+        $item = $informativeM->edit($id);
+        $collectionDateM = new CollectionDateM();
+        $collectionConsecutivoInternoM = new CollectionConsecutivoInternoM();
+        $collectionSolicitanteM = new CollectionSolicitanteM();
+
+        // Declaración de catalogos
+        $selectSolicitante = $collectionSolicitanteM->list();
+        $selectSolicitanteEdit = isset($item->id_cat_solicitante) ? $collectionSolicitanteM->edit($item->id_cat_solicitante) : [];
+
+        return view('letter/request/form', compact('selectSolicitanteEdit', 'selectSolicitante', 'item'));
+    }
+
+}
+
+/*
+<?php
+
+namespace App\Http\Controllers\Letter\Request;
+
+use App\Models\Letter\Collection\CollectionConsecutivoInternoM;
+use App\Models\Letter\Collection\CollectionSolicitanteM;
+use App\Http\Controllers\Controller;
+use App\Models\Letter\Request\RequestM;
+use Illuminate\Http\Request;
+use App\Models\Letter\Collection\CollectionDateM;
+
+
+use App\Http\Controllers\Cloud\AlfrescoC;
+use App\Models\Letter\Cloud\CloudConfigM;
+use App\Models\Letter\Collection\CollectionConfigCloudInternoM;
+use Illuminate\Support\Facades\Log;
+class RequestC extends Controller
+{
+
+
+
+
+
+ 
 
     // LA función sube el archivo a alfresco 
     public function saveFile(Request $request)

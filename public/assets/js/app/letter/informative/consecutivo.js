@@ -10,7 +10,7 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 function updateIterator(status) {
     $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
     $.ajax({
-        url: URL_DEFAULT.concat('/request/noOficio'),
+        url: URL_DEFAULT.concat('/informative/noOficio'),
         type: 'POST',
         data: {
             _token: token  // Usar el token extraído de la metaetiqueta

@@ -6,6 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class InformativeM extends Model
 {
+    protected $table = 'correspondencia.tbl_notas_interno';
+    public $timestamps = false;
+    protected $primaryKey = 'id_tbl_notas_interno';
+    protected $fillable = [
+        'consecutivo',
+        'fecha_asignacion',
+        'fecha_documento',
+        'asunto',
+        'uuid_pdf',
+        'nombre_pdf',
+        'id_cat_solicitante_2',
+        'id_cat_solicitante',
+        'id_cat_destinatario',
+        'fecha_usuario',
+        'id_usuario_sistema',
+        'estatus',
+        'id_usuario_captura',
+        'fecha_usuario_captura',
+    ];
+
     // Lsita la función para que se muestre la tabla
     public function list($iterator, $searchValue)
     {
