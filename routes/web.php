@@ -172,6 +172,8 @@ Route::post('/informative/deleteFile', [InformativeC::class, 'deleteFile'])->nam
 // INFORMATIVE
 Route::get('/certification/list', [CertificationC::class, 'list'])->name('certification.list')->middleware('auth');
 Route::post('/certification/table', [CertificationC::class, 'table'])->name('certification.table')->middleware('auth');
+Route::post('/certification/saveFile', [CertificationC::class, 'saveFile'])->name('certification.saveFile')->middleware('auth');
+Route::post('/certification/deleteFile', [CertificationC::class, 'deleteFile'])->name('certification.deleteFile')->middleware('auth');
 
 
 /// GLOBAL DE CORRESPONDENCIA

@@ -6,6 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class CertificationM extends Model
 {
+    protected $table = 'correspondencia.tbl_certificaciones';
+    public $timestamps = false;
+    protected $primaryKey = 'id_tbl_certificaciones';
+    protected $fillable = [
+        'consecutivo_inicio',
+        'consecutivo_fin',
+        'fecha_documento',
+        'fecha_asignacion',
+        'asunto',
+        'fojas',
+        'uuid_pdf',
+        'nombre_pdf',
+        'fecha_usuario',
+        'id_usuario_sistema',
+        'estatus',
+        'id_usuario_captura',
+        'fecha_usuario_captura',
+    ];
+
     // Lsita la función para que se muestre la tabla
     public function list($iterator, $searchValue)
     {
@@ -52,6 +71,23 @@ class CertificationM extends Model
 
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
+    }
+
+
+    public function getIdAnio($id)
+    {
+        $query = DB::table('correspondencia.cat_anio')
+            ->join(
+                'correspondencia.tbl_certificaciones',
+                DB::raw('CAST(correspondencia.cat_anio.descripcion AS INTEGER)'),
+                '=',
+                DB::raw('EXTRACT(YEAR FROM correspondencia.tbl_certificaciones.fecha_asignacion)')
+            )
+            ->where('correspondencia.tbl_certificaciones.id_tbl_certificaciones', $id)
+            ->select('correspondencia.cat_anio.id_cat_anio as id')
+            ->first();
+
+        return $query->id;
     }
 }
 
