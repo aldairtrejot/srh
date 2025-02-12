@@ -28,7 +28,7 @@
                                 href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
                         @endif
 
-                        @if($letterMatch)
+                        @if($letterCRH)
                             <x-template-button-dash title="Coordinación de Recursos Humanos" field="COORDINACIÓN DE RECURSOS HUMANOS"
                                 href="{{ route('communication.list') }}" icon="fa fa-folder-open" description="Correspondencia" />
                         @endif

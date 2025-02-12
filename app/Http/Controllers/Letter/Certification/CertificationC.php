@@ -119,9 +119,7 @@ class CertificationC extends Controller
         // La variable status obtiene verdadero o falso si es que se elimina el archivo por su uuid
         $status = $alfrescoC->delete($request->uuid);
 
-        Log::info('afuera');
         if ($status) { // Se elimino con éxito por lo tanto se actualiza de la tabla como null
-            Log::info('entro');
             $data = [
                 'uuid_pdf' => NULL,
                 // Datos del sistema
