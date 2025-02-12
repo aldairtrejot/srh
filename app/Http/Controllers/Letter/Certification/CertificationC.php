@@ -1,5 +1,48 @@
 <?php
 
+namespace App\Http\Controllers\Letter\Certification;
+
+use App\Http\Controllers\Controller;
+use App\Models\Letter\Certification\CertificationM;
+use Illuminate\Http\Request;
+
+
+class CertificationC extends Controller
+{
+    // Retorna la vista para Notas de requerimiento
+    public function list()
+    {
+        return view('letter/certification/list');
+    }
+    // La función retorna los valores para mostrar la tabla
+    public function table(Request $request)
+    {
+        try {
+            // Declaración de variables
+            $certificationM = new CertificationM();
+            $iterator = $request->iterator; // OFSET valor de paginador
+            $searchValue = $request->searchValue; // Valor de búsqueda
+            $value = $certificationM->list($iterator, $searchValue); // Llamamos al método list() con los parámetros necesarios
+
+            return response()->json([
+                'value' => $value,
+                'status' => true,
+            ]);
+
+        } catch (\Exception $e) {
+            // Manejo de errores en caso de excepciones
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+}
+
+/*
+<?php
+
 namespace App\Http\Controllers\Letter\Informative;
 
 use App\Http\Controllers\Controller;
@@ -25,29 +68,6 @@ class InformativeC extends Controller
     }
 
 
-    // La función retorna los valores para mostrar la tabla
-    public function table(Request $request)
-    {
-        try {
-            // Declaración de variables
-            $informativeM = new InformativeM();
-            $iterator = $request->iterator; // OFSET valor de paginador
-            $searchValue = $request->searchValue; // Valor de búsqueda
-            $value = $informativeM->list($iterator, $searchValue); // Llamamos al método list() con los parámetros necesarios
-
-            return response()->json([
-                'value' => $value,
-                'status' => true,
-            ]);
-
-        } catch (\Exception $e) {
-            // Manejo de errores en caso de excepciones
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
 
     public function create()
     {
@@ -261,3 +281,5 @@ class InformativeC extends Controller
         ]);
     }
 }
+
+*/

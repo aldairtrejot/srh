@@ -70,6 +70,8 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('informative.list') }}">Informativo</a>
                         </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
+                        </li>
                     </ul>
                 </div>
             </li>
@@ -77,7 +79,7 @@
 
 
         <!-- Item Cursos -->
-        @if($adminMatch)
+        @if($adminMatch)    
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic-courses" aria-expanded="false"
                     aria-controls="ui-basic-courses">

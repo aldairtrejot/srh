@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Email\EmailC;
+use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
@@ -44,6 +45,7 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
+
 
 
 use Illuminate\Support\Facades\Route;
@@ -166,6 +168,11 @@ Route::post('/informative/save', [InformativeC::class, 'save'])->name('informati
 Route::get('/informative/edit/{id}', [InformativeC::class, 'edit'])->name('informative.edit')->middleware('auth');
 Route::post('/informative/saveFile', [InformativeC::class, 'saveFile'])->name('informative.saveFile')->middleware('auth');
 Route::post('/informative/deleteFile', [InformativeC::class, 'deleteFile'])->name('informative.deleteFile')->middleware('auth');
+
+// INFORMATIVE
+Route::get('/certification/list', [CertificationC::class, 'list'])->name('certification.list')->middleware('auth');
+Route::post('/certification/table', [CertificationC::class, 'table'])->name('certification.table')->middleware('auth');
+
 
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO
