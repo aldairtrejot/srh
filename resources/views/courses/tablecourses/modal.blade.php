@@ -2,7 +2,7 @@
 <x-template-modal.modal-small tittle="¿Desea continuar con la Auditoria?" idModal="modalBackdrop" idCancel="cancelBtn"
     idConfirm="confirmBtn" functionConfirm="confirmRefreshOficio();" valueInput="" idInput="" />
 
-    <!-- MODAL ADD SOLICTANTE-->
+    <!-- MODAL AUDITORIA-->
 <x-template-modal.modal-template tittle="Auditoria curso" idModal="modalSolicitante"
 idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();" width="600px"
 height="495px">

@@ -29,60 +29,7 @@
                         @endif
                     </div>
 
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu administracion-->
-
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Correspondencia"
-                                field="GESTIÓN DE CONTROL" href="{{ route('letter.list') }}" value=""
-                                description="Correspondencia" />
-                        @endif
-
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Expedientes"
-                                field="GESTIÓN DE CONTROL" href="{{ route(name: 'file.list') }}" value=""
-                                description="Expedientes" />
-
-                        @endif
-
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Circulares"
-                                field="GESTIÓN DE CONTROL" href="{{ route('round.list') }}" value=""
-                                description="Circulares" />
-                        @endif
-
-                    </div>
-
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu Interno-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Interno"
-                                field="GESTIÓN DE CONTROL" href="{{ route('inside.list') }}" value=""
-                                description="Interno" />
-                        @endif
-
-                        <!-- item menu oficios-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Oficios"
-                                field="GESTIÓN DE CONTROL" href="{{ route('office.list') }}" value=""
-                                description="Oficios" />
-                        @endif
-                    </div>
-                       <!-- CURSOS-->
-                       <div class="row">
-                        <!-- item menu administracion-->
-
-                        @if($coursesMatch)
-                            <x-template-button-dash class="card card-cursos" title="cursos"
-                                field="CURSOS" href="{{ route('courses.list') }}" value="0"
-                                description="Cursos" />
-                        @endif
-
-
+                   
                 </div>
             </div>
         </div>
