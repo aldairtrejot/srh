@@ -130,6 +130,7 @@ class OfficeC extends Controller
 
     public function save(Request $request)
     {
+        $letterM = new LetterM();
         $logC = new LogC();
         $officeM = new OfficeM();
         $messagesC = new MessagesC();
@@ -143,6 +144,18 @@ class OfficeC extends Controller
         //$id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
         // aregar
+
+        if ($es_por_area == 1) { // validacion que es verdadero
+            $idArea = $request->id_cat_area;
+            $idUsuario = $request->id_usuario_area;
+            $idEnlace = $request->id_usuario_enlace;
+        } else {
+            $response = $letterM->editFol($request->num_correspondencia);
+            $idArea = $response->id_cat_area;
+            $idUsuario = $response->id_usuario_area;
+            $idEnlace = $response->id_usuario_enlace;
+        }
+
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
             if ($this->getMaxTurno($request->num_turno_sistema) <= $officeM->getMaxNuSistem()) {
@@ -174,9 +187,9 @@ class OfficeC extends Controller
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => strtoupper($noDocumentoAreaAux),
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_usuario_area' => $idUsuario,
+                'id_usuario_enlace' => $idEnlace,
+                'id_cat_area' => $idArea,
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
@@ -203,9 +216,9 @@ class OfficeC extends Controller
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area,
+                'id_usuario_area' => $idUsuario,
+                'id_usuario_enlace' => $idEnlace,
+                'id_cat_area' => $idArea,
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];

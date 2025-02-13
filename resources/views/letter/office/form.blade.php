@@ -83,7 +83,7 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="No. Correspondencia Asoc."
+                                    <x-template-form.template-form-input-required label="Fol. Gestión"
                                         type="text" name="num_correspondencia"
                                         placeholder="NO. CORRESPONDENCIA ASOCIADO"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""

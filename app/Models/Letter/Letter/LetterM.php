@@ -53,6 +53,18 @@ class LetterM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+
+    public function editFol(string $fol)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->whereRaw('UPPER(TRIM(folio_gestion)) = ?', [strtoupper(trim($fol))]) // Parametrizamos la consulta
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el resultado, si no se encuentra, retorna null
+        return $query ?? null;
+    }
+
     public function list($iterator, $searchValue, $idArea, $idEnlace)
     {
         // Preparar la consulta base
@@ -180,7 +192,7 @@ class LetterM extends Model
         // Realizar la consulta utilizando el query builder de Laravel
         $turno = DB::table('correspondencia.tbl_correspondencia')
             ->where('id_tbl_correspondencia', $id)
-            ->value('num_turno_sistema');
+            ->value('folio_gestion');
 
         // Si no se encuentra información, retornamos null
         return $turno ?: null;
@@ -303,7 +315,7 @@ class LetterM extends Model
             ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
             ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-    
+
         return $maxNumTurno;
     }
 }
