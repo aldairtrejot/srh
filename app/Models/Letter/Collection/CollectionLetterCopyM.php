@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class CollectionLetterCopyM extends Model
 {
-    //Class que lleva la tabla correspondencia.ctrl_transcribir_correspondencia
+    //Class que lleva la tabla correspondencia.ctrl_transcribir_correspondenci
+
     protected $table = 'correspondencia.ctrl_transcribir_correspondencia';
     public $timestamps = false;
+
+    protected $primaryKey = 'id_ctrl_transcribir_correspondencia';
     protected $fillable = [
-        'id_ctrl_transcribir_correspondencia',
         'id_cat_area',
         'id_usuario_area',
         'id_usuario_enlace',

@@ -369,6 +369,48 @@ class LetterC extends Controller
         }
     }
 
+    // La función muestra el catalogo de areas, para el modal de turnar copia
+    public function collectionArea()
+    {
+        // Class
+        $collectionAreaM = new CollectionAreaM();
+        $result = $collectionAreaM->list(); //Catalogo de area
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
+    // LA funcion guarda en la tabla copy correspondencia
+    public function saveCopy(Request $request)
+    {
+        // Class
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+        $now = Carbon::now(); //Hora y fecha actual
+
+        $data = [ // is Array
+            'id_cat_area' => $request->id_cat_area,
+            'id_usuario_area' => $request->id_usuario_area,
+            'id_usuario_enlace' => $request->id_usuario_enlace,
+            'id_cat_tramite' => $request->id_cat_tramite,
+            'id_cat_clave' => $request->id_cat_clave,
+            'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
+
+        $result = $collectionLetterCopyM::create($data);
+        // Opcional: Guardar el log con los valores insertados (si se necesita)
+        $logC->add('correspondencia.ctrl_transcribir_correspondencia', $data);
+
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
+
     // La función retorna los valores para mostrar la tablad e copy
     public function tableCopy(Request $request)
     {

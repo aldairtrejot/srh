@@ -86,6 +86,9 @@ Route::get('/letter/generate-pdf/correspondencia/{id}', [ReporteCorrespondenciaC
 Route::post('/letter/collection/validateUnique', [LetterC::class, 'validateUnique'])->name('letter.validateUnique')->middleware('auth');
 Route::post('/letter/collection/uniqueRemitente', [LetterC::class, 'uniqueRemitente'])->name('letter.collection.uniqueRemitente')->middleware('auth');
 Route::post('/letter/delete/copy', [LetterC::class, 'deleteCopy'])->name('letter.deleteCopy')->middleware('auth');
+Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name('letter.collectionArea')->middleware('auth');
+Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');
+
 
 ////Cloud
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
