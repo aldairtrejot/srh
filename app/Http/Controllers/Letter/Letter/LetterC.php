@@ -172,23 +172,10 @@ class LetterC extends Controller
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
                 // Si tiene acceso completo, no hay necesidad de filtrar por área o enlace
                 // Procesar la tabla con acceso completo si es necesario
-                $value = $letterM->list($iterator, $searchValue, null, null);
+                $value = $letterM->list($iterator, $searchValue, null);
             } else {
-                // Inicializar las variables
-                $idArea = null;
-                $idUserEnlace = null;
-
-                // Verificar si el usuario tiene el rol COR_USUARIO
-                if (in_array($COR_USUARIO, $roleUserArray)) {
-                    // Obtener el área asociada al usuario
-                    $idArea = $collectionRelUsuarioM->idAreaByUser(Auth::id())->first();
-                }
-
-                // Si no tiene un área asociada, asignamos el id del usuario como enlace
-                $idUserEnlace = $idArea ? null : Auth::id();
-
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $letterM->list($iterator, $searchValue, $idArea, $idUserEnlace);
+                $value = $letterM->list($iterator, $searchValue, Auth::user()->id);
             }
 
             // Responder con los resultados

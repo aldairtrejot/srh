@@ -53,7 +53,7 @@ class LetterM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function list($iterator, $searchValue, $idArea, $idEnlace)
+    public function list($iterator, $searchValue, $idUser)
     {
         // Preparar la consulta base
         $query = DB::table('correspondencia.tbl_correspondencia')
@@ -74,13 +74,9 @@ class LetterM extends Model
             ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite');
 
         // Filtrar por área si se proporciona el id
-        if (!empty($idArea)) {
-            $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idArea);
-        }
-
-        // Filtrar por enlace si se proporciona el id
-        if (!empty($idEnlace)) {
-            $query->where('correspondencia.tbl_correspondencia.id_usuario_enlace', $idEnlace);
+        if (!empty($idUser)) {
+            $query->where('correspondencia.tbl_correspondencia.id_usuario_area', $idUser)
+                ->orWhere('correspondencia.tbl_correspondencia.id_usuario_enlace', $idUser);
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda

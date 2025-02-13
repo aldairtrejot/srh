@@ -2,7 +2,7 @@
 
 function talldropdown(value, minValue) {
     // Verificar el número de registros
-    if (value === minValue) {
+    if (value <= minValue) {
         // Si hay un solo registro, activar la clase para el scroll
         $('.dropdown-menu').css({
             'max-height': '100px',
