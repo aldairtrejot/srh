@@ -15,6 +15,9 @@
                 </div>
             </div>
 
+            <!-- View->modal -->
+            @include('letter.letter.modal')
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -77,10 +80,13 @@
     </div>
 
     <x-template-other.app-mail />
+
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
 
 
 </x-template-app.app-layout>

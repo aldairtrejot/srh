@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Letter\Letter;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionEntidadM;
+use App\Models\Letter\Collection\CollectionLetterCopyM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
@@ -246,7 +247,7 @@ class LetterC extends Controller
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
-            
+
             /// Validación de no de  turno de sistema
             if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
                 $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA')));
@@ -367,6 +368,55 @@ class LetterC extends Controller
 
         }
     }
+
+    // La función retorna los valores para mostrar la tablad e copy
+    public function tableCopy(Request $request)
+    {
+        try {
+            // Declaración de variables
+            $letterM = new LetterM();
+            $value = $letterM->tableCopy($request->id); // Llamamos al método list() con los parámetros necesarios
+
+            return response()->json([
+                'value' => $value,
+                'status' => true,
+            ]);
+
+        } catch (\Exception $e) {
+            // Manejo de errores en caso de excepciones
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    // La función elimina los elementos de copy -> correspondencia
+    public function deleteCopy(Request $request)
+    {
+        // Class
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+
+        // Eliminacion del elemento
+        $data = [ // Log
+            'id_ctrl_transcribir_correspondencia' => $request->id
+        ];
+
+        $logC->delete('correspondencia.ctrl_transcribir_correspondencia', $data);
+        $result = $collectionLetterCopyM::where('id_ctrl_transcribir_correspondencia', $request->id)->delete();
+
+        $bool = false;
+        if ($result > 0) {
+            $bool = true;
+        }
+
+        return response()->json([
+            'value' => $bool,
+        ]);
+    }
+
 
     //LA funcion elimina el elemento
     public function delete($id)

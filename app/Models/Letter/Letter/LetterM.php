@@ -303,7 +303,32 @@ class LetterM extends Model
             ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
             ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-    
+
         return $maxNumTurno;
+    }
+
+
+    // LA función retorna la tabla de copy, con copia a de turnos
+    public function tableCopy($id)
+    {
+        $result = DB::table('correspondencia.ctrl_transcribir_correspondencia')
+            ->select(
+                'correspondencia.ctrl_transcribir_correspondencia.id_ctrl_transcribir_correspondencia AS id',
+                'correspondencia.cat_area.descripcion AS area',
+                'usuario_x.name AS usuario',
+                'enlace_y.name AS enlace',
+                'correspondencia.cat_tramite.descripcion AS tramite',
+                'correspondencia.cat_clave.descripcion AS clave'
+            )
+            ->join('correspondencia.cat_area', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('administration.users AS usuario_x', 'correspondencia.ctrl_transcribir_correspondencia.id_usuario_area', '=', 'usuario_x.id')
+            ->join('administration.users AS enlace_y', 'correspondencia.ctrl_transcribir_correspondencia.id_usuario_enlace', '=', 'enlace_y.id')
+            ->join('correspondencia.cat_tramite', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+            ->join('correspondencia.cat_clave', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_clave', '=', 'correspondencia.cat_clave.id_cat_clave')
+            ->where('correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia', '=', $id)
+            ->limit(20)
+            ->get();
+
+        return $result;
     }
 }

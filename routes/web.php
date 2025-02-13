@@ -73,6 +73,7 @@ Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('use
 Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
 Route::get('/letter/delete', [LetterC::class . 'delete'])->name('letter.delete')->middleware('auth');
 Route::get('/letter/table', [LetterC::class, 'table'])->name('letter.table')->middleware('auth');
+Route::post('/letter/tableCopy', [LetterC::class, 'tableCopy'])->name('letter.tableCopy')->middleware('auth');
 Route::get('/letter/create', [LetterC::class, 'create'])->name('letter.create')->middleware('auth');
 Route::get('/letter/edit/{id}', [LetterC::class, 'edit'])->name('letter.edit')->middleware('auth');
 Route::post('/letter/save', [LetterC::class, 'save'])->name('letter.save')->middleware('auth');
@@ -84,6 +85,7 @@ Route::post('/letter/collection/dataClave', [CollectionClaveC::class, 'dataClave
 Route::get('/letter/generate-pdf/correspondencia/{id}', [ReporteCorrespondenciaC::class, 'generatePdf'])->middleware('auth');
 Route::post('/letter/collection/validateUnique', [LetterC::class, 'validateUnique'])->name('letter.validateUnique')->middleware('auth');
 Route::post('/letter/collection/uniqueRemitente', [LetterC::class, 'uniqueRemitente'])->name('letter.collection.uniqueRemitente')->middleware('auth');
+Route::post('/letter/delete/copy', [LetterC::class, 'deleteCopy'])->name('letter.deleteCopy')->middleware('auth');
 
 ////Cloud
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
