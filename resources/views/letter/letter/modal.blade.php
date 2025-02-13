@@ -31,6 +31,47 @@
         modificar la información, ya que es únicamente con fines de conocimiento.
     </p>
 
+    @if($letterAdminMatch)
+        <button onclick="addCopy();"
+            style="background-color: white; color: red; border: none; padding: 10px 20px; font-size: 16px; display: flex; align-items: center; justify-content: center; text-align: left; position: absolute; left: 0;">
+            <i class="fa fa-arrow-up" style="margin-right: 8px;"></i> Agregar Registro
+        </button>
+        <br>
+        <br>
+    @endif
+
+    <div id="mostrar_ocultar_copy">
+
+        <div class="row">
+
+            <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]" name="id_cat_area_copy"
+                tittle="Área" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+            <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+                name="id_usuario_area_copy" tittle="Usuario" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+            <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+                name="id_usuario_enlace_copy" tittle="Enlace" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+        </div>
+
+        <div class="row">
+
+            <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]" name="id_cat_tramite_copy"
+                tittle="Tramite" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+            <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]" name="id_cat_clave_copy"
+                tittle="Clave" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+        </div>
+
+
+
+        <div class="modal-buttons custom-modal-buttons">
+            <button style="font-weight: bold;" onclick="hiddenCopy();">Cancelar</button>
+            <button style="font-weight: bold;color: #10312b" onclick="saveCopy();">Confirmar</button>
+        </div>
+    </div>
+
     <div class="table-responsive pt-3">
         <table id="template-table-copy" class="table table-bordered">
             <thead>

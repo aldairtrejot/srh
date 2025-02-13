@@ -11,14 +11,18 @@ $(document).ready(function () {
     $(window).click(function (event) {
         if ($(event.target).is('#modalCopy')) {
             $('#modalCopy').fadeOut(); // Ocultar la ventana modal
+            hideDiv('mostrar_ocultar_copy'); // Ocultar input de add copy
         }
     });
 
     $(window).click(function (event) {
         if ($(event.target).is('#id_modal_delete_acuse')) {
             $('#id_modal_delete_acuse').fadeOut(); // Ocultar la ventana modal
+            hideDiv('mostrar_ocultar_copy'); // Ocultar input de add copy
         }
     });
+
+    hideDiv('mostrar_ocultar_copy'); // Ocultar input de add copy
 });
 
 // ACTIVACION DE MODAL
@@ -78,4 +82,23 @@ function confirmModalDelete() {
 }
 
 
+// LA funcion muestra el click que se le da al boton agregar registro
+function addCopy() {
+    showDiv('mostrar_ocultar_copy');
+    //hideDiv('mostrar_ocultar_template')
+}
 
+// La funcion oculta el div de copy
+function hiddenCopy() {
+    hideDiv('mostrar_ocultar_copy'); // Ocultar input de add copy
+}
+
+// LA funcion guarda y valida las copias de correspondencia
+function saveCopy() {
+    console.log('success');
+}
+
+// Inicio de select de area
+function getSelectAreaCopy() {
+
+}
