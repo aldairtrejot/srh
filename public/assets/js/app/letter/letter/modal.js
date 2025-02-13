@@ -100,5 +100,5 @@ function saveCopy() {
 
 // Inicio de select de area
 function getSelectAreaCopy() {
-
+    
 }
