@@ -29,6 +29,8 @@ class CommunicationM extends Model
         'estatus',
         'id_usuario_captura',
         'fecha_usuario_captura',
+        'id_usuario_sistema',
+        'fecha_usuario',
     ];
 
     // La función lista la tabla para el inciio
@@ -68,5 +70,33 @@ class CommunicationM extends Model
 
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
+    }
+
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_correspondencia_interno')
+            ->where('id_tbl_correspondencia_interno', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
+
+    // La función retorna el id de la tabla por el año de la tabla interna
+    public function getIdAnio($id)
+    {
+        $query = DB::table('correspondencia.cat_anio')
+            ->join(
+                'correspondencia.tbl_correspondencia_interno',
+                DB::raw('CAST(correspondencia.cat_anio.descripcion AS INTEGER)'),
+                '=',
+                DB::raw('EXTRACT(YEAR FROM correspondencia.tbl_correspondencia_interno.fecha_asignacion)')
+            )
+            ->where('correspondencia.tbl_correspondencia_interno.id_tbl_correspondencia_interno', $id)
+            ->select('correspondencia.cat_anio.id_cat_anio as id')
+            ->first();
+
+        return $query->id;
     }
 }

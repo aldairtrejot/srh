@@ -7,7 +7,7 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
 
 // La función actualiza el no de oficio, si es que ya se ha asignado uno
-function updateIterator(message) {
+function updateIterator(status) {
     $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
     $.ajax({
         url: URL_DEFAULT.concat('/communication/noOficio'),
@@ -22,8 +22,8 @@ function updateIterator(message) {
             $('#consecutivo').val(item.result); // establecer los valores en input
 
             // Si se pasa el parametro de verdadero se manda el msj, de lo contrario no se manda nada
-            if (message) {
-                notyfEM.success("No. Oficio actualizado."); // message success
+            if (status) {
+                notyfEM.success("No. Oficio actualizado."); // status success
             }
 
         },

@@ -172,4 +172,97 @@ class AlfrescoC extends Controller
             echo $response;
         }
     }
+
+    // La funcion elimina un archivo de alfresco, espera como parametro el uuid y retorna true si se elimino, y falso si no
+    public function delete($uuidx)
+    {
+        // Obtener las credenciales y la URL base desde el archivo .env
+        $username = env('ALFRESCO_USER');    // Usuario de Alfresco
+        $password = env('ALFRESCO_PASS');    // Contraseña de Alfresco
+
+        // UUID del archivo a eliminar (fijo en este caso)
+        $uuid = $uuidx;  // UUID fijo
+
+        // Obtener la URL para la eliminación desde .env y reemplazar el placeholder {uuid}
+        $urlDelete = env('ALFRESCO_DELETE');
+        $url = str_replace('{uuid}', $uuid, $urlDelete);
+
+        // Inicializar cURL
+        $ch = curl_init();
+
+        // Configuración de cURL
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");  // Método DELETE para eliminar el archivo
+        curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");  // Autenticación básica
+
+        // Ejecutar la petición cURL
+        $response = curl_exec($ch);
+
+        // Obtener el código de respuesta HTTP
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // Cerrar la sesión de cURL
+        curl_close($ch);
+
+        // Verificar si la respuesta fue exitosa (200 OK o 204 No Content)
+        if ($httpCode == 200 || $httpCode == 204) {
+            //Log::info("Archivo con UUID {$uuid} eliminado correctamente.");
+            //return response()->json(['message' => 'Archivo eliminado correctamente'], 200);
+            return true; // Exito
+        } /*elseif ($httpCode == 404) {
+      //Log::error("Archivo con UUID {$uuid} no encontrado.");
+      //return response()->json(['message' => 'Archivo no encontrado en el servidor'], 404);
+      return false;
+  } elseif ($httpCode == 401 || $httpCode == 403) {
+      //Log::error("Error de autenticación al eliminar el archivo con UUID {$uuid}. Código de respuesta: {$httpCode}");
+      //return response()->json(['message' => 'Error de autenticación'], 401);
+  } */ else {
+            //Log::error("Error al eliminar el archivo con UUID {$uuid}. Código de respuesta HTTP: {$httpCode}. Respuesta del servidor: {$response}");
+            //return response()->json(['message' => 'No se pudo eliminar el archivo'], 400);
+            return false; //Error
+        }
+    }
+
+    // La función agrega un archivo, esperando como parametro el archivo y el uuid de la carpeta donde se va guardar
+    // retorna el uuid si se agrega correctamente el archivo (uuid de archivo que se subio) o falso si no se agrega nada
+    public function add($archivo, $folderId)
+    {
+        $fileName =  $archivo->getClientOriginalName(); // Nombre del archivo
+        $filePath = $archivo->getRealPath();// Ruta del archivo temporal
+
+        $username = env('ALFRESCO_USER');// Credenciales para la autenticación básica
+        $password = env('ALFRESCO_PASS');// Credenciales para la autenticación básica
+
+        $url = str_replace('{folderId}', $folderId, env('ALFRESCO_URL_ADD')); // Reemplazar el marcador de posición {folderId} en la URL
+        $credentials = base64_encode("{$username}:{$password}");// Codificar las credenciales en base64
+
+        $headers = [// Configuración de las cabeceras HTTP
+            "Authorization: Basic {$credentials}"
+        ];
+
+        $ch = curl_init();// Inicializar cURL
+        curl_setopt($ch, CURLOPT_URL, $url);// Configurar la solicitud cURL
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [// Enviar el archivo como parte de la solicitud
+            'filedata' => new \CURLFile($filePath, $archivo->getMimeType(), $fileName)
+        ]);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // Agregar las cabeceras a la solicitud
+        $response = curl_exec($ch);// Ejecutar la solicitud
+
+        if (curl_errno($ch)) {// Verificar si hubo un error durante la ejecución de cURL
+            curl_close($ch); // Si hay un error, devolver el error
+            return false;
+        }
+        curl_close($ch); // Cerrar la conexión cURL
+        $responseData = json_decode($response, true);
+
+        if (isset($responseData['entry']['id'])) {// Si el archivo fue subido exitosamente, obtener el UID del archivo
+            $fileUid = $responseData['entry']['id'];
+            return $fileUid;// Devolver el UID del archivo
+        } else {
+            return false; //Retorno de falso si es que existe un error
+        }
+    }
 }

@@ -87,5 +87,5 @@ function confirmRefreshOficio() {
 
 // Guardar o validar contenido Solicitante
 function confirmSolicitante() {
-    console.log('confirm sol');
+    validateSolicitante('#id_cat_solicitante'); // Se ejecuta función de solicitante
 }

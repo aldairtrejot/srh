@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\Email\EmailC;
+use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
+use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\File\CloudFileC;
+use App\Http\Controllers\Letter\Informative\InformativeC;
+use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
@@ -41,6 +45,7 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
+
 
 
 use Illuminate\Support\Facades\Route;
@@ -135,12 +140,50 @@ Route::post('/communication/table', [CommunicationC::class, 'table'])->name('com
 Route::get('/communication/create', [CommunicationC::class, 'create'])->name('communication.create')->middleware('auth');
 Route::post('/communication/area', [CollectionAreaInternoC::class, 'list'])->name('communication.area')->middleware('auth');
 Route::post('/communication/noOficio', [CollectionIteradorInternoC::class, 'refreshNoOficio'])->name('communication.noOficio')->middleware('auth');
+Route::post('/communication/save', [CommunicationC::class, 'save'])->name('communication.save')->middleware('auth');
+Route::get('/communication/edit/{id}', [CommunicationC::class, 'edit'])->name('communication.edit')->middleware('auth');
+Route::post('/communication/updateOficio', [CommunicationC::class, 'updateOficio'])->name('communication.updateOficio')->middleware('auth');
+Route::post('/communication/updateAcuse', [CommunicationC::class, 'updateAcuse'])->name('communication.updateAcuse')->middleware('auth');
+Route::post('/communication/addOficio', [CommunicationC::class, 'addOficio'])->name('communication.addOficio')->middleware('auth');
+Route::post('/communication/addAcuse', [CommunicationC::class, 'addAcuse'])->name('communication.addAcuse')->middleware('auth');
+
+// REQUEST
+Route::get('/request/list', [RequestC::class, 'list'])->name('request.list')->middleware('auth');
+Route::post('/request/table', [RequestC::class, 'table'])->name('request.table')->middleware('auth');
+Route::get('/request/create', [RequestC::class, 'create'])->name('request.create')->middleware('auth');
+Route::post('/request/noOficio', [CollectionIteradorInternoC::class, 'refreshNoRequerimiento'])->name('request.noOficio')->middleware('auth');
+Route::post('/request/save', [RequestC::class, 'save'])->name('request.save')->middleware('auth');
+Route::get('/request/edit/{id}', [RequestC::class, 'edit'])->name('request.edit')->middleware('auth');
+Route::post('/request/saveFile', [RequestC::class, 'saveFile'])->name('request.saveFile')->middleware('auth');
+Route::post('/request/deleteFile', [RequestC::class, 'deleteFile'])->name('request.deleteFile')->middleware('auth');
+
+// INFORMATIVE
+Route::get('/informative/list', [InformativeC::class, 'list'])->name('informative.list')->middleware('auth');
+Route::post('/informative/table', [InformativeC::class, 'table'])->name('informative.table')->middleware('auth');
+Route::get('/informative/create', [InformativeC::class, 'create'])->name('informative.create')->middleware('auth');
+Route::post('/informative/noOficio', [CollectionIteradorInternoC::class, 'refreshNoInformativo'])->name('informative.noOficio')->middleware('auth');
+Route::post('/informative/save', [InformativeC::class, 'save'])->name('informative.save')->middleware('auth');
+Route::get('/informative/edit/{id}', [InformativeC::class, 'edit'])->name('informative.edit')->middleware('auth');
+Route::post('/informative/saveFile', [InformativeC::class, 'saveFile'])->name('informative.saveFile')->middleware('auth');
+Route::post('/informative/deleteFile', [InformativeC::class, 'deleteFile'])->name('informative.deleteFile')->middleware('auth');
+
+// INFORMATIVE
+Route::get('/certification/list', [CertificationC::class, 'list'])->name('certification.list')->middleware('auth');
+Route::post('/certification/table', [CertificationC::class, 'table'])->name('certification.table')->middleware('auth');
+Route::post('/certification/saveFile', [CertificationC::class, 'saveFile'])->name('certification.saveFile')->middleware('auth');
+Route::post('/certification/deleteFile', [CertificationC::class, 'deleteFile'])->name('certification.deleteFile')->middleware('auth');
+
 
 /// GLOBAL DE CORRESPONDENCIA
+// SOLICTANTES -> AGREGAR UNO NUEVO
+Route::post('/solicitante/add', [CollectionSolicitanteC::class, 'addSolcitante'])->name('solicitante.add')->middleware('auth');
+
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
 //ALFRESCO -> ver archivo
 Route::post('/cloud/see', [AlfrescoC::class, 'see'])->name('cloud.see')->middleware('auth');
+// ALFRESCO DELETE
+Route::post('/cloud/delete', [AlfrescoC::class, 'delete'])->name('cloud.delete')->middleware('auth');
 //Collection
 Route::post('/year/getYear', [CollectionYearC::class, 'getYear'])->name('year.getYear')->middleware('auth');
 // CONSECUTIVO DE AREA ->

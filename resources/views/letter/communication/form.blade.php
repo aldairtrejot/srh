@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Comunicados" />
+                        <x-template-tittle.tittle-header tittle="Coordinación de Recursos Humanos" caption="Oficios" />
                     </div>
                 </div>
             </div>
@@ -24,25 +24,28 @@
                             <div>
                                 <h2 class="card-title" style="margin-bottom: 0;">
                                     {{ isset($item->id_tbl_correspondencia_interno) ? 'Modificar' : 'Agregar ' }}
-                                    Comunicado
+                                    Oficio
                                 </h2>
                             </div>
                             <div class="d-flex align-items-center">
                                 <!-- Botón 1 -->
-                                <button class="btn btn-hover-enlarge" onclick="refreshOficio();"
-                                    style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
-                                    <i class="fa fa-refresh"></i>
-                                </button>
+                                 @if (!isset($item->id_tbl_correspondencia_interno))
+                                    <button class="btn btn-hover-enlarge" onclick="refreshOficio();"
+                                        style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh No. Oficio">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                 @endif
+            
 
-                                <!-- Botón 2 -->
+                                <!--
                                 <button class="btn btn-hover-enlarge" onclick="addSolicitante();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Solicitante">
                                     <i class="fa fa-user-plus"></i>
                                 </button>
 
-                                <!-- Botón 3 -->
+
                                 <button class="btn btn-hover-enlarge" onclick="addDestinatario();"
                                     style="font-size: 1.1rem; padding: 10px; background-color: white; color: #10312B; border-radius: 50%; border: none; margin-right: 10px;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Destinatario">
@@ -54,8 +57,8 @@
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar Tema">
                                     <i class="fa fa-file-text"></i>
                                 </button>
+                                 -->
 
-                                <!-- Botón de Regreso (Ancla) alineado a la derecha -->
                                 <a href="{{ route('communication.list') }}" class="btn btn-hover-enlarge"
                                     style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none; display: inline-flex; justify-content: center; align-items: center;"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
@@ -65,15 +68,15 @@
                         </div>
 
                         <div>
-                            <form id="myForm" action="{{ route('file.save') }}" method="POST" class="form-sample">
+                            <form id="myForm" action="{{ route('communication.save') }}" method="POST" class="form-sample">
                                 @csrf
 
                                 <!-- item -> hidden -->
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_interno"
                                     value="{{ optional($item)->id_tbl_correspondencia_interno ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="fecha_captura"
-                                    value="{{ optional($item)->fecha_captura ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="fecha_asignacion"
+                                    value="{{ optional($item)->fecha_asignacion ?? '' }}" />
 
                                 <x-template-form.template-form-input-hidden name="nameUser" value="{{ $nameUser }}" />
 
@@ -167,8 +170,6 @@
 <script src="{{ asset('assets/js/app/letter/communication/modal.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/communication/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/communication/consecutivo.js') }}"></script>
-<!--
-
+<script src="{{ asset('assets/js/app/letter/function/solicitante.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/file/validate.js') }}"></script>
--->
+<script src="{{ asset('assets/js/app/letter/communication/validate.js') }}"></script>

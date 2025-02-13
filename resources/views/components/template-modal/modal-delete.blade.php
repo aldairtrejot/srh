@@ -6,8 +6,8 @@
         <input type="hidden" id="{{ $idInput }}" name="{{ $idInput }}" value="{{ $valueInput }}" />
 
         <div class="modal-buttons">
-            <button style="font-weight: bold;" id="{{ $cancelModal }}">Cancelar</button>
-            <button style="font-weight: bold;" onclick="{{ $functionConfirm }}" id="{{ $confirmButton }}">Eliminar</button>
+            <button style="" id="{{ $cancelModal }}">Cancelar</button>
+            <button style="color:red" onclick="{{ $functionConfirm }}" id="{{ $confirmButton }}">Eliminar</button>
         </div>
     </div>
 </div>

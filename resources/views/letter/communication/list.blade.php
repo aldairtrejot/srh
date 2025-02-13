@@ -8,8 +8,8 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Comunicados</h5>
+                            <h3 class="font-weight-bold">Coordinación de Recursos Humanos</h3>
+                            <h5 class="font-weight-normal mb-0">Oficios</h5>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Comunicados</h4>
+                                <h4 class="card-title">Oficios</h4>
                                 <p class="card-description">
                                     ¿Deseas agregar un registro? <a href="{{ route('communication.create') }}"
                                         class="text-danger" style="margin-left: 10px;">
@@ -74,8 +74,25 @@
         </div>
     </div>
 
+    <!-- CODE DELETE OFICIO-->
+    <x-template-modal.modal-delete tittleModal="id_modal_delete_oficio" idInput="id_uuid_oficio" valueInput=""
+        cancelModal="id_modal_calcel_oficio" confirmButton="" functionConfirm="confirmModalOficio();" />
+
+    <x-template-modal.modal-delete tittleModal="id_modal_delete_acuse" idInput="id_uuid_acuse" valueInput=""
+        cancelModal="id_modal_calcel_acuse" confirmButton="" functionConfirm="confirmModalAcuse();" />
+
+    <!-- item with add -->
+    <input type="file" class="file-input-oficio" style="display: none;" />
+    <input type="text" id="id_oficio" style="display: none;" />
+
+    <input type="file" class="file-input-acuse" style="display: none;" />
+    <input type="text" id="id_acuse" style="display: none;" />
+
+
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/communication/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/communication/cloud.js') }}"></script>
 
 </x-template-app.app-layout>

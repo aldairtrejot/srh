@@ -19,4 +19,19 @@ class CollectionTemaM extends Model
 
         return $result;
     }
+
+    public function edit($id)
+    {
+        $query = DB::table('correspondencia.cat_tema')
+            ->select([
+                'correspondencia.cat_tema.id_cat_tema AS id',
+                DB::raw('correspondencia.cat_tema.id_cat_tema AS id, 
+                         UPPER(correspondencia.cat_tema.descripcion) AS descripcion')
+            ])
+            ->where('correspondencia.cat_tema.id_cat_tema', '=', $id);
+
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
 }
