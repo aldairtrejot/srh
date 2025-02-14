@@ -54,7 +54,7 @@ class OfficeM extends Model
                     WHEN correspondencia.tbl_oficio.es_por_area THEN 
                         correspondencia.tbl_oficio.num_documento_area 
                     ELSE 
-                        correspondencia.tbl_correspondencia.num_turno_sistema 
+                        correspondencia.tbl_correspondencia.folio_gestion 
                 END AS num_documento
             '),
                 DB::raw("UPPER(correspondencia.tbl_oficio.asunto) AS asunto"),
@@ -77,7 +77,7 @@ class OfficeM extends Model
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.asunto)) LIKE ?", ['%' . $searchValue . '%']);
@@ -103,7 +103,7 @@ class OfficeM extends Model
                 'correspondencia.tbl_oficio.num_turno_sistema AS num_turno_sistema',
                 DB::raw('CASE WHEN correspondencia.tbl_oficio.es_por_area THEN 
                                     correspondencia.tbl_oficio.num_documento_area ELSE 
-                                    correspondencia.tbl_correspondencia.num_turno_sistema 
+                                    correspondencia.tbl_correspondencia.folio_gestion 
                                 END AS num_turno_sistema_correspondencia'),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
@@ -137,5 +137,31 @@ class OfficeM extends Model
             ->where('id_cat_area_documento', $idCatArea)
             ->where('id_cat_anio', $idAnio)
             ->first();  // Devuelve el primer (y único) resultado
+    }
+
+    // La funcion, retorna el area, uausrio y enlace dependiendo del id que se le pase
+    public function getDataFormat($id)
+    {
+        $query = DB::table('correspondencia.tbl_oficio')
+            ->select(
+                'correspondencia.tbl_oficio.id_tbl_oficio',
+                DB::raw('CASE 
+                            WHEN correspondencia.tbl_oficio.es_por_area
+                                THEN other_area.descripcion
+                            ELSE 
+                                is_area.descripcion
+                        END AS area'),
+                'usuario_area.name AS user_name',
+                'usuario_enlace.name AS user_enlace'
+            )
+            ->join('administration.users AS usuario_area', 'correspondencia.tbl_oficio.id_usuario_area', '=', 'usuario_area.id')
+            ->join('administration.users AS usuario_enlace', 'correspondencia.tbl_oficio.id_usuario_enlace', '=', 'usuario_enlace.id')
+            ->leftJoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.cat_area AS is_area', 'correspondencia.tbl_oficio.id_cat_area', '=', 'is_area.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS other_area', 'correspondencia.tbl_oficio.id_cat_area_documento', '=', 'other_area.id_cat_area')
+            ->where('correspondencia.tbl_oficio.id_tbl_oficio', '=', $id)
+            ->get();
+
+        return $query->first();
     }
 }

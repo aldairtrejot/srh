@@ -45,7 +45,7 @@
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Turno Asoc.:</label>
+                                    <label class="etiqueta">No. Turno Asoc. / Fol. Gestión:</label>
                                     <label id="_noCorrespondencia" class="valor"></label>
                                 </div>
                                 <div class="item">
