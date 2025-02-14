@@ -38,8 +38,15 @@ function openCopy(id, folGestion) {
 
 // Funcion para eliminar el elemento
 function openModalDelete(id) {
-    $('#id_delete').val(id); //Se declaran valorea
-    $('#id_modal_delete_acuse').fadeIn();//Iniciar ventana modal
+    // Validación por ROLE
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+    if (!new_variable) { //Condicion para inabilitar las opciones
+        notyfEM.error('No se han configurado permisos para este usuario.')
+    } else {
+        $('#id_delete').val(id); //Se declaran valorea
+        $('#id_modal_delete_acuse').fadeIn();//Iniciar ventana modal
+    }
 }
 
 

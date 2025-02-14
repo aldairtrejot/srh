@@ -2,6 +2,9 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
 
+
+    <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
