@@ -342,4 +342,19 @@ class LetterM extends Model
 
         return $result;
     }
+
+    // La Funcion valida que el area y el no de correspondencia no esten asociados
+    // La retorna verdadero si la consulta esta vacia o falso si lleva información
+    public function getValue($id_letter, $id_area)
+    {
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->select('correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', $id_letter)
+            ->where('correspondencia.tbl_correspondencia.id_cat_area', '=', $id_area)
+            ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', $id_area)
+            ->exists();  // Devuelve true si existen resultados, false si no existen
+
+        return !$query;  // Si hay resultados, retorna false; si no, retorna true
+    }
 }

@@ -167,14 +167,35 @@ $('#id_cat_tramite_copy').on('change', function () {
 
 // LA funcion guarda y valida las copias de correspondencia
 function saveCopy() {
+    let isValidN = onlyArea($('#id_correspondencia_x').val(), $('#id_cat_area_copy').val());
+
     if (isFieldEmpty($('#id_cat_area_copy').val(), 'Área') ||
         isFieldEmpty($('#id_usuario_area_copy').val(), 'Usuario') ||
         isFieldEmpty($('#id_usuario_enlace_copy').val(), 'Enlace') ||
         isFieldEmpty($('#id_cat_tramite_copy').val(), 'Tramite') ||
         isFieldEmpty($('#id_cat_clave_copy').val(), 'Clave')) {
+    } else if (!isValidN) { // Validacion que no tenga area
+        notyfEM.error('El Nombre de remitente ya está registrado.');
     } else {
-        validateIsOK(); // save add
+        console.log('success');
+        //validateIsOK(); // save add
     }
+}
+
+function onlyArea(id_tbl_correspondencia, id_cat_area) {
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/validateCopy'),
+        type: 'POST',
+        data: {
+            id_tbl_correspondencia: id_tbl_correspondencia,
+            id_cat_area: id_cat_area,
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            console.log(response.result);
+            return response.result;
+        },
+    });
 }
 
 // La funcion guarda los datos, una ves que se han validado con exito

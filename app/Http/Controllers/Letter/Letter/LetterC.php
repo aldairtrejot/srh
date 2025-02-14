@@ -368,6 +368,18 @@ class LetterC extends Controller
         ]);
     }
 
+    // La función valida que el area y el No Correspondencia no esten asociados
+    public function validateCopy(Request $request)
+    {
+        // Class
+        $letterM = new LetterM();
+        $result = $letterM->getValue($request->id_tbl_correspondencia, $request->id_cat_area);
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
     // LA funcion guarda en la tabla copy correspondencia
     public function saveCopy(Request $request)
     {
