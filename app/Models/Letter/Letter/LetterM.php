@@ -65,7 +65,7 @@ class LetterM extends Model
         return $query ?? null;
     }
 
-    public function list($iterator, $searchValue, $idArea, $idEnlace)
+    public function list($iterator, $searchValue, $idUser)
     {
         // Preparar la consulta base
         $query = DB::table('correspondencia.tbl_correspondencia')
