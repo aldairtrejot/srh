@@ -59,6 +59,7 @@ function searchInit() {
                                         </span>
                                         Reporte
                                     </a>
+                                    <!--
                                     <button class="dropdown-item" onclick="openCopy(${object.id}, '${object.folio_gestion}')">
                                         <span style="background:#691C32" class="icon-container-template">
                                             <div style="text-align: center;">
@@ -67,6 +68,7 @@ function searchInit() {
                                         </span>
                                         Copia
                                     </button>
+                                    -->
                                     <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.folio_gestion}')">
                                         <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">

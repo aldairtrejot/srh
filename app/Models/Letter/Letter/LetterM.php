@@ -168,7 +168,8 @@ class LetterM extends Model
                 'correspondencia.cat_unidad.descripcion AS unidad',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.puesto_remitente AS puesto_remitente',
-                'correspondencia.cat_entidad.descripcion AS entidad'
+                'correspondencia.cat_entidad.descripcion AS entidad',
+                'administration.users.name AS user_area'
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
@@ -178,6 +179,7 @@ class LetterM extends Model
             ->leftJoin('correspondencia.cat_unidad', 'correspondencia.tbl_correspondencia.id_cat_unidad', '=', 'correspondencia.cat_unidad.id_cat_unidad')
             ->leftJoin('correspondencia.cat_coordinacion', 'correspondencia.tbl_correspondencia.id_cat_coordinacion', '=', 'correspondencia.cat_coordinacion.id_cat_coordinacion')
             ->leftJoin('correspondencia.cat_entidad', 'correspondencia.tbl_correspondencia.id_cat_entidad', '=', 'correspondencia.cat_entidad.id_cat_entidad')
+            ->leftJoin('administration.users', 'correspondencia.tbl_correspondencia.id_usuario_captura', '=', 'administration.users.id')
             ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
             ->first(); // Obtener solo el primer resultado
 
