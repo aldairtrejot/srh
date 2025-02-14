@@ -92,6 +92,12 @@ class OfficeC extends Controller
 
         $noLetter = "";//No de oficio se inicializa en vacio
 
+        $other = [
+            'area' => ' _',
+            'user_name' => ' _',
+            'user_enlace' => ' _',
+        ];
+
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
 
@@ -101,7 +107,7 @@ class OfficeC extends Controller
         $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        return view('letter/office/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -112,6 +118,8 @@ class OfficeC extends Controller
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
         $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
+
+        $other = $officeM->getDataFormat($id);
 
         $item = $officeM->edit($id); // Obtener el elemento con el ID pasado
         $noLetter = $letterM->getTurno($item->id_tbl_correspondencia);
@@ -125,7 +133,7 @@ class OfficeC extends Controller
         $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        return view('letter/office/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)

@@ -152,6 +152,10 @@ class CloudC extends Controller
         $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
+        $alfrescoC = new AlfrescoC();
+
+        //Borrado de alfresco
+        $alfrescoC->delete($request->uid);
 
         $data = [
             'estatus' => false,

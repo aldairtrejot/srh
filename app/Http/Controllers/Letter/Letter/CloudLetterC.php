@@ -144,6 +144,11 @@ class CloudLetterC extends Controller
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
 
+        $alfrescoC = new AlfrescoC();
+
+        //Borrado de alfresco
+        $alfrescoC->delete($request->uid);
+
         $data = [
             'estatus' => false,
             'id_usuario_sistema' => Auth::user()->id,
@@ -154,8 +159,9 @@ class CloudLetterC extends Controller
         $resultAnexos = $cloudAnexosM::where('uid', $request->uid)
             ->update($data);
 
+
         $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update(attributes: $data);
+            ->update($data);
 
         //UPDATE EN LOG
         $data['uid'] = $request->uid;
