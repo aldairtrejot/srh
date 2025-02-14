@@ -155,7 +155,7 @@ class CloudLetterC extends Controller
             ->update($data);
 
         $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update($data);
+            ->update(attributes: $data);
 
         //UPDATE EN LOG
         $data['uid'] = $request->uid;
