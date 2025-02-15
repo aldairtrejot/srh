@@ -7,6 +7,9 @@
 idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();" width="600px"
 height="495px">
 
+<input type="hidden" id="idtbl_cursos_audit">
+
+
 <div class="table-responsive pt-3">
     <table id="template-tableaudit" class="table table-bordered custom-table">
         <thead>

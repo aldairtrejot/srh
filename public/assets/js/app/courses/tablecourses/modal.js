@@ -14,11 +14,6 @@ $(document).ready(function () {
         }
     });
 
-  // LA funcion activa el modal solicitante
-function refreshOficio() {
-    $('#modalBackdrop').fadeIn();//Iniciar ventana modal
-}
-
     // Cerrar modal cuando se presiona el botón de cancelar
     $('#cancelBtn').click(function () {
         $('#modalBackdrop').fadeOut();
@@ -32,8 +27,11 @@ $('#cancelBtn_solicitante').click(function () { //Se pulsa el boton de cancelar
 
 
 // Función para abrir el modal de Auditoría
-function refreshOficio() {
-    $('#modalBackdrop').fadeIn(); // Mostrar la ventana modal
+function refreshOficio(id_tbl_cursos) {
+    console.log(id_tbl_cursos);
+    $('#modalBackdrop').fadeIn();
+    $('#idtbl_cursos_audit').val(id_tbl_cursos);// Mostrar la ventana modal
+    console.log( $('#idtbl_cursos_audit').val());
 }
 // LA funcion activa el modal solicitante
 function addSolicitante() {
@@ -42,7 +40,7 @@ function addSolicitante() {
 
 // Función para confirmar la auditoría dentro del modal
 function confirmRefreshOficio() {
-    console.log('Se está realizando la auditoría del oficio...');
+    console.log( $('#idtbl_cursos_audit').val());
     // Aquí puedes agregar la lógica para enviar datos o actualizar información
     $('#modalBackdrop').fadeOut(); // Cerrar el modal después de la confirmación
     $('#modalSolicitante').fadeIn();//Iniciar ventana modal

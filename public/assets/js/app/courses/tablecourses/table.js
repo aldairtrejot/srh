@@ -70,7 +70,7 @@ function searchInit() {
                     let auditoriaButton = '';
                     if (object.costo_total > 0) {
                         auditoriaButton = `
-                            <button class="dropdown-item" onclick="refreshOficio()">
+                            <button class="dropdown-item" onclick="refreshOficio(${object.id_tbl_cursos})">
                                 <span style="background:#B38E5D" class="icon-container-template">
                                     <div style="text-align: center;">
                                         <i class=" fa fa-list-alt item-icon-menu"></i>
