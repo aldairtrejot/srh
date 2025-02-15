@@ -192,7 +192,7 @@ function onlyArea(id_tbl_correspondencia, id_cat_area) {
             if (response.result) {
                 validateIsOK(); // save add
             } else {
-                notyfEM.error("El área ya tiene asignado el número de folio.");
+                notyfEM.error("El área ya tiene asignado el folio de gestión.");
             }
         },
     });
