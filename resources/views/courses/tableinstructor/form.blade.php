@@ -18,33 +18,37 @@
                             tittle="{{ isset($item->id_tbl_instructores) ? 'Modificar' : 'Agregar' }} Instructor"
                             route="{{ route('tableinstructor.list') }}" />
 
-                     
-
                         <x-template-tittle.tittle-caption-secon tittle="Información de Usuario" />
                         
                         <!-- Contenedor de Resultados -->
                         <div class="contenedor">
                             <div class="item">
                                 <label class="etiqueta">Nombre:</label>
-                                <label id="remitente_nombre" class="valor"></label>
+                                <label id="remitente_nombre" class="valor">{{ optional($item)->nombre ?? 'N/A' }}</label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">Primer Apellido:</label>
-                                <label id="remitente_primer_apellido" class="valor"></label>
+                                <label id="remitente_primer_apellido" class="valor">{{ optional($item)->primer_apellido ?? 'N/A' }}</label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">Segundo Apellido:</label>
-                                <label id="remitente_segundo_apellido" class="valor"></label>
+                                <label id="remitente_segundo_apellido" class="valor">{{ optional($item)->segundo_apellido ?? 'N/A' }}</label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">RFC:</label>
-                                <label id="remitente_rfc" class="valor"></label>
+                                <label id="remitente_rfc" class="valor">{{ optional($item)->rfc ?? 'N/A' }}</label>
                             </div>
                         </div>
                         <br>
 
-                        <form action="{{ route('tableinstructor.save') }}" method="POST" class="form-sample">
+                        <!-- FORMULARIO -->
+                        <form id="form-instructor" action="{{ isset($item->id_tbl_instructores) ? route('tableinstructor.update', $item->id_tbl_instructores) : route('tableinstructor.save') }}" 
+                              method="POST" class="form-sample">
                             @csrf
+
+                            @if(isset($item->id_tbl_instructores))
+                                @method('PUT') <!-- Indica que es una actualización -->
+                            @endif
 
                             <div class="row align-items-center">
                                 <!-- Campo CURP -->
@@ -53,35 +57,26 @@
                                         <label for="curp" style="font-size: 1rem; color: #333;">CURP</label>
                                         <input type="text" name="curp" id="curp" placeholder="Ingrese CURP"
                                             autocomplete="off" value="{{ optional($item)->curp ?? '' }}" class="form-control"
-                                            style="font-size: 1rem;" />
+                                            style="font-size: 1rem;" required />
                                     </div>
                                     <!-- Botón CONSULTAR -->
-                                    <button class="btn ml-2" onclick="validarcurp();" type="button"
+                                    <button id="boton-consultar-curp" class="btn ml-2" onclick="validarcurp();" type="button"
                                         style="font-size: 1rem; padding: 10px 20px; background-color:rgb(235, 235, 235); color:#646464; border: none;display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar CURP">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </div>
                             </div>
 
-                       <!-- Campo Estatus -->
-<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-    <label for="estatus">Estatus</label>
+                            <!-- Campo Estatus -->
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <label for="estatus">Estatus</label>
 
-    <!-- Campo oculto para asegurar que "estatus" siempre se envíe -->
-    <input type="hidden" name="estatus" value="0">
+                                <!-- Campo oculto para asegurar que "estatus" siempre se envíe -->
+                                <input type="hidden" id="estatus-hidden" name="estatus" value="0">
 
-    <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" value="1"
-        {{ old('estatus', optional($item)->estatus ?? false) ? 'checked' : '' }}>
-</div>
-
-
-                           <!-- Campo oculto para id_cat_tipo_schema -->
-                            <x-template-form.template-form-input-hidden name="id_cat_tipo_schema"
-                                value="{{ optional($item)->id_cat_tipo_schema ?? '' }}" />
-
-                            <!-- Campo oculto para id_tbl_empleados_hraes -->
-                            <x-template-form.template-form-input-hidden name="id_tbl_empleados_hraes"
-                            value="{{ optional($item)->id_tbl_empleados_hraes ?? '' }}" />
+                                <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" value="1"
+                                    {{ old('estatus', optional($item)->estatus ?? false) ? 'checked' : '' }}>
+                            </div>
 
                             <br>
                              
@@ -94,6 +89,5 @@
     </div>
 </x-template-app.app-layout>
 
-<!-- CODE SCRIPT-->
-
+<!-- CODE SCRIPT -->
 <script src="{{ asset('assets/js/app/courses/tableinstructor/form.js') }}"></script>

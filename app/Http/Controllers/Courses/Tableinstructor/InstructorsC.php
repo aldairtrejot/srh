@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Courses\Tableinstructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
+use App\Models\Courses\Courses\Instructores\Instructores\UpdateInstructorM;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;  
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Admin\MessagesC;
+use App\Models\Courses\Tableinstructor\CollectionStatusM;
+
 
 class InstructorsC extends Controller
 {
@@ -20,52 +23,33 @@ class InstructorsC extends Controller
     }
 
     public function save(Request $request)
-{
-    \Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
-    \Log::info('📩 Datos recibidos en request:', $request->all());
-
-    try {
-        $now = Carbon::now();
-        $messagesC = new MessagesC();
-        $request->validate([
-            'curp' => 'required|string|size:18',
-        ]);
-
-        // Obtener usuario desde el modelo
-        $instructorM = new InstructorM();
-        $idUsuario = $instructorM->obtenerOcrearUsuarioPorCurp($request->curp);
-
-        if (!$idUsuario) {
-            \Log::error('❌ No se pudo obtener un ID de usuario.');
-            return $messagesC->messageErrorRedirect('tableinstructor.list', 'No se pudo obtener un usuario válido.');
-        }
-
-        \Log::info('✅ Usuario registrado en administration.users con ID: ' . $idUsuario);
-
-        // Guardar en `capacitacion.tbl_instructores`
-        $idInstructor = $instructorM->obtenerOcrearInstructor($request->curp, $request->estatus);
-
-        if (!$idInstructor) {
-            \Log::error('❌ No se pudo registrar el instructor en capacitacion.tbl_instructores.');
-            return $messagesC->messageErrorRedirect('tableinstructor.list', 'No se pudo registrar el instructor.');
-        }
-
-        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor registrado correctamente.');
-
-    } catch (\Exception $e) {
-        \Log::error('🔥 Error en save(): ' . $e->getMessage());
-        return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error en el servidor: ' . $e->getMessage());
-    }
-}
-
-
-    public function create()
     {
-        $item = new InstructorM();
-        return view('courses.tableinstructor.form', compact('item'));
+        Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
+        $messagesC = new MessagesC();
+
+        try {
+            $request->validate([
+                'curp' => 'required|string|size:18',
+            ]);
+
+            if ($request->is_editing == 1) {
+                return $this->update($request);
+            }
+
+            $instructorM = new InstructorM();
+            $idInstructor = $instructorM->obtenerOcrearInstructor($request->curp, $request->estatus);
+
+            if (!$idInstructor) {
+                return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error al registrar instructor.');
+            }
+
+            return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor registrado correctamente.');
+        } catch (\Exception $e) {
+            return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error: ' . $e->getMessage());
+        }
     }
 
-
+ 
     public function searchTable(Request $request)
     {
         try {
@@ -99,28 +83,7 @@ class InstructorsC extends Controller
         }
     }
 
-    public function edit(Request $request, $id)
-    {
-        $instructor = InstructorM::find($id);
-        $messagesC = new MessagesC();
-
-        if (!$instructor) {
-            abort(404, 'Instructor no encontrado.');
-        }
-
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'estatus' => 'required|boolean',
-            ]);
-
-            $instructor->estatus = $request->input('estatus') ? true : false;
-            $instructor->save();
-
-            return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor actualizado exitosamente.');
-        }
-
-        return view('courses.tableinstructor.edit', compact('instructor'));
-    }
+    
 
     // BUSQUEDA DE CURP
     // Método dataCurp en InstructorsC.php
@@ -164,4 +127,65 @@ class InstructorsC extends Controller
         ], 500);
     }
 }
+
+public function create()
+{
+    $item = new InstructorM();
+
+    // Inicializar valores por defecto
+    $item->estatus_instructor = 1; // Activo por defecto
+
+    return view('courses.tableinstructor.form', compact('item'));
+}
+
+public function edit($id)
+    {
+        $updateInstructorM = new UpdateInstructorM();
+        $item = $updateInstructorM->editInstructor($id);
+
+        if (!$item) {
+            return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado.');
+        }
+
+        return view('courses.tableinstructor.form', compact('item'));
+    }
+    public function update(Request $request, $id)
+    {
+        try {
+            Log::info('🔄 Datos recibidos en update():', $request->all());
+    
+            $request->validate([
+                'curp' => 'required|string|size:18',
+                'estatus' => 'required|in:0,1',
+            ]);
+    
+            $updateInstructorM = new UpdateInstructorM();
+    
+            // Verificar si la CURP ya está en uso por otro instructor
+            $curpExistente = DB::table('capacitacion.tbl_instructores')
+                ->where('curp', strtoupper($request->curp))
+                ->where('id_tbl_instructores', '!=', $id)
+                ->exists();
+    
+            if ($curpExistente) {
+                return redirect()->route('tableinstructor.list')->with('error', 'La CURP ingresada ya está en uso por otro instructor.');
+            }
+    
+            // Actualizar CURP y estatus
+            $updated = $updateInstructorM->updateInstructor($id, [
+                'curp' => strtoupper($request->curp),
+                'estatus' => $request->estatus
+            ]);
+    
+            if (!$updated) {
+                return redirect()->route('tableinstructor.list')->with('error', 'No se pudo actualizar el instructor.');
+            }
+    
+            return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
+        } catch (\Exception $e) {
+            Log::error('🔥 Error en update(): ' . $e->getMessage());
+            return redirect()->route('tableinstructor.list')->with('error', 'Error en el servidor.');
+        }
+    }
+    
 }

@@ -7,13 +7,13 @@ $.ajaxSetup({
 });
 
 // Variables globales
-let iterator = 1;
-let emptyContent = false;
-let courseIdToDelete = null;
+let iterator = 1; // Página actual
+let totalRecords = 0; // Total de registros
+let recordsPerPage = 5; // Registros por página
 
 $(document).ready(function () {
     searchInit();
-    setValue();
+    setPaginator();
 
     // Modal y eventos
     const modal = document.getElementById("deleteModal");
@@ -35,32 +35,41 @@ $(document).ready(function () {
     };
 });
 
-// Función para inicializar la búsqueda
+// **🔹 Función para inicializar la búsqueda con paginación**
 function searchInit() {
     const searchValue = document.getElementById('searchValue').value.trim();
-    const iteradorAux = (iterator * 5) - 5;
+    const offset = (iterator - 1) * recordsPerPage; // Calcular el desplazamiento (offset)
 
     $.ajax({
         url: `${URL_DEFAULT}/tableinstructor/table`,
         type: 'POST',
         data: {
-            iterator: iteradorAux,
+            iterator: offset,
             searchValue: searchValue,
             _token: token
         },
-        success: (response) => renderTable(response),
-        error: (xhr) => handleAjaxError(xhr)
+        success: function (response) {
+            renderTable(response.value);
+            totalRecords = response.totalRecords || 0; // Obtener total de registros
+            setPaginator();
+        },
+        error: function (xhr) {
+            console.error('Error en la solicitud:', xhr.responseText);
+            alert('Hubo un error al cargar los datos.');
+        }
     });
 }
 
-// Renderiza la tabla con los resultados
-function renderTable(response) {
+// **🔹 Función para renderizar la tabla con los registros**
+function renderTable(data) {
     const tbody = $('#template-table tbody');
     tbody.empty();
 
-    if (response.value && response.value.length > 0) {
-        response.value.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/{id}${object.id_tbl_instructores}`;
+    if (data && data.length > 0) {
+        data.forEach(function (object) {
+            const finalUrl = `${URL_DEFAULT}/instructor/${object.id_tbl_instructores}/edit`;
+            const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
+
             const rowHTML = `
                 <tr>
                     <td>
@@ -89,71 +98,65 @@ function renderTable(response) {
                             </div>
                         </div>
                     </td>
-                    <td>${object.curp || ' '}</td>
-                    <td>${object.nombre_completo || ' '}</td>
-                    <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                    <td>${object.curp || '-'}</td>
+                    <td>${object.nombre_completo || '-'}</td>
+                    <td>${estatus}</td>
                 </tr>
             `;
             tbody.append(rowHTML);
         });
-        emptyContent = false;
     } else {
-        tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
-        emptyContent = true;
+        tbody.html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
     }
 }
 
-// Manejo de errores en AJAX
-function handleAjaxError(xhr) {
-    console.error('Error en la solicitud:', xhr.responseText);
+// **🔹 Función para actualizar la paginación**
+function setPaginator() {
+    const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+    document.getElementById("is_iterator").innerText = iterator;
+    document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
+    document.getElementById("is_iteratorMax").innerText = totalPages;
+
+    // Habilitar/Deshabilitar botones de paginación
+    $("#paginatorMin1").prop("disabled", iterator === 1);
+    $("#paginatorMin5").prop("disabled", iterator <= 5);
+    $("#paginatorMax1").prop("disabled", iterator >= totalPages);
+    $("#paginatorMax5").prop("disabled", iterator + 5 >= totalPages);
 }
 
-// Funciones de paginación
+// **🔹 Funciones de paginación corregidas**
 function paginatorMax1() {
-    if (!emptyContent) iterator += 1;
-    setValue();
-    searchInit();
+    if (iterator < Math.ceil(totalRecords / recordsPerPage)) {
+        iterator++;
+        searchInit();
+    }
 }
 
 function paginatorMax5() {
-    if (!emptyContent) iterator += 5;
-    setValue();
-    searchInit();
+    if (iterator + 5 <= Math.ceil(totalRecords / recordsPerPage)) {
+        iterator += 5;
+        searchInit();
+    }
 }
 
 function paginatorMin5() {
     iterator = Math.max(iterator - 5, 1);
-    setValue();
     searchInit();
 }
 
 function paginatorMin1() {
     iterator = Math.max(iterator - 1, 1);
-    setValue();
     searchInit();
 }
 
-// Reinicia el iterador y realiza la búsqueda
+// **🔹 Reinicia el iterador y realiza la búsqueda**
 function searchValue() {
     iterator = 1;
-    setValue();
     searchInit();
 }
 
-// Actualiza el número de página en el DOM
-function setValue() {
-    document.getElementById("is_iterator").innerText = iterator;
-    document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
-    document.getElementById("is_iteratorMax").innerText = iterator + 2;
-}
-
-// Muestra el modal de confirmación de eliminación
-function confirmDelete(id) {
-    courseIdToDelete = id;
-    document.getElementById("deleteModal").style.display = "block";
-}
-
-// Elimina un curso
+// **🔹 Función para eliminar un instructor**
 function deleteCourse(id) {
     $.ajax({
         url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
@@ -163,6 +166,9 @@ function deleteCourse(id) {
             alert('Instructor eliminado exitosamente.');
             window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
         },
-        error: (xhr) => handleAjaxError(xhr)
+        error: (xhr) => {
+            console.error('Error en la eliminación:', xhr.responseText);
+            alert('No se pudo eliminar el instructor.');
+        }
     });
 }

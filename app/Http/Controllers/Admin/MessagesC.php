@@ -24,4 +24,9 @@ class MessagesC extends Controller
             'estatus' => 'true'
         ]);
     }
+
+    public function messageErrorRedirect($route, $message)
+{
+    return redirect()->route($route)->with('error', $message);
+}
 }

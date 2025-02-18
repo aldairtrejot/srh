@@ -240,8 +240,14 @@ Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.
 Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
 Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
-Route::match(['get', 'post'], '/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
+// Mostrar el formulario de edición (GET)
+Route::get('/instructor/{id}/edit', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
+
+// Actualizar instructor (PUT)
+Route::put('/instructor/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
+
+
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
 Route::post('/tableinstructor/cloud/data', [CloudtableinsC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
 Route::post('/tableinstructor/cloud/cv', [CloudtableinsC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');

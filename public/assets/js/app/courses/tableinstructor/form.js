@@ -8,7 +8,20 @@ $.ajaxSetup({
     }
 });
 
-// Función para validar la CURP
+// Detectar si estamos en edición
+const isEditing = $('#form-instructor').attr('action').includes("update");
+
+// Si estamos en edición, deshabilitar la consulta de CURP
+if (isEditing) {
+    $('#boton-consultar-curp').prop('disabled', true);
+}
+
+// Capturar el cambio del checkbox de estatus y actualizar el campo oculto
+$('#estatus').on('change', function () {
+    $('#estatus-hidden').val(this.checked ? '1' : '0');
+});
+
+// Función para validar la CURP y obtener información del instructor
 function validarcurp() {
     let curp = $('#curp').val().trim();
 
@@ -17,46 +30,57 @@ function validarcurp() {
         return;
     }
 
-    const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]{2}$/i;
-    if (!curpRegex.test(curp)) {
-        alert('El formato de CURP no es válido.');
-        return;
-    }
-
     $.ajax({
         url: URL_DEFAULT.concat('/tableinstructor/table/dataCurp'),
         type: 'POST',
         data: { curp: curp },
         success: function (response) {
-            console.log("✅ Respuesta del servidor:", response); // Depuración en consola
-
             if (response.status && response.value) {
-                let data = response.value;
-
-                // Evita errores si `data` es undefined o no tiene las propiedades esperadas
-                $('#remitente_nombre').text(data.nombre || 'N/A');
-                $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
-                $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
-                $('#remitente_rfc').text(data.rfc || 'N/A');
-
+                llenarDatosInstructor(response.value);
             } else {
-                console.warn("⚠ No se encontraron datos en response.value");
                 alert(response.message || 'No se encontraron datos.');
                 limpiarValores();
             }
         },
         error: function (xhr) {
-            console.error("❌ Error en AJAX:", xhr.responseText);
             alert('Ocurrió un error al validar la CURP.');
             limpiarValores();
         }
     });
 }
 
-// Función para limpiar los valores en caso de error o datos no encontrados
-function limpiarValores() {
-    $('#remitente_nombre').text('');
-    $('#remitente_primer_apellido').text('');
-    $('#remitente_segundo_apellido').text('');
-    $('#remitente_rfc').text('');
+// Función para llenar los datos del instructor en los campos del formulario
+function llenarDatosInstructor(data) {
+    $('#remitente_nombre').text(data.nombre || 'N/A');
+    $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
+    $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
+    $('#remitente_rfc').text(data.rfc || 'N/A');
+
+    $('input[name="nombre"]').val(data.nombre || '');
+    $('input[name="primer_apellido"]').val(data.primer_apellido || '');
+    $('input[name="segundo_apellido"]').val(data.segundo_apellido || '');
+    $('input[name="rfc"]').val(data.rfc || '');
+    $('#estatus-hidden').val(data.estatus || '0');
+    $('#estatus').prop('checked', data.estatus === "1");
 }
+
+// Envío del formulario con el método correcto (PUT en edición)
+$('#form-instructor').on('submit', function (event) {
+    event.preventDefault();
+
+    let formData = $(this).serialize();
+    let method = isEditing ? 'PUT' : 'POST'; // Cambia a PUT si es edición
+
+    $.ajax({
+        url: $(this).attr('action'),
+        type: method,
+        data: formData,
+        success: function () {
+            alert("Instructor actualizado correctamente.");
+            window.location.href = URL_DEFAULT.concat('/tableinstructor/list');
+        },
+        error: function () {
+            alert("Ocurrió un error al actualizar el instructor.");
+        }
+    });
+});
