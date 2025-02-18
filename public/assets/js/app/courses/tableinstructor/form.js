@@ -16,11 +16,6 @@ if (isEditing) {
     $('#boton-consultar-curp').prop('disabled', true);
 }
 
-// Capturar el cambio del checkbox de estatus y actualizar el campo oculto
-$('#estatus').on('change', function () {
-    $('#estatus-hidden').val(this.checked ? '1' : '0');
-});
-
 // Función para validar la CURP y obtener información del instructor
 function validarcurp() {
     let curp = $('#curp').val().trim();
@@ -42,7 +37,7 @@ function validarcurp() {
                 limpiarValores();
             }
         },
-        error: function (xhr) {
+        error: function () {
             alert('Ocurrió un error al validar la CURP.');
             limpiarValores();
         }
@@ -56,11 +51,7 @@ function llenarDatosInstructor(data) {
     $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
     $('#remitente_rfc').text(data.rfc || 'N/A');
 
-    $('input[name="nombre"]').val(data.nombre || '');
-    $('input[name="primer_apellido"]').val(data.primer_apellido || '');
-    $('input[name="segundo_apellido"]').val(data.segundo_apellido || '');
-    $('input[name="rfc"]').val(data.rfc || '');
-    $('#estatus-hidden').val(data.estatus || '0');
+    $('#curp').val(data.curp || '');
     $('#estatus').prop('checked', data.estatus === "1");
 }
 
@@ -68,13 +59,20 @@ function llenarDatosInstructor(data) {
 $('#form-instructor').on('submit', function (event) {
     event.preventDefault();
 
-    let formData = $(this).serialize();
-    let method = isEditing ? 'PUT' : 'POST'; // Cambia a PUT si es edición
+    let formData = $(this).serializeArray();
+
+    // Agregar estatus manualmente
+    formData.push({ name: "estatus", value: $('#estatus').is(':checked') ? "1" : "0" });
+
+    // Si es edición, agregamos el método PUT manualmente
+    if (isEditing) {
+        formData.push({ name: "_method", value: "PUT" });
+    }
 
     $.ajax({
         url: $(this).attr('action'),
-        type: method,
-        data: formData,
+        type: 'POST', // Laravel manejará la conversión a PUT
+        data: $.param(formData),
         success: function () {
             alert("Instructor actualizado correctamente.");
             window.location.href = URL_DEFAULT.concat('/tableinstructor/list');

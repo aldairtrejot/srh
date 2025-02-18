@@ -139,53 +139,47 @@ public function create()
 }
 
 public function edit($id)
-    {
-        $updateInstructorM = new UpdateInstructorM();
-        $item = $updateInstructorM->editInstructor($id);
+{
+    $updateInstructorM = new UpdateInstructorM();
+    $item = $updateInstructorM->editInstructor($id);
 
-        if (!$item) {
-            return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado.');
+    if (!$item) {
+        return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado.');
+    }
+
+    Log::info("✅ Datos enviados a la vista: ", (array) $item); // REGISTRA LOS DATOS EN EL LOG
+
+    return view('courses.tableinstructor.form', compact('item'));
+}
+
+public function update(Request $request, $id)
+{
+    try {
+        Log::info('🔄 Datos recibidos en update():', $request->all());
+
+        $request->validate([
+            'estatus' => 'required|in:0,1',
+        ]);
+
+        // 🔹 Actualizar solo el estatus
+        $estatusActualizado = DB::table('capacitacion.tbl_instructores')
+            ->where('id_tbl_instructores', $id)
+            ->update(['estatus' => $request->estatus]);
+
+        if (!$estatusActualizado) {
+            Log::error("❌ Error al actualizar el estatus del instructor ID: {$id}");
+            return response()->json(['status' => false, 'message' => 'No se pudo actualizar el estatus.'], 500);
         }
 
-        return view('courses.tableinstructor.form', compact('item'));
+        Log::info("✅ Estatus actualizado correctamente para el instructor ID: {$id}");
+
+        return response()->json(['status' => true, 'message' => 'Estatus actualizado correctamente.']);
+
+    } catch (\Exception $e) {
+        Log::error("🔥 Error en update(): " . $e->getMessage());
+        return response()->json(['status' => false, 'message' => 'Error en el servidor.'], 500);
     }
-    public function update(Request $request, $id)
-    {
-        try {
-            Log::info('🔄 Datos recibidos en update():', $request->all());
-    
-            $request->validate([
-                'curp' => 'required|string|size:18',
-                'estatus' => 'required|in:0,1',
-            ]);
-    
-            $updateInstructorM = new UpdateInstructorM();
-    
-            // Verificar si la CURP ya está en uso por otro instructor
-            $curpExistente = DB::table('capacitacion.tbl_instructores')
-                ->where('curp', strtoupper($request->curp))
-                ->where('id_tbl_instructores', '!=', $id)
-                ->exists();
-    
-            if ($curpExistente) {
-                return redirect()->route('tableinstructor.list')->with('error', 'La CURP ingresada ya está en uso por otro instructor.');
-            }
-    
-            // Actualizar CURP y estatus
-            $updated = $updateInstructorM->updateInstructor($id, [
-                'curp' => strtoupper($request->curp),
-                'estatus' => $request->estatus
-            ]);
-    
-            if (!$updated) {
-                return redirect()->route('tableinstructor.list')->with('error', 'No se pudo actualizar el instructor.');
-            }
-    
-            return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
-        } catch (\Exception $e) {
-            Log::error('🔥 Error en update(): ' . $e->getMessage());
-            return redirect()->route('tableinstructor.list')->with('error', 'Error en el servidor.');
-        }
-    }
-    
+}
+
+
 }

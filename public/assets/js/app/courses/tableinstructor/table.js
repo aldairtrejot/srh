@@ -67,7 +67,7 @@ function renderTable(data) {
 
     if (data && data.length > 0) {
         data.forEach(function (object) {
-            const finalUrl = `${URL_DEFAULT}/instructor/${object.id_tbl_instructores}/edit`;
+            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
             const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
 
             const rowHTML = `

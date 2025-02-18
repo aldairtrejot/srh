@@ -241,11 +241,9 @@ Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('ta
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
 Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
-// Mostrar el formulario de edición (GET)
-Route::get('/instructor/{id}/edit', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
+Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
+Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
 
-// Actualizar instructor (PUT)
-Route::put('/instructor/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
 
 
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
