@@ -140,6 +140,7 @@ $('#id_cat_area_copy').on('change', function () {
         cleanSelectMoreSelect('#id_usuario_enlace_copy'); //Se limpia el select
         cleanSelectMoreSelect('#id_usuario_area_copy'); //Se limpia el select
         cleanSelectMoreSelect('#id_cat_tramite_copy'); //Se limpia el select
+        cleanSelectMoreSelect('#id_cat_clave_copy'); //Se limpia el select
     }
 });
 

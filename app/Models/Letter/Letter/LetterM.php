@@ -73,7 +73,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
                 //DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'), // No es necesario DISTINCT
                 DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
                 DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area'),
@@ -83,16 +83,26 @@ class LetterM extends Model
             ])
             ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
             ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
-            ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite');
-        //->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia');
+            ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->groupBy(
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+                'correspondencia.tbl_correspondencia.num_documento',
+                'correspondencia.tbl_correspondencia.folio_gestion', // Usamos GROUP BY para este campo
+                'correspondencia.cat_estatus.descripcion',
+                'correspondencia.cat_tramite.descripcion',
+                'correspondencia.cat_area.descripcion',
+                'correspondencia.tbl_correspondencia.asunto',
+                'correspondencia.tbl_correspondencia.fecha_fin'
+            );
 
         // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
             $query->where(function ($query) use ($idUser) {
                 $query->where('correspondencia.tbl_correspondencia.id_usuario_area', $idUser)
-                    ->orWhere('correspondencia.tbl_correspondencia.id_usuario_enlace', $idUser);
-                //->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_area', $idUser)
-                //->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_enlace', $idUser);
+                    ->orWhere('correspondencia.tbl_correspondencia.id_usuario_enlace', $idUser)
+                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_area', $idUser)
+                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_enlace', $idUser);
             });
         }
 
@@ -103,7 +113,6 @@ class LetterM extends Model
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
@@ -121,6 +130,7 @@ class LetterM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
 
     //La funcion valida que el no de documento sea unico
     public function validateNoDocument($id, $value)
