@@ -85,6 +85,7 @@ Route::post('/letter/collection/dataClave', [CollectionClaveC::class, 'dataClave
 Route::get('/letter/generate-pdf/correspondencia/{id}', [ReporteCorrespondenciaC::class, 'generatePdf'])->middleware('auth');
 Route::post('/letter/collection/validateUnique', [LetterC::class, 'validateUnique'])->name('letter.validateUnique')->middleware('auth');
 Route::post('/letter/collection/uniqueRemitente', [LetterC::class, 'uniqueRemitente'])->name('letter.collection.uniqueRemitente')->middleware('auth');
+Route::post('/letter/collection/uniqueNameValidate', [LetterC::class, 'uniqueRemitenteName'])->name('letter.collection.uniqueRemitenteName')->middleware('auth');
 Route::post('/letter/delete/copy', [LetterC::class, 'deleteCopy'])->name('letter.deleteCopy')->middleware('auth');
 Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name('letter.collectionArea')->middleware('auth');
 Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');

@@ -224,7 +224,7 @@ class LetterC extends Controller
                 'fecha_usuario' => $now,
             ]);
             //Se obtiene el id del rfc ingresado
-            $request->id_cat_remitente = $collectionRemitenteM->getRfc(strtoupper($request->remitente_nombre));
+            $request->id_cat_remitente = $collectionRemitenteM->getRfc(strtoupper($request->remitente_nombre), strtoupper($request->remitente_apellido_paterno), strtoupper($request->remitente_apellido_materno));
         }
         /*
         if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
@@ -486,6 +486,20 @@ class LetterC extends Controller
     {
         $collectionRemitenteM = new CollectionRemitenteM();
         $result = $collectionRemitenteM->uniqueRemitente($request->value, $request->attribute);
+        $value = !$result ? false : true; // Validacion de valor 
+
+        // Responder con los resultados
+        return response()->json([
+            'status' => $value,
+        ]);
+    }
+
+
+    //La funcion que el remitente sea unico, por nombre, primer apellido, segundo apellido,
+    public function uniqueRemitenteName(Request $request)
+    {
+        $collectionRemitenteM = new CollectionRemitenteM();
+        $result = $collectionRemitenteM->uniqueRemitenteName($request->name, $request->fistLastName, $request->seconLastName);
         $value = !$result ? false : true; // Validacion de valor 
 
         // Responder con los resultados
