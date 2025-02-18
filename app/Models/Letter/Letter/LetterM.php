@@ -98,7 +98,6 @@ class LetterM extends Model
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
         if (!empty($searchValue)) {
-            Log::info($searchValue);
             $searchValue = strtoupper(trim($searchValue));  // Limpiar y convertir a mayúsculas
 
             // Condiciones de búsqueda centralizadas en una sola cláusula
