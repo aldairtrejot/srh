@@ -34,8 +34,17 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     // Valida el check de agregar remitentes, mas de dos
     if ($('#son_mas_remitentes').val()) {
+        console.log('intro to remitentes');
         if (isFieldEmpty($('#remitente').val(), 'Remitente') ||
             isExceedingLength($('#remitente').val(), 'Remitente', 230)) {
+            event.preventDefault();  // Evita el envío del formulario
+            return;  // Detener la ejecución aquí
+        }
+    }
+
+    if (!$('#son_mas_remitentes').val() && !$('#rfc_remitente_bool').val()) {
+        console.log('es un remitente');
+        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }
@@ -80,11 +89,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             return;  // Detener la ejecución aquí
         }
 
-    } else {
-        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
-            event.preventDefault();  // Evita el envío del formulario
-            return;  // Detener la ejecución aquí
-        }
     }
 
     // Valida que si las fechas son iguales sean requeridas las horas
