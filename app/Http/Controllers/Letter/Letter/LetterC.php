@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
+use App\Models\Letter\Collection\CollectionRolAreaM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionEntidadM;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class LetterC extends Controller
@@ -200,6 +202,7 @@ class LetterC extends Controller
         $letterM = new LetterM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
+        $collectionRolAreaM = new CollectionRolAreaM();
         $now = Carbon::now(); //Hora y fecha actual
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
@@ -335,6 +338,17 @@ class LetterC extends Controller
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
+                // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
+                Log::info($request->id_cat_area);
+                Log::info($collectionRolAreaM->getIdArea());
+
+                if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
+                    return redirect()->back()->with([
+                        'value' => 'error', //VALUE_IS(error, warning, success)
+                        'message' => 'No se han configurado permisos para este usuario.',
+                        'estatus' => 'true'
+                    ]);
+                }
 
                 $data = [
                     'observaciones' => strtoupper($request->observaciones),

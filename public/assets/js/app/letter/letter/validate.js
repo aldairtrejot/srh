@@ -122,6 +122,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     }
 
     $('#id_cat_estatus').prop('disabled', false); //desabilitar contenido
+    $('#id_cat_area').prop('disabled', false); //desabilitar contenido
 });
 
 //Validacion cuando se cambia el evento de fecha
