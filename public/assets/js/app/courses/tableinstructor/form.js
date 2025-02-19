@@ -93,32 +93,3 @@ $('#form-instructor').on('submit', function (event) {
         }
     });
 });
-
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("form-instructor");
-
-    form.addEventListener("submit", function (event) {
-        event.preventDefault(); // Evita la recarga de la página
-
-        let formData = new FormData(this);
-        let instructorId = this.getAttribute("data-id"); // Obtener el ID del instructor
-
-        fetch(`/instructor/${instructorId}/editar-curp`, {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-            },
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status) {
-                alert("✅ CURP actualizada correctamente.");
-                window.location.reload();
-            } else {
-                alert("❌ Error al actualizar la CURP: " + data.message);
-            }
-        })
-        .catch(error => console.error("Error:", error));
-    });
-}); 
