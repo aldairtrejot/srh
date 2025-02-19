@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
 use Illuminate\Support\Facades\Log;
+use App\Models\Letter\Collection\CollectionRolAreaM;
 
 class OfficeC extends Controller
 {
@@ -42,6 +43,7 @@ class OfficeC extends Controller
     {
         try {
             $officeM = new OfficeM();
+            $collectionRolAreaM = new CollectionRolAreaM();
             // Obtener valores de la solicitud
             $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue'); // Valor de búsqueda
@@ -57,7 +59,7 @@ class OfficeC extends Controller
                 $value = $officeM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $officeM->list($iterator, $searchValue, Auth::id());
+                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
             }
 
             // Responder con los resultados

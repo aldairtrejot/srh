@@ -99,10 +99,8 @@ class LetterM extends Model
         // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
             $query->where(function ($query) use ($idUser) {
-                $query->where('correspondencia.tbl_correspondencia.id_usuario_area', $idUser)
-                    ->orWhere('correspondencia.tbl_correspondencia.id_usuario_enlace', $idUser)
-                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_area', $idUser)
-                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_usuario_enlace', $idUser);
+                $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
             });
         }
 

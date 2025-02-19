@@ -160,6 +160,7 @@ class LetterC extends Controller
     {
         try {
             $collectionRelUsuarioM = new CollectionRelUsuarioM();
+            $collectionRolAreaM = new CollectionRolAreaM();
             $letterM = new LetterM();
 
             // Obtener valores de la solicitud
@@ -177,7 +178,7 @@ class LetterC extends Controller
                 $value = $letterM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $letterM->list($iterator, $searchValue, Auth::user()->id);
+                $value = $letterM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
             }
 
             // Responder con los resultados
@@ -339,9 +340,6 @@ class LetterC extends Controller
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
-                Log::info($request->id_cat_area);
-                Log::info($collectionRolAreaM->getIdArea());
-
                 if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
                     return redirect()->back()->with([
                         'value' => 'error', //VALUE_IS(error, warning, success)

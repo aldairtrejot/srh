@@ -65,9 +65,12 @@ class OfficeM extends Model
             ->leftJoin('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
             ->join('correspondencia.cat_anio', 'correspondencia.tbl_oficio.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio');
         // Filtrar por usuario si se proporciona el id
+
+        // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
-            $query->where('correspondencia.tbl_oficio.id_usuario_area', $idUser)
-                ->orWhere('correspondencia.tbl_oficio.id_usuario_enlace', $idUser);
+            $query->where(function ($query) use ($idUser) {
+                $query->where('correspondencia.tbl_oficio.id_cat_area', $idUser);
+            });
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
