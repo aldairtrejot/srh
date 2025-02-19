@@ -162,74 +162,27 @@ public function update(Request $request, $id)
     try {
         Log::info('🔄 Datos recibidos en update():', $request->all());
 
-        // Validar CURP y Estatus
         $request->validate([
-            'curp' => 'required|string|size:18',
             'estatus' => 'required|in:0,1',
         ]);
 
-        $updateInstructorM = new UpdateInstructorM();
-
-        Log::info("📌 Intentando actualizar CURP: {$request->curp} y Estatus: {$request->estatus}");
-
-        // Actualizar la CURP
-        $curpActualizado = $updateInstructorM->updateCurpInstructor($id, $request->curp);
-
-        // Actualizar el estatus
+        // 🔹 Actualizar solo el estatus
         $estatusActualizado = DB::table('capacitacion.tbl_instructores')
             ->where('id_tbl_instructores', $id)
             ->update(['estatus' => $request->estatus]);
 
-        if (!$curpActualizado && !$estatusActualizado) {
-            Log::error("❌ No se pudo actualizar la CURP ni el estatus para el instructor ID: {$id}");
-            return response()->json(['status' => false, 'message' => 'No se pudo actualizar la CURP ni el estatus.'], 500);
+        if (!$estatusActualizado) {
+            Log::error("❌ Error al actualizar el estatus del instructor ID: {$id}");
+            return response()->json(['status' => false, 'message' => 'No se pudo actualizar el estatus.'], 500);
         }
 
-        Log::info("✅ Instructor actualizado correctamente para el ID: {$id}");
+        Log::info("✅ Estatus actualizado correctamente para el instructor ID: {$id}");
 
-        return response()->json(['status' => true, 'message' => 'Instructor actualizado correctamente.']);
+        return response()->json(['status' => true, 'message' => 'Estatus actualizado correctamente.']);
 
     } catch (\Exception $e) {
         Log::error("🔥 Error en update(): " . $e->getMessage());
         return response()->json(['status' => false, 'message' => 'Error en el servidor.'], 500);
-    }
-}
-
-
-
-public function updateCurp(Request $request, $id)
-{
-    try {
-        Log::info("📝 Datos recibidos en updateCurp():", $request->all());
-
-        // Validar CURP
-        $request->validate([
-            'curp' => 'required|string|size:18',
-        ]);
-
-        // Llamar al modelo para actualizar la CURP
-        $updateInstructorM = new UpdateInstructorM();
-        $resultado = $updateInstructorM->updateCurpInstructor($id, $request->curp);
-
-        if (!$resultado) {
-            Log::error("❌ No se pudo actualizar la CURP para el instructor ID: {$id}");
-            return response()->json([
-                'status' => false,
-                'message' => 'No se pudo actualizar la CURP.',
-            ], 500);
-        }
-
-        Log::info("✅ CURP actualizada correctamente para el instructor ID: {$id}");
-        return response()->json([
-            'status' => true,
-            'message' => 'CURP actualizada correctamente.',
-        ]);
-    } catch (\Exception $e) {
-        Log::error("🔥 Error en updateCurp(): " . $e->getMessage());
-        return response()->json([
-            'status' => false,
-            'message' => 'Error en el servidor: ' . $e->getMessage(),
-        ], 500);
     }
 }
 

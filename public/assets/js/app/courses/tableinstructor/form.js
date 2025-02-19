@@ -94,7 +94,7 @@ $('#form-instructor').on('submit', function (event) {
     });
 });
 
-/*document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-instructor");
 
     form.addEventListener("submit", function (event) {
@@ -121,4 +121,4 @@ $('#form-instructor').on('submit', function (event) {
         })
         .catch(error => console.error("Error:", error));
     });
-}); */
+}); 
