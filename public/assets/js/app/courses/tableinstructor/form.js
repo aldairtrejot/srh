@@ -1,29 +1,33 @@
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
 
-// Configurar el token CSRF para todas las solicitudes AJAX
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': token
-    }
+$(document).ready(function() {
+    // Tu código aquí
+    establecervalores();
+    console.log('El documento está listo');
 });
 
-// Detectar si estamos en edición
-const isEditing = $('#form-instructor').attr('action').includes("update");
+function establecervalores(data = {}) {
+    let nombre = data.nombre || $('#nombre').val();
+    let primer_apellido = data.primer_apellido || $('#primer_apellido').val();
+    let segundo_apellido = data.segundo_apellido || $('#segundo_apellido').val();
+    let rfc = data.rfc || $('#rfc').val();
 
-// Si estamos en edición, deshabilitar la consulta de CURP
-if (isEditing) {
-    $('#boton-consultar-curp').prop('disabled', true);
+    $('#label_nombre').text(nombre);
+    $('#label_primer_apellido').text(primer_apellido);
+    $('#label_segundo_apellido').text(segundo_apellido);
+    $('#label_rfc').text(rfc);
 }
 
-// Función para validar la CURP y obtener información del instructor
+function limpiarValores() {
+    $('#label_nombre').text('');
+    $('#label_primer_apellido').text('');
+    $('#label_segundo_apellido').text('');
+    $('#label_rfc').text('');
+}
+
 function validarcurp() {
     let curp = $('#curp').val().trim();
-
-    if (curp === '') {
-        alert('Por favor, ingresa una CURP.');
-        return;
-    }
 
     $.ajax({
         url: URL_DEFAULT.concat('/tableinstructor/table/dataCurp'),
@@ -31,20 +35,30 @@ function validarcurp() {
         data: { curp: curp },
         success: function (response) {
             if (response.status && response.value) {
-                llenarDatosInstructor(response.value);
+                establecervalores(response.value);
             } else {
                 alert(response.message || 'No se encontraron datos.');
                 limpiarValores();
             }
         },
         error: function () {
-            alert('Ocurrió un error al validar la CURP.');
             limpiarValores();
         }
     });
 }
 
-// Función para llenar los datos del instructor en los campos del formulario
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': token
+    }
+});
+
+const isEditing = $('#form-instructor').attr('action').includes("update");
+
+if (isEditing) {
+    $('#boton-consultar-curp').prop('disabled', true);
+}
+
 function llenarDatosInstructor(data) {
     $('#remitente_nombre').text(data.nombre || 'N/A');
     $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
@@ -55,23 +69,20 @@ function llenarDatosInstructor(data) {
     $('#estatus').prop('checked', data.estatus === "1");
 }
 
-// Envío del formulario con el método correcto (PUT en edición)
 $('#form-instructor').on('submit', function (event) {
     event.preventDefault();
 
     let formData = $(this).serializeArray();
 
-    // Agregar estatus manualmente
     formData.push({ name: "estatus", value: $('#estatus').is(':checked') ? "1" : "0" });
 
-    // Si es edición, agregamos el método PUT manualmente
     if (isEditing) {
         formData.push({ name: "_method", value: "PUT" });
     }
 
     $.ajax({
         url: $(this).attr('action'),
-        type: 'POST', // Laravel manejará la conversión a PUT
+        type: 'POST',
         data: $.param(formData),
         success: function () {
             alert("Instructor actualizado correctamente.");
@@ -83,7 +94,7 @@ $('#form-instructor').on('submit', function (event) {
     });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+/*document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-instructor");
 
     form.addEventListener("submit", function (event) {
@@ -110,5 +121,4 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error:", error));
     });
-});
-
+}); */

@@ -133,9 +133,14 @@ public function create()
     $item = new InstructorM();
 
     // Inicializar valores por defecto
-    $item->estatus_instructor = 1; // Activo por defecto
+    $item->estatus_instructor = 1; 
+    $curp = '';
+    $nombre = '_';
+    $primer_apellido = '_';
+    $segundo_apellido = '_';
+    $rfc = '_';// Activo por defecto
 
-    return view('courses.tableinstructor.form', compact('item'));
+    return view('courses.tableinstructor.form', compact('item','curp', 'nombre', 'primer_apellido', 'segundo_apellido', 'rfc'));
 }
 
 public function edit($id)

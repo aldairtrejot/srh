@@ -24,33 +24,28 @@
                         <div class="contenedor">
                             <div class="item">
                                 <label class="etiqueta">Nombre:</label>
-                                <label id="remitente_nombre" class="valor">
-                                    {{ isset($item->nombre) ? $item->nombre : 'N/A' }}
+                                <label id="label_nombre" class="valor">
                                 </label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">Primer Apellido:</label>
-                                <label id="remitente_primer_apellido" class="valor">
-                                    {{ isset($item->primer_apellido) ? $item->primer_apellido : 'N/A' }}
+                                <label id="label_primer_apellido" class="valor">
                                 </label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">Segundo Apellido:</label>
-                                <label id="remitente_segundo_apellido" class="valor">
-                                    {{ isset($item->segundo_apellido) ? $item->segundo_apellido : 'N/A' }}
+                                <label id="label_segundo_apellido" class="valor">
                                 </label>
                             </div>
                             <div class="item">
                                 <label class="etiqueta">RFC:</label>
-                                <label id="remitente_rfc" class="valor">
-                                    {{ isset($item->rfc) ? $item->rfc : 'N/A' }}
+                                <label id="label_rfc" class="valor">
                                 </label>
                             </div>
                         </div>
 
                         <br>
 
-                        <!-- FORMULARIO -->
                         <!-- FORMULARIO -->
 <form id="form-instructor" 
       action="{{ isset($item->id_tbl_instructores) ? route('tableinstructor.update', $item->id_tbl_instructores) : route('tableinstructor.save') }}" 
@@ -73,14 +68,10 @@
                                         <input type="text" name="curp" id="curp"
                                             placeholder="Ingrese CURP"
                                             autocomplete="off" 
-                                            value="{{ isset($item->curp) ? $item->curp : '' }}"
+                                            value="{{ $curp }}"
                                             class="form-control"
-                                            style="font-size: 1rem;" required 
-                                            oninput="this.value = this.value.toUpperCase()" 
-                                            data-nombre="{{ $item->nombre ?? '' }}"
-                                            data-primer_apellido="{{ $item->primer_apellido ?? '' }}"
-                                            data-segundo_apellido="{{ $item->segundo_apellido ?? '' }}"
-                                            data-rfc="{{ $item->rfc ?? '' }}" />
+                                            style="font-size: 1rem;"
+                                            />
                                     </div>
                                     <!-- Botón CONSULTAR -->
                                     <button id="boton-consultar-curp" class="btn ml-2" onclick="validarcurp();" type="button"
@@ -96,6 +87,10 @@
 
                                 <!-- Campo oculto para asegurar que "estatus" siempre se envíe -->
                                 <input type="hidden" name="estatus" value="0">
+                                <input type="hidden" id="nombre" value="{{ $nombre }}">
+                                <input type="hidden" id="primer_apellido" value="{{ $primer_apellido }}">
+                                <input type="hidden" id="segundo_apellido" value="{{ $segundo_apellido }}">
+                                <input type="hidden" id="rfc" value="{{ $rfc }}">
 
                                 <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" value="1"
                                     {{ isset($item->estatus) && $item->estatus == true ? 'checked' : '' }}>
