@@ -45,6 +45,7 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
+use App\Http\Controllers\Courses\Tableaudit\TblAuditC;
 
 
 
@@ -322,12 +323,8 @@ Route::post('/tablecourses/save', [TblCoursesC::class, 'save'])->name('tablecour
 Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('tablecourses.edit')->middleware('auth');
 
 
-
-
-
-
-
-
+// Ruta para registrar la auditoría
+Route::post('/auditoria/add/courses', [TblAuditC::class, 'storeAudit'])->name('auditoria.add.courses')->middleware('auth');
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');

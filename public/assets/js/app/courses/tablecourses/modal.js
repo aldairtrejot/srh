@@ -28,10 +28,8 @@ $('#cancelBtn_solicitante').click(function () { //Se pulsa el boton de cancelar
 
 // Función para abrir el modal de Auditoría
 function refreshOficio(id_tbl_cursos) {
-    console.log(id_tbl_cursos);
     $('#modalBackdrop').fadeIn();
     $('#idtbl_cursos_audit').val(id_tbl_cursos);// Mostrar la ventana modal
-    console.log( $('#idtbl_cursos_audit').val());
 }
 // LA funcion activa el modal solicitante
 function addSolicitante() {
@@ -44,6 +42,18 @@ function confirmRefreshOficio() {
     // Aquí puedes agregar la lógica para enviar datos o actualizar información
     $('#modalBackdrop').fadeOut(); // Cerrar el modal después de la confirmación
     $('#modalSolicitante').fadeIn();//Iniciar ventana modal
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/add/courses'),
+        type: 'POST',
+        data: {
+            id_courses : $('#idtbl_cursos_audit').val(),
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+           console.log(response);
+        },
+    });
 }
 
 // Guardar o validar contenido Solicitante
