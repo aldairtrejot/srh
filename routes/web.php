@@ -243,7 +243,7 @@ Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
-
+Route::post('/instructor/{id}/editar-curp', [InstructorsC::class, 'updateCurp']);
 
 
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
