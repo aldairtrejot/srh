@@ -110,7 +110,7 @@
                             <strong style="color: #000;">Fecha Fin:</strong> {{ $mailBody->fecha_fin }}
                         </li>
                         <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Área Asignada:</strong> {{ $mailBody->area_descripcion }}
+                            <strong style="color: #000;">Turnado a:</strong> {{ $mailBody->area_descripcion }}
                         </li>
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Usuario:</strong> {{ $mailBody->usuario_area }}

@@ -4,20 +4,22 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let fecha_fin = document.getElementById('fecha_fin').value;
 
     if (//Validacion de campos requeridos y max caracteres
-        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
-        isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
+        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de emición') ||
+        isFieldEmpty($('#fecha_fin').val(), 'Fecha de aplicación') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
+        isFieldEmpty($('#destinatario').val(), 'Destinatario') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 100)) {
+        isExceedingLength($('#asunto').val(), 'Asunto', 300) ||
+        isExceedingLength($('#destinatario').val(), 'Destinatario', 190) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
     }
 
     if ($('#es_por_area').val()) {//Validacion de check activo
         if (isFieldEmpty($('#id_cat_area_documento').val(), 'Área') ||
-            isFieldEmpty($('#id_usuario_area_aux').val(), 'Usuario') ||
-            isFieldEmpty($('#id_usuario_enlace_aux').val(), 'Enlace')) { // valida que el campo este seleccionado
+            isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
+            isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace')) { // valida que el campo este seleccionado
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }

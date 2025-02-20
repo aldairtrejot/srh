@@ -9,10 +9,10 @@ $(document).ready(function () {
     //checkboxState();
     setData(); //Establecer las variables de informacion general
     //getRole(); //Obtener y definir los roles para no tener los input
-    setCheckboxArea();
-    tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
-    tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
-    getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
+    //setCheckboxArea();
+    //tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
+    //tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
+    //getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area

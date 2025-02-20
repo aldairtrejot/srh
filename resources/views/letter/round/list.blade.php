@@ -46,16 +46,13 @@
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Correspondencia Asoc.
-                                    </th>
-                                    <th>
-                                        Fecha de Inicio
-                                    </th>
-                                    <th>
-                                        Fecha Fin
+                                        No. Doc.
                                     </th>
                                     <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        Asunto
                                     </th>
                                 </tr>
                             </thead>

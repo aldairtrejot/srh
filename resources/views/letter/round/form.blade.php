@@ -44,12 +44,6 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_area"
                                     value="{{ optional($item)->id_cat_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_area"
-                                    value="{{ optional($item)->id_usuario_area ?? '' }}" />
-
-                                <x-template-form.template-form-input-hidden name="id_usuario_enlace"
-                                    value="{{ optional($item)->id_usuario_enlace ?? '' }}" />
-
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
                                     value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
@@ -68,39 +62,42 @@
                                         <label class="etiqueta">Año:</label>
                                         <label id="_labAño" class="valor"></label>
                                     </div>
-
-                                    <div class="item">
-                                        <label class="etiqueta">Área:</label>
-                                        <label id="_labArea" class="valor"></label>
-                                    </div>
-                                    <div class="item">
-                                        <label class="etiqueta">Usuario:</label>
-                                        <label id="_labUsuario" class="valor"></label>
-                                    </div>
-                                    <div class="item">
-                                        <label class="etiqueta">Enlace:</label>
-                                        <label id="_labEnlace" class="valor"></label>
-                                    </div>
                                 </div>
 
                                 <br>
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="No. Correspondencia Asoc."
-                                        type="text" name="num_correspondencia"
-                                        placeholder="NO. CORRESPONDENCIA ASOCIADO"
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
-                                        value="{{$noLetter ?? '' }}" />
+                                    <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
+                                        :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
-                                    <x-template-form.template-form-input-required label="Fecha de inicio" type="date"
+                                    <x-template-form.template-form-input-required label="No. Doc" type="text"
+                                        name="num_documento_area" placeholder="NO. DOCUMENTO"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
+                                        value="{{optional($item)->num_documento_area ?? '' }}" />
+                                </div>
+
+                                <div class="row">
+                                    <x-template-form.template-form-select-required :selectValue="$selectUser"
+                                        :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
+
+                                    <x-template-form.template-form-select-required :selectValue="$selectEnlace"
+                                        :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
+                                </div>
+
+                                <div class="row">
+
+                                    <x-template-form.template-form-input-required label="Fecha de emisión" type="date"
                                         name="fecha_inicio" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
                                         value="{{optional($item)->fecha_inicio ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha fin" type="date"
-                                        name="fecha_fin" placeholder=""
-                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                    <x-template-form.template-form-input-required label="Fecha de aplicación"
+                                        type="date" name="fecha_fin" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
                                         value="{{optional($item)->fecha_fin ?? '' }}" />
                                 </div>
 
@@ -112,41 +109,14 @@
                                         value="{{ optional($item)->asunto ?: '' }}" />
 
                                     <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Destinatario"
+                                        name="destinatario" placeholder="Destinatario"
+                                        value="{{ optional($item)->destinatario ?: '' }}" />
+
+                                    <x-template-form.template-form-input-text-area
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones"
                                         name="observaciones" placeholder="OBSERVACIONES"
                                         value="{{ optional($item)->observaciones ?: '' }}" />
-                                </div>
-
-                                <p class="card-description"
-                                    style="font-size: 1rem; font-weight: bold; color: #000; display: inline-block; margin-right: 30px;">
-                                    Otros
-                                </p>
-
-                                <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip"
-                                    name="idcheckboxTemplate" label="¿No tengo un No. de Correspondencia?" />
-
-                                <div id="mostrar_ocultar_no_area">
-                                    <br>
-                                    <div class="row">
-                                        <x-template-form.template-form-select-required :selectValue="$selectAreaAux"
-                                            :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-
-                                        <x-template-form.template-form-input-required label="No. Doc" type="text"
-                                            name="num_documento_area" placeholder="NO. DOCUMENTO"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
-                                            value="{{optional($item)->num_documento_area ?? '' }}" />
-                                    </div>
-
-                                    <div class="row">
-                                        <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                            :selectEdit="$selectUserEdit" name="id_usuario_area_aux" tittle="Usuario"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-
-                                        <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace_aux" tittle="Enlace"
-                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
-                                    </div>
                                 </div>
 
                                 <x-template-button.button-form-footer routeBack="{{ route('round.list') }}" />

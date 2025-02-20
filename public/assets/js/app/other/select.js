@@ -34,3 +34,18 @@ function foreachSelectNull(value, name) {
     });
     $(name).selectpicker('refresh');
 }
+
+function foreachSelectByDefault(valueDefaultArray, valueAll, id_select) {
+    let valueDefault = valueDefaultArray[0]; // Inicio de array
+
+    console.log(valueDefault);
+    console.log(valueAll);
+
+
+    $(id_select).empty();//limpiar catalogo
+    $(id_select).append('<option value="' + valueDefault.id + '">' + valueDefault.descripcion + '</option>');// Agregar una opción por defecto
+    $.each(value, function (index, valueAll) { // Iterar sobre las opciones recibidas y agregarlas al select
+        $(id_select).append('<option value="' + valueAll.id + '">' + valueAll.descripcion + '</option>');
+    });
+    $(id_select).selectpicker('refresh');
+}

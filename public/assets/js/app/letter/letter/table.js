@@ -59,7 +59,15 @@ function searchInit() {
                                         </span>
                                         Reporte
                                     </a>
-                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.num_turno_sistema}')">
+                                    <button class="dropdown-item" onclick="openCopy(${object.id}, '${object.folio_gestion}')">
+                                        <span style="background:#691C32" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-share-square item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Copia
+                                    </button>
+                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.folio_gestion}')">
                                         <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-location-arrow item-icon-menu"></i>
@@ -90,17 +98,17 @@ function searchInit() {
                         </td>
                         <td>${object.folio_gestion}</td>
                         <td>${object.num_documento}</td>
-                        <td>${object.num_turno_sistema}</td>
+
                         <td>${object.estatus}</td>
                         <td>${object.area}</td>
-                        <td>${object.fecha_documento}</td>
+                        <td>${object.asunto}</td>
                         <td>${object.fecha_fin}</td>
                     </tr>
                 `;
                 tbody.append(rowHTML);
             });
             emptyContent = false;
-            talldropdown(response.value.length, 1); // Scroll en dropw
+            talldropdown(response.value.length, 2); // Scroll en dropw
         } else {
             tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
             emptyContent = true;

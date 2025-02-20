@@ -4,8 +4,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let fecha_fin = document.getElementById('fecha_fin').value;
 
     if (//Validacion de campos requeridos y max caracteres
-        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
-        isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
+        isFieldEmpty($('#fecha_inicio').val(), 'Fecha de emición') ||
+        isFieldEmpty($('#fecha_fin').val(), 'Fecha de aplicación') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#observaciones').val(), 'Observaciones') ||
         isExceedingLength($('#asunto').val(), 'Asunto', 100) ||
@@ -16,15 +16,15 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     if ($('#es_por_area').val()) {//Validacion de check activo
         if (isFieldEmpty($('#id_cat_area_documento').val(), 'Área') ||
-            isFieldEmpty($('#id_usuario_area_aux').val(), 'Usuario') ||
-            isFieldEmpty($('#id_usuario_enlace_aux').val(), 'Enlace')) { // valida que el campo este seleccionado
+            isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
+            isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace')) { // valida que el campo este seleccionado
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }
     } else {
         let isValid = getNoCorrespondencia($('#num_correspondencia').val());
         if (isValid) {
-            notyfEM.error('El No. Correspondencia no se encuentra asociado');
+            notyfEM.error('El Fol. Gestión no se encuentra asociado');
             event.preventDefault();  // Detener el envío si la validación falla
             return;  // Detener la ejecución aquí
         }

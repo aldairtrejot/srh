@@ -11,8 +11,8 @@ $(document).ready(function () {
     //getRole(); //Obtener y definir los roles para no tener los input
     setCheckboxArea();
     tooltip('#id_checkbox_Template_tooltip', 'Marcar para añadir un No. Correspondencia manual'); // Tooltip
-    tooltip('#num_correspondencia', 'Asociar por No. de Turno o Folio de Gestión'); // Tooltip
-    getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
+    tooltip('#num_correspondencia', 'Asociar por folio de Gestión'); // Tooltip
+    //getDataUsers($('#id_cat_area').val(), $('#id_usuario_area').val(), $('#id_usuario_enlace').val(), '#_labArea', '#_labUsuario', '#_labEnlace') // funcion de usuario, area
 });
 
 //La funcion activa o desactiva el valor de un checkbox de area
@@ -27,8 +27,8 @@ function setCheckboxArea() {
         cleanSelect('#id_cat_area_documento'); // Limpiar select
         $('#num_documento_area').val('');// Limpiar input
         $('#num_correspondencia').prop('disabled', false); // desabilitar no de documento por area
-        cleanSelectMoreSelect('#id_usuario_area_aux'); //Se limpia el select
-        cleanSelectMoreSelect('#id_usuario_enlace_aux'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_area'); //Se limpia el select
+        cleanSelectMoreSelect('#id_usuario_enlace'); //Se limpia el select
     }
     //getRole(); //Validacion por roles
 }
@@ -66,12 +66,11 @@ function setData() {
     let num_turno_sistema = $('#num_turno_sistema').val();//fecha de captura
     $('#_labNoCorrespondencia').text(num_turno_sistema); //establecer los varoles
 
-    let usuario = $('#usuario').val();//usuario
-    $('#_labUsuario').text(usuario); //establecer los varoles
+    $('#_labUsuario').text($('#user_name').val()); //establecer los varoles
+    $('#_labEnlace').text($('#user_enlace').val()); //establecer los varoles
+    $('#_labArea').text($('#area_format').val()); //establecer los varoles
 
-    let enlace = $('#enlace').val();//Enlace
-    $('#_labEnlace').text(enlace); //establecer los varoles
-
+    // On changes
     getData();//Se hace busqueda de la informacion
 }
 

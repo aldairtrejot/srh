@@ -52,16 +52,13 @@
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Turno Asoc.
-                                    </th>
-                                    <th>
-                                        Fecha de Inicio
-                                    </th>
-                                    <th>
-                                        Fecha Fin
+                                        No. Turno Asoc. / Fol. Gestión
                                     </th>
                                     <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        Asunto
                                     </th>
                                 </tr>
                             </thead>

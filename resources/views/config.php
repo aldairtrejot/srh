@@ -13,6 +13,13 @@ $letterRoleAdmin = [
     config('custom_config.ADM_TOTAL'),
     config('custom_config.COR_TOTAL'),
 ];
+
+//ARRAY DE CRH CORRESPONDENCIA
+$letterRoleCrh = [
+    config('custom_config.ADM_TOTAL'),
+    config('custom_config.COR_CRH'),
+];
+
 //ARRAY GENERAL DE CORRESPONDENCIA DE ROLES
 $letterRole = [
     config('custom_config.ADM_TOTAL'),
@@ -32,3 +39,4 @@ $adminMatch = !empty(array_intersect($userRole, $adminRole));
 $letterMatch = !empty(array_intersect($userRole, $letterRole));
 $coursesMatch = !empty(array_intersect($userRole, $coursesRole));
 $letterAdminMatch = !empty(array_intersect($userRole, $letterRoleAdmin));
+$letterCRH = !empty(array_intersect($userRole, $letterRoleCrh));
