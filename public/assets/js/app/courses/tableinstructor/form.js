@@ -1,33 +1,45 @@
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
 
-$(document).ready(function() {
-    // Tu código aquí
-    establecervalores();
-    console.log('El documento está listo');
+$(document).ready(function () {
+    llenarDatosInstructor();
 });
 
-function establecervalores(data = {}) {
-    let nombre = data.nombre || $('#nombre').val();
-    let primer_apellido = data.primer_apellido || $('#primer_apellido').val();
-    let segundo_apellido = data.segundo_apellido || $('#segundo_apellido').val();
-    let rfc = data.rfc || $('#rfc').val();
+function llenarDatosInstructor() {
+    const isEditing = $('#is_editing').val() === "1";
 
-    $('#label_nombre').text(nombre);
-    $('#label_primer_apellido').text(primer_apellido);
-    $('#label_segundo_apellido').text(segundo_apellido);
-    $('#label_rfc').text(rfc);
+    if (isEditing) {
+        console.log("🔄 Modo Edición: Cargando datos del instructor...");
+
+        // Obtener los valores desde los inputs ocultos
+        let nombre = $('#nombre').val()?.trim() || '_';
+        let primer_apellido = $('#primer_apellido').val()?.trim() || '_';
+        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '_';
+        let rfc = $('#rfc').val()?.trim() || '_';
+        let curp = $('#curp').val()?.trim() || '_';
+
+        // Insertar valores en la interfaz
+        $('#label_nombre').text(nombre);
+        $('#label_primer_apellido').text(primer_apellido);
+        $('#label_segundo_apellido').text(segundo_apellido);
+        $('#label_rfc').text(rfc);
+        $('#curp').val(curp);
+    }
 }
 
+
+
 function limpiarValores() {
-    $('#label_nombre').text('');
-    $('#label_primer_apellido').text('');
-    $('#label_segundo_apellido').text('');
-    $('#label_rfc').text('');
+    $('#label_nombre, #label_primer_apellido, #label_segundo_apellido, #label_rfc').text('_');
 }
 
 function validarcurp() {
     let curp = $('#curp').val().trim();
+
+    if (curp.length !== 18) {
+        alert("La CURP debe tener 18 caracteres.");
+        return;
+    }
 
     $.ajax({
         url: URL_DEFAULT.concat('/tableinstructor/table/dataCurp'),
@@ -35,61 +47,62 @@ function validarcurp() {
         data: { curp: curp },
         success: function (response) {
             if (response.status && response.value) {
-                establecervalores(response.value);
+                $('#label_nombre').text(response.value.nombre || '_');
+                $('#label_primer_apellido').text(response.value.primer_apellido || '_');
+                $('#label_segundo_apellido').text(response.value.segundo_apellido || '_');
+                $('#label_rfc').text(response.value.rfc || '_');
             } else {
                 alert(response.message || 'No se encontraron datos.');
                 limpiarValores();
             }
         },
         error: function () {
+            alert("Error en la consulta de CURP.");
             limpiarValores();
         }
     });
 }
 
 $.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': token
-    }
+    headers: { 'X-CSRF-TOKEN': token }
 });
-
-const isEditing = $('#form-instructor').attr('action').includes("update");
-
-if (isEditing) {
-    $('#boton-consultar-curp').prop('disabled', true);
-}
-
-function llenarDatosInstructor(data) {
-    $('#remitente_nombre').text(data.nombre || 'N/A');
-    $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
-    $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
-    $('#remitente_rfc').text(data.rfc || 'N/A');
-
-    $('#curp').val(data.curp || '');
-    $('#estatus').prop('checked', data.estatus === "1");
-}
 
 $('#form-instructor').on('submit', function (event) {
     event.preventDefault();
 
     let formData = $(this).serializeArray();
+    let instructorId = $('#id_tbl_instructores').val();
+    let isEditing = $('#is_editing').val() === "1";
 
-    formData.push({ name: "estatus", value: $('#estatus').is(':checked') ? "1" : "0" });
+    if (instructorId) {
+        formData.push({ name: "id_tbl_instructores", value: instructorId });
+    }
+
+    let estatus = $('#estatus').is(':checked') ? "1" : "0";
+    formData = formData.filter(item => item.name !== "estatus");
+    formData.push({ name: "estatus", value: estatus });
+
+    console.log("📤 Datos enviados:", formData);
+
+    let requestType = isEditing ? 'POST' : 'POST';
+    let requestData = $.param(formData);
 
     if (isEditing) {
-        formData.push({ name: "_method", value: "PUT" });
+        requestData += '&_method=PUT';
     }
 
     $.ajax({
         url: $(this).attr('action'),
-        type: 'POST',
-        data: $.param(formData),
+        type: requestType,
+        data: requestData,
         success: function () {
-            alert("Instructor actualizado correctamente.");
+            let message = isEditing ? "✅ Instructor actualizado correctamente." : "✅ Instructor agregado correctamente.";
+            alert(message);
             window.location.href = URL_DEFAULT.concat('/tableinstructor/list');
         },
         error: function () {
-            alert("Ocurrió un error al actualizar el instructor.");
+            let errorMessage = isEditing ? "❌ Error al actualizar el instructor." : "❌ Error al agregar el instructor.";
+            alert(errorMessage);
         }
     });
 });

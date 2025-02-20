@@ -283,14 +283,6 @@ Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')-
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 
-
-
-
-
-
-
-
-
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 // CONSULTA DE USUARIO, ENLACE Y AREA

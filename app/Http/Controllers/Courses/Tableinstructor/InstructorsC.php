@@ -152,39 +152,37 @@ public function edit($id)
         return redirect()->route('tableinstructor.list')->with('error', 'Instructor no encontrado.');
     }
 
-    Log::info("✅ Datos enviados a la vista: ", (array) $item); // REGISTRA LOS DATOS EN EL LOG
+    Log::info("✅ Datos enviados a la vista: ", (array) $item);
 
     return view('courses.tableinstructor.form', compact('item'));
 }
 
-public function update(Request $request, $id)
-{
-    try {
-        Log::info('🔄 Datos recibidos en update():', $request->all());
 
-        $request->validate([
-            'estatus' => 'required|in:0,1',
-        ]);
+    public function update(Request $request, $id)
+    {
+        try {
+            Log::info('🔄 Datos recibidos en update():', $request->all());
 
-        // 🔹 Actualizar solo el estatus
-        $estatusActualizado = DB::table('capacitacion.tbl_instructores')
-            ->where('id_tbl_instructores', $id)
-            ->update(['estatus' => $request->estatus]);
+            $request->validate([
+                'curp' => 'required|string|size:18',
+                'estatus' => 'required|in:0,1',
+            ]);
 
-        if (!$estatusActualizado) {
-            Log::error("❌ Error al actualizar el estatus del instructor ID: {$id}");
-            return response()->json(['status' => false, 'message' => 'No se pudo actualizar el estatus.'], 500);
+            $updateInstructorM = new UpdateInstructorM();
+
+            $updated = $updateInstructorM->updateInstructor($id, [
+                'curp' => strtoupper($request->curp),
+                'estatus' => $request->estatus
+            ]);
+
+            if (!$updated) {
+                return redirect()->route('tableinstructor.list')->with('error', 'No se pudo actualizar el instructor.');
+            }
+
+            return redirect()->route('tableinstructor.list')->with('success', 'Instructor actualizado correctamente.');
+        } catch (\Exception $e) {
+            Log::error('🔥 Error en update(): ' . $e->getMessage());
+            return redirect()->route('tableinstructor.list')->with('error', 'Error en el servidor.');
         }
-
-        Log::info("✅ Estatus actualizado correctamente para el instructor ID: {$id}");
-
-        return response()->json(['status' => true, 'message' => 'Estatus actualizado correctamente.']);
-
-    } catch (\Exception $e) {
-        Log::error("🔥 Error en update(): " . $e->getMessage());
-        return response()->json(['status' => false, 'message' => 'Error en el servidor.'], 500);
     }
-}
-
-
 }
