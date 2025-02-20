@@ -340,13 +340,19 @@ class LetterC extends Controller
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
-                if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
+                if (
+                    $collectionRolAreaM->getIdArea() != $request->id_cat_area &&
+                    ($collectionRolAreaM->getIdArea() != 10 ||
+                        $collectionRolAreaM->getIdArea() != 15)
+                ) {
+                    Log::info('intro');
                     return redirect()->back()->with([
-                        'value' => 'error', //VALUE_IS(error, warning, success)
+                        'value' => 'error',
                         'message' => 'No se han configurado permisos para este usuario.',
                         'estatus' => 'true'
                     ]);
                 }
+
 
                 $data = [
                     'observaciones' => strtoupper($request->observaciones),
