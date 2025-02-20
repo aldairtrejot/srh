@@ -38,11 +38,8 @@ function addSolicitante() {
 
 // Función para confirmar la auditoría dentro del modal
 function confirmRefreshOficio() {
-    console.log( $('#idtbl_cursos_audit').val());
     // Aquí puedes agregar la lógica para enviar datos o actualizar información
     $('#modalBackdrop').fadeOut(); // Cerrar el modal después de la confirmación
-    $('#modalSolicitante').fadeIn();//Iniciar ventana modal
-
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/add/courses'),
         type: 'POST',
@@ -51,9 +48,11 @@ function confirmRefreshOficio() {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-           console.log(response);
         },
     });
+    $('#modalSolicitante').fadeIn();//Iniciar ventana modal
+    searchInitaudit();
+    
 }
 
 // Guardar o validar contenido Solicitante

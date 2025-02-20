@@ -23,4 +23,8 @@ height="495px">
         </tbody>
     </table>
 </div>
+
+<script src="{{ asset('assets/js/app/courses/tablecourses/modal.js') }}"></script>
+<script src="{{ asset('assets/js/app/courses/tablecourses/audit.js') }}"></script>
+
 </x-template-modal.modal-template>
