@@ -342,12 +342,18 @@ class LetterC extends Controller
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
 
                 /*
-                 if (
-                     $collectionRolAreaM->getIdArea() != $request->id_cat_area &&
-                     ($collectionRolAreaM->getIdArea() != 10 ||
-                         $collectionRolAreaM->getIdArea() != 15)
-                 ) {*/
-                if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
+                $collectionRolAreaM->getIdArea() = 9
+
+                */
+                log::info('-----------------');
+                Log::info($request->id_cat_area);
+                Log::info($collectionRolAreaM->getIdArea());
+
+
+                if ($collectionRolAreaM->getIdArea() == 10 || $collectionRolAreaM->getIdArea() == 15) {
+                    // Coninciden con las áres
+                    Log::info('igual');
+                } else if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
                     Log::info('intro');
                     return redirect()->back()->with([
                         'value' => 'error',
@@ -355,6 +361,17 @@ class LetterC extends Controller
                         'estatus' => 'true'
                     ]);
                 }
+
+                /*
+                if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
+                    Log::info('intro');
+                    return redirect()->back()->with([
+                        'value' => 'error',
+                        'message' => 'No se han configurado permisos para este usuario.',
+                        'estatus' => 'true'
+                    ]);
+                }
+*/
 
 
                 $data = [
