@@ -340,11 +340,14 @@ class LetterC extends Controller
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
-                if (
-                    $collectionRolAreaM->getIdArea() != $request->id_cat_area &&
-                    ($collectionRolAreaM->getIdArea() != 10 ||
-                        $collectionRolAreaM->getIdArea() != 15)
-                ) {
+
+                /*
+                 if (
+                     $collectionRolAreaM->getIdArea() != $request->id_cat_area &&
+                     ($collectionRolAreaM->getIdArea() != 10 ||
+                         $collectionRolAreaM->getIdArea() != 15)
+                 ) {*/
+                if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
                     Log::info('intro');
                     return redirect()->back()->with([
                         'value' => 'error',
