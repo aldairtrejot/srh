@@ -351,12 +351,35 @@ class LetterC extends Controller
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
 
                 /*
-                 if (
-                     $collectionRolAreaM->getIdArea() != $request->id_cat_area &&
-                     ($collectionRolAreaM->getIdArea() != 10 ||
-                         $collectionRolAreaM->getIdArea() != 15)
-                 ) {*/
-                if ($request->id_cat_area != $collectionRolAreaM->getIdArea()) {
+                $collectionRolAreaM->getIdArea() = 9
+                $request->id_cat_area
+                */
+
+                // Validacion de usuario para modificar una correspondencia
+                // Primer if, corresponden al area de Ramon
+                if ($collectionRolAreaM->getIdArea() == 10 || $collectionRolAreaM->getIdArea() == 15) {
+                    if ($request->id_cat_area != 10 && $request->id_cat_area != 15) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
+                } else {
+                    if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
+                }
+
+
+
+
+                /*
+                if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
                     Log::info('intro');
                     return redirect()->back()->with([
                         'value' => 'error',
@@ -364,6 +387,7 @@ class LetterC extends Controller
                         'estatus' => 'true'
                     ]);
                 }
+*/
 
 
                 $data = [
