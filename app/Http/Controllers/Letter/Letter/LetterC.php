@@ -343,24 +343,31 @@ class LetterC extends Controller
 
                 /*
                 $collectionRolAreaM->getIdArea() = 9
-
+                $request->id_cat_area
                 */
-                log::info('-----------------');
-                Log::info($request->id_cat_area);
-                Log::info($collectionRolAreaM->getIdArea());
 
-
+                // Validacion de usuario para modificar una correspondencia
+                // Primer if, corresponden al area de Ramon
                 if ($collectionRolAreaM->getIdArea() == 10 || $collectionRolAreaM->getIdArea() == 15) {
-                    // Coninciden con las áres
-                    Log::info('igual');
-                } else if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
-                    Log::info('intro');
-                    return redirect()->back()->with([
-                        'value' => 'error',
-                        'message' => 'No se han configurado permisos para este usuario.',
-                        'estatus' => 'true'
-                    ]);
+                    if ($request->id_cat_area != 10 && $request->id_cat_area != 15) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
+                } else {
+                    if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
                 }
+
+
+
 
                 /*
                 if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
