@@ -6,6 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class CollectionDateM extends Model
 {
+    // Lista los años para catalogos
+    public function list()
+    {
+        $query = DB::table('correspondencia.cat_anio')
+            ->select([
+                'correspondencia.cat_anio.id_cat_anio AS id',
+                DB::raw('UPPER(correspondencia.cat_anio.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('correspondencia.cat_anio.descripcion', 'ASC');
+
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+
+        // Retornar los resultados (puedes pasarlo a tu vista o devolverlo como respuesta)
+        return $results;
+    }
+
     public function idYear()
     {
         $year = now()->format('Y'); // Año actual

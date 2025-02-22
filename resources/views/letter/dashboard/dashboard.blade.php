@@ -28,6 +28,7 @@
 
 
             <script src="{{ asset('assets/js/app/letter/dashboard/report.js') }}"></script>
+            <script src="{{ asset('assets/js/app/letter/dashboard/validate.js') }}"></script>
             <!--
             <script src="{{ asset('assets/js/app/letter/dashboard/dashboard.js') }}"></script>
 -->

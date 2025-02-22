@@ -15,6 +15,16 @@ function cleanSelectMoreSelect(value) {
     $('.selectpicker').selectpicker();
 }
 
+//la funcion itera un catalogo de select
+function allTextForeachSelect(value, name) {
+    $(name).empty();//limpiar catalogo
+    $(name).append('<option value="">TODOS</option>');// Agregar una opción por defecto
+    $.each(value, function (index, item) { // Iterar sobre las opciones recibidas y agregarlas al select
+        $(name).append('<option value="' + item.id + '">' + item.descripcion + '</option>');
+    });
+    $(name).selectpicker('refresh');
+}
+
 
 //la funcion itera un catalogo de select
 function foreachSelect(value, name) {

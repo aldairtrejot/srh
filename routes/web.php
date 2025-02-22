@@ -6,6 +6,7 @@ use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
+use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Request\RequestC;
@@ -70,7 +71,8 @@ Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name(
 Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('user.changePassword')->middleware('auth');
 
 //ROUTE_LETTER
-Route::get('/letter/dashboard', [LetterC::class, 'dashboard'])->name('letter.dashboard')->middleware('auth');Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
+Route::get('/letter/dashboard', [LetterC::class, 'dashboard'])->name('letter.dashboard')->middleware('auth');
+Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
 Route::get('/letter/delete', [LetterC::class . 'delete'])->name('letter.delete')->middleware('auth');
 Route::get('/letter/table', [LetterC::class, 'table'])->name('letter.table')->middleware('auth');
 Route::post('/letter/tableCopy', [LetterC::class, 'tableCopy'])->name('letter.tableCopy')->middleware('auth');
@@ -91,6 +93,9 @@ Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name
 Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
 
+// Letter Dashboard
+Route::post('/letter/dashboard/getCollection', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
+Route::post('/letter/dashboard/generate', [DashboardLetterC::class, 'generate'])->name('letter.dashboard.generate')->middleware('auth');
 
 ////Cloud
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
