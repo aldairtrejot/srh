@@ -48,29 +48,16 @@ class DashboardLetterC extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
 
-        $this->addStyle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
-        $this->addStyle($sheet, 'A2', 'USUARIO:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
-        $this->addStyle($sheet, 'A3', 'FECHA DE EMISIÓN:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'A2', 'USUARIO:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'A3', 'FECHA DE EMISIÓN:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
 
-        $this->addStyle($sheet, 'B1', 'INFORME DE GESTIÓN DE CONTROL', 'E8E8E8', false, 'HORIZONTAL_LEFT');
-        $this->addStyle($sheet, 'B2', Auth::user()->name, 'E8E8E8', false, 'HORIZONTAL_LEFT');
-        $this->addStyle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'B1', 'INFORME DE GESTIÓN DE CONTROL', 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'B2', Auth::user()->name, 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        $this->addStyleTittle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
 
-
-
-
-        // Aplicar formato a la fila 5 (A5 a N5)
-        $sheet->getStyle('A5:N5')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-        $sheet->getStyle('A5:N5')->getFill()->getStartColor()->setARGB('10312B');
-        $sheet->getStyle('A5:N5')->getFont()->setBold(true);
-        $sheet->getStyle('A5:N5')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_WHITE);
-
-        // Establecer los valores de las celdas A5, B5, C5
-        $sheet->setCellValue('A5', 'Descripcion A');
-        $sheet->setCellValue('B5', 'Descripcion B');
-        $sheet->setCellValue('C5', 'Descripcion C');
-
-
+        // Valor de encabezados
+        $this->addStyleValue($sheet, 'A5', 'Descripcion A', '10312B');
 
         // Escribir en memoria
         $writer = new Xlsx($spreadsheet);
@@ -86,8 +73,22 @@ class DashboardLetterC extends Controller
         ]);
     }
 
+    // La función agrega encabezados para las columnas
+    private function addStyleValue($sheet, $cell, $value, $background)
+    {
+        // Aplicar formato 
+        $sheet->getStyle($cell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+        $sheet->getStyle($cell)->getFill()->getStartColor()->setARGB($background);
+        $sheet->getStyle($cell)->getFont()->setBold(true);
+        $sheet->getStyle($cell)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_WHITE);
+
+        // Establecer los valores de las celdas
+        $sheet->setCellValue($cell, $value);
+    }
+
+
     // La funcion agrega estilos asi como valor a una celda 
-    function addStyle($sheet, $cell, $value, $background, $bold, $alignment)
+    private function addStyleTittle($sheet, $cell, $value, $background, $bold, $alignment)
     {
         // Valu
         $sheet->setCellValue($cell, $value);
