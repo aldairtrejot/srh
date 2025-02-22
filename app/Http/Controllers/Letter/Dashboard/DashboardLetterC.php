@@ -57,7 +57,14 @@ class DashboardLetterC extends Controller
         $this->addStyleTittle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
 
         // Valor de encabezados
-        $this->addStyleValue($sheet, 'A5', 'Descripcion A', '10312B');
+        $this->addStyleValue($sheet, 'A5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'B5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'C5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'D5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'E5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'F5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'G5', 'FOLIO DE GESTIÓN', '10312B');
+        $this->addStyleValue($sheet, 'H5', 'FOLIO DE GESTIÓN', '10312B');
 
         // Escribir en memoria
         $writer = new Xlsx($spreadsheet);
