@@ -20,36 +20,5 @@ class TblAuditC extends Controller
             'status' => true,
         ]);
     }
-    public function searchTable(Request $request)
-    {
-        try {
-            // Validar entrada antes de obtener los valores
-            $validatedData = $request->validate([
-                'iterator' => 'required|integer|min:1',
-                'searchValue' => 'nullable|string|max:255',
-            ]);
-    
-            $iterator = $validatedData['iterator'];
-            $searchValue = $validatedData['searchValue'] ?? '';
-    
-            // Obtener resultados
-            $courses = (new TableauditM())->listaudit($iterator);
-    
-            // Responder con los resultados
-            return response()->json([
-                'value' => $courses, // Devuelve los cursos en el formato esperado
-                'status' => true,
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al procesar la solicitud',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-    
-   
 }
 

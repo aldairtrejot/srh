@@ -325,7 +325,6 @@ Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('table
 
 // Ruta para registrar la auditoría
 Route::post('/auditoria/add/courses', [TblAuditC::class, 'storeAudit'])->name('auditoria.add.courses')->middleware('auth');
-Route::post('/auditoria/add/table', [TblAuditC::class, 'searchTable']);
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');

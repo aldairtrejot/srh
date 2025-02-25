@@ -28,19 +28,4 @@ class TableauditM extends Model
         );
 
     }
-    public function listaudit($iterator)
-    {
-        $query = DB::table('capacitacion.tbl_auditoria_cursos AS aud_cursos')
-        ->select([
-            'aud_cursos.id_tbl_auditoria_cursos AS id_tbl_auditoria_cursos',
-            DB::raw("UPPER(auditoria.descripcion) AS descripcion")
-        ])
-        ->join('capacitacion.cat_auditoria AS auditoria', 'auditoria.id_cat_auditoria', '=', 'aud_cursos.id_cat_auditoria');
-
-        return $query;
-        
-        }
-
-        
-        
 }
