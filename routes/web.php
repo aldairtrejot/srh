@@ -269,8 +269,8 @@ Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->mi
 
 //ROUTE_COUSER ---- >Alfresco
 
-Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
-Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo
+Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form'); // Ruta para mostrar el formulario de carga de archivo
+Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file'); // Ruta para manejar la carga de archivo
 
 
 //ROUTE_COUSER ---- >Tabla Cursos
