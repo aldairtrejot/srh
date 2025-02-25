@@ -15,12 +15,19 @@ $(document).ready(function () {
 
 
 function generateReport() {
+    $('#modalCopy').fadeOut(); // Ocultar la ventana modal
+    showSpinner();// Inicio de spinner
     $.ajax({
         url: URL_DEFAULT.concat('/letter/dashboard/generate'),
         type: 'POST',
         data: {
-            id: 1,
-            id2: 2,
+            id_cat_area: $('#id_cat_area_informe').val(),
+            id_cat_status: $('#id_cat_status_informe').val(),
+            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
+            fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
+            fecha_inicio_informe: $('#fecha_inicio_informe').val(),
+            fecha_fin_informe: $('#fecha_fin_informe').val(),
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
             _token: token
         },
         xhrFields: {
@@ -36,9 +43,12 @@ function generateReport() {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            notyfEM.success("Documento generado correctamente.");
+            hideSpinner(); // Se oculta el spinner
         },
         error: function (xhr, status, error) {
-            console.error('Error al generar el archivo:', error);
+            notyfEM.error('Error al generar el archivo:', error);
+            hideSpinner(); // Se oculta el spinner
         }
     });
 }

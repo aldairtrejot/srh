@@ -123,7 +123,6 @@ function sendFile(file, id_entrada_salida, esOficio) {
                 'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
             },
             success: function (response) {
-                console.log(response);
                 hideSpinner(); // Se oculta el spinner
                 if (response.status) { //Validacion si es que los cambios se han agregado correctamente
                     notyfEM.success("Documento agregado correctamente.");

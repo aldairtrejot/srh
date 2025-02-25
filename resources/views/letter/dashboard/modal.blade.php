@@ -64,7 +64,7 @@
         <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
             style="display: inline-block; margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
-                ¿Agregar usuario que capturó?
+                ¿Agregar datos de captura?
                 <input type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo" style="margin-left: 10px;">
             </label>
         </div>
