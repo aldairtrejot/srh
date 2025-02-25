@@ -85,4 +85,5 @@
     <!-- Código JavaScript -->
     <script src="{{ asset('assets/js/app/courses/tableinstructor/cloud.js') }}"></script>
 
+
 </x-template-app.app-layout>

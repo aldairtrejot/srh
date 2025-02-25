@@ -20,6 +20,23 @@ var routeCloudCons = $('meta[name="route-cloud-cons"]').attr('content');
 var routeCloudUpload = $('meta[name="route-cloud-upload"]').attr('content');
 var routeCloudDelete = $('meta[name="route-cloud-delete"]').attr('content');
 
+// Definir funciones antes de llamar en document.ready()
+function getDataCloud() {
+    $.ajax({
+        url: routeCloudData,
+        type: 'POST',
+        data: { id: id, _token: token },
+        success: function (response) {
+            let item = response.value;
+            $('#_noCv').text(item.num_turno_sistema);
+            $('#_noConstancia').text(item.num_documento);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener datos de Cloud:", error);
+        }
+    });
+}
+
 $(document).ready(function () {
     getDataCloud();
     getDataDocument();
@@ -46,7 +63,7 @@ function getDataDocument() {
             let cvsEntrada = response.cvsEntrada;
             response.resultCvsEntrada 
                 ? disabledInput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada') 
-                : enableIput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada');
+                : enableInput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada');
 
             templateCloud(container_cv_entrada, container_cv_entrada_vacio, cvsEntrada);
         }
@@ -60,67 +77,9 @@ function getDataDocument() {
             let constanciasEntrada = response.constanciasEntrada;
             response.resultConstanciaEntrada 
                 ? disabledInput('#label_constancia_entrada', '#icon_constancia_entrada', '#file_constancia_entrada') 
-                : enableIput('#label_constancia_entrada', '#icon_constancia_entrada', '#file_constancia_entrada');
+                : enableInput('#label_constancia_entrada', '#icon_constancia_entrada', '#file_constancia_entrada');
 
             templateCloud(container_constancia_entrada, container_constancia_entrada_vacio, constanciasEntrada);
-        }
-    });
-}
-
-// Subir archivos CV
-document.getElementById('file_cv_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], id_cat_entrada, es_cv);
-    }
-});
-
-// Subir archivos Constancias
-document.getElementById('file_constancia_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFileConstancia(event.target.files[0], id_cat_entrada, es_constancia);
-    }
-});
-
-// Función para subir archivos CV
-function sendFile(file, id_entrada_salida, esCv) {
-    if (!file) return;
-
-    let data = new FormData();
-    data.append('file', file);
-    data.append('id_cat_tipo_cv', id_cat_tipo_cv);
-    data.append('id', id);
-    data.append('id_entrada_salida', id_entrada_salida);
-    data.append('esCv', esCv);
-
-    $.ajax({
-        url: routeCloudUpload,
-        type: 'POST',
-        data: data,
-        processData: false,
-        contentType: false,
-        headers: { 'X-CSRF-TOKEN': token },
-        success: function (response) {
-            response.status 
-                ? notyfEM.success("CV agregado correctamente.") 
-                : notyfEM.error(response.messages);
-
-            getDataDocument();
-        }
-    });
-}
-
-// Eliminar documentos
-function deleteDocumentServer(uid) {
-    $.ajax({
-        url: routeCloudDelete,
-        type: 'POST',
-        data: { uid: uid, _token: token },
-        success: function (response) {
-            response.messages 
-                ? notyfEM.success("El archivo se eliminó correctamente.") 
-                : notyfEM.error("Error al eliminar archivo.");
-
-            getDataDocument();
         }
     });
 }
