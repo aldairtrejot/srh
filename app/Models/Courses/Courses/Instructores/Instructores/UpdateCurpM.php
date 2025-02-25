@@ -9,6 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\MessagesC;
 
-class TblInstructorM extends Model
+class UpdateCurpM extends Model
 {
 }

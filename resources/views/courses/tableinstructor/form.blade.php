@@ -1,9 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| VISTA: form.blade.php
-|--------------------------------------------------------------------------
-*/
-
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="main-panel">
@@ -26,8 +20,8 @@
                         <x-template-tittle.tittle-caption-secon tittle="Información de Usuario" />
 
                         <!-- Contenedor de Resultados -->
-<div class="contenedor">
-    <div class="item">
+                        <div class="contenedor">
+                    <div class="item">
         <label class="etiqueta">Nombre:</label>
         <label id="label_nombre" class="valor">{{ $item->nombre ?? '_' }}</label>
     </div>

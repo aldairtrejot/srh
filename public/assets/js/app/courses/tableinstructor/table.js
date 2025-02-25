@@ -7,168 +7,179 @@ $.ajaxSetup({
 });
 
 // Variables globales
-let iterator = 1; // Página actual
-let totalRecords = 0; // Total de registros
-let recordsPerPage = 5; // Registros por página
+var iterator = 1;  // Página actual (inicia en 1)
+var emptyContent = false; // Controla si hay contenido en la tabla
+var courseIdToDelete = null; // Almacena el ID del curso a eliminarID del curso a eliminar
+
 
 $(document).ready(function () {
-    searchInit();
-    setPaginator();
+    searchInit(); // Carga inicial de la tabla
+    setValue();   // Configura la paginación
 
-    // Modal y eventos
-    const modal = document.getElementById("deleteModal");
-    const span = document.getElementsByClassName("close")[0];
-    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    // Modal de confirmación de eliminación
+    var modal = document.getElementById("deleteModal");
+    var span = document.getElementsByClassName("close")[0];
+    var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 
-    span.onclick = () => (modal.style.display = "none");
-    cancelDeleteBtn.onclick = () => (modal.style.display = "none");
+    // Cerrar el modal al hacer clic en "x"
+    span.onclick = function() {
+        modal.style.display = "none";
+    };
 
-    window.onclick = (event) => {
-        if (event.target === modal) {
+    // Cerrar el modal al hacer clic en "Cancelar"
+    cancelDeleteBtn.onclick = function() {
+        modal.style.display = "none";
+    };
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        if (event.target == modal) {
             modal.style.display = "none";
         }
     };
 
-    confirmDeleteBtn.onclick = () => {
-        if (courseIdToDelete) deleteCourse(courseIdToDelete);
+    // Confirmar la eliminación
+    confirmDeleteBtn.onclick = function() {
+        if (courseIdToDelete) {
+            deleteCourse(courseIdToDelete);
+        }
     };
 });
 
+
+
 // **🔹 Función para inicializar la búsqueda con paginación**
 function searchInit() {
-    const searchValue = document.getElementById('searchValue').value.trim();
-    const offset = (iterator - 1) * recordsPerPage; // Calcular el desplazamiento (offset)
-
+    const searchValue = $('#searchValue').val(); // Usar jQuery para obtener el valor
     $.ajax({
         url: `${URL_DEFAULT}/tableinstructor/table`,
         type: 'POST',
         data: {
-            iterator: offset,
+            iterator: iterator,
             searchValue: searchValue,
             _token: token
         },
-        success: function (response) {
-            renderTable(response.value);
-            totalRecords = response.totalRecords || 0; // Obtener total de registros
-            setPaginator();
+        success: function(response) {
+            const tbody = $('#template-table tbody');
+            tbody.empty(); // Limpiar tabla
+
+            if (response.data && response.data.length > 0) {
+                response.data.forEach(function (object) {
+                    const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
+                    const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
+                    const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
+                    const rowHTML = `
+                        <tr>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
+                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <h6 class="dropdown-header">Acciones</h6>
+                                        <a class="dropdown-item" href="${finalUrl}">
+                                            <span style="background:#1D5B3B" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-pencil item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Modificar
+                                        </a>
+                                        <a class="dropdown-item" href="${finalCloud}">
+                                            <span style="background:#8a6f19" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-cloud item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Cloud
+                                        </a>
+                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
+                                            <span style="background:#6A1B3D" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-trash item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Eliminar
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${object.curp || '-'}</td>
+                            <td>${object.nombre_completo || '-'}</td>
+                            <td>${estatus}</td>
+                        </tr>
+                    `;
+                    tbody.append(rowHTML);
+                });
+            } else {
+                tbody.html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
+            }
         },
-        error: function (xhr) {
-            console.error('Error en la solicitud:', xhr.responseText);
-            alert('Hubo un error al cargar los datos.');
+        error: function(xhr) {
+            console.error("Error en la búsqueda:", xhr);
         }
     });
 }
 
-// **🔹 Función para renderizar la tabla con los registros**
-function renderTable(data) {
-    const tbody = $('#template-table tbody');
-    tbody.empty();
-
-    if (data && data.length > 0) {
-        data.forEach(function (object) {
-            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
-            const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
-
-            const rowHTML = `
-                <tr>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
-                                <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <h6 class="dropdown-header">Acciones</h6>
-                                <a class="dropdown-item" href="${finalUrl}">
-                                    <span style="background:#1D5B3B" class="icon-container-template">
-                                        <div style="text-align: center;">
-                                            <i class="fa fa-pencil item-icon-menu"></i>
-                                        </div>
-                                    </span>
-                                    Modificar
-                                </a>
-                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
-                                    <span style="background:#6A1B3D" class="icon-container-template">
-                                        <div style="text-align: center;">
-                                            <i class="fa fa-trash item-icon-menu"></i>
-                                        </div>
-                                    </span>
-                                    Eliminar
-                                </a>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${object.curp || '-'}</td>
-                    <td>${object.nombre_completo || '-'}</td>
-                    <td>${estatus}</td>
-                </tr>
-            `;
-            tbody.append(rowHTML);
-        });
-    } else {
-        tbody.html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
-    }
+// **🔹 Muestra el modal de confirmación de eliminación**
+function confirmDelete(id) {
+    courseIdToDelete = id;
+    document.getElementById("deleteModal").style.display = "block";
 }
 
-// **🔹 Función para actualizar la paginación**
-function setPaginator() {
-    const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
-
-    document.getElementById("is_iterator").innerText = iterator;
-    document.getElementById("is_iteratorMin").innerText = Math.max(iterator - 1, 1);
-    document.getElementById("is_iteratorMax").innerText = totalPages;
-
-    // Habilitar/Deshabilitar botones de paginación
-    $("#paginatorMin1").prop("disabled", iterator === 1);
-    $("#paginatorMin5").prop("disabled", iterator <= 5);
-    $("#paginatorMax1").prop("disabled", iterator >= totalPages);
-    $("#paginatorMax5").prop("disabled", iterator + 5 >= totalPages);
+// **🔹 Elimina un curso**
+function deleteCourse(id) {
+    $.ajax({
+        url: `${URL_DEFAULT}/coursesauditoria/delete/${id}`,
+        type: 'DELETE',
+        data: { _token: token },
+        success: function() {
+            alert('Auditoría eliminada exitosamente.');
+            window.location.href = `${URL_DEFAULT}/courses/list`;
+        },
+        error: function(xhr) {
+            console.error("Error al eliminar:", xhr);
+        }
+    });
 }
 
-// **🔹 Funciones de paginación corregidas**
+// **🔹 Funciones para manejar la paginación**
 function paginatorMax1() {
-    if (iterator < Math.ceil(totalRecords / recordsPerPage)) {
-        iterator++;
-        searchInit();
-    }
+    iterator += 1;
+    setValue();
+    searchInit();
 }
 
 function paginatorMax5() {
-    if (iterator + 5 <= Math.ceil(totalRecords / recordsPerPage)) {
-        iterator += 5;
-        searchInit();
-    }
-}
-
-function paginatorMin5() {
-    iterator = Math.max(iterator - 5, 1);
+    iterator += 5;
+    setValue();
     searchInit();
 }
 
 function paginatorMin1() {
-    iterator = Math.max(iterator - 1, 1);
+    iterator = Math.max(1, iterator - 1);
+    setValue();
     searchInit();
 }
 
-// **🔹 Reinicia el iterador y realiza la búsqueda**
+function paginatorMin5() {
+    iterator = Math.max(1, iterator - 5);
+    setValue();
+    searchInit();
+}
+
+// **🔹 Función para realizar la búsqueda al escribir en el campo de texto**
 function searchValue() {
-    iterator = 1;
-    searchInit();
+    iterator = 1; // Reiniciar la paginación
+    setValue(); // Actualizar la paginación
+    searchInit(); // Realizar la búsqueda
 }
 
-// **🔹 Función para eliminar un instructor**
-function deleteCourse(id) {
-    $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
-        type: 'DELETE',
-        data: { _token: token },
-        success: () => {
-            alert('Instructor eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
-        },
-        error: (xhr) => {
-            console.error('Error en la eliminación:', xhr.responseText);
-            alert('No se pudo eliminar el instructor.');
-        }
-    });
+// **🔹 Función para manejar la paginación y mostrar el número actual de la página**
+function setValue() {
+    let iteratorAux = iterator;
+    document.getElementById("is_iterator").innerHTML = iteratorAux;
+    document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
+    document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 1;
 }

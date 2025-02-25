@@ -23,6 +23,10 @@ class UpdateInstructorM extends Model
                 'capacitacion.tbl_instructores.estatus AS estatus',
                 'administration.users.estatus AS estatus_usuario',
                 DB::raw("COALESCE(central.curp, public.curp, transferidos.curp) AS curp"),
+                DB::raw("COALESCE(central.nombre, public.nombre, transferidos.nombre) AS nombre"),
+                DB::raw("COALESCE(central.primer_apellido, public.primer_apellido, transferidos.primer_apellido) AS primer_apellido"),
+                DB::raw("COALESCE(central.segundo_apellido, public.segundo_apellido, transferidos.segundo_apellido) AS segundo_apellido"),
+                DB::raw("COALESCE(central.rfc, public.rfc, transferidos.rfc) AS rfc"),
                 DB::raw("CASE 
                             WHEN central.curp IS NOT NULL THEN 'central'
                             WHEN public.curp IS NOT NULL THEN 'public'
@@ -36,21 +40,26 @@ class UpdateInstructorM extends Model
             ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_trasnferidos', '=', 'transferidos.id_tbl_empleados')
             ->where('capacitacion.tbl_instructores.id_tbl_instructores', $idInstructor)
             ->first();
-
+    
         if (!$query) {
             Log::error("❌ No se encontraron datos para el instructor con ID: $idInstructor");
             return null;
         }
-
+    
         return (object) [
             'id_tbl_instructores' => $query->id_tbl_instructores,
             'id_usuario_empleado' => $query->id_usuario_empleado,
             'estatus' => $query->estatus,
             'estatus_usuario' => $query->estatus_usuario,
             'curp' => $query->curp ?? '',
+            'nombre' => $query->nombre ?? '',
+            'primer_apellido' => $query->primer_apellido ?? '',
+            'segundo_apellido' => $query->segundo_apellido ?? '',
+            'rfc' => $query->rfc ?? '',
             'fuente_curp' => $query->fuente_curp ?? ''
         ];
     }
+    
 
     public function updateInstructor($idInstructor, $data)
     {
@@ -69,7 +78,7 @@ class UpdateInstructorM extends Model
 
             return $updated;
         } catch (\Exception $e) {
-            Log::error("🔥 Error en updateInstructor(): " . $e->getMessage());
+            Log::error("Error en updateInstructor():" . $e->getMessage());
             return false;
         }
     }

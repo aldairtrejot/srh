@@ -233,9 +233,7 @@ Route::post('/coursesauditoria/table', [Courses11C::class, 'searchTable']);
 Route::match(['get', 'post'], '/coursesauditoria/edit/{id}', [Courses11C::class, 'edit'])->name('coursesauditoria.edit')->middleware('auth');
 Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
-
 //ROUTE_COUSER ---- >Tabla instructores
-
 Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
 Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
@@ -243,10 +241,9 @@ Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
-
-
-
+Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
+
 Route::post('/tableinstructor/cloud/data', [CloudtableinsC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
 Route::post('/tableinstructor/cloud/cv', [CloudtableinsC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
 Route::post('/tableinstructor/cloud/cons', [CloudtableinsC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
@@ -256,7 +253,6 @@ Route::post('/tableinstructor/cloud/delete', [CloudtableinsC::class, 'delete'])-
 
 
 //ROUTE OFICIOS
-
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
 Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');
 Route::get('/office/create', [OfficeC::class, 'create'])->name('office.create')->middleware('auth');

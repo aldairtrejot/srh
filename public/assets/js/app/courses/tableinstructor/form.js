@@ -12,11 +12,17 @@ function llenarDatosInstructor() {
         console.log("🔄 Modo Edición: Cargando datos del instructor...");
 
         // Obtener los valores desde los inputs ocultos
-        let nombre = $('#nombre').val()?.trim() || '_';
-        let primer_apellido = $('#primer_apellido').val()?.trim() || '_';
-        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '_';
-        let rfc = $('#rfc').val()?.trim() || '_';
-        let curp = $('#curp').val()?.trim() || '_';
+        let nombre = $('#nombre').val()?.trim() || '';
+        let primer_apellido = $('#primer_apellido').val()?.trim() || '';
+        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '';
+        let rfc = $('#rfc').val()?.trim() || '';
+        let curp = $('#curp').val()?.trim() || '';
+
+        // Si los valores están vacíos, coloca un placeholder "_"
+        nombre = nombre || '_';
+        primer_apellido = primer_apellido || '_';
+        segundo_apellido = segundo_apellido || '_';
+        rfc = rfc || '_';
 
         // Insertar valores en la interfaz
         $('#label_nombre').text(nombre);
@@ -24,10 +30,10 @@ function llenarDatosInstructor() {
         $('#label_segundo_apellido').text(segundo_apellido);
         $('#label_rfc').text(rfc);
         $('#curp').val(curp);
+
+        console.log(`🔍 Datos cargados: ${nombre} ${primer_apellido} ${segundo_apellido} ${rfc} ${curp}`);
     }
 }
-
-
 
 function limpiarValores() {
     $('#label_nombre, #label_primer_apellido, #label_segundo_apellido, #label_rfc').text('_');

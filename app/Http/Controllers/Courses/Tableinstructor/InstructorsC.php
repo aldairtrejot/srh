@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use App\Models\Courses\Courses\Instructores\Instructores\UpdateInstructorM;
 use Illuminate\Http\Request;
+use App\Models\Letter\Collection\CollectionReportM;
 use Carbon\Carbon;
+use App\Models\Letter\Office\OfficeM;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -53,38 +55,39 @@ class InstructorsC extends Controller
     public function searchTable(Request $request)
     {
         try {
-            $iterator = $request->input('iterator'); // OFSET valor de paginador
-            $searchValue = $request->input('searchValue');
-
-            $instructorM = new InstructorM();
-            $value = $instructorM->list($iterator, $searchValue);
-
-            return response()->json([ 
-                'value' => $value,
-                'status' => true,
+            $iterator = $request->input('iterator', 1); // Página actual con valor por defecto
+            $searchValue = $request->input('searchValue', ''); // Valor de búsqueda con valor por defecto
+    
+            // Validar entrada
+            $request->validate([
+                'iterator' => 'required|integer|min:1',
+                'searchValue' => 'nullable|string|max:255',
             ]);
+    
+            // Obtener resultados
+            $instructorM = new InstructorM();
+            $courses = $instructorM->list($iterator, $searchValue);
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Resultados obtenidos correctamente',
+                'data' => $courses->items(), // Obtiene los elementos de la paginación
+                'pagination' => [
+                    'current_page' => $courses->currentPage(),
+                    'last_page' => $courses->lastPage(),
+                    'per_page' => $courses->perPage(),
+                    'total' => $courses->total(),
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error al procesar la solicitud',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
-    public function destroy($id)
-    {
-        try {
-            $instructor = InstructorM::findOrFail($id);
-            $instructor->delete();
-
-            return response()->json(['success' => true, 'message' => 'Instructor eliminado exitosamente.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al eliminar el instructor.'], 500);
-        }
-    }
-
     
-
     // BUSQUEDA DE CURP
     // Método dataCurp en InstructorsC.php
     public function dataCurp(Request $request)
@@ -154,8 +157,16 @@ public function edit($id)
 
     Log::info("✅ Datos enviados a la vista: ", (array) $item);
 
-    return view('courses.tableinstructor.form', compact('item'));
+    // Extraer datos individuales para evitar problemas en la vista
+    $curp = $item->curp ?? '';
+    $nombre = $item->nombre ?? '_';
+    $primer_apellido = $item->primer_apellido ?? '_';
+    $segundo_apellido = $item->segundo_apellido ?? '_';
+    $rfc = $item->rfc ?? '_';
+
+    return view('courses.tableinstructor.form', compact('item', 'curp', 'nombre', 'primer_apellido', 'segundo_apellido', 'rfc'));
 }
+
 
 
     public function update(Request $request, $id)
@@ -185,4 +196,24 @@ public function edit($id)
             return redirect()->route('tableinstructor.list')->with('error', 'Error en el servidor.');
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $instructor = InstructorM::findOrFail($id);
+            $instructor->delete();
+
+            return response()->json(['success' => true, 'message' => 'Instructor eliminado exitosamente.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al eliminar el instructor.'], 500);
+        }
+    }
+
+    public function cloud($id_tbl_oficio)
+    {
+       
+        return view('courses/tableinstructor/cloud');
+        
+    }
+
 }

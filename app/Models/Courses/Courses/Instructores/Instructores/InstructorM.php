@@ -70,7 +70,7 @@ class InstructorM extends Model
             });
         }
     
-        return $query->get();
+        return $query->paginate(5, ['*'], 'page', $iterator);
     }
     
 
