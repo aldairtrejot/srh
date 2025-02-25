@@ -44,13 +44,19 @@
                                 <x-template-form.template-form-input-hidden name="id_cat_area"
                                     value="{{ optional($item)->id_cat_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_area"
-                                    value="{{ optional($item)->id_usuario_area ?? '' }}" />
 
-                                <x-template-form.template-form-input-hidden name="id_usuario_enlace"
-                                    value="{{ optional($item)->id_usuario_enlace ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="id_tbl_correspondencia"
+                                    value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
+                                <!-- itme-->
+                                <x-template-form.template-form-input-hidden name="area_format"
+                                    value="{{ optional($other)->area ?? '' }}" />
 
+                                <x-template-form.template-form-input-hidden name="user_name"
+                                    value="{{ optional($other)->user_name ?? '' }}" />
+
+                                <x-template-form.template-form-input-hidden name="user_enlace"
+                                    value="{{ optional($other)->user_enlace ?? '' }}" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
@@ -87,9 +93,8 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="No. Correspondencia Asoc."
-                                        type="text" name="num_correspondencia"
-                                        placeholder="NO. CORRESPONDENCIA ASOCIADO"
+                                    <x-template-form.template-form-input-required label="Fol. Gestión" type="text"
+                                        name="num_correspondencia" placeholder="NO. CORRESPONDENCIA ASOCIADO"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
                                         value="{{$noLetter ?? '' }}" />
 
@@ -141,11 +146,11 @@
 
                                     <div class="row">
                                         <x-template-form.template-form-select-required :selectValue="$selectUser"
-                                            :selectEdit="$selectUserEdit" name="id_usuario_area_aux" tittle="Usuario"
+                                            :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
                                         <x-template-form.template-form-select-required :selectValue="$selectEnlace"
-                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace_aux" tittle="Enlace"
+                                            :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace"
                                             grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
                                     </div>
                                 </div>

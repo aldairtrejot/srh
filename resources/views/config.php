@@ -35,3 +35,4 @@ $adminMatch = !empty(array_intersect($userRole, $adminRole));
 $letterMatch = !empty(array_intersect($userRole, $letterRole));
 $coursesMatch = !empty(array_intersect($userRole, $coursesRole));
 $letterAdminMatch = !empty(array_intersect($userRole, $letterRoleAdmin));
+$letterCRH = !empty(array_intersect($userRole, $letterRoleCrh));

@@ -9,8 +9,10 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isFieldEmpty($('#num_documento').val(), 'No. Documento') ||
         isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
         isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
-        isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
+        //isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
         isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
+        isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
+        isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
         isFieldEmpty($('#asunto').val(), 'Asunto') ||
         isFieldEmpty($('#id_cat_area').val(), 'Área') ||
         isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
@@ -24,17 +26,25 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         isExceedingLength($('#folio_gestion').val(), 'Folio de gestión', 50) ||
         isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
         isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
-        isExceedingLength($('#lugar').val(), 'Lugar', 250) ||
-        isExceedingLength($('#asunto').val(), 'Asunto', 130) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 130)) {
+        isExceedingLength($('#asunto').val(), 'Asunto', 400) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 140)) {
         event.preventDefault();  // Evita el envío del formulario
         return;  // Detener la ejecución aquí
     }
 
     // Valida el check de agregar remitentes, mas de dos
     if ($('#son_mas_remitentes').val()) {
+        console.log('intro to remitentes');
         if (isFieldEmpty($('#remitente').val(), 'Remitente') ||
             isExceedingLength($('#remitente').val(), 'Remitente', 230)) {
+            event.preventDefault();  // Evita el envío del formulario
+            return;  // Detener la ejecución aquí
+        }
+    }
+
+    if (!$('#son_mas_remitentes').val() && !$('#rfc_remitente_bool').val()) {
+        console.log('es un remitente');
+        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }
@@ -63,7 +73,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
 
         // Validacion de nombre unico de remitente
-        let isValidN = getUniqueRemitente($('#remitente_nombre').val(), 'nombre');
+        let isValidN = getUniqueNameRemitente($('#remitente_nombre').val(), $('#remitente_apellido_paterno').val(), $('#remitente_apellido_materno').val(), 'nombre');
         if (isValidN) {
             notyfEM.error('El Nombre de remitente ya está registrado.');
             event.preventDefault();  // Detener el envío si la validación falla
@@ -72,18 +82,12 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
         // Validacion de rfc unico de remitente
         let isValidR = getUniqueRemitente($('#remitente_rfc').val(), 'rfc');
-        console.log(isValidR);
         if (isValidR) {
             notyfEM.error('El RFC de remitente ya está registrado.');
             event.preventDefault();  // Detener el envío si la validación falla
             return;  // Detener la ejecución aquí
         }
 
-    } else {
-        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
-            event.preventDefault();  // Evita el envío del formulario
-            return;  // Detener la ejecución aquí
-        }
     }
 
     // Valida que si las fechas son iguales sean requeridas las horas
@@ -101,13 +105,14 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
+    /*
     // Validacion de no document sea unico
     let isValid = getNoUnique($('#id_tbl_correspondencia').val(), $('#num_documento').val(), 'num_documento');
     if (isValid) {
         notyfEM.error('El No. Documento ya está registrado.');
         event.preventDefault();  // Detener el envío si la validación falla
         return;  // Detener la ejecución aquí
-    }
+    }*/
 
     let isValidG = getNoUnique($('#id_tbl_correspondencia').val(), $('#folio_gestion').val(), 'folio_gestion');
     if (isValidG) {
@@ -117,6 +122,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     }
 
     $('#id_cat_estatus').prop('disabled', false); //desabilitar contenido
+    $('#id_cat_area').prop('disabled', false); //desabilitar contenido
 });
 
 //Validacion cuando se cambia el evento de fecha

@@ -104,7 +104,6 @@ function getRole() {
         $('#fecha_fin').prop('disabled', true);
         $('#num_flojas').prop('disabled', true);
         $('#num_tomos').prop('disabled', true);
-        $('#lugar').prop('disabled', true);
         $('#asunto').prop('disabled', true);
         $('#remitente_nombre').prop('disabled', true);
         $('#remitente_apellido_paterno').prop('disabled', true);
@@ -115,6 +114,7 @@ function getRole() {
         $('#id_cat_remitente').prop('disabled', true);
         $('#folio_gestion').prop('disabled', true);
         $('#remitente').prop('disabled', true);
+        $('#fecha_documento').prop('disabled', true);
 
         $('#idcheckboxTemplate').prop('disabled', true);
         $('#es_doc_fisico_box').prop('disabled', true);
@@ -128,7 +128,9 @@ function getRole() {
         $('#id_cat_tramite').prop('disabled', true);
         $('#id_cat_clave').prop('disabled', true);
         $('#id_cat_remitente').prop('disabled', true);
+        $('#id_cat_entidad').prop('disabled', true);
 
+        $('#id_cat_entidad').selectpicker('refresh');
         $('#id_cat_area').selectpicker('refresh'); //Refresh de select 
         $('#id_usuario_area').selectpicker('refresh');
         $('#id_usuario_enlace').selectpicker('refresh');
@@ -142,9 +144,15 @@ function getRole() {
 
 //valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
 function validateEstatus() {
+    // Se eliminan las opciones
     if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5) {
         $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
         $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
+    } else {
+        //$('#id_cat_estatus option').eq(1).remove(); // Elimina la opción 2
+        $('#id_cat_estatus option[value="2"]').remove();
+        $('#id_cat_estatus option[value="5"]').remove();
+        $('#id_cat_estatus').selectpicker('refresh');
     }
 }
 

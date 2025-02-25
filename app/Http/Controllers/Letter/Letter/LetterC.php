@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
+use App\Models\Letter\Collection\CollectionRolAreaM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
+use App\Models\Letter\Collection\CollectionEntidadM;
+use App\Models\Letter\Collection\CollectionLetterCopyM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
@@ -20,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class LetterC extends Controller
@@ -46,6 +50,7 @@ class LetterC extends Controller
         $collectionDateM = new CollectionDateM();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRemitenteM = new CollectionRemitenteM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
@@ -53,6 +58,12 @@ class LetterC extends Controller
         $item->rfc_remitente_bool = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
         $item->es_doc_fisico = true; // Inicio de variables
         $item->son_mas_remitentes = false; // Inicio de variables
+
+        $item->num_flojas = 1; // Inicio de variables
+        $item->num_tomos = 0; // Inicio de variables
+        $item->horas_respuesta = 0; // Inicio de variables
+
+
 
         $selectArea = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEdit = []; //catalogo de area null
@@ -63,7 +74,7 @@ class LetterC extends Controller
         $selectEnlace = []; //Catalogo de Area - enlace, al crear comienza en vacio 
         $selectEnlaceEdit = []; //Catalogo de Area - enlace, al crear comienza en vacio 
 
-        $selectUnidad = $collectionUnidadM->list();//Catalogo de unidad
+        $selectUnidad = [];//Catalogo de unidad
         $selectUnidadEdit = []; //Catalogo de Unidad, al crear comienza en vacio 
 
         $selectCoordinacion = []; //Catalogos de coordinacion vacios
@@ -81,7 +92,10 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list(); //Se carga el catalogo de remitente
         $selectRemitenteEdit = []; //LA funcion de editar se inicia en falso
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function edit(string $id)
@@ -96,6 +110,7 @@ class LetterC extends Controller
         $collectionTramiteM = new CollectionTramiteM();
         $collectionRemitenteM = new CollectionRemitenteM();
         $collectionClaveM = new CollectionClaveM();
+        $collectionEntidadM = new CollectionEntidadM();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -135,13 +150,17 @@ class LetterC extends Controller
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        return view('letter.letter.form', compact('selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
+
+        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function table(Request $request)
     {
         try {
             $collectionRelUsuarioM = new CollectionRelUsuarioM();
+            $collectionRolAreaM = new CollectionRolAreaM();
             $letterM = new LetterM();
 
             // Obtener valores de la solicitud
@@ -156,23 +175,10 @@ class LetterC extends Controller
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
                 // Si tiene acceso completo, no hay necesidad de filtrar por área o enlace
                 // Procesar la tabla con acceso completo si es necesario
-                $value = $letterM->list($iterator, $searchValue, null, null);
+                $value = $letterM->list($iterator, $searchValue, null);
             } else {
-                // Inicializar las variables
-                $idArea = null;
-                $idUserEnlace = null;
-
-                // Verificar si el usuario tiene el rol COR_USUARIO
-                if (in_array($COR_USUARIO, $roleUserArray)) {
-                    // Obtener el área asociada al usuario
-                    $idArea = $collectionRelUsuarioM->idAreaByUser(Auth::id())->first();
-                }
-
-                // Si no tiene un área asociada, asignamos el id del usuario como enlace
-                $idUserEnlace = $idArea ? null : Auth::id();
-
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $letterM->list($iterator, $searchValue, $idArea, $idUserEnlace);
+                $value = $letterM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
             }
 
             // Responder con los resultados
@@ -197,6 +203,7 @@ class LetterC extends Controller
         $letterM = new LetterM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
+        $collectionRolAreaM = new CollectionRolAreaM();
         $now = Carbon::now(); //Hora y fecha actual
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
@@ -221,7 +228,7 @@ class LetterC extends Controller
                 'fecha_usuario' => $now,
             ]);
             //Se obtiene el id del rfc ingresado
-            $request->id_cat_remitente = $collectionRemitenteM->getRfc(strtoupper($request->remitente_nombre));
+            $request->id_cat_remitente = $collectionRemitenteM->getRfc(strtoupper($request->remitente_nombre), strtoupper($request->remitente_apellido_paterno), strtoupper($request->remitente_apellido_materno));
         }
         /*
         if ($letterM->validateNoDocument($request->id_tbl_correspondencia, $request->num_documento)) {
@@ -231,16 +238,25 @@ class LetterC extends Controller
 
         if (!isset($request->id_tbl_correspondencia)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
+
+            /// Validación de no de  turno de sistema
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA')));
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
             $data = [
-                'num_turno_sistema' => strtoupper($request->num_turno_sistema),
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'num_documento' => strtoupper($request->num_documento),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
-                'num_flojas' => $request->num_flojas,
-                'num_tomos' => $request->num_tomos,
+                'num_flojas' => 1,
+                'num_tomos' => 0,
                 'horas_respuesta' => $request->horas_respuesta,
-                'lugar' => strtoupper($request->lugar),
+                'id_cat_entidad' => $request->id_cat_entidad,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_area' => $request->id_cat_area,
@@ -258,6 +274,7 @@ class LetterC extends Controller
                 'es_doc_fisico' => $es_doc_fisico,
                 'son_mas_remitentes' => $son_mas_remitentes,
                 'remitente' => strtoupper($request->remitente),
+                'fecha_documento' => $request->fecha_documento,
 
                 // Datos del sistema
                 'id_usuario_sistema' => Auth::user()->id,
@@ -286,10 +303,10 @@ class LetterC extends Controller
                     'num_documento' => $request->num_documento,
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,
-                    'num_flojas' => $request->num_flojas,
-                    'num_tomos' => $request->num_tomos,
+                    'num_flojas' => 1,
+                    'num_tomos' => 0,
                     'horas_respuesta' => $request->horas_respuesta,
-                    'lugar' => strtoupper($request->lugar),
+                    'id_cat_entidad' => $request->id_cat_entidad,
                     'asunto' => strtoupper($request->asunto),
                     'observaciones' => strtoupper($request->observaciones),
                     'id_cat_area' => $request->id_cat_area,
@@ -307,6 +324,7 @@ class LetterC extends Controller
                     'es_doc_fisico' => $es_doc_fisico,
                     'son_mas_remitentes' => $son_mas_remitentes,
                     'remitente' => strtoupper($request->remitente),
+                    'fecha_documento' => $request->fecha_documento,
 
                     'id_usuario_sistema' => Auth::user()->id,
                     'fecha_usuario' => $now,
@@ -321,6 +339,47 @@ class LetterC extends Controller
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
+                // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
+
+                /*
+                $collectionRolAreaM->getIdArea() = 9
+                $request->id_cat_area
+                */
+
+                // Validacion de usuario para modificar una correspondencia
+                // Primer if, corresponden al area de Ramon
+                if ($collectionRolAreaM->getIdArea() == 10 || $collectionRolAreaM->getIdArea() == 15) {
+                    if ($request->id_cat_area != 10 && $request->id_cat_area != 15) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
+                } else {
+                    if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
+                        return redirect()->back()->with([
+                            'value' => 'error',
+                            'message' => 'No se han configurado permisos para este usuario.',
+                            'estatus' => 'true'
+                        ]);
+                    }
+                }
+
+
+
+
+                /*
+                if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
+                    Log::info('intro');
+                    return redirect()->back()->with([
+                        'value' => 'error',
+                        'message' => 'No se han configurado permisos para este usuario.',
+                        'estatus' => 'true'
+                    ]);
+                }
+*/
+
 
                 $data = [
                     'observaciones' => strtoupper($request->observaciones),
@@ -341,6 +400,109 @@ class LetterC extends Controller
 
         }
     }
+
+    // La función muestra el catalogo de areas, para el modal de turnar copia
+    public function collectionArea()
+    {
+        // Class
+        $collectionAreaM = new CollectionAreaM();
+        $result = $collectionAreaM->list(); //Catalogo de area
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
+    // La función valida que el area y el No Correspondencia no esten asociados
+    public function validateCopy(Request $request)
+    {
+        // Class
+        $letterM = new LetterM();
+        $result = $letterM->getValue($request->id_tbl_correspondencia, $request->id_cat_area);
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
+    // LA funcion guarda en la tabla copy correspondencia
+    public function saveCopy(Request $request)
+    {
+        // Class
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+        $now = Carbon::now(); //Hora y fecha actual
+
+        $data = [ // is Array
+            'id_cat_area' => $request->id_cat_area,
+            'id_usuario_area' => $request->id_usuario_area,
+            'id_usuario_enlace' => $request->id_usuario_enlace,
+            'id_cat_tramite' => $request->id_cat_tramite,
+            'id_cat_clave' => $request->id_cat_clave,
+            'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
+
+        $result = $collectionLetterCopyM::create($data);
+        // Opcional: Guardar el log con los valores insertados (si se necesita)
+        $logC->add('correspondencia.ctrl_transcribir_correspondencia', $data);
+
+
+        return response()->json([
+            'result' => $result,
+        ]);
+    }
+
+
+    // La función retorna los valores para mostrar la tablad e copy
+    public function tableCopy(Request $request)
+    {
+        try {
+            // Declaración de variables
+            $letterM = new LetterM();
+            $value = $letterM->tableCopy($request->id); // Llamamos al método list() con los parámetros necesarios
+
+            return response()->json([
+                'value' => $value,
+                'status' => true,
+            ]);
+
+        } catch (\Exception $e) {
+            // Manejo de errores en caso de excepciones
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    // La función elimina los elementos de copy -> correspondencia
+    public function deleteCopy(Request $request)
+    {
+        // Class
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+
+        // Eliminacion del elemento
+        $data = [ // Log
+            'id_ctrl_transcribir_correspondencia' => $request->id
+        ];
+
+        $logC->delete('correspondencia.ctrl_transcribir_correspondencia', $data);
+        $result = $collectionLetterCopyM::where('id_ctrl_transcribir_correspondencia', $request->id)->delete();
+
+        $bool = false;
+        if ($result > 0) {
+            $bool = true;
+        }
+
+        return response()->json([
+            'value' => $bool,
+        ]);
+    }
+
 
     //LA funcion elimina el elemento
     public function delete($id)
@@ -377,6 +539,20 @@ class LetterC extends Controller
         ]);
     }
 
+
+    //La funcion que el remitente sea unico, por nombre, primer apellido, segundo apellido,
+    public function uniqueRemitenteName(Request $request)
+    {
+        $collectionRemitenteM = new CollectionRemitenteM();
+        $result = $collectionRemitenteM->uniqueRemitenteName($request->name, $request->fistLastName, $request->seconLastName);
+        $value = !$result ? false : true; // Validacion de valor 
+
+        // Responder con los resultados
+        return response()->json([
+            'status' => $value,
+        ]);
+    }
+
     public function getletter(Request $request)
     {
         $letterM = new LetterM();
@@ -386,6 +562,56 @@ class LetterC extends Controller
             'value' => $value,
         ]);
     }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
+    }
+    // Incrementacion del no consecutivo
+    /*
+    private function incrementarConsecutivo($turno)
+    {
+        // Usamos una expresión regular para extraer el prefijo, el número consecutivo y el sufijo
+        if (preg_match('/^(.*\/)(\d{5})(\/\d{4})$/', $turno, $matches)) {
+            // Extraemos los componentes
+            $prefijo = $matches[1];  // DGP/
+            $numeroConsecutivo = $matches[2];  // 01254
+            $sufijo = $matches[3];  // /2025
+
+            // Incrementamos el número consecutivo
+            $nuevoNumero = str_pad($numeroConsecutivo + 1, 5, '0', STR_PAD_LEFT);  // Aseguramos que tenga 5 dígitos
+
+            // Concatenamos el nuevo número con el prefijo y el sufijo
+            $nuevoTurno = $prefijo . $nuevoNumero . $sufijo;
+
+            return $nuevoTurno;
+        }
+
+        // Si no coincide con el formato esperado, devolvemos null o un valor de error
+        return null;
+    }
+        */
 }
 
 

@@ -46,6 +46,33 @@
             </li>
         @endif
 
+        <!-- Item Correspondencia -->
+        @if($letterCRH)
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres-x" aria-expanded="false"
+                            aria-controls="ui-basic_corres-x">
+                            <i class="fa fa-folder-open menu-icon"></i>
+                            <span class="menu-title">C.R.H.</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="ui-basic_corres-x">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item"><a class="nav-link" href="{{ route('communication.list') }}">Oficios</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('request.list') }}">Requerimiento</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('informative.list') }}">Informativo</a>
+                                </li>
+                                <!--
+                                    <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
+                                    </li>
+            -->
+                            </ul>
+                        </div>
+                    </li>
+        @endif
+
+
         <!-- Item Cursos -->
         @if($coursesMatch)
             <li class="nav-item {{ request()->routeIs('coursesauditoria.list') || request()->routeIs('courses.list') || request()->routeIs('coursescategoria.list') || request()->routeIs('coursescoordinacion.list') || request()->routeIs('coursesestatuto.list') || request()->routeIs('coursesmodalidad.list') || request()->routeIs('coursesnombreacc.list') || request()->routeIs('coursesorganizacion.list') || request()->routeIs('coursesprograma.list') || request()->routeIs('coursestipoac.list') || request()->routeIs('coursestipocur.list') || request()->routeIs('tableinstructor.list') || request()->routeIs('tablecourses.list') ? 'active' : '' }}">

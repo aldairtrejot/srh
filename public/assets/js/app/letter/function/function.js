@@ -73,8 +73,35 @@ function getUniqueRemitente(value, attribute) {
     return isValid;  // Regresa el resultado de la validación
 }
 
+
+// La funcion valida que el nombre de remitente sea unico
+function getUniqueNameRemitente(name, fistLastName, seconLastName, attribute) {
+    let isValid = false;  // Asumimos que es inválido inicialmente
+    if (name !== '') {
+        $.ajax({
+            url: URL_DEFAULT.concat('/letter/collection/uniqueNameValidate'),
+            type: 'POST',
+            async: false, // Asegura que la ejecución sea sincrónica
+            data: {
+                name: name,
+                fistLastName: fistLastName,
+                seconLastName: seconLastName,
+                attribute: attribute,
+                _token: token  // Usar el token extraído de la metaetiqueta
+            },
+            success: function (response) {
+                let item = response.status;
+                if (item) {
+                    isValid = true;  // La validación fue exitosa
+                }
+            }
+        });
+    }
+    return isValid;  // Regresa el resultado de la validación
+}
+
 // La funcion valida si existe un No de correspondencia, si es correcto imprime el usuario y el enlace que se tiene
-function getNoDocument(value, labelUser, labelEnlace, labelArea, id_area, id_usuario, id_enlace) {
+function getNoDocument(value, labelUser, labelEnlace, labelArea, id_area, id_usuario, id_enlace, id_tbl_correspondencia) {
     $.ajax({
         url: URL_DEFAULT.concat('/valitade/letter'),
         type: 'POST',
@@ -83,8 +110,6 @@ function getNoDocument(value, labelUser, labelEnlace, labelArea, id_area, id_usu
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            console.log(response);
-
             if (response.value && response.value.length > 0) { //Array con informacion
                 let data = response.value[0];
                 $(labelUser).text(data.usuario_area);
@@ -94,8 +119,9 @@ function getNoDocument(value, labelUser, labelEnlace, labelArea, id_area, id_usu
                 $(id_area).val(data.id_cat_area);
                 $(id_usuario).val(data.id_usuario_area);
                 $(id_enlace).val(data.id_usuario_enlace);
+                $(id_tbl_correspondencia).val(data.id_tbl_correspondencia);
             } else {
-                cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace);// clean
+                cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace, id_tbl_correspondencia);// clean
             }
         },
     });
@@ -115,7 +141,9 @@ function getDataUsers(id_area, id_usuario, id_enlace, labelArea, labelUser, labe
                 _token: token  // Usar el token extraído de la metaetiqueta
             },
             success: function (response) {
-                console.log(response);
+                $(labelArea).text(response.nameArea);
+                $(labelUser).text(response.nameUser);
+                $(labelEnlace).text(response.nameEnlace);
             },
         });
     } else {
@@ -124,11 +152,12 @@ function getDataUsers(id_area, id_usuario, id_enlace, labelArea, labelUser, labe
 }
 
 // La funcion agrega un - a los atributos, asi como le quita el valor a area, usuario y enlace
-function cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace) {
+function cleanUserArea(labelArea, labelUser, labelEnlace, id_area, id_usuario, id_enlace, id_tbl_correspondencia) {
     // Variables de input
     $(id_area).val('');
     $(id_usuario).val('');
     $(id_enlace).val('');
+    $(id_tbl_correspondencia).val('');
 
     // Variables de text
     $(labelArea).text(' _');

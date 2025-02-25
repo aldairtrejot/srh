@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Letter\Office;
+use App\Http\Controllers\Letter\Other\ConsecutivoC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Models\Letter\Letter\LetterM;
 use App\Models\Letter\Office\OfficeM;
@@ -16,6 +17,8 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
+use Illuminate\Support\Facades\Log;
+use App\Models\Letter\Collection\CollectionRolAreaM;
 
 class OfficeC extends Controller
 {
@@ -40,6 +43,7 @@ class OfficeC extends Controller
     {
         try {
             $officeM = new OfficeM();
+            $collectionRolAreaM = new CollectionRolAreaM();
             // Obtener valores de la solicitud
             $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue'); // Valor de búsqueda
@@ -55,7 +59,7 @@ class OfficeC extends Controller
                 $value = $officeM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $officeM->list($iterator, $searchValue, Auth::id());
+                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
             }
 
             // Responder con los resultados
@@ -83,16 +87,18 @@ class OfficeC extends Controller
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
         $collectionRelEnlaceM = new CollectionRelEnlaceM();
 
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
-        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-
         $item->fecha_captura = now()->format('d/m/Y'); // Formato de fecha: día/mes/año
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
         $item->es_por_area = false; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
+
+        $other = [
+            'area' => ' _',
+            'user_name' => ' _',
+            'user_enlace' => ' _',
+        ];
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
@@ -103,8 +109,7 @@ class OfficeC extends Controller
         $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-
-        return view('letter/office/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -116,108 +121,89 @@ class OfficeC extends Controller
         $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
 
+        $other = $officeM->getDataFormat($id);
+
         $item = $officeM->edit($id); // Obtener el elemento con el ID pasado
         $noLetter = $letterM->getTurno($item->id_tbl_correspondencia);
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
 
-        $usuario = ' _'; // Usuario se inicializa en nulo
-        $enlace = ' _'; // Enlace se inicializa en nulo
+        $selectUser = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
+        $selectUserEdit = isset($item->id_cat_area) && isset($item->id_usuario_area) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
 
-        return view('letter/office/form', compact('enlace', 'usuario', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+        $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
+
+        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
     {
+        $letterM = new LetterM();
         $logC = new LogC();
         $officeM = new OfficeM();
         $messagesC = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionAreaM = new CollectionAreaM();
-        $letterM = new LetterM();
-        //USER_ROLE
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
-        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-        //Autorizacion solo administracion
+        $consecutivoC = new ConsecutivoC();
+        $collectionAreaM = new CollectionAreaM();
 
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
-        $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
+        //$id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
         // aregar
 
-
-        $id_area_aux = $letterM->validateNoTurnoArea($request->num_correspondencia);
-        if ($es_por_area == 1) {
-            if ($request->id_cat_area_documento == 2) {
-                $idusuario = 7;
-                $idEnlace = 8;
-                $idArea = 2;
-            } else if ($request->id_cat_area_documento == 4) {
-                $idusuario = 9;
-                $idEnlace = 10;
-                $idArea = 4;
-            } else if ($request->id_cat_area_documento == 5) {
-                $idusuario = 6;
-                $idEnlace = 4;
-                $idArea = 5;
-            } else if ($request->id_cat_area_documento == 6) {
-                $idusuario = 13;
-                $idEnlace = 14;
-                $idArea = 6;
-            } else if ($request->id_cat_area_documento == 7) {
-                $idusuario = 15;
-                $idEnlace = 16;
-                $idArea = 7;
-            }
+        if ($es_por_area == 1) { // validacion que es verdadero
+            $idArea = $request->id_cat_area;
+            $idUsuario = $request->id_usuario_area;
+            $idEnlace = $request->id_usuario_enlace;
         } else {
-            if ($id_area_aux == 2) {
-                $idusuario = 7;
-                $idEnlace = 8;
-                $idArea = 2;
-            } else if ($id_area_aux == 4) {
-                $idusuario = 9;
-                $idEnlace = 10;
-                $idArea = 4;
-            } else if ($id_area_aux == 5) {
-                $idusuario = 6;
-                $idEnlace = 4;
-                $idArea = 5;
-            } else if ($id_area_aux == 6) {
-                $idusuario = 13;
-                $idEnlace = 14;
-                $idArea = 6;
-            } else if ($id_area_aux == 7) {
-                $idusuario = 15;
-                $idEnlace = 16;
-                $idArea = 7;
-            }
+            $response = $letterM->editFol($request->num_correspondencia);
+            $idArea = $response->id_cat_area;
+            $idUsuario = $response->id_usuario_area;
+            $idEnlace = $response->id_usuario_enlace;
         }
-
 
         if (!isset($request->id_tbl_oficio)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
 
+            if ($this->getMaxTurno($request->num_turno_sistema) <= $officeM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO')));
+                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+            } else {
+                $numTurnoSistemaAux = $request->num_turno_sistema;
+            }
+
+            // Validacion de es por area sea unico, de lo contrario se concatena la la variable
+            $noDocumentoAreaAux = $request->num_documento_area;
+            if ($es_por_area == 1) {
+                if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $officeM->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
+                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio'));
+                }
+            }
+
+
+
             $data = [
-                'num_turno_sistema' => $request->num_turno_sistema,
+                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
-                'num_documento_area' => $request->num_documento_area,
+                'num_documento_area' => strtoupper($noDocumentoAreaAux),
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-
-                'id_usuario_area' => $idusuario,
+                'id_usuario_area' => $idUsuario,
                 'id_usuario_enlace' => $idEnlace,
                 'id_cat_area' => $idArea,
 
                 // DATA_SYSTEM
                 'id_usuario_sistema' => Auth::user()->id,
+                'id_usuario_captura' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];
 
@@ -225,7 +211,7 @@ class OfficeC extends Controller
             $logC->add('correspondencia.tbl_oficio', $data);
             //se itera el consevutivo
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-            $collectionAreaM->iteratorConsecutivo($request->id_cat_anio, $request->id_cat_area_documento);
+            $collectionAreaM->iteratorConsecutivoAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio');
 
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento agregado con éxito.');
 
@@ -236,15 +222,13 @@ class OfficeC extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
-
-                'id_usuario_area' => $idusuario,
+                'id_usuario_area' => $idUsuario,
                 'id_usuario_enlace' => $idEnlace,
                 'id_cat_area' => $idArea,
-
                 'id_usuario_sistema' => Auth::user()->id,
                 'fecha_usuario' => $now,
             ];
@@ -259,5 +243,31 @@ class OfficeC extends Controller
 
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
+    }
+
+    // la funcion elimina los espacios para obtener solo los numero de / ***(
+    private function getMaxTurno($numTurno)
+    {
+        // Usamos una expresión regular para capturar los 5 dígitos entre las barras "/"
+        if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
+            // $matches[1] contiene los 5 dígitos capturados
+            return (int) $matches[1]; // Devolvemos el número como entero
+        }
+
+        return null; // Si no encuentra el patrón, devolvemos null
+    }
+
+    private function procesarParametros($param1, $param2)
+    {
+        // Extraemos la parte antes del primer '/'
+        preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
+        $letras1 = $coincidencias1[1];
+
+        // Extraemos la parte entre los '/' de param2
+        preg_match('/\/(\d+)\//', $param2, $coincidencias2);
+        $numeros2 = $coincidencias2[1];
+
+        // Concatenamos las partes
+        return $letras1 . '/' . $numeros2 . '/2025';
     }
 }
