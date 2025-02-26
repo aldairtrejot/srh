@@ -294,7 +294,7 @@ Route::post('/coursesauditoria/table', [Courses11C::class, 'searchTable']);
 Route::match(['get', 'post'], '/coursesauditoria/edit/{id}', [Courses11C::class, 'edit'])->name('coursesauditoria.edit')->middleware('auth');
 Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
-//ROUTE_COUSER ---- >Tabla instructores
+// ROUTE_COURSES ---- > Tabla instructores
 Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
 Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
@@ -305,11 +305,13 @@ Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->nam
 Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
 
-Route::post('/tableinstructor/cloud/data', [CloudtableinsC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
-Route::post('/tableinstructor/cloud/cv', [CloudtableinsC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
-Route::post('/tableinstructor/cloud/cons', [CloudtableinsC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
-Route::post('/tableinstructor/cloud/upload', [CloudtableinsC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
-Route::post('/tableinstructor/cloud/delete', [CloudtableinsC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
+// 📌 Rutas de Cloud (Carga de documentos)
+Route::post('/tableinstructor/cloud/upload', [CloudC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
+Route::post('/tableinstructor/cloud/data', [CloudC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
+Route::post('/tableinstructor/cloud/cv', [CloudC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
+Route::post('/tableinstructor/cloud/cons', [CloudC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
+Route::post('/tableinstructor/cloud/delete', [CloudC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
+Route::post('/tableinstructor/cloud/constancias', [CloudC::class, 'cloudConstancias'])->name('tableinstructor.cloud.constancias')->middleware('auth'); // Ruta agregada para constancias
 
 
 

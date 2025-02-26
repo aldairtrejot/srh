@@ -1,85 +1,45 @@
-// Obtener token CSRF y valores de los inputs
+// Obtener el token CSRF del meta tag para proteger las solicitudes AJAX.
 var token = $('meta[name="csrf-token"]').attr('content');
-var id = $('#id').val();
-var uid_constancias = $('#uid_constancias').val();
-var uid_cv = $('#uid_cv').val();
 
-// Definir constantes para identificar los tipos de archivo
-var es_constancia = 1;
-var es_cv = 0;
+function uploadFile(isCv) {
+    let fileInput = isCv ? document.getElementById("file_cv_entrada") : document.getElementById("file_constancia_entrada");
+    let file = fileInput.files[0];
 
-// Definir valores para el tipo de documento
-var id_cat_entrada = $('#id_cat_entrada').val();
-var id_cat_tipo_cv = $('#id_cat_tipo_cv').val();
-var id_cat_tipo_constancia = $('#id_cat_tipo_constancia').val();
+    if (!file) {
+        alert("Selecciona un archivo.");
+        return;
+    }
 
-// Definir rutas obtenidas de Blade
-var routeCloudData = $('meta[name="route-cloud-data"]').attr('content');
-var routeCloudCv = $('meta[name="route-cloud-cv"]').attr('content');
-var routeCloudCons = $('meta[name="route-cloud-cons"]').attr('content');
-var routeCloudUpload = $('meta[name="route-cloud-upload"]').attr('content');
-var routeCloudDelete = $('meta[name="route-cloud-delete"]').attr('content');
+    let idTblCvElement = document.getElementById("id_tbl_cv");
 
-// Definir funciones antes de llamar en document.ready()
-function getDataCloud() {
-    $.ajax({
-        url: routeCloudData,
-        type: 'POST',
-        data: { id: id, _token: token },
-        success: function (response) {
-            let item = response.value;
-            $('#_noCv').text(item.num_turno_sistema);
-            $('#_noConstancia').text(item.num_documento);
-        },
-        error: function (xhr, status, error) {
-            console.error("Error al obtener datos de Cloud:", error);
-        }
-    });
-}
+    if (!idTblCvElement) {
+        console.error("Error en JavaScript: id_tbl_cv no encontrado.");
+        alert("Error: No se encontró el campo id_tbl_cv en la vista.");
+        return;
+    }
 
-$(document).ready(function () {
-    getDataCloud();
-    getDataDocument();
+    let idTblCv = idTblCvElement.value;
 
-    $(window).click(function (event) {
-        if ($(event.target).is('#modalBackdrop')) {
-            $('#modalBackdrop').fadeOut();
-        }
-    });
-});
+    if (!idTblCv || isNaN(idTblCv)) {
+        console.error("Error en JavaScript: id_tbl_cv es inválido", { id_tbl_cv: idTblCv });
+        alert("Error: ID de instructor inválido.");
+        return;
+    }
 
-// Obtener documentos almacenados
-function getDataDocument() {
-    let container_cv_entrada_vacio = $('#container_cv_entrada_vacio');
-    let container_cv_entrada = $('#container_cv_entrada');
-    let container_constancia_entrada_vacio = $('#container_constancia_entrada_vacio');
-    let container_constancia_entrada = $('#container_constancia_entrada');
+    let formData = new FormData();
+    formData.append("file", file);
+    formData.append("id_tbl_cv", idTblCv);
+    formData.append("esCv", isCv ? 1 : 0);
 
-    $.ajax({
-        url: routeCloudCv,
-        type: 'POST',
-        data: { id: id, _token: token },
-        success: function (response) {
-            let cvsEntrada = response.cvsEntrada;
-            response.resultCvsEntrada 
-                ? disabledInput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada') 
-                : enableInput('#label_cv_entrada', '#icon_cv_entrada', '#file_cv_entrada');
-
-            templateCloud(container_cv_entrada, container_cv_entrada_vacio, cvsEntrada);
-        }
-    });
-
-    $.ajax({
-        url: routeCloudCons,
-        type: 'POST',
-        data: { id: id, _token: token },
-        success: function (response) {
-            let constanciasEntrada = response.constanciasEntrada;
-            response.resultConstanciaEntrada 
-                ? disabledInput('#label_constancia_entrada', '#icon_constancia_entrada', '#file_constancia_entrada') 
-                : enableInput('#label_constancia_entrada', '#icon_constancia_entrada', '#file_constancia_entrada');
-
-            templateCloud(container_constancia_entrada, container_constancia_entrada_vacio, constanciasEntrada);
-        }
-    });
+    fetch(document.querySelector('meta[name="route-cloud-upload"]').content, {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.messages);
+        location.reload();
+    })
+    .catch(error => console.error("Error en subida:", error));
 }
