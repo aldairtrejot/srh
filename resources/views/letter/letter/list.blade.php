@@ -25,12 +25,14 @@
                             <h3 class="font-weight-bold">Gestión de control</h3>
                             <h5 class="font-weight-normal mb-0">Corresponencia</h5>
                         </div>
-                        <div class="col-12 col-xl-4 text-xl-right">
-                            <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
-                                <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-                                <i class="ti-layout" style="color: #10312b;"></i>
-                            </button>
-                        </div>
+                        @if($letterAdminMatch)
+                            <div class="col-12 col-xl-4 text-xl-right">
+                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
+                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
