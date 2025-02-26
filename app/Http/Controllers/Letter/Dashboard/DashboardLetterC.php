@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class DashboardLetterC extends Controller
 {
@@ -108,41 +108,52 @@ class DashboardLetterC extends Controller
         $row = 7; // Empezamos desde la fila 2
         $id = 1;
         foreach ($query as $data) {
-            $sheet->setCellValue('A' . $row, $id);
-            $sheet->setCellValue('B' . $row, $data->folio_gestion);
-            $sheet->setCellValue('C' . $row, $data->num_documento);
-            $sheet->setCellValue('D' . $row, $data->num_turno_sistema);
-            $sheet->setCellValue('E' . $row, $data->estatus);
-            $sheet->setCellValue('F' . $row, $data->anio);
-            $sheet->setCellValue('G' . $row, $data->fecha_captura);
-            $sheet->setCellValue('H' . $row, $data->fecha_inicio);
-            $sheet->setCellValue('I' . $row, $data->fecha_fin);
-            $sheet->setCellValue('J' . $row, $data->fecha_documento);
-            $sheet->setCellValue('K' . $row, $data->asunto);
-            $sheet->setCellValue('L' . $row, $data->observaciones);
-            $sheet->setCellValue('M' . $row, $data->area);
-            $sheet->setCellValue('N' . $row, $data->titular);
-            $sheet->setCellValue('O' . $row, $data->enlace);
-            $sheet->setCellValue('P' . $row, $data->unidad);
-            $sheet->setCellValue('Q' . $row, $data->coordinacion);
-            $sheet->setCellValue('R' . $row, $data->tramite);
-            $sheet->setCellValue('S' . $row, $data->clave);
-            $sheet->setCellValue('T' . $row, $data->horas_respuesta);
-            $sheet->setCellValue('U' . $row, $data->tipo_documento);
-            $sheet->setCellValue('V' . $row, $data->entidad);
-            $sheet->setCellValue('W' . $row, $data->remitente);
-            $sheet->setCellValue('X' . $row, $data->puesto_remitente);
+            // Cambia las líneas en las que estás estableciendo los valores de las celdas como texto:
+            $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D' . $row, $data->num_turno_sistema, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E' . $row, $data->estatus, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F' . $row, $data->anio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I' . $row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->fecha_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('K' . $row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L' . $row, $data->observaciones, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('M' . $row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('N' . $row, $data->titular, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('O' . $row, $data->enlace, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('P' . $row, $data->unidad, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('Q' . $row, $data->coordinacion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('R' . $row, $data->tramite, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('S' . $row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('T' . $row, $data->horas_respuesta, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('U' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('V' . $row, $data->entidad, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('W' . $row, $data->remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('X' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValue('Y' . $row, $data->fecha_captura);
-                $sheet->setCellValue('Z' . $row, $data->hora_captura);
-                $sheet->setCellValue('AA' . $row, $data->usuario_add);
+                $sheet->setCellValueExplicit('Y' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('Z' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('AA' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
+
+
             $row++;
             $id++;
         }
 
         $this->addStyleTittle($sheet, 'B4', ($id - 1), 'E8E8E8', false, 'HORIZONTAL_LEFT');
+
+
+        if ($request->inlcuir_usuario_capturo) {
+            $sheet->setAutoFilter('A6:AA6');
+        } else {
+            $sheet->setAutoFilter('A6:X6');
+        }
+
 
         // Escribir en memoria
         $writer = new Xlsx($spreadsheet);
