@@ -2,6 +2,8 @@
 var token = $('meta[name="csrf-token"]').attr('content');
 
 function uploadFile(isCv) {
+    console.log("✅ Función uploadFile() llamada con isCv =", isCv); // <-- Mensaje en consola
+
     let fileInput = isCv ? document.getElementById("file_cv_entrada") : document.getElementById("file_constancia_entrada");
     let file = fileInput.files[0];
 
@@ -31,6 +33,9 @@ function uploadFile(isCv) {
     formData.append("id_tbl_cv", idTblCv);
     formData.append("esCv", isCv ? 1 : 0);
 
+    console.log("📡 Enviando solicitud a:", document.querySelector('meta[name="route-cloud-upload"]').content);
+    console.log("📦 Datos enviados:", Object.fromEntries(formData));
+
     fetch(document.querySelector('meta[name="route-cloud-upload"]').content, {
         method: "POST",
         headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content },
@@ -38,8 +43,35 @@ function uploadFile(isCv) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log("🔄 Respuesta recibida del servidor:", data);
         alert(data.messages);
         location.reload();
     })
-    .catch(error => console.error("Error en subida:", error));
+    .catch(error => console.error("❌ Error en subida:", error));
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("🔄 JavaScript cargado correctamente.");
+
+    let fileCvEntrada = document.getElementById("file_cv_entrada");
+    let fileConstanciaEntrada = document.getElementById("file_constancia_entrada");
+
+    if (fileCvEntrada) {
+        fileCvEntrada.addEventListener("change", () => {
+            console.log("📁 Archivo seleccionado para CV.");
+            uploadFile(true);
+        });
+    } else {
+        console.error("⚠️ No se encontró el elemento file_cv_entrada en el DOM.");
+    }
+
+    if (fileConstanciaEntrada) {
+        fileConstanciaEntrada.addEventListener("change", () => {
+            console.log("📁 Archivo seleccionado para Constancia.");
+            uploadFile(false);
+        });
+    } else {
+        console.error("⚠️ No se encontró el elemento file_constancia_entrada en el DOM.");
+    }
+});
+
