@@ -65,4 +65,25 @@ function confirmSolicitante() {
     // Aquí puedes agregar la lógica de validación y envío para el solicitante
 }
 
+function getAuditList(id_curso) {
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/list/courses'),
+        type: 'POST',
+        data: {
+            id_courses: $('#idtbl_cursos_audit').val(),
+            _token: token
+        },
+        success: function(response) {
+            console.log('Lista de auditorías: ', response);
+            // Aquí puedes procesar y mostrar los resultados de la auditoría
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al obtener la lista de auditorías: ', error);
+        }
+    });
+}
+
+
+
+
 

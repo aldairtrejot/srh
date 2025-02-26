@@ -28,4 +28,13 @@ class TableauditM extends Model
         );
 
     }
+    
+    public function auditlist($id_curso)
+    {
+        $result = DB::table('capacitacion.cat_auditoria')
+        ->select('capacitacion.cat_auditoria.descripcion')
+        ->get();
+    
+        return $result; 
+    }
 }

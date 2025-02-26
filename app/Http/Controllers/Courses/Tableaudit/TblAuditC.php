@@ -20,5 +20,17 @@ class TblAuditC extends Controller
             'status' => true,
         ]);
     }
+
+    public function getAuditList(Request $request)
+    {
+        // Llamamos al método auditlist del modelo TableauditM
+        $auditModel = new TableauditM();
+        $audits = $auditModel->auditlist($request->id_courses);
+        
+        return response()->json([
+            'value' => $request->id_courses,
+            'status' => true,
+        ]);
+    }
 }
 
