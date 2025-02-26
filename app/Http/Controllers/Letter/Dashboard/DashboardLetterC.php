@@ -39,6 +39,7 @@ class DashboardLetterC extends Controller
         ]);
     }
 
+    // Genera reporte de Exel
     public function generate(Request $request)
     {
         // Class
@@ -49,7 +50,7 @@ class DashboardLetterC extends Controller
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $query = $reportM->generateReport(
+        $query = $reportM->generateReport( // parametros de funcion
             $request->id_cat_area,
             $request->id_cat_status,
             $request->fecha_inicio_fecha_fin,
@@ -61,6 +62,7 @@ class DashboardLetterC extends Controller
             $request->fin,
         );
 
+        // Encabezado inicial
         $this->addStyleTittle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
         $this->addStyleTittle($sheet, 'A2', 'USUARIO:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
         $this->addStyleTittle($sheet, 'A3', 'FECHA DE EMISIÓN:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
@@ -97,7 +99,7 @@ class DashboardLetterC extends Controller
         $this->addStyleValue($sheet, 'X6', 'PUESTO REMITENTE', '10312B');
 
 
-        if ($request->inlcuir_usuario_capturo) {
+        if ($request->inlcuir_usuario_capturo) { //  validacion para incluir datos de captura
             $this->addStyleValue($sheet, 'Y6', 'FECHA CAPTURA', '10312B');
             $this->addStyleValue($sheet, 'Z6', 'HORA CAPTURA', '10312B');
             $this->addStyleValue($sheet, 'AA6', 'USUARIO CAPTURA', '10312B');
@@ -106,8 +108,8 @@ class DashboardLetterC extends Controller
 
 
         $row = 7; // Empezamos desde la fila 2
-        $id = 1;
-        foreach ($query as $data) {
+        $id = 1; // id que incrementa
+        foreach ($query as $data) { // insert de datos
             // Cambia las líneas en las que estás estableciendo los valores de las celdas como texto:
             $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
@@ -145,9 +147,10 @@ class DashboardLetterC extends Controller
             $id++;
         }
 
+        // Total de registros
         $this->addStyleTittle($sheet, 'B4', ($id - 1), 'E8E8E8', false, 'HORIZONTAL_LEFT');
 
-
+        // Se incluyen filtros en encabezados
         if ($request->inlcuir_usuario_capturo) {
             $sheet->setAutoFilter('A6:AA6');
         } else {
