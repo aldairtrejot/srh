@@ -7,6 +7,7 @@
 
     <div class="main-panel">
         <div class="content-wrapper">
+            <!--
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
@@ -16,10 +17,28 @@
                         </div>
                     </div>
                 </div>
+            </div>-->
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">Gestión de control</h3>
+                            <h5 class="font-weight-normal mb-0">Corresponencia</h5>
+                        </div>
+                        <div class="col-12 col-xl-4 text-xl-right">
+                            <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
+                                <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                <i class="ti-layout" style="color: #10312b;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
 
             <!-- View->modal -->
             @include('letter.letter.modal')
+            @include('letter.dashboard.modal')
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -91,5 +110,8 @@
     <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
 
+    <!-- Delete -->
+    <script src="{{ asset('assets/js/app/letter/dashboard/report.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/dashboard/validate.js') }}"></script>
 
 </x-template-app.app-layout>

@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class ReportM extends Model
 {
     //La funcion retorna el reporte del dashboard
-    public function generateReport($idArea, $idStatus, $isFechas, $fechaInicio, $fechaFin, $idAnio)
+    public function generateReport($idArea, $idStatus, $isFechas, $fechaInicio, $fechaFin, $idAnio, $allHoras, $inicio, $fin)
     {
         $query = DB::table('correspondencia.tbl_correspondencia')
             ->select(
                 'correspondencia.tbl_correspondencia.folio_gestion AS folio_gestion',
                 'correspondencia.tbl_correspondencia.num_documento AS num_documento',
                 'correspondencia.tbl_correspondencia.num_turno_sistema AS num_turno_sistema',
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') AS fecha_captura"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY') AS fecha_documento"),
@@ -70,6 +71,10 @@ class ReportM extends Model
             });
         }
 
+        //Filtro por horas
+        if (!$allHoras) {
+            $query->whereRaw('EXTRACT(HOUR FROM correspondencia.tbl_correspondencia.fecha_usuario_captura) BETWEEN ? AND ?', [$inicio, $fin]);
+        }
         // El orden
         $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
 

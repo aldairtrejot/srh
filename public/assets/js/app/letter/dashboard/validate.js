@@ -33,21 +33,27 @@ function validateDateForm() {
         if (fecha_inicio > fecha_fin) {
             notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
         }
-    } 
+    }
 }
 
 //La funcion valida que la fecha de inicio no sea mayor a la fecha de fin
 function validateDate() {
+    let fecha_inicio_fecha_fin = $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0;
     let fecha_inicio = document.getElementById('fecha_inicio_informe').value;
     let fecha_fin = document.getElementById('fecha_fin_informe').value;
-    if (fecha_inicio !== '' && fecha_fin !== '') { //Valida que los campos fecchas tengan informacion
-        if (fecha_inicio > fecha_fin) {
-            notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+
+    if (fecha_inicio_fecha_fin) {
+        if (isFieldEmpty($('#fecha_inicio_informe').val(), 'Fecha de inicio') ||
+            isFieldEmpty($('#fecha_fin_informe').val(), 'Fecha Fin')) {
         } else {
-            generateReport(); // Generar reporte
+            if (fecha_inicio > fecha_fin) {
+                notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+            } else {
+                generateReport(); // Generar reporte
+            }
         }
     } else {
-        generateReport(); // Generar reporte notyfEM.error("Los campos Fecha de inicio y Fecha fin no pueden estar vacios");
+        generateReport(); // Generar reporte
     }
 }
 

@@ -56,6 +56,9 @@ class DashboardLetterC extends Controller
             $request->fecha_inicio_informe,
             $request->fecha_fin_informe,
             $request->id_cat_date_informe,
+            $request->incluir_horas,
+            $request->inicio,
+            $request->fin,
         );
 
         $this->addStyleTittle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
@@ -74,29 +77,30 @@ class DashboardLetterC extends Controller
         $this->addStyleValue($sheet, 'D6', 'NO. SISTEMA', '10312B');
         $this->addStyleValue($sheet, 'E6', 'ESTATUS', '10312B');
         $this->addStyleValue($sheet, 'F6', 'AÑO', '10312B');
-        $this->addStyleValue($sheet, 'G6', 'FECHA INICIO', '10312B');
-        $this->addStyleValue($sheet, 'H6', 'FECHA FIN', '10312B');
-        $this->addStyleValue($sheet, 'I6', 'FECHA DOCUMENTO', '10312B');
-        $this->addStyleValue($sheet, 'J6', 'ASUNTO', '10312B');
-        $this->addStyleValue($sheet, 'K6', 'OBSERVACIONES', '10312B');
-        $this->addStyleValue($sheet, 'L6', 'ÁREA', '10312B');
-        $this->addStyleValue($sheet, 'M6', 'USUARIO TITULAR', '10312B');
-        $this->addStyleValue($sheet, 'N6', 'USUARIO ENLACE', '10312B');
-        $this->addStyleValue($sheet, 'O6', 'UNIDAD', '10312B');
-        $this->addStyleValue($sheet, 'P6', 'COORDINACIÓN', '10312B');
-        $this->addStyleValue($sheet, 'Q6', 'TRAMITE', '10312B');
-        $this->addStyleValue($sheet, 'R6', 'CLAVE', '10312B');
-        $this->addStyleValue($sheet, 'S6', 'HRS. RESPUESTA', '10312B');
-        $this->addStyleValue($sheet, 'T6', 'DOCUMENTO', '10312B');
-        $this->addStyleValue($sheet, 'U6', 'LUGAR', '10312B');
-        $this->addStyleValue($sheet, 'V6', 'REMITENTE', '10312B');
-        $this->addStyleValue($sheet, 'W6', 'PUESTO REMITENTE', '10312B');
+        $this->addStyleValue($sheet, 'G6', 'FECHA CAPTURA', '10312B');
+        $this->addStyleValue($sheet, 'H6', 'FECHA INICIO', '10312B');
+        $this->addStyleValue($sheet, 'I6', 'FECHA FIN', '10312B');
+        $this->addStyleValue($sheet, 'J6', 'FECHA DOCUMENTO', '10312B');
+        $this->addStyleValue($sheet, 'K6', 'ASUNTO', '10312B');
+        $this->addStyleValue($sheet, 'L6', 'OBSERVACIONES', '10312B');
+        $this->addStyleValue($sheet, 'M6', 'ÁREA', '10312B');
+        $this->addStyleValue($sheet, 'N6', 'USUARIO TITULAR', '10312B');
+        $this->addStyleValue($sheet, 'O6', 'USUARIO ENLACE', '10312B');
+        $this->addStyleValue($sheet, 'P6', 'UNIDAD', '10312B');
+        $this->addStyleValue($sheet, 'Q6', 'COORDINACIÓN', '10312B');
+        $this->addStyleValue($sheet, 'R6', 'TRAMITE', '10312B');
+        $this->addStyleValue($sheet, 'S6', 'CLAVE', '10312B');
+        $this->addStyleValue($sheet, 'T6', 'HRS. RESPUESTA', '10312B');
+        $this->addStyleValue($sheet, 'U6', 'DOCUMENTO', '10312B');
+        $this->addStyleValue($sheet, 'V6', 'LUGAR', '10312B');
+        $this->addStyleValue($sheet, 'W6', 'REMITENTE', '10312B');
+        $this->addStyleValue($sheet, 'X6', 'PUESTO REMITENTE', '10312B');
 
 
         if ($request->inlcuir_usuario_capturo) {
-            $this->addStyleValue($sheet, 'X6', 'FECHA CAPTURA', '10312B');
-            $this->addStyleValue($sheet, 'Y6', 'HORA CAPTURA', '10312B');
-            $this->addStyleValue($sheet, 'Z6', 'USUARIO CAPTURA', '10312B');
+            $this->addStyleValue($sheet, 'Y6', 'FECHA CAPTURA', '10312B');
+            $this->addStyleValue($sheet, 'Z6', 'HORA CAPTURA', '10312B');
+            $this->addStyleValue($sheet, 'AA6', 'USUARIO CAPTURA', '10312B');
         }
 
 
@@ -110,28 +114,29 @@ class DashboardLetterC extends Controller
             $sheet->setCellValue('D' . $row, $data->num_turno_sistema);
             $sheet->setCellValue('E' . $row, $data->estatus);
             $sheet->setCellValue('F' . $row, $data->anio);
-            $sheet->setCellValue('G' . $row, $data->fecha_inicio);
-            $sheet->setCellValue('H' . $row, $data->fecha_fin);
-            $sheet->setCellValue('I' . $row, $data->fecha_documento);
-            $sheet->setCellValue('J' . $row, $data->asunto);
-            $sheet->setCellValue('K' . $row, $data->observaciones);
-            $sheet->setCellValue('L' . $row, $data->area);
-            $sheet->setCellValue('M' . $row, $data->titular);
-            $sheet->setCellValue('N' . $row, $data->enlace);
-            $sheet->setCellValue('O' . $row, $data->unidad);
-            $sheet->setCellValue('P' . $row, $data->coordinacion);
-            $sheet->setCellValue('Q' . $row, $data->tramite);
-            $sheet->setCellValue('R' . $row, $data->clave);
-            $sheet->setCellValue('S' . $row, $data->horas_respuesta);
-            $sheet->setCellValue('T' . $row, $data->tipo_documento);
-            $sheet->setCellValue('U' . $row, $data->entidad);
-            $sheet->setCellValue('V' . $row, $data->remitente);
-            $sheet->setCellValue('W' . $row, $data->puesto_remitente);
+            $sheet->setCellValue('G' . $row, $data->fecha_captura);
+            $sheet->setCellValue('H' . $row, $data->fecha_inicio);
+            $sheet->setCellValue('I' . $row, $data->fecha_fin);
+            $sheet->setCellValue('J' . $row, $data->fecha_documento);
+            $sheet->setCellValue('K' . $row, $data->asunto);
+            $sheet->setCellValue('L' . $row, $data->observaciones);
+            $sheet->setCellValue('M' . $row, $data->area);
+            $sheet->setCellValue('N' . $row, $data->titular);
+            $sheet->setCellValue('O' . $row, $data->enlace);
+            $sheet->setCellValue('P' . $row, $data->unidad);
+            $sheet->setCellValue('Q' . $row, $data->coordinacion);
+            $sheet->setCellValue('R' . $row, $data->tramite);
+            $sheet->setCellValue('S' . $row, $data->clave);
+            $sheet->setCellValue('T' . $row, $data->horas_respuesta);
+            $sheet->setCellValue('U' . $row, $data->tipo_documento);
+            $sheet->setCellValue('V' . $row, $data->entidad);
+            $sheet->setCellValue('W' . $row, $data->remitente);
+            $sheet->setCellValue('X' . $row, $data->puesto_remitente);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValue('X' . $row, $data->fecha_captura);
-                $sheet->setCellValue('Y' . $row, $data->hora_captura);
-                $sheet->setCellValue('Z' . $row, $data->usuario_add);
+                $sheet->setCellValue('Y' . $row, $data->fecha_captura);
+                $sheet->setCellValue('Z' . $row, $data->hora_captura);
+                $sheet->setCellValue('AA' . $row, $data->usuario_add);
             }
             $row++;
             $id++;

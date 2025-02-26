@@ -7,15 +7,16 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 $(document).ready(function () {
     // Refresh add solicitante
     $(window).click(function (event) {
-        if ($(event.target).is('#modalCopy')) {
-            $('#modalCopy').fadeOut(); // Ocultar la ventana modal
+        if ($(event.target).is('#modalReport')) {
+            $('#modalReport').fadeOut(); // Ocultar la ventana modal
         }
     });
 });
 
 
 function generateReport() {
-    $('#modalCopy').fadeOut(); // Ocultar la ventana modal
+
+    $('#modalReport').fadeOut(); // Ocultar la ventana modal
     showSpinner();// Inicio de spinner
     $.ajax({
         url: URL_DEFAULT.concat('/letter/dashboard/generate'),
@@ -25,9 +26,12 @@ function generateReport() {
             id_cat_status: $('#id_cat_status_informe').val(),
             inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
             fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
+            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
             fecha_inicio_informe: $('#fecha_inicio_informe').val(),
             fecha_fin_informe: $('#fecha_fin_informe').val(),
             id_cat_date_informe: $('#id_cat_date_informe').val(),
+            inicio: getFormattedHourValue('#inicio'),
+            fin: getFormattedHourValue('#fin'),
             _token: token
         },
         xhrFields: {
@@ -53,6 +57,10 @@ function generateReport() {
     });
 }
 
+function getFormattedHourValue(inputId) {
+    var value = $(inputId).val();  // Obtiene el valor del input range
+    return value == 24 ? value : parseInt(value); // Si es 24, lo muestra como 24, si no, solo el número entero
+}
 
 /*
 function generateReport() {
@@ -70,10 +78,10 @@ function generateReport() {
 // La función abre el modal de reporte
 function openModal() {
     initData(); // Inicio de variables y validaciones
-    $('#modalCopy').fadeIn();//Iniciar ventana modal
+    $('#modalReport').fadeIn();//Iniciar ventana modal
 }
 
 // Cerrar modal refresh no oficio
 $('#cancel_copy').click(function () { //Se pulsa el boton de cancelar
-    $('#modalCopy').fadeOut(); // Cerrar la ventana modal
+    $('#modalReport').fadeOut(); // Cerrar la ventana modal
 });

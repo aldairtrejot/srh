@@ -1,4 +1,4 @@
-<x-template-modal.modal-template tittle="Generar informe" idModal="modalCopy" idCancel="cancel_copy"
+<x-template-modal.modal-template tittle="Generar informe" idModal="modalReport" idCancel="cancel_copy"
     idConfirm="confir_copy" functionConfirm="validateDate();" width="1200px" height="700px">
 
     <div class="row">
