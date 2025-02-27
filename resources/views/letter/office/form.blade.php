@@ -50,13 +50,13 @@
 
                                 <!-- itme-->
                                 <x-template-form.template-form-input-hidden name="area_format"
-                                    value="{{ optional($other)->area ?? '' }}" />
+                                    value="{{ $area }}" />
 
                                 <x-template-form.template-form-input-hidden name="user_name"
-                                    value="{{ optional($other)->user_name ?? '' }}" />
+                                    value="{{ $user_name }}" />
 
                                 <x-template-form.template-form-input-hidden name="user_enlace"
-                                    value="{{ optional($other)->user_enlace ?? '' }}" />
+                                    value="{{ $user_enlace }}" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
@@ -79,11 +79,11 @@
                                         <label id="_labArea" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">Usuario:</label>
+                                        <label class="etiqueta">No. Oficio:</label>
                                         <label id="_labUsuario" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">Enlace:</label>
+                                        <label class="etiqueta">Estatus:</label>
                                         <label id="_labEnlace" class="valor"></label>
                                     </div>
 

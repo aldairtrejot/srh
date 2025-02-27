@@ -94,11 +94,9 @@ class OfficeC extends Controller
 
         $noLetter = "";//No de oficio se inicializa en vacio
 
-        $other = [
-            'area' => ' _',
-            'user_name' => ' _',
-            'user_enlace' => ' _',
-        ];
+        $area = ' _';
+        $user_name = ' _';
+        $user_enlace = ' _';
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
@@ -109,7 +107,7 @@ class OfficeC extends Controller
         $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('user_enlace', 'user_name', 'area', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
