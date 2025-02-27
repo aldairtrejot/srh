@@ -31,7 +31,8 @@ function refreshOficio(id_tbl_cursos) {
 
 // Función para abrir el modal del Solicitante
 function addSolicitante() {
-    $('#modalSolicitante').fadeIn(); // Iniciar ventana modal
+    $('#modalSolicitante').fadeIn();
+     // Iniciar ventana modal
 }
 
 // Función para confirmar la auditoría dentro del modal
@@ -81,8 +82,26 @@ function searchInitaudit() {
                 $('#template-tableaudit tbody').append(
                     '<tr>' +
                     '<td>' + item.descripcion + '</td>' +
-                    '<td>' + (item.aplica ? 'Sí' : 'No') + '</td>' +
-                    '<td><input type="file" name="constancia_' + item.id + '"></td>' +
+                    '<td><input type="checkbox" ' + (item.aplica ? 'checked' : '') + ' class="toggle-switch"></td>' +
+                    '<td class="button-column">' +
+                        (item.uuid == null ? `
+                            <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                            </button>
+                        ` : `
+                            <div class="button-container">
+                                <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
+                                    <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                                </button>
+                                <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
+                                    <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                                </button>
+                                <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                                    <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        `) +
+                    '</td>' +
                     '</tr>'
                 );
             });

@@ -13,7 +13,7 @@ class TblAuditC extends Controller
     public function storeAudit(Request $request)
     {
         $tableauditm = new TableauditM();
-       $result = $tableauditm->list($request->id_courses);
+       $result = $tableauditm->auditlist($request->id_courses);
 
         return response()->json([
             'value' => $request->id_courses,
