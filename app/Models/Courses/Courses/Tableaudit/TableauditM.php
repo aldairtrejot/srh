@@ -29,7 +29,7 @@ class TableauditM extends Model
 
     }
     
-    public function auditlist($id_curso)
+    public function auditlist($id_curso,$iterator,$searchValue)
     {
         $result = DB::table('capacitacion.cat_auditoria')
         ->select('capacitacion.cat_auditoria.descripcion')

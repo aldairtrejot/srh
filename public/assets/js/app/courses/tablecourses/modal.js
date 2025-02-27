@@ -1,6 +1,9 @@
 var token = $('meta[name="csrf-token"]').attr('content'); // Token para las solicitudes
 
 $(document).ready(function () {
+    searchInit(); // Carga inicial de la tabla
+    setValue();   // Configura la paginación
+
     // Cerrar modales al hacer clic fuera de ellos
     $(window).click(function (event) {
         if ($(event.target).is('#modalBackdrop')) {
@@ -22,7 +25,7 @@ $(document).ready(function () {
 });
 
 // Función para abrir el modal de Auditoría
-function re(id_tbl_cursos) {
+function refreshOficio(id_tbl_cursos) {
     console.log(id_tbl_cursos);
     $('#modalBackdrop').fadeIn();
     $('#idtbl_cursos_audit').val(id_tbl_cursos); // Mostrar la ventana modal con el ID
@@ -79,6 +82,21 @@ function getAuditList(id_curso) {
         },
         error: function(xhr, status, error) {
             console.error('Error al obtener la lista de auditorías: ', error);
+        }
+    });
+}
+
+function searchInit() {
+    const searchValueaudit = $('#searchValueaudit').val(); // Usar jQuery para obtener el valor
+    const iteradorAuxaudit = (iterator - 1) * 5; // Se puede simplificar
+
+    $.ajax({
+            url: URL_DEFAULT.concat('/auditoria/list/courses'),
+        type: 'POST',
+        data: {
+            iterator: iterator,
+            searchValueaudit: searchValueaudit,
+            _token: token,
         }
     });
 }
