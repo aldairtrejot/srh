@@ -57,6 +57,7 @@ function searchInit() {
                                             </span>
                                             Cloud
                                         </a>
+                                    <!--
                                          <a class="dropdown-item" href="${urlReport}">
                                             <span style="background:#707070" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -65,7 +66,6 @@ function searchInit() {
                                             </span>
                                             Reporte
                                         </a>
-                                        <!--
                                         <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
                                             <span style="background:#003366" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -86,7 +86,6 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.num_turno_sistema}</td>
                             <td>${object.num_documento}</td>
                             <td>${object.anio}</td>
                             <td>${object.asunto}</td>

@@ -49,10 +49,7 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
-                                    </th>
-                                    <th>
-                                        No. Turno Asoc. / Fol. Gestión
+                                        No. Turno Asoc. / Fol. Gestión Asoc.
                                     </th>
                                     <th>
                                         Año
