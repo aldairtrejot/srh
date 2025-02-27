@@ -2,20 +2,19 @@ var token = $('meta[name="csrf-token"]').attr('content'); // Token CSRF
 var id_tbl_cv = $('#id_tbl_cv').val(); // ID del instructor
 
 $(document).ready(function () {
+    if (!id_tbl_cv || isNaN(id_tbl_cv)) {
+        console.error("❌ Error: ID de instructor inválido.");
+        return;
+    }
     getDataDocument();
 });
 
 // 📌 Obtener lista de documentos
 function getDataDocument() {
-    if (!id_tbl_cv || isNaN(id_tbl_cv)) {
-        console.error("❌ Error: ID de instructor inválido.");
-        return;
-    }
-
-    let container_cv_vacio = $('#container_cv_entrada_vacio');
     let container_cv = $('#container_cv_entrada');
-    let container_constancia_vacio = $('#container_constancia_entrada_vacio');
+    let container_cv_vacio = $('#container_cv_entrada_vacio');
     let container_constancia = $('#container_constancia_entrada');
+    let container_constancia_vacio = $('#container_constancia_entrada_vacio');
 
     $.ajax({
         url: $('meta[name="route-cloud-data"]').attr('content'),
@@ -32,40 +31,55 @@ function getDataDocument() {
             let constancias = response.constancias || [];
             let cvs = response.cvs || [];
 
-            templateCloud(container_cv, container_cv_vacio, cvs);
-            templateCloud(container_constancia, container_constancia_vacio, constancias);
+            templateCloud(true, container_cv, container_cv_vacio, cvs);
+            templateCloud(true, container_constancia, container_constancia_vacio, constancias);
         },
-        error: function () {
-            console.error("❌ Error en la consulta de documentos.");
+        error: function (xhr, status, error) {
+            console.error("❌ Error en la consulta de documentos:", xhr.responseText);
         }
     });
 }
 
 // 📌 Mostrar documentos con botones de acción
-function templateCloud(container, emptyContainer, data) {
-    container.empty();
+function templateCloud(bool, templateData, templateDataNull, data) {
+    templateData.empty();
 
-    if (data && data.length > 0) {
-        emptyContainer.hide();
+    if (data.length !== 0) {
+        templateDataNull.hide();
         data.forEach(function (file) {
-            container.append(`
-                <div class="file-item">
-                    <span>${file.nombre}</span>
-                    <div class="file-actions">
-                        <button onclick="seeDocument('${file.uid}')" class="btn-view">👁 Ver</button>
-                        <button onclick="downloadDocument('${file.uid}')" class="btn-download">⬇ Descargar</button>
-                        <button onclick="deleteDocument('${file.uid}')" class="btn-delete">🗑 Eliminar</button>
-                    </div>
-                </div>
-            `);
+            let fileHTML = generateFileHTML(bool, file);
+            templateData.append(fileHTML);
         });
     } else {
-        emptyContainer.html(`
-            <div class="file-empty">
-                <span style="font-size: 20px; color: #aaa;">📁 Sin contenido</span>
-            </div>
-        `).show();
+        templateDataNull.show();
     }
+}
+
+// 📌 Generar HTML para cada documento
+function generateFileHTML(boolx, template) {
+    return `
+        <div class="custom-file-container">
+            <div class="custom-file-icon-container">
+                <i style="color:#777777" class="fa fa-file" aria-hidden="true"></i>
+                <div class="custom-button-container">
+                    <button onclick="seeDocumentUid('${template.uid}')" style="background: #10312b" class="custom-button" title="Ver">
+                        <i style="color: white" class="fa fa-eye"></i>
+                    </button> 
+                    ${boolx ? `
+                        <button onclick="download('${template.uid}')" style="background: #707070" class="custom-button" title="Descargar">
+                            <i style="color: white" class="fa fa-download"></i>
+                        </button>
+                        <button onclick="deleteDocument('${template.uid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                            <i style="color: white" class="fa fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="custom-file-name">
+                <p>${template.nombre}</p>
+            </div>
+        </div>
+    `;
 }
 
 // 📌 Subir archivo
@@ -86,19 +100,21 @@ function sendFile(file, esCv) {
         headers: { 'X-CSRF-TOKEN': token },
         success: function () {
             console.log("✅ Archivo subido correctamente.");
-            setTimeout(getDataDocument, 1000); // Esperar 1 segundo antes de actualizar
+            setTimeout(getDataDocument, 1000);
         },
-        error: function () {
-            console.error("❌ Error al subir archivo.");
+        error: function (xhr, status, error) {
+            console.error("❌ Error al subir archivo:", xhr.responseText);
         }
     });
 }
 
 // 📌 Ver documento en nueva ventana
-function seeDocument(uid) {
+function seeDocumentUid(uid) {
+    let url = $('meta[name="route-cloud-see"]').attr('content');
+    
     let form = document.createElement("form");
     form.method = "POST";
-    form.action = $('meta[name="route-cloud-see"]').attr('content');
+    form.action = url;
     form.target = "_blank";
 
     let inputUid = document.createElement("input");
@@ -119,10 +135,10 @@ function seeDocument(uid) {
 }
 
 // 📌 Descargar documento
-function downloadDocument(uid) {
+function download(uid) {
     let urlBase = $('meta[name="route-cloud-download"]').attr('content');
-    if (!urlBase.includes("{uuid}")) {
-        console.error("❌ Error: Ruta de descarga incorrecta.");
+    if (!urlBase || !urlBase.includes("{uuid}")) {
+        console.error("❌ Error: Ruta de descarga incorrecta.", urlBase);
         return;
     }
     let url = urlBase.replace("{uuid}", uid);
@@ -140,22 +156,22 @@ function deleteDocument(uid) {
         success: function (response) {
             if (response.status) {
                 console.log("✅ Documento eliminado correctamente.");
-                setTimeout(getDataDocument, 1000); // Esperar 1 segundo antes de actualizar
+                setTimeout(getDataDocument, 1000);
             } else {
-                console.error("❌ Error al eliminar documento.");
+                console.error("❌ Error al eliminar documento:", response);
             }
         },
-        error: function () {
-            console.error("❌ Error en la solicitud de eliminación.");
+        error: function (xhr, status, error) {
+            console.error("❌ Error en la solicitud de eliminación:", xhr.responseText);
         }
     });
 }
 
 // 📌 Eventos de carga de archivos
-document.getElementById('file_cv_entrada').addEventListener('change', function (event) {
+$('#file_cv_entrada').on('change', function (event) {
     sendFile(event.target.files[0], true);
 });
 
-document.getElementById('file_constancia_entrada').addEventListener('change', function (event) {
+$('#file_constancia_entrada').on('change', function (event) {
     sendFile(event.target.files[0], false);
 });
