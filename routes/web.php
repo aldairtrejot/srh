@@ -318,6 +318,7 @@ Route::post('/tableinstructor/cloud/cons', [CloudTableC::class, 'cloudCons'])->n
 Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
 Route::post('/tableinstructor/cloud/constancias', [CloudTableC::class, 'cloudConstancias'])->name('tableinstructor.cloud.constancias')->middleware('auth'); // Ruta agregada para constancias
 
+
 //ROUTE OFICIOS
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
 Route::post('/office/table', [OfficeC::class, 'table'])->name('office.table')->middleware('auth');

@@ -135,19 +135,27 @@ function seeDocumentUid(uid) {
 }
 
 // 📌 Descargar documento
-function download(uid) {
+// 📌 Descargar documento
+function downloadDocument(uid) {
     let urlBase = $('meta[name="route-cloud-download"]').attr('content');
-    if (!urlBase || !urlBase.includes("{uuid}")) {
-        console.error("❌ Error: Ruta de descarga incorrecta.", urlBase);
+    
+    if (!urlBase.includes("__UUID__")) {
+        console.error("❌ Error: La ruta de descarga no contiene el placeholder '__UUID__'.");
         return;
     }
-    let url = urlBase.replace("{uuid}", uid);
+
+    // Reemplazar el placeholder con el UID real del documento
+    let url = urlBase.replace("__UUID__", uid);
+    
+    // Forzar la descarga en el navegador
     window.location.href = url;
 }
 
+
+// 📌 Eliminar documento
 // 📌 Eliminar documento
 function deleteDocument(uid) {
-    if (!confirm("¿Estás seguro de eliminar este documento?")) return;
+    if (!confirm("⚠️ ¿Estás seguro de eliminar este documento? Esta acción no se puede deshacer.")) return;
 
     $.ajax({
         url: $('meta[name="route-cloud-delete"]').attr('content'),
@@ -156,16 +164,40 @@ function deleteDocument(uid) {
         success: function (response) {
             if (response.status) {
                 console.log("✅ Documento eliminado correctamente.");
-                setTimeout(getDataDocument, 1000);
+                setTimeout(getDataDocument, 1000); // Refrescar lista después de eliminar
             } else {
-                console.error("❌ Error al eliminar documento:", response);
+                console.error("❌ Error al eliminar el documento.");
+                alert("❌ No se pudo eliminar el documento.");
             }
         },
-        error: function (xhr, status, error) {
-            console.error("❌ Error en la solicitud de eliminación:", xhr.responseText);
+        error: function () {
+            console.error("❌ Error en la solicitud de eliminación.");
+            alert("❌ No se pudo conectar con el servidor.");
         }
     });
 }
+
+function download(uid) {
+    console.log("⬇ Intentando descargar el documento con UID:", uid);
+
+    let url = $('meta[name="route-cloud-download"]').attr('content');
+
+    if (!url.includes("__UUID__")) {
+        console.error("❌ Error: Ruta de descarga incorrecta.");
+        return;
+    }
+    
+    url = url.replace("__UUID__", uid);
+    console.log("📥 URL de descarga generada:", url);
+
+    setTimeout(() => {
+        window.location.href = url;
+    }, 3000); // Espera 3 segundos antes de redirigir
+}
+
+
+
+
 
 // 📌 Eventos de carga de archivos
 $('#file_cv_entrada').on('change', function (event) {

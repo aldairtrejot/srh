@@ -59,7 +59,7 @@ class CloudTableC extends Controller
         // Guardar en la base de datos
         $data = [
             'fecha_usuario' => Carbon::now(),
-            'id_usuario_sistema' => Auth::user()->id,
+            'id_usuario_sistema' => Auth::id(),
             ($esCv ? 'uid_cv' : 'uid_constancias') => $uid,
             ($esCv ? 'nombre_cv' : 'nombre_constancia') => $file->getClientOriginalName(),
         ];
@@ -74,6 +74,8 @@ class CloudTableC extends Controller
      */
     public function cloudData(Request $request)
     {
+        Log::info("📡 Obteniendo datos de Cloud para instructor ID: " . $request->id_tbl_cv);
+
         $cloudData = CloudM::where('id_tbl_instructores', $request->id_tbl_cv)->first();
 
         if (!$cloudData) {
@@ -92,18 +94,33 @@ class CloudTableC extends Controller
      */
     public function download($uuid)
 {
-    Log::info("📥 Descargando documento con UUID: " . $uuid);
+    Log::info("📥 Intentando descargar documento con UUID: " . $uuid);
 
     $alfresco = new AlfrescoC();
-    return $alfresco->download(new Request(['uid' => $uuid]));
-}
+    $response = $alfresco->download(new Request(['uid' => $uuid]));
 
+    if (!$response) {
+        Log::error("❌ Error: No se pudo obtener el archivo desde Alfresco.");
+        return response()->json([
+            'status' => false,
+            'message' => 'No se pudo descargar el archivo desde Alfresco.'
+        ]);
+    }
+
+    Log::info("✅ Descarga exitosa desde Alfresco para UUID: " . $uuid);
+    return $response;
+}
 
     /**
      * 🔍 Ver archivo desde Alfresco
      */
     public function see(Request $request)
     {
+        if (!$request->has('uid')) {
+            Log::error("❌ Error: No se recibió un UID válido para visualizar.");
+            return response()->json(['status' => false, 'message' => 'UID inválido.']);
+        }
+
         return $this->alfresco->see($request);
     }
 
@@ -111,16 +128,59 @@ class CloudTableC extends Controller
      * 🗑️ Eliminar archivo de Alfresco
      */
     public function delete(Request $request)
-    {
-        return response()->json(['status' => $this->alfresco->delete($request->uid)]);
+{
+    $uid = $request->uid;
+
+    Log::info("🗑️ Intentando eliminar el documento con UID: " . $uid);
+
+    // Verificar que el UID es válido
+    if (!$uid) {
+        Log::error("❌ Error: No se recibió un UID válido para eliminar.");
+        return response()->json(['status' => false, 'message' => 'UID inválido.']);
     }
 
-    public function cloud($id)
-{
-    Log::info("📌 Accediendo a Cloud para el instructor ID: " . $id);
+    // Llamar a la función de eliminación en Alfresco
+    $eliminado = $this->alfresco->delete($uid);
 
-    return view('courses.tableinstructor.cloud', [
-        'idInstructor' => $id
-    ]);
+    if ($eliminado) {
+        Log::info("✅ Documento eliminado en Alfresco. Procediendo a eliminar en la base de datos.");
+
+        // Buscar y actualizar la base de datos para eliminar la referencia
+        $documento = CloudM::where('uid_cv', $uid)->orWhere('uid_constancias', $uid)->first();
+
+        if ($documento) {
+            if ($documento->uid_cv == $uid) {
+                $documento->uid_cv = null;
+                $documento->nombre_cv = null;
+            } elseif ($documento->uid_constancias == $uid) {
+                $documento->uid_constancias = null;
+                $documento->nombre_constancia = null;
+            }
+
+            $documento->save();
+            Log::info("✅ Documento eliminado de la base de datos.");
+
+            return response()->json(['status' => true, 'message' => 'Documento eliminado.']);
+        } else {
+            Log::warning("⚠️ No se encontró el documento en la base de datos.");
+            return response()->json(['status' => true, 'message' => 'Documento eliminado de Alfresco, pero no encontrado en la base de datos.']);
+        }
+    } else {
+        Log::error("❌ Error: No se pudo eliminar el documento en Alfresco.");
+        return response()->json(['status' => false, 'message' => 'No se pudo eliminar el documento.']);
+    }
 }
+
+
+    /**
+     * 📌 Vista de Cloud para el instructor
+     */
+    public function cloud($id)
+    {
+        Log::info("📌 Accediendo a Cloud para el instructor ID: " . $id);
+
+        return view('courses.tableinstructor.cloud', [
+            'idInstructor' => $id
+        ]);
+    }
 }
