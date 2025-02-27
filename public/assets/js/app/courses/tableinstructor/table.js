@@ -131,15 +131,23 @@ function confirmDelete(id) {
 // **🔹 Elimina un curso**
 function deleteCourse(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/coursesauditoria/delete/${id}`,
-        type: 'DELETE',
-        data: { _token: token },
-        success: function() {
-            alert('Auditoría eliminada exitosamente.');
-            window.location.href = `${URL_DEFAULT}/courses/list`;
+        url: `${URL_DEFAULT}/tableinstructor/delete/`, // Usar la URL correcta sin {id}
+        type: 'POST', // Método POST según la ruta que proporcionaste
+        data: { 
+            id: id, // Enviar el ID del curso en el cuerpo de la solicitud
+            _token: token // Token CSRF para validación en Laravel
+        },
+        success: function(response) {
+            if (response.status) {
+                alert('✅ Instructor eliminado correctamente.');
+                searchInit(); // Recargar la tabla sin necesidad de recargar la página
+            } else {
+                alert('❌ No se pudo eliminar el instructor.');
+            }
         },
         error: function(xhr) {
-            console.error("Error al eliminar:", xhr);
+            console.error("❌ Error al eliminar el instructor:", xhr);
+            alert("❌ Ocurrió un error al intentar eliminar. Revisa la consola y los logs.");
         }
     });
 }

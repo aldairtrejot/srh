@@ -194,17 +194,27 @@ public function edit($id)
         }
     }
 
-    public function destroy($id)
-    {
-        try {
-            $instructor = InstructorM::findOrFail($id);
-            $instructor->delete();
+    public function delete(Request $request)
+{
+    Log::info("🗑️ Intentando eliminar instructor con ID: " . $request->id);
 
-            return response()->json(['success' => true, 'message' => 'Instructor eliminado exitosamente.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al eliminar el instructor.'], 500);
-        }
+    $instructor = InstructorM::find($request->id);
+
+    if (!$instructor) {
+        Log::error("❌ Error: No se encontró el instructor con ID: " . $request->id);
+        return response()->json(['status' => false, 'message' => 'Instructor no encontrado.']);
     }
+
+    try {
+        $instructor->delete();
+        Log::info("✅ Instructor eliminado correctamente con ID: " . $request->id);
+        return response()->json(['status' => true, 'message' => 'Instructor eliminado correctamente.']);
+    } catch (\Exception $e) {
+        Log::error("❌ Error al eliminar instructor: " . $e->getMessage());
+        return response()->json(['status' => false, 'message' => 'No se pudo eliminar el instructor.']);
+    }
+}
+
 
     public function cloud($id)
 {

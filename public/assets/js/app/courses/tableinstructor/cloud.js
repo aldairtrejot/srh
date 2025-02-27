@@ -134,25 +134,8 @@ function seeDocumentUid(uid) {
     document.body.removeChild(form);
 }
 
-// 📌 Descargar documento
-// 📌 Descargar documento
-function downloadDocument(uid) {
-    let urlBase = $('meta[name="route-cloud-download"]').attr('content');
-    
-    if (!urlBase.includes("__UUID__")) {
-        console.error("❌ Error: La ruta de descarga no contiene el placeholder '__UUID__'.");
-        return;
-    }
-
-    // Reemplazar el placeholder con el UID real del documento
-    let url = urlBase.replace("__UUID__", uid);
-    
-    // Forzar la descarga en el navegador
-    window.location.href = url;
-}
 
 
-// 📌 Eliminar documento
 // 📌 Eliminar documento
 function deleteDocument(uid) {
     if (!confirm("⚠️ ¿Estás seguro de eliminar este documento? Esta acción no se puede deshacer.")) return;
@@ -177,25 +160,23 @@ function deleteDocument(uid) {
     });
 }
 
+
+// 📌 Descargar documento
 function download(uid) {
-    console.log("⬇ Intentando descargar el documento con UID:", uid);
+    let urlBase = $('meta[name="route-cloud-download"]').attr('content');
 
-    let url = $('meta[name="route-cloud-download"]').attr('content');
-
-    if (!url.includes("__UUID__")) {
-        console.error("❌ Error: Ruta de descarga incorrecta.");
+    if (!urlBase.includes("__UUID__")) {
+        console.error("❌ Error: La ruta de descarga no contiene el placeholder '__UUID__'.");
         return;
     }
-    
-    url = url.replace("__UUID__", uid);
+
+    let url = urlBase.replace("__UUID__", uid);
+
     console.log("📥 URL de descarga generada:", url);
 
-    setTimeout(() => {
-        window.location.href = url;
-    }, 3000); // Espera 3 segundos antes de redirigir
+    // Forzar la descarga en el navegador
+    window.location.href = url;
 }
-
-
 
 
 

@@ -93,24 +93,13 @@ class CloudTableC extends Controller
      * 📥 Descargar archivo desde Alfresco
      */
     public function download($uuid)
-{
-    Log::info("📥 Intentando descargar documento con UUID: " . $uuid);
-
-    $alfresco = new AlfrescoC();
-    $response = $alfresco->download(new Request(['uid' => $uuid]));
-
-    if (!$response) {
-        Log::error("❌ Error: No se pudo obtener el archivo desde Alfresco.");
-        return response()->json([
-            'status' => false,
-            'message' => 'No se pudo descargar el archivo desde Alfresco.'
-        ]);
+    {
+        Log::info("📥 Intentando descargar documento con UUID: " . $uuid);
+    
+        $request = new Request(['uid' => $uuid]);
+        return $this->alfresco->download($request);
     }
-
-    Log::info("✅ Descarga exitosa desde Alfresco para UUID: " . $uuid);
-    return $response;
-}
-
+    
     /**
      * 🔍 Ver archivo desde Alfresco
      */

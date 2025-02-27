@@ -300,7 +300,7 @@ Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.
 Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
 Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
-Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
+Route::post('/tableinstructor/delete/', [InstructorsC::class, 'delete'])->name('tableinstructor.delete')->middleware('auth');
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
 Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
