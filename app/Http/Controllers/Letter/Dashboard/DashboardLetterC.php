@@ -73,21 +73,22 @@ class DashboardLetterC extends Controller
         //$this->addStyleTittle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
 
         // Valor de encabezados
-        $this->addStyleValue($sheet, 'A1', 'Folio de Gestión', '10312B');
-        $this->addStyleValue($sheet, 'B1', 'Oficio Recibido', '10312B');
-        $this->addStyleValue($sheet, 'C1', 'Fecha de Alta', '10312B');
-        $this->addStyleValue($sheet, 'D1', 'Fecha Vencimiento', '10312B');
-        $this->addStyleValue($sheet, 'E1', 'Puesto del Remitente', '10312B');
-        $this->addStyleValue($sheet, 'F1', 'Asunto', '10312B');
-        $this->addStyleValue($sheet, 'G1', 'Trámite', '10312B');
-        $this->addStyleValue($sheet, 'H1', 'Unidad', '10312B');
-        $this->addStyleValue($sheet, 'I1', 'Coordinación', '10312B');
+        $this->addStyleValue($sheet, 'A1', 'No.', '10312B');
+        $this->addStyleValue($sheet, 'B1', 'Folio de Gestión', '10312B');
+        $this->addStyleValue($sheet, 'C1', 'Oficio Recibido', '10312B');
+        $this->addStyleValue($sheet, 'D1', 'Fecha de Alta', '10312B');
+        $this->addStyleValue($sheet, 'E1', 'Fecha de Vencimiento', '10312B');
+        $this->addStyleValue($sheet, 'F1', 'Puesto del Remitente', '10312B');
+        $this->addStyleValue($sheet, 'G1', 'Asunto', '10312B');
+        $this->addStyleValue($sheet, 'H1', 'Clave', '10312B');
+        $this->addStyleValue($sheet, 'I1', 'Área', '10312B');
+        $this->addStyleValue($sheet, 'J1', 'Tipo de Documento', '10312B');
 
 
         if ($request->inlcuir_usuario_capturo) { //  validacion para incluir datos de captura
-            $this->addStyleValue($sheet, 'J1', 'Fecha de Captura', '10312B');
-            $this->addStyleValue($sheet, 'K1', 'Hora de Captura', '10312B');
-            $this->addStyleValue($sheet, 'L1', 'Usuario que Captura', '10312B');
+            $this->addStyleValue($sheet, 'K1', 'Fecha de Captura', '10312B');
+            $this->addStyleValue($sheet, 'L1', 'Hora de Captura', '10312B');
+            $this->addStyleValue($sheet, 'M1', 'Usuario que Captura', '10312B');
         }
 
 
@@ -96,20 +97,21 @@ class DashboardLetterC extends Controller
         $id = 1; // id que incrementa
         foreach ($query as $data) { // insert de datos
             // Cambia las líneas en las que estás estableciendo los valores de las celdas como texto:
-            $sheet->setCellValueExplicit('A' . $row, $data->folio_gestion, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('B' . $row, $data->num_documento, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('C' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('D' . $row, $data->fecha_fin, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('E' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('F' . $row, $data->asunto, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('G' . $row, $data->tramite, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('H' . $row, $data->unidad, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('I' . $row, $data->coordinacion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E' . $row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->tipo_documento, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValueExplicit('J' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('K' . $row, $data->hora_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('L' . $row, $data->usuario_add, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('K' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('L' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('M' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
 
 
@@ -122,9 +124,9 @@ class DashboardLetterC extends Controller
 
         // Se incluyen filtros en encabezados
         if ($request->inlcuir_usuario_capturo) {
-            $sheet->setAutoFilter('A1:L1');
+            $sheet->setAutoFilter('A1:M1');
         } else {
-            $sheet->setAutoFilter('A1:I1');
+            $sheet->setAutoFilter('A1:J1');
         }
 
 
