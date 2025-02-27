@@ -6,14 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use App\Models\Courses\Courses\Instructores\Instructores\UpdateInstructorM;
 use Illuminate\Http\Request;
-use App\Models\Letter\Collection\CollectionReportM;
 use Carbon\Carbon;
-use App\Models\Letter\Office\OfficeM;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Admin\MessagesC;
-use App\Models\Courses\Tableinstructor\CollectionStatusM;
 
 
 class InstructorsC extends Controller
@@ -209,11 +206,14 @@ public function edit($id)
         }
     }
 
-    public function cloud($id_tbl_oficio)
-    {
-       
-        return view('courses/tableinstructor/cloud');
-        
-    }
+    public function cloud($id)
+{
+    Log::info("📌 ID recibido en InstructorsC@cloud():", ['id' => $id]);
+
+    return view('courses.tableinstructor.cloud', [
+        'idInstructor' => $id
+    ]);
+}
 
 }
+

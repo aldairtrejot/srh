@@ -46,6 +46,7 @@ use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Courses\Tableinstructor\CloudtableinsC;
+use App\Http\Controllers\Courses\Tableinstructor\CloudTableC;
 use Illuminate\Support\Facades\Route;
 
 
@@ -302,18 +303,20 @@ Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
 Route::delete('/tableinstructor/delete/{id}', [InstructorsC::class, 'destroy']);
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
-Route::get('/tableinstructor/cloud/{id}', [InstructorsC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
+Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
+Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see');
+Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download');
+Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete');
 
 // 📌 Rutas de Cloud (Carga de documentos)
-Route::post('/tableinstructor/cloud/upload', [CloudC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
-Route::post('/tableinstructor/cloud/data', [CloudC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
-Route::post('/tableinstructor/cloud/cv', [CloudC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
-Route::post('/tableinstructor/cloud/cons', [CloudC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
-Route::post('/tableinstructor/cloud/delete', [CloudC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
-Route::post('/tableinstructor/cloud/constancias', [CloudC::class, 'cloudConstancias'])->name('tableinstructor.cloud.constancias')->middleware('auth'); // Ruta agregada para constancias
-
-
+Route::get('/tableinstructor/cloud/download/{uuid}', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
+Route::post('/tableinstructor/cloud/upload', [CloudTableC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
+Route::post('/tableinstructor/cloud/data', [CloudTableC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
+Route::post('/tableinstructor/cloud/cv', [CloudTableC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
+Route::post('/tableinstructor/cloud/cons', [CloudTableC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
+Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
+Route::post('/tableinstructor/cloud/constancias', [CloudTableC::class, 'cloudConstancias'])->name('tableinstructor.cloud.constancias')->middleware('auth'); // Ruta agregada para constancias
 
 //ROUTE OFICIOS
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
@@ -331,13 +334,11 @@ Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->mi
 
 
 //ROUTE_COUSER ---- >Alfresco
-
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form'); // Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file'); // Ruta para manejar la carga de archivo
 
 
 //ROUTE_COUSER ---- >Tabla Cursos
-
 Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')->middleware('auth');
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');

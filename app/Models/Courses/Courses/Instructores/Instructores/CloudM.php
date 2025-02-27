@@ -4,41 +4,92 @@ namespace App\Models\Courses\Courses\Instructores\Instructores;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CloudM extends Model
 {
     use HasFactory;
 
-    protected $table = 'capacitacion.tbl_instructores'; // Nombre exacto de la tabla
-    protected $primaryKey = 'id_tbl_instructores'; // Clave primaria
-
-    public $timestamps = false; // Evita timestamps automáticos
+    protected $table = 'capacitacion.tbl_instructores';
+    protected $primaryKey = 'id_tbl_instructores';
+    public $timestamps = false;
 
     protected $fillable = [
-        'estatus',
-        'id_usuario_sistema',
-        'fecha_usuario',
-        'id_usuario_empleado',
-        'uid_constancias',
-        'uid_cv',
-        'nombre_cv',
-        'nombre_constancia',
+        'estatus', 'id_usuario_sistema', 'fecha_usuario',
+        'id_usuario_empleado', 'uid_constancias', 'uid_cv',
+        'nombre_cv', 'nombre_constancia',
     ];
 
-    // Obtener información por ID
-    public static function getCloudData($id)
+    /**
+     * 📌 Obtiene el UID de la carpeta donde se subirá el CV.
+     */
+    public static function getCvUuid()
     {
-        return self::where('id_tbl_instructores', $id)->first();
+        try {
+            $uuid = DB::table('capacitacion.cat_tipo_uid_cloud AS uid')
+                ->join('capacitacion.cat_tipo_doc_cloud AS doc', 'uid.id_cat_tipo_doc_cloud', '=', 'doc.id_cat_tipo_doc_cloud')
+                ->where('doc.id_cat_tipo_doc_cloud', 5) // 5 es el ID para CVs
+                ->value('uid.uuid');
+
+            if (!$uuid) {
+                Log::warning("⚠️ No se encontró el UID de la carpeta para CVs (ID: 5)");
+                return null;
+            }
+
+            Log::info("✅ UID de carpeta para CVs obtenido: {$uuid}");
+            return $uuid;
+        } catch (\Exception $e) {
+            Log::error("❌ Error en getCvUuid(): " . $e->getMessage());
+            return null;
+        }
     }
 
-    // Actualizar documentos
-    public static function updateDocument($id, $data)
+    /**
+     * 📌 Obtiene el UID de la carpeta donde se subirá la Constancia.
+     */
+    public static function getConstanciaUuid()
     {
-        if (!$id || !is_numeric($id)) {
-            \Log::error("Error en updateDocument(): id_tbl_cv es inválido", ['id' => $id]);
+        try {
+            $uuid = DB::table('capacitacion.cat_tipo_uid_cloud AS uid')
+                ->join('capacitacion.cat_tipo_doc_cloud AS doc', 'uid.id_cat_tipo_doc_cloud', '=', 'doc.id_cat_tipo_doc_cloud')
+                ->where('doc.id_cat_tipo_doc_cloud', 6) // 6 es el ID para Constancias
+                ->value('uid.uuid');
+
+            if (!$uuid) {
+                Log::warning("⚠️ No se encontró el UID de la carpeta para Constancias (ID: 6)");
+                return null;
+            }
+
+            Log::info("✅ UID de carpeta para Constancias obtenido: {$uuid}");
+            return $uuid;
+        } catch (\Exception $e) {
+            Log::error("❌ Error en getConstanciaUuid(): " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public static function updateDocument($id, $data)
+{
+    try {
+        if (!is_numeric($id)) {
+            Log::error("❌ ID inválido en updateDocument()", ['id' => $id]);
             return false;
         }
 
-        return self::where('id_tbl_instructores', $id)->update($data);
+        $updated = self::where('id_tbl_instructores', $id)->update($data);
+
+        if ($updated) {
+            Log::info("✅ Documento actualizado correctamente en tbl_instructores", ['id' => $id, 'data' => $data]);
+        } else {
+            Log::warning("⚠️ No se encontró ningún registro para actualizar con ID: $id");
+        }
+
+        return $updated;
+    } catch (\Exception $e) {
+        Log::error("❌ Error en updateDocument(): " . $e->getMessage());
+        return false;
     }
+}
+
 }
