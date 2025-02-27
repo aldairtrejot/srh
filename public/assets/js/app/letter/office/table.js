@@ -88,7 +88,8 @@ function searchInit() {
                             </td>
                             <td>${object.num_documento}</td>
                             <td>${object.anio}</td>
-                            <td>${object.asunto}</td>
+                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
+                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.observaciones}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);

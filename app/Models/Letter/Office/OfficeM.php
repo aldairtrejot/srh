@@ -58,6 +58,7 @@ class OfficeM extends Model
                 END AS num_documento
             '),
                 DB::raw("UPPER(correspondencia.tbl_oficio.asunto) AS asunto"),
+                DB::raw("UPPER(correspondencia.tbl_oficio.observaciones) AS observaciones"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 DB::raw('correspondencia.cat_anio.descripcion AS anio'),
@@ -96,6 +97,7 @@ class OfficeM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.observaciones)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.asunto)) LIKE ?", ['%' . $searchValue . '%']);
             });
         }

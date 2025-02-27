@@ -57,6 +57,9 @@
                                     <th>
                                         Asunto
                                     </th>
+                                    <th>
+                                        Observaciones
+                                    </th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
