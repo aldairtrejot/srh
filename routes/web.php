@@ -39,13 +39,13 @@ use App\Http\Controllers\Courses\Coursesorganizacion\Courses7C;
 use App\Http\Controllers\Courses\Coursesprograma\Courses8C;
 use App\Http\Controllers\Courses\Coursestipoac\Courses9C;
 use App\Http\Controllers\Courses\Coursestipocur\Courses10C;
+use App\Http\Controllers\Courses\Tableaudit\TblAuditC;
 use App\Http\Controllers\Courses\Tableinstructor\InstructorsC;
 use App\Http\Controllers\Courses\Tablecourses\TblCoursesC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
-use App\Http\Controllers\Courses\Tableaudit\TblAuditC;
 
 
 
@@ -325,7 +325,6 @@ Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('table
 
 // Ruta para registrar la auditoría
 Route::post('/auditoria/add/courses', [TblAuditC::class, 'storeAudit'])->name('auditoria.add.courses')->middleware('auth');
-Route::get('/auditoria/list/{id_curso}', [TblAuditC::class, 'getAuditList'])->name('auditoria.list')->middleware('auth');
 Route::post('/auditoria/list/courses', [TblAuditC::class, 'getAuditList'])->name('auditoria.list.courses')->middleware('auth');
 
 // ENVIO DE CORREO ELECTRONICO

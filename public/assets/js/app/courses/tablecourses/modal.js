@@ -22,7 +22,7 @@ $(document).ready(function () {
 });
 
 // Función para abrir el modal de Auditoría
-function re(id_tbl_cursos) {
+function refreshOficio(id_tbl_cursos) {
     console.log(id_tbl_cursos);
     $('#modalBackdrop').fadeIn();
     $('#idtbl_cursos_audit').val(id_tbl_cursos); // Mostrar la ventana modal con el ID
@@ -65,23 +65,36 @@ function confirmSolicitante() {
     // Aquí puedes agregar la lógica de validación y envío para el solicitante
 }
 
-function getAuditList(id_curso) {
+function searchInitaudit() {
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/list/courses'),
         type: 'POST',
         data: {
-            id_courses: $('#idtbl_cursos_audit').val(),
-            _token: token
+            _token: token  // Usar el token extraído de la metaetiqueta
         },
-        success: function(response) {
-            console.log('Lista de auditorías: ', response);
-            // Aquí puedes procesar y mostrar los resultados de la auditoría
+        success: function (response) {
+            // Limpiar la tabla antes de agregar nuevos datos
+            $('#template-tableaudit tbody').empty();
+
+            // Iterar sobre los datos recibidos y agregarlos a la tabla
+            response.data.forEach(function (item) {
+                $('#template-tableaudit tbody').append(
+                    '<tr>' +
+                    '<td>' + item.descripcion + '</td>' +
+                    '<td>' + (item.aplica ? 'Sí' : 'No') + '</td>' +
+                    '<td><input type="file" name="constancia_' + item.id + '"></td>' +
+                    '</tr>'
+                );
+            });
+
+            console.log('Datos de auditoría cargados');
         },
-        error: function(xhr, status, error) {
-            console.error('Error al obtener la lista de auditorías: ', error);
+        error: function (xhr, status, error) {
+            console.error('Error al cargar datos de auditoría: ', error);
         }
     });
 }
+
 
 
 

@@ -22,15 +22,22 @@ class TblAuditC extends Controller
     }
 
     public function getAuditList(Request $request)
-    {
-        // Llamamos al método auditlist del modelo TableauditM
-        $auditModel = new TableauditM();
-        $audits = $auditModel->auditlist($request->id_courses);
-        
+{
+    try {
+        $tableauditm = new TableauditM();
+        $result = $tableauditm->list();
+
         return response()->json([
-            'value' => $request->id_courses,
             'status' => true,
+            'data' => $result,
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Error al obtener la lista de auditoría',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 }
 

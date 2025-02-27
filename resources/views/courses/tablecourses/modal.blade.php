@@ -4,11 +4,10 @@
 
     <!-- MODAL AUDITORIA-->
 <x-template-modal.modal-template tittle="Auditoria curso" idModal="modalSolicitante"
-idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();" width="600px"
-height="495px">
+idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();" width="1000px"
+height="700px">
 
 <input type="hidden" id="idtbl_cursos_audit">
-<input type="hidden" id="auditList">
 
 <div class="table-responsive pt-3">
     <table id="template-tableaudit" class="table table-bordered custom-table">

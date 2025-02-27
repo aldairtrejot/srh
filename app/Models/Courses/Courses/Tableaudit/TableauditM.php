@@ -18,18 +18,18 @@ class TableauditM extends Model
         'fecha_usuario',
     ];
 
-    public function list($id_curso)
+    public function list()
     {
-        DB::table('capacitacion.tbl_auditoria_cursos')->insertUsing(
-            ['id_cat_auditoria', 'id_tbl_cursos', 'estatus'],
-            DB::table('capacitacion.cat_auditoria')
-                ->select('id_cat_auditoria', DB::raw($id_curso), DB::raw('true'))
-                ->where('estatus', true)
-        );
-
-    }
+        // Preparar la consulta base
+        $query = DB::table('capacitacion.cat_auditoria')
+            ->select([
+                DB::raw('capacitacion.cat_auditoria.descripcion AS descripcion')
+            ])
+            ->get(); // Ejecutar la consulta y obtener los resultados
     
-    public function auditlist($id_curso)
+        return $query; // Retornar los resultados
+    }
+    public function auditlist()
     {
         $result = DB::table('capacitacion.cat_auditoria')
         ->select('capacitacion.cat_auditoria.descripcion')
