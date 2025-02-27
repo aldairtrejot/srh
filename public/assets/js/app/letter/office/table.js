@@ -86,8 +86,13 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.num_documento}</td>
+                            <td>
+                                ${object.status == 1 ? 
+                                    '<i class="fa fa-check-circle" style="color: #26874A; font-size: 1.3rem;"></i>' : 
+                                    '<i class="fa fa-exclamation-circle" style="color: #FFA82E; font-size: 1.3rem;"></i>'}
+                            </td>
                             <td>${object.anio}</td>
+                            <td>${object.num_documento}</td>
                             <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                             <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.observaciones}</td>
                         </tr>

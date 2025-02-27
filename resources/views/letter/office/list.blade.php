@@ -49,10 +49,13 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno Asoc. / Fol. Gestión Asoc.
+                                        Estatus
                                     </th>
                                     <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        No. Turno Asoc. / Fol. Gestión Asoc.
                                     </th>
                                     <th>
                                         Asunto
