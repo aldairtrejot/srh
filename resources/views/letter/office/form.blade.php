@@ -12,6 +12,9 @@
                 </div>
             </div>
 
+            <!-- MODAL ALERT -->
+            @include('letter.office.alert')
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -49,11 +52,9 @@
                                     value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
                                 <!-- itme-->
-                                <x-template-form.template-form-input-hidden name="area_format"
-                                    value="{{ $area }}" />
+                                <x-template-form.template-form-input-hidden name="area_format" value="{{ $area }}" />
 
-                                <x-template-form.template-form-input-hidden name="user_name"
-                                    value="{{ $user_name }}" />
+                                <x-template-form.template-form-input-hidden name="user_name" value="{{ $user_name }}" />
 
                                 <x-template-form.template-form-input-hidden name="user_enlace"
                                     value="{{ $user_enlace }}" />
@@ -79,11 +80,11 @@
                                         <label id="_labArea" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">No. Oficio:</label>
+                                        <label class="etiqueta">Usuario:</label>
                                         <label id="_labUsuario" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">Estatus:</label>
+                                        <label class="etiqueta">Enlace:</label>
                                         <label id="_labEnlace" class="valor"></label>
                                     </div>
 
