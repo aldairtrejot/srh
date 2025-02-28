@@ -94,6 +94,15 @@ function searchInit() {
                                             </span>
                                             Cloud
                                         </a>
+                                         <!-- Nuevo Botón Constancia -->
+                                        <a class="dropdown-item" href="#" onclick="viewConstancia(${object.id_tbl_instructores})">
+                                            <span style="background:#1E90FF" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-file item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Constancia
+                                        </a>
                                         <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
