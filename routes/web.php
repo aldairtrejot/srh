@@ -295,21 +295,21 @@ Route::post('/coursesauditoria/table', [Courses11C::class, 'searchTable']);
 Route::match(['get', 'post'], '/coursesauditoria/edit/{id}', [Courses11C::class, 'edit'])->name('coursesauditoria.edit')->middleware('auth');
 Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
 
-// ROUTE_COURSES ---- > Tabla instructores
+// 📌 ROUTE_COURSES ---- > Tabla instructores
 Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
 Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('tableinstructor.create')->middleware('auth');
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
-Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable']);
+Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable'])->name('tableinstructor.searchTable')->middleware('auth');
 Route::post('/tableinstructor/delete/', [InstructorsC::class, 'delete'])->name('tableinstructor.delete')->middleware('auth');
-Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit');
-Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update');
+Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
+Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update')->middleware('auth');
 Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
-Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see');
-Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download');
-Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete');
+Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see')->middleware('auth');
+Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
+Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
 
-// 📌 Rutas de Cloud (Carga de documentos)
+// 📌 Rutas de Cloud Tabla instructores (Carga de documentos)
 Route::get('/tableinstructor/cloud/download/{uuid}', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
 Route::post('/tableinstructor/cloud/upload', [CloudTableC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
 Route::post('/tableinstructor/cloud/data', [CloudTableC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
