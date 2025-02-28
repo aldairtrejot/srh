@@ -5,6 +5,59 @@
     <!-- View->modal -->
     @include('letter.dashboard.modal')
 
+    <style>
+        .select-dashboard {
+            padding: 5px 10px;
+            /* Espaciado interno */
+            border: 2px solid green;
+            /* Contorno verde */
+            border-radius: 50px;
+            /* Contorno circular */
+            font-size: 14px;
+            /* Tamaño de texto pequeño */
+            color: green;
+            /* Color de las letras verde */
+            background-color: white;
+            /* Fondo blanco */
+            transition: background-color 0.3s ease;
+            /* Transición suave para el cambio de fondo */
+            appearance: none;
+            /* Eliminar el estilo por defecto del select */
+            -webkit-appearance: none;
+            /* Eliminar el estilo por defecto en WebKit (Chrome/Safari) */
+            -moz-appearance: none;
+            /* Eliminar el estilo por defecto en Firefox */
+        }
+
+        .select-dashboard:hover {
+            background-color: lightgray;
+            /* Fondo gris cuando pasas el cursor sobre el select */
+        }
+
+        .select-dashboard:focus {
+            outline: none;
+            /* Eliminar el borde azul por defecto en foco */
+        }
+
+        /* Estilo para las opciones del select */
+        .select-dashboard option {
+            background-color: white;
+            /* Fondo blanco por defecto */
+            color: green;
+            /* Color verde para las opciones */
+            border: none;
+            /* Eliminar cualquier borde de las opciones */
+        }
+
+        /* Eliminar el color azul que aparece al pasar el cursor sobre las opciones */
+        .select-dashboard option:hover {
+            background-color: white;
+            /* Fondo blanco cuando pasas el cursor por encima de las opciones */
+            color: green;
+            /* Mantener el color verde de las letras */
+        }
+    </style>
+
     <div class="main-panel">
         <div class="content-wrapper">
             <!-- TITTLE -->
@@ -15,6 +68,14 @@
                             <h3 class="font-weight-bold">Gestión de control</h3>
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
+
+                        <select class="select-dashboard">
+                            <option value="opcion1">Opción 1</option>
+                            <option value="opcion2">Opción 2</option>
+                            <option value="opcion3">Opción 3</option>
+                        </select>
+
+
                         <div class="col-12 col-xl-4 text-xl-right">
                             <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
                                 <span class="font-weight-bold" style="color: #10312b;">Informe</span>
