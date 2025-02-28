@@ -49,16 +49,19 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
-                                    </th>
-                                    <th>
-                                        No. Turno Asoc. / Fol. Gestión
+                                        Estatus
                                     </th>
                                     <th>
                                         Año
                                     </th>
                                     <th>
+                                        No. Turno Asoc. / Fol. Gestión Asoc.
+                                    </th>
+                                    <th>
                                         Asunto
+                                    </th>
+                                    <th>
+                                        Observaciones
                                     </th>
                                 </tr>
                             </thead>

@@ -57,6 +57,7 @@ function searchInit() {
                                             </span>
                                             Cloud
                                         </a>
+                                    <!--
                                          <a class="dropdown-item" href="${urlReport}">
                                             <span style="background:#707070" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -65,7 +66,6 @@ function searchInit() {
                                             </span>
                                             Reporte
                                         </a>
-                                        <!--
                                         <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
                                             <span style="background:#003366" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -86,10 +86,15 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.num_turno_sistema}</td>
-                            <td>${object.num_documento}</td>
+                            <td>
+                                ${object.status == 1 ? 
+                                    '<i class="fa fa-check-circle" style="color: #26874A; font-size: 1.3rem;"></i>' : 
+                                    '<i class="fa fa-exclamation-circle" style="color: #FFA82E; font-size: 1.3rem;"></i>'}
+                            </td>
                             <td>${object.anio}</td>
-                            <td>${object.asunto}</td>
+                            <td>${object.num_documento}</td>
+                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
+                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.observaciones}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);

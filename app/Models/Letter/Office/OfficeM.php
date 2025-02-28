@@ -57,7 +57,18 @@ class OfficeM extends Model
                         correspondencia.tbl_correspondencia.folio_gestion 
                 END AS num_documento
             '),
+                DB::raw('
+                CASE 
+                    WHEN NOT correspondencia.tbl_oficio.es_por_area THEN 
+                        CASE 
+                            WHEN correspondencia.tbl_correspondencia.id_cat_estatus = 4 THEN 1  -- Si el estatus es 4, retorna 1
+                            ELSE 0  -- Si el estatus no es 4, retorna 0
+                        END
+                    ELSE 0  -- Si es por área, retorna 0
+                END AS status
+            '),
                 DB::raw("UPPER(correspondencia.tbl_oficio.asunto) AS asunto"),
+                DB::raw("UPPER(correspondencia.tbl_oficio.observaciones) AS observaciones"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_oficio.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
                 DB::raw('correspondencia.cat_anio.descripcion AS anio'),
@@ -96,6 +107,7 @@ class OfficeM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.observaciones)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_oficio.asunto)) LIKE ?", ['%' . $searchValue . '%']);
             });
         }

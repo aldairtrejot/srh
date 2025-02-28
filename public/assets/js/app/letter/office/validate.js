@@ -37,6 +37,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
+    //guardar
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
 

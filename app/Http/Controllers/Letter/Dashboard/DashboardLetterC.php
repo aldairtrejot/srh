@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class DashboardLetterC extends Controller
 {
@@ -39,6 +39,7 @@ class DashboardLetterC extends Controller
         ]);
     }
 
+    // Genera reporte de Exel
     public function generate(Request $request)
     {
         // Class
@@ -49,7 +50,7 @@ class DashboardLetterC extends Controller
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $query = $reportM->generateReport(
+        $query = $reportM->generateReport( // parametros de funcion
             $request->id_cat_area,
             $request->id_cat_status,
             $request->fecha_inicio_fecha_fin,
@@ -61,88 +62,73 @@ class DashboardLetterC extends Controller
             $request->fin,
         );
 
-        $this->addStyleTittle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
-        $this->addStyleTittle($sheet, 'A2', 'USUARIO:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
-        $this->addStyleTittle($sheet, 'A3', 'FECHA DE EMISIÓN:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
-        $this->addStyleTittle($sheet, 'A4', 'TOTAL:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        // Encabezado inicial
+        //$this->addStyleTittle($sheet, 'A1', 'NOMBRE:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'A2', 'USUARIO:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'A3', 'FECHA DE EMISIÓN:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'A4', 'TOTAL:', 'BFBFBF', true, 'HORIZONTAL_LEFT');
 
-        $this->addStyleTittle($sheet, 'B1', 'INFORME DE GESTIÓN DE CONTROL', 'E8E8E8', false, 'HORIZONTAL_LEFT');
-        $this->addStyleTittle($sheet, 'B2', Auth::user()->name, 'E8E8E8', false, 'HORIZONTAL_LEFT');
-        $this->addStyleTittle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'B1', 'INFORME DE GESTIÓN DE CONTROL', 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'B2', Auth::user()->name, 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        //$this->addStyleTittle($sheet, 'B3', $carbon->format('d/m/Y'), 'E8E8E8', false, 'HORIZONTAL_LEFT');
 
         // Valor de encabezados
-        $this->addStyleValue($sheet, 'A6', 'ID', '10312B');
-        $this->addStyleValue($sheet, 'B6', 'FOL. GESTIÓN', '10312B');
-        $this->addStyleValue($sheet, 'C6', 'NO. DOCUMENTO', '10312B');
-        $this->addStyleValue($sheet, 'D6', 'NO. SISTEMA', '10312B');
-        $this->addStyleValue($sheet, 'E6', 'ESTATUS', '10312B');
-        $this->addStyleValue($sheet, 'F6', 'AÑO', '10312B');
-        $this->addStyleValue($sheet, 'G6', 'FECHA CAPTURA', '10312B');
-        $this->addStyleValue($sheet, 'H6', 'FECHA INICIO', '10312B');
-        $this->addStyleValue($sheet, 'I6', 'FECHA FIN', '10312B');
-        $this->addStyleValue($sheet, 'J6', 'FECHA DOCUMENTO', '10312B');
-        $this->addStyleValue($sheet, 'K6', 'ASUNTO', '10312B');
-        $this->addStyleValue($sheet, 'L6', 'OBSERVACIONES', '10312B');
-        $this->addStyleValue($sheet, 'M6', 'ÁREA', '10312B');
-        $this->addStyleValue($sheet, 'N6', 'USUARIO TITULAR', '10312B');
-        $this->addStyleValue($sheet, 'O6', 'USUARIO ENLACE', '10312B');
-        $this->addStyleValue($sheet, 'P6', 'UNIDAD', '10312B');
-        $this->addStyleValue($sheet, 'Q6', 'COORDINACIÓN', '10312B');
-        $this->addStyleValue($sheet, 'R6', 'TRAMITE', '10312B');
-        $this->addStyleValue($sheet, 'S6', 'CLAVE', '10312B');
-        $this->addStyleValue($sheet, 'T6', 'HRS. RESPUESTA', '10312B');
-        $this->addStyleValue($sheet, 'U6', 'DOCUMENTO', '10312B');
-        $this->addStyleValue($sheet, 'V6', 'LUGAR', '10312B');
-        $this->addStyleValue($sheet, 'W6', 'REMITENTE', '10312B');
-        $this->addStyleValue($sheet, 'X6', 'PUESTO REMITENTE', '10312B');
+        $this->addStyleValue($sheet, 'A1', 'No.', '10312B');
+        $this->addStyleValue($sheet, 'B1', 'Folio de Gestión', '10312B');
+        $this->addStyleValue($sheet, 'C1', 'Oficio Recibido', '10312B');
+        $this->addStyleValue($sheet, 'D1', 'Fecha de Alta', '10312B');
+        $this->addStyleValue($sheet, 'E1', 'Fecha de Vencimiento', '10312B');
+        $this->addStyleValue($sheet, 'F1', 'Puesto del Remitente', '10312B');
+        $this->addStyleValue($sheet, 'G1', 'Asunto', '10312B');
+        $this->addStyleValue($sheet, 'H1', 'Clave', '10312B');
+        $this->addStyleValue($sheet, 'I1', 'Área', '10312B');
+        $this->addStyleValue($sheet, 'J1', 'Tipo de Documento', '10312B');
 
 
-        if ($request->inlcuir_usuario_capturo) {
-            $this->addStyleValue($sheet, 'Y6', 'FECHA CAPTURA', '10312B');
-            $this->addStyleValue($sheet, 'Z6', 'HORA CAPTURA', '10312B');
-            $this->addStyleValue($sheet, 'AA6', 'USUARIO CAPTURA', '10312B');
+        if ($request->inlcuir_usuario_capturo) { //  validacion para incluir datos de captura
+            $this->addStyleValue($sheet, 'K1', 'Fecha de Captura', '10312B');
+            $this->addStyleValue($sheet, 'L1', 'Hora de Captura', '10312B');
+            $this->addStyleValue($sheet, 'M1', 'Usuario que Captura', '10312B');
         }
 
 
 
-        $row = 7; // Empezamos desde la fila 2
-        $id = 1;
-        foreach ($query as $data) {
-            $sheet->setCellValue('A' . $row, $id);
-            $sheet->setCellValue('B' . $row, $data->folio_gestion);
-            $sheet->setCellValue('C' . $row, $data->num_documento);
-            $sheet->setCellValue('D' . $row, $data->num_turno_sistema);
-            $sheet->setCellValue('E' . $row, $data->estatus);
-            $sheet->setCellValue('F' . $row, $data->anio);
-            $sheet->setCellValue('G' . $row, $data->fecha_captura);
-            $sheet->setCellValue('H' . $row, $data->fecha_inicio);
-            $sheet->setCellValue('I' . $row, $data->fecha_fin);
-            $sheet->setCellValue('J' . $row, $data->fecha_documento);
-            $sheet->setCellValue('K' . $row, $data->asunto);
-            $sheet->setCellValue('L' . $row, $data->observaciones);
-            $sheet->setCellValue('M' . $row, $data->area);
-            $sheet->setCellValue('N' . $row, $data->titular);
-            $sheet->setCellValue('O' . $row, $data->enlace);
-            $sheet->setCellValue('P' . $row, $data->unidad);
-            $sheet->setCellValue('Q' . $row, $data->coordinacion);
-            $sheet->setCellValue('R' . $row, $data->tramite);
-            $sheet->setCellValue('S' . $row, $data->clave);
-            $sheet->setCellValue('T' . $row, $data->horas_respuesta);
-            $sheet->setCellValue('U' . $row, $data->tipo_documento);
-            $sheet->setCellValue('V' . $row, $data->entidad);
-            $sheet->setCellValue('W' . $row, $data->remitente);
-            $sheet->setCellValue('X' . $row, $data->puesto_remitente);
+        $row = 2; // Empezamos desde la fila 2
+        $id = 1; // id que incrementa
+        foreach ($query as $data) { // insert de datos
+            // Cambia las líneas en las que estás estableciendo los valores de las celdas como texto:
+            $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E' . $row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->tipo_documento, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValue('Y' . $row, $data->fecha_captura);
-                $sheet->setCellValue('Z' . $row, $data->hora_captura);
-                $sheet->setCellValue('AA' . $row, $data->usuario_add);
+                $sheet->setCellValueExplicit('K' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('L' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('M' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
+
+
             $row++;
             $id++;
         }
 
-        $this->addStyleTittle($sheet, 'B4', ($id - 1), 'E8E8E8', false, 'HORIZONTAL_LEFT');
+        // Total de registros
+        //$this->addStyleTittle($sheet, 'B4', ($id - 1), 'E8E8E8', false, 'HORIZONTAL_LEFT');
+
+        // Se incluyen filtros en encabezados
+        if ($request->inlcuir_usuario_capturo) {
+            $sheet->setAutoFilter('A1:M1');
+        } else {
+            $sheet->setAutoFilter('A1:J1');
+        }
+
 
         // Escribir en memoria
         $writer = new Xlsx($spreadsheet);
