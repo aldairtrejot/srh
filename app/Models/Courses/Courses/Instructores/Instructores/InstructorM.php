@@ -48,7 +48,7 @@ class InstructorM extends Model
             ])
             ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
             ->leftJoin('central.tbl_empleados_hraes AS central', 'administration.users.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
-            ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_trasnferidos', '=', 'transferidos.id_tbl_empleados')
+            ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
             ->leftJoin('public.tbl_empleados_hraes AS public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes');
     
         // 🔍 Agregar condiciones de búsqueda
@@ -152,7 +152,7 @@ public function obtenerOcrearUsuarioPorCurp($curp)
         $idHRAES = ($schema == 2) ? $idEmpleado : null;
         $idTransferidos = ($schema == 3) ? $idEmpleado : null;
 
-        Log::info("🛠️ Buscando usuario en administration.users con: id_tbl_empleados_central = {$idCentral}, id_tbl_empleados_hraes = {$idHRAES}, id_tbl_empleados_trasnferidos = {$idTransferidos}");
+        Log::info("🛠️ Buscando usuario en administration.users con: id_tbl_empleados_central = {$idCentral}, id_tbl_empleados_hraes = {$idHRAES}, id_tbl_empleados_transferidos = {$idTransferidos}");
 
         // Buscar si ya existe en administration.users
         $usuario = DB::table('administration.users')
@@ -164,7 +164,7 @@ public function obtenerOcrearUsuarioPorCurp($curp)
                     $query->orWhere('id_tbl_empleados_hraes', $idHRAES);
                 }
                 if (!is_null($idTransferidos)) {
-                    $query->orWhere('id_tbl_empleados_trasnferidos', $idTransferidos);
+                    $query->orWhere('id_tbl_empleados_transferidos', $idTransferidos);
                 }
             })
             ->first();
@@ -210,7 +210,7 @@ public function obtenerOcrearUsuarioPorCurp($curp)
                 'updated_at' => now(),
                 'id_tbl_empleados_central' => $idCentral,
                 'id_tbl_empleados_hraes' => $idHRAES,
-                'id_tbl_empleados_trasnferidos' => $idTransferidos,
+                'id_tbl_empleados_transferidos' => $idTransferidos,
                 'es_por_nomina' => false,
                 'estatus' => true,
                 'id_usuario' => Auth::id(),

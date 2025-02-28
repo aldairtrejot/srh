@@ -37,7 +37,7 @@ class UpdateInstructorM extends Model
             ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
             ->leftJoin('central.tbl_empleados_hraes AS central', 'administration.users.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
             ->leftJoin('public.tbl_empleados_hraes AS public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes')
-            ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_trasnferidos', '=', 'transferidos.id_tbl_empleados')
+            ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
             ->where('capacitacion.tbl_instructores.id_tbl_instructores', $idInstructor)
             ->first();
     

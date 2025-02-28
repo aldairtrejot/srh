@@ -20,7 +20,7 @@ class UserM extends Model
         'updated_at',
         'id_tbl_empleados_hraes',
         'id_tbl_empleados_central',
-        'id_tbl_empleados_trasnferidos',
+        'id_tbl_empleados_transferidos',
         'id_tbl_empleados_aux',
         'es_por_nomina',
         'estatus',

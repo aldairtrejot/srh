@@ -196,12 +196,12 @@ public function edit($id)
 
     public function delete(Request $request)
 {
-    Log::info("🗑️ Intentando eliminar instructor con ID: " . $request->id);
+    Log::info("🗑️ Recibiendo solicitud para eliminar instructor con ID: " . json_encode($request->all()));
 
     $instructor = InstructorM::find($request->id);
 
     if (!$instructor) {
-        Log::error("❌ Error: No se encontró el instructor con ID: " . $request->id);
+        Log::error("❌ No se encontró el instructor con ID: " . $request->id);
         return response()->json(['status' => false, 'message' => 'Instructor no encontrado.']);
     }
 
@@ -210,10 +210,11 @@ public function edit($id)
         Log::info("✅ Instructor eliminado correctamente con ID: " . $request->id);
         return response()->json(['status' => true, 'message' => 'Instructor eliminado correctamente.']);
     } catch (\Exception $e) {
-        Log::error("❌ Error al eliminar instructor: " . $e->getMessage());
+        Log::error("🔥 Error al eliminar instructor: " . $e->getMessage());
         return response()->json(['status' => false, 'message' => 'No se pudo eliminar el instructor.']);
     }
 }
+
 
 
     public function cloud($id)
