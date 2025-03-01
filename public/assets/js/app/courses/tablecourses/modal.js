@@ -19,6 +19,11 @@ $(document).ready(function () {
     $('#cancelBtn_solicitante').click(function () {
         $('#modalSolicitante').fadeOut();
     });
+
+    // Evento change para el input de archivo
+    $('.file-input-oficio').change(function () {
+        uploadFileOficio();
+    });
 });
 
 // Función para abrir el modal de Auditoría
@@ -66,6 +71,61 @@ function confirmSolicitante() {
     // Aquí puedes agregar la lógica de validación y envío para el solicitante
 }
 
+// Función que se activa al momento de presionar el botón de agregar
+function addFileOficio(id) {
+    $('#id_tbl_auditoria_cursos').val(id); // Se define el id oculto para su validación
+    $('.file-input-oficio').click(); // Se abre el botón para agregar archivo
+}
+
+// Función para subir el archivo a Alfresco
+function uploadFileOficio() {
+    var formData = new FormData();
+    formData.append('file', $('.file-input-oficio')[0].files[0]);
+    formData.append('id_tbl_auditoria_cursos', $('#id_tbl_auditoria_cursos').val());
+    formData.append('_token', token);
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/upload'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            if (response.status) {
+                console.log('Archivo subido correctamente');
+                updateTableRow(response.data);
+            } else {
+                console.error('Error al subir archivo: ', response.messages);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al subir archivo: ', error);
+        }
+    });
+}
+
+// Función para actualizar la fila de la tabla después de subir el archivo
+function updateTableRow(data) {
+    var row = $('#template-tableaudit tbody').find('tr').filter(function () {
+        return $(this).find('button').attr('onclick').includes(data.id);
+    });
+
+    row.find('.button-column').html(`
+        <div class="button-container">
+            <button onclick="seeDocumentUid('${data.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
+                <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+            </button>
+            <button onclick="download('${data.uuid}')" class="custom-button" title="Descargar">
+                <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+            </button>
+            <button onclick="openModalOificio('${data.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+            </button>
+        </div>
+    `);
+}
+
+// Función para buscar la lista de auditorías
 function searchInitaudit() {
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/list/courses'),
