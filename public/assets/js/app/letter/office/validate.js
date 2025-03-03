@@ -39,6 +39,10 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     //guardar
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
+
+    // Tests
+    event.preventDefault();  // Detener el envío si la validación falla
+    return;  // Detener la ejecución aquí
 });
 
 
