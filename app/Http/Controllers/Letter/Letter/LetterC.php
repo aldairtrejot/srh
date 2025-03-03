@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
+use App\Models\Letter\Collection\CollectionLetterLogM;
 use App\Models\Letter\Collection\CollectionRolAreaM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
@@ -207,6 +208,7 @@ class LetterC extends Controller
 
     public function save(Request $request)
     {
+        // Class
         $logC = new LogC();
         $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
@@ -214,6 +216,7 @@ class LetterC extends Controller
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRolAreaM = new CollectionRolAreaM();
         $now = Carbon::now(); //Hora y fecha actual
+        $collectionLetterLogM = new CollectionLetterLogM();
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -301,6 +304,20 @@ class LetterC extends Controller
             $logC->add('correspondencia.tbl_correspondencia', $data);
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
 
+            // Se agrega log a correspondencia
+            $collectionLetterLogM::create([
+                'estatus' => 'AGREGAR',
+                'num_documento' => strtoupper($request->num_documento),
+                'folio_gestion' => strtoupper($request->folio_gestion),
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_cat_area' => $request->id_cat_area,
+                'id_cat_estatus' => $request->id_cat_estatus,
+                'id_tbl_correspondencia' => $letterM->getIdFolGestion($request->folio_gestion)->id,
+                'fecha_usuario_captura' => $now,
+                'id_usuario_captura' => Auth::user()->id,
+            ]);
+
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
@@ -345,6 +362,20 @@ class LetterC extends Controller
 
                 $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
+
+                // Se agrega log a correspondencia
+                $collectionLetterLogM::create([
+                    'estatus' => 'MODIFICAR',
+                    'num_documento' => strtoupper($request->num_documento),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
+                    'asunto' => strtoupper($request->asunto),
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                    'fecha_usuario_captura' => $now,
+                    'id_usuario_captura' => Auth::user()->id,
+                ]);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
@@ -403,6 +434,20 @@ class LetterC extends Controller
 
                 $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
+
+                // Se agrega log a correspondencia
+                $collectionLetterLogM::create([
+                    'estatus' => 'MODIFICAR',
+                    'num_documento' => strtoupper($request->num_documento),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
+                    'asunto' => strtoupper($request->asunto),
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                    'fecha_usuario_captura' => $now,
+                    'id_usuario_captura' => Auth::user()->id,
+                ]);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             }

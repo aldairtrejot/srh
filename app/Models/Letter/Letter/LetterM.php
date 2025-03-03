@@ -43,6 +43,16 @@ class LetterM extends Model
         'id_cat_entidad',
     ];
 
+    // La función retorna el id de correspondencia, esperando el folio unico de gestión
+    public function getIdFolGestion($folGestion)
+    {
+        return DB::table('correspondencia.tbl_correspondencia')
+            ->select('id_tbl_correspondencia as id')
+            ->whereRaw('TRIM(UPPER(folio_gestion)) = TRIM(UPPER(?))', [$folGestion])
+            ->first();
+    }
+
+
     public function edit(string $id)
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
@@ -53,6 +63,8 @@ class LetterM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+
+
 
     public function editFol(string $fol)
     {
@@ -345,8 +357,8 @@ class LetterM extends Model
             ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
 
-    /// FUNCIONES PARA DASHBOARD
-    // La función cuenta el todal de no de correspondencia
+        /// FUNCIONES PARA DASHBOARD
+        // La función cuenta el todal de no de correspondencia
         return $maxNumTurno;
     }
 
