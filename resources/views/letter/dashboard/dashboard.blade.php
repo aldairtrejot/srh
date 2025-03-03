@@ -56,11 +56,65 @@
             color: green;
             /* Mantener el color verde de las letras */
         }
+
+        .select-label {
+            font-size: 12px;
+            /* Tamaño pequeño para la leyenda */
+            color: #555;
+            /* Color de la leyenda */
+            font-weight: normal;
+            /* Puede ser normal o light */
+            margin-bottom: 2px;
+            /* Ajusta este valor para que la leyenda esté más cerca del select */
+        }
+
+        /* Contenedor de los selects y el botón Informe */
+        .d-flex-custom {
+            display: flex;
+            align-items: center;
+            /* Alinea los elementos verticalmente al centro */
+            justify-content: flex-end;
+            /* Alinea todos los elementos a la derecha */
+            gap: 15px;
+            /* Espacio entre los selects y el botón */
+        }
+
+        /* Contenedor individual de cada select */
+        .select-container-custom {
+            margin-bottom: 0;
+            /* No queremos margen adicional debajo de cada select */
+        }
+
+        /* Estilos de la etiqueta de cada select */
+        .select-label-custom {
+            font-size: 12px;
+            color: #555;
+            font-weight: normal;
+            margin-bottom: 5px;
+            /* Espacio entre la etiqueta y el select */
+        }
+
+        /* Estilos generales de los select */
+        .select-dashboard-custom {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Estilo para el botón */
+        #reporteBtn {
+            margin-left: 10px;
+            /* Espacio entre el último select y el botón */
+        }
     </style>
 
     <div class="main-panel">
         <div class="content-wrapper">
             <!-- TITTLE -->
+
+
+
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row align-items-center">
@@ -69,22 +123,53 @@
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
 
-                        <select class="select-dashboard">
-                            <option value="opcion1">Opción 1</option>
-                            <option value="opcion2">Opción 2</option>
-                            <option value="opcion3">Opción 3</option>
-                        </select>
-
-
+                        <!-- Contenedor para los selects y el botón Informe -->
                         <div class="col-12 col-xl-4 text-xl-right">
-                            <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
-                                <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-                                <i class="ti-layout" style="color: #10312b;"></i>
-                            </button>
+                            <div class="d-flex-custom align-items-center justify-content-end">
+                                <!-- Select Año -->
+                                <div class="select-container-custom mb-2">
+                                    <label for="selectAño" class="select-label-custom">Año</label>
+                                    <select id="selectAño" class="select-dashboard-custom">
+                                        <option value="opcion1">Opción 1</option>
+                                        <option value="opcion2">Opción 2</option>
+                                        <option value="opcion3">Opción 3</option>
+                                    </select>
+                                </div>
+
+                                <!-- Select Mes -->
+                                <div class="select-container-custom mb-2">
+                                    <label for="selectMes" class="select-label-custom">Mes</label>
+                                    <select id="selectMes" class="select-dashboard-custom">
+                                        <option value="opcion1">Opción 1</option>
+                                        <option value="opcion2">Opción 2</option>
+                                        <option value="opcion3">Opción 3</option>
+                                    </select>
+                                </div>
+
+                                <!-- Select Área -->
+                                <div class="select-container-custom mb-2">
+                                    <label for="selectArea" class="select-label-custom">Área</label>
+                                    <select id="selectArea" class="select-dashboard-custom">
+                                        <option value="opcion1">Opción 1</option>
+                                        <option value="opcion2">Opción 2</option>
+                                        <option value="opcion3">Opción 3</option>
+                                    </select>
+                                </div>
+
+                                <!-- Botón Informe -->
+                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
+                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+
+
+
 
             <!-- CAROUSEL -->
             <div class="row">
