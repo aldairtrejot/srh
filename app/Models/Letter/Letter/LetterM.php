@@ -144,15 +144,28 @@ class LetterM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%']);
+                //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
+                //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC')
-            ->offset($iterator) // OFFSET
+        if (!empty($idUser)) { // Ordenamiento por estatus
+            $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
+                                WHEN 1 THEN 1 -- TURNADO
+                                WHEN 2 THEN 2 -- CANCELADO
+                                WHEN 3 THEN 3 -- EN PROCESO
+                                WHEN 4 THEN 4 -- CONCLUIDO
+                                WHEN 5 THEN 5 -- VENCIDO
+                                WHEN 6 THEN 6 -- RECHAZADO
+                                ELSE 7 -- Para cualquier valor no esperado
+                            END ASC');
+        } else { // Ordenamiento para admin
+            $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
+        }
+
+        $query->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
         // Ejecutar la consulta y retornar los resultados

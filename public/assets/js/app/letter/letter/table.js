@@ -26,6 +26,19 @@ function searchInit() {
                 const urlReport = URL_DEFAULT.concat(`/letter/generate-pdf/correspondencia/${object.id}`);
 
                 // Generar el HTML con template literals
+                const estatusColors = {
+                    "TURNADO": "#FFA82E",  // Azul
+                    "CANCELADO": "#660000", // Rojo
+                    "EN PROCESO": "#0077B6", // Amarillo
+                    "CONCLUIDO": "#26874A", // Verde
+                    "VENCIDO": "#FF0000 ", // Naranja
+                    "RECHAZADO": "#b30000" // Gris
+                };
+
+                // Determina el color de fondo según el estatus
+                const estatusColor = estatusColors[object.estatus] || "#6c757d"; // Si no coincide, por defecto Gris
+
+                // Crea el HTML dinámico
                 const rowHTML = `
                     <tr>
                         <td>
@@ -44,14 +57,14 @@ function searchInit() {
                                         Modificar
                                     </a>
                                     <a class="dropdown-item" href="${finalCloud}">
-                                            <span style="background:#8a6f19" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-cloud item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Cloud
-                                        </a>
-                                     <a class="dropdown-item" href="${urlReport}">
+                                        <span style="background:#8a6f19" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-cloud item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Cloud
+                                    </a>
+                                    <a class="dropdown-item" href="${urlReport}">
                                         <span style="background:#707070" class="icon-container-template">
                                             <div style="text-align: center;">
                                                 <i class="fa fa-print item-icon-menu"></i>
@@ -75,36 +88,17 @@ function searchInit() {
                                         </span>
                                         Email
                                     </button>
-                                    <!--
-                                    <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
-                                        <span style="background:#003366" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-user item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Usuario
-                                    </a>
-                                    <a class="dropdown-item" style="pointer-events: none; color: grey;">
-                                        <span style="background:#6A1B3D" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-trash item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Eliminar
-                                    </a>
-                                    -->
                                 </div>
                             </div>
                         </td>
+                        <td><label style="background:${estatusColor}; color:white" class="badge">${object.estatus}</label></td>
                         <td>${object.folio_gestion}</td>
                         <td>${object.num_documento}</td>
-
-                        <td>${object.estatus}</td>
-                        <td>${object.area}</td>
-                        <td>${object.asunto}</td>
-                        <td>${object.fecha_fin}</td>
+                        <td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">${object.area}</td>
+                        <td style="font-size: 12px; width: 800px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                     </tr>
                 `;
+
                 tbody.append(rowHTML);
             });
             emptyContent = false;

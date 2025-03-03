@@ -72,22 +72,19 @@
                                         Menú
                                     </th>
                                     <th>
+                                        Estatus
+                                    </th>
+                                    <th>
                                         Fólio de gestión
                                     </th>
                                     <th>
                                         No. Documento
                                     </th>
                                     <th>
-                                        Estatus
-                                    </th>
-                                    <th>
                                         Área
                                     </th>
                                     <th>
                                         Asunto
-                                    </th>
-                                    <th>
-                                        Fecha de fin
                                     </th>
                                 </tr>
                             </thead>
