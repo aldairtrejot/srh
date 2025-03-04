@@ -323,6 +323,8 @@ Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('off
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
 Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
 Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
+Route::post('/office/validate/folGestion', [OfficeC::class, 'validateFol'])->name('office.validate.folGestion')->middleware('auth');
+
 //ROUTE_COUSER ---- >Alfresco
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo

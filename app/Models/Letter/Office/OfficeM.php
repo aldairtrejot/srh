@@ -192,4 +192,23 @@ class OfficeM extends Model
 
         return $query->first();
     }
+
+    //La función valida que el fol de gestión sea unico
+    public function uniqueFolGestion($id, $folGestion)
+    {
+        // Start the query using the Query Builder
+        $query = DB::table('correspondencia.tbl_oficio')
+            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->whereRaw('TRIM(UPPER(correspondencia.tbl_correspondencia.folio_gestion)) = ?', [trim(strtoupper($folGestion))]);
+
+        // If the ID is set, add the condition to exclude the specific ID
+        if (isset($id)) {
+            $query->where('correspondencia.tbl_oficio.id_tbl_oficio', '<>', $id);
+        }
+
+        // Execute the query and check if any result is returned
+        $result = $query->exists(); // Returns true if the query finds any results, false if not
+
+        return $result;
+    }
 }

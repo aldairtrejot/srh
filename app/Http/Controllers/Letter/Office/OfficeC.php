@@ -257,6 +257,19 @@ class OfficeC extends Controller
         }
     }
 
+    //La función valida que el folio de gestión sea unico, para los oficios
+    public function validateFol(Request $request)
+    {
+        $officeM = new OfficeM();
+        $value = $officeM->uniqueFolGestion($request->id, $request->value);
+
+        return response()->json([
+            'value' => $value,
+            'status' => true,
+        ]);
+    }
+
+
     // la funcion elimina los espacios para obtener solo los numero de / ***(
     private function getMaxTurno($numTurno)
     {

@@ -14,6 +14,13 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return;  // Detener la ejecución aquí
     }
 
+    // Validar que la fecha de inicio no sea menor a la fecha de fin
+    if (fecha_inicio > fecha_fin) {
+        notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
+        event.preventDefault();
+        return; // Detener la ejecución aquí
+    }
+
     if ($('#es_por_area').val()) {//Validacion de check activo
         if (isFieldEmpty($('#id_cat_area_documento').val(), 'Área') ||
             isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
@@ -28,21 +35,22 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             event.preventDefault();  // Detener el envío si la validación falla
             return;  // Detener la ejecución aquí
         }
+
+        let isValidG = getNoUniqueFol($('#id_tbl_oficio').val(), $('#num_correspondencia').val());
+        if (isValidG) {
+            notyfEM.error('El Fol. Gestión ya encuentra asociado.');
+            event.preventDefault();  // Detener el envío si la validación falla
+            return;  // Detener la ejecución aquí
+        }
+
+        //Validación de poppup de actualizacion de correspondencia
+        if ($('#id_tbl_oficio').val().trim() === '') {
+            refresNota(); // Activación de validador
+            event.preventDefault();  // Detener el envío si la validación falla
+            return;  // Detener la ejecución aquí
+        }
     }
 
-    // Validar que la fecha de inicio no sea menor a la fecha de fin
-    if (fecha_inicio > fecha_fin) {
-        notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
-        event.preventDefault();
-        return; // Detener la ejecución aquí
-    }
-
-    //Validación de poppup de actualizacion de correspondencia
-    if ($('#id_tbl_oficio').val().trim() === '') {
-        refresNota(); // Activación de validador
-        event.preventDefault();  // Detener el envío si la validación falla
-        return;  // Detener la ejecución aquí
-    }
 
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
@@ -67,4 +75,29 @@ function validateDate() {
             notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
         }
     }
+}
+
+// La funcion valida que el no de documento y el folio de gestion sean unicos
+function getNoUniqueFol(id, value) {
+    let isValid = false;  // Asumimos que es inválido inicialmente
+    if (value !== '') {
+        $.ajax({
+            url: URL_DEFAULT.concat('/office/validate/folGestion'),
+            type: 'POST',
+            async: false, // Asegura que la ejecución sea sincrónica
+            data: {
+                id: id,
+                value: value,
+                _token: token  // Usar el token extraído de la metaetiqueta
+            },
+            success: function (response) {
+                console.log(response);
+                let item = response.value;
+                if (item) {
+                    isValid = true;  // La validación fue exitosa
+                }
+            }
+        });
+    }
+    return isValid;  // Regresa el resultado de la validación
 }
