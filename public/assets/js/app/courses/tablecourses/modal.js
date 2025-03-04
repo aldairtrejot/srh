@@ -76,6 +76,42 @@ function addFileOficio(id) {
     $('#id_tbl_auditoria_cursos').val(id); // Se define el id oculto para su validación
     $('.file-input-oficio').click(); // Se abre el botón para agregar archivo
 }
+$('.file-input-oficio').on('change', function (event) {
+    let file = event.target.files[0]; // Obtener el primer archivo seleccionado
+
+    if (file) {
+        if (file) {
+            showSpinner();// Inicio de spinner
+            let data = new FormData();// Crear el objeto FormData
+            data.append('file', file);
+            data.append('id', $('#id_oficio').val());
+            $.ajax({
+                url: URL_DEFAULT.concat("/auditoria/upload"),
+                type: 'POST',
+                data:
+                    data, // Enviar directamente el FormData
+                processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
+                contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
+                headers: {
+                    'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
+                },
+                success: function (response) {
+                    hideSpinner(); // Se oculta el spinner
+
+                    if (response.status) { //Validacion si es que los cambios se han agregado correctamente
+                        notyfEM.success("Doc. Oficio agregado correctamente.");
+                    } else {
+                        notyfEM.error(response.messages);
+                    }
+                    searchInit(); // Ejecucion de tabla para actualizacion de cambios
+
+                    $('.file-input-oficio').val('');
+                    $('#id_oficio').val('');
+                },
+            });
+        }
+    }
+});
 
 // Función para subir el archivo a Alfresco
 function uploadFileOficio() {

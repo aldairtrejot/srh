@@ -125,5 +125,6 @@ public function upload(Request $request)
     Log::info("✅ Archivo subido correctamente con UID: " . $uid);
     return response()->json(['messages' => 'Archivo subido correctamente.', 'status' => true]);
 }
+
 }
 
