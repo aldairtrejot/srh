@@ -43,12 +43,15 @@ function addSolicitante() {
         url: URL_DEFAULT.concat('/auditoria/add/courses'),
         type: 'POST',
         data: {
-            id_courses : $('#idtbl_cursos_audit').val(),
+            id_courses: $('#idtbl_cursos_audit').val(),
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-           console.log(response);
+            console.log(response);
         },
+        error: function (xhr, status, error) {
+            console.error('Error al agregar solicitante: ', error);
+        }
     });
 }
 

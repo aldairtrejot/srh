@@ -31,14 +31,18 @@ class TableauditM extends Model
     
         return $query; // Retornar los resultados
     }
+
     public function auditlist($id_curso)
     {
-        $result = DB::table('capacitacion.cat_auditoria')
-        ->select('capacitacion.cat_auditoria.descripcion')
-        ->get();
-    
-        return $result; 
+        DB::table('capacitacion.tbl_auditoria_cursos')->insertUsing(
+            ['id_cat_auditoria', 'id_tbl_cursos', 'estatus'],
+            DB::table('capacitacion.cat_auditoria')
+                ->select('id_cat_auditoria', DB::raw($id_curso), DB::raw('true'))
+                ->where('estatus', true)
+        );
+
     }
+
     public function getConstanciaUuid()
     {
         try {
