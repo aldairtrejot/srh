@@ -1,20 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Letter\Report;
-use App\Models\Letter\Letter\LetterM;
-use setasign\Fpdi\Fpdi;
+namespace App\Http\Controllers\Courses\Tableinstructor;
+
+use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use setasign\Fpdi\Fpdi;
 
-class ReporteCorrespondenciaC extends Controller
+class ReporteConstanciaC extends Controller
 {
+    
     public function generatePdf($id)
     {
-        $LetterM = new LetterM();
-        $data = $LetterM->getDataReport($id);
+        $InstructorM = new InstructorM ();
 
-        $pdfPath = public_path('assets/documents/template-pdf/templateCorrespondencia.pdf'); // Ruta del archivo PDF existenteF
+        $data = $InstructorM ->getDataReport($id);
+
+        $pdfPath = public_path('assets/documents/template-pdf/templateConstancia.pdf'); // Ruta del archivo PDF existenteF
         $pdf = new Fpdi(); // Instancia de FPDI (requiere TCPDF o FPDF)
         $pdf->setSourceFile($pdfPath); // Cargar la plantilla PDF existente
         $template = $pdf->importPage(1); // Importar la primera página del PDF existente
@@ -134,4 +136,15 @@ class ReporteCorrespondenciaC extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="pdf-modificado.pdf"');
     }
-}
+
+    }
+
+
+
+
+
+
+
+
+
+

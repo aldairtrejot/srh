@@ -85,7 +85,7 @@ function generateFileHTML(boolx, template) {
 // 📌 Subir archivo
 function sendFile(file, esCv) {
     if (!file) return;
-
+    showSpinner();// Inicio de spinner
     let formData = new FormData();
     formData.append('file', file);
     formData.append('id_tbl_cv', id_tbl_cv);
@@ -100,9 +100,12 @@ function sendFile(file, esCv) {
         headers: { 'X-CSRF-TOKEN': token },
         success: function () {
             console.log("✅ Archivo subido correctamente.");
+            hideSpinner(); // Se oculta el spinner
+            notyfEM.success("Documento agregado correctamente.");
             setTimeout(getDataDocument, 1000);
         },
         error: function (xhr, status, error) {
+            notyfEM.error(response.messages);
             console.error("❌ Error al subir archivo:", xhr.responseText);
         }
     });
@@ -146,11 +149,11 @@ function deleteDocument(uid) {
         data: { uid: uid, _token: token },
         success: function (response) {
             if (response.status) {
-                console.log("✅ Documento eliminado correctamente.");
+                notyfEM.success("El archivo se eliminó correctamente.");
                 setTimeout(getDataDocument, 1000); // Refrescar lista después de eliminar
             } else {
                 console.error("❌ Error al eliminar el documento.");
-                alert("❌ No se pudo eliminar el documento.");
+                notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
         },
         error: function () {

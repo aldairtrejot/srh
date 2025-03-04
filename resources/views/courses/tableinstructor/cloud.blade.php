@@ -38,24 +38,35 @@
 
                                 <!-- Cargar CV -->
                                 <div>
-                                    <x-template-tittle.tittle-caption-secon tittle="CV (Máx 1)" />
-                                    <label for="file_cv_entrada" id="label_cv_entrada" class="upload-label">
-                                        <i class="fa fa-arrow-up" id="icon_cv_entrada"></i> Cargar
-                                    </label>
-                                    <input type="file" id="file_cv_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
-                                    <div id="container_cv_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                    <div id="container_cv_entrada"></div>
+                                <x-template-tittle.tittle-caption-secon tittle="CV (Máx 1)" />
+                                <label for="file_cv_entrada" id="label_cv_entrada" class="upload-label"
+                                style="color: red !important; font-weight: normal; font-size: 1rem; 
+                                padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+        
+                                <i class="fa fa-arrow-up" id="icon_cv_entrada"></i> 
+                                <span style="color: red !important;">Cargar</span>
+                                </label>
+
+                                <input type="file" id="file_cv_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
+                                <div id="container_cv_entrada_vacio" class="rectangulo">Sin contenido</div>
+                                <div id="container_cv_entrada"></div>
                                 </div>
+
 
                                 <!-- Cargar Constancias -->
                                 <div>
-                                    <x-template-tittle.tittle-caption-secon tittle="Constancias (Máx 1)" />
-                                    <label for="file_constancia_entrada" id="label_constancia_entrada" class="upload-label">
-                                        <i class="fa fa-arrow-up" id="icon_constancia_entrada"></i> Cargar
-                                    </label>
-                                    <input type="file" id="file_constancia_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
-                                    <div id="container_constancia_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                    <div id="container_constancia_entrada"></div>
+                                <x-template-tittle.tittle-caption-secon tittle="Constancias (Máx 1)" />
+                                <label for="file_constancia_entrada" id="label_constancia_entrada" 
+                                style="background-color: white; color: red !important; font-weight: normal; font-size: 1rem; 
+                                padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+    
+                                <i class="fa fa-arrow-up" id="icon_constancia_entrada"></i> 
+                                <span style="color: red !important;">Cargar</span>
+                                </label>
+
+                                <input type="file" id="file_constancia_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
+                                <div id="container_constancia_entrada_vacio" class="rectangulo">Sin contenido</div>
+                                <div id="container_constancia_entrada"></div>
                                 </div>
                             </div>
                         </div>

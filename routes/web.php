@@ -47,6 +47,7 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Courses\Tableinstructor\CloudtableinsC;
 use App\Http\Controllers\Courses\Tableinstructor\CloudTableC;
+use App\Http\Controllers\Courses\Tableinstructor\ReporteConstanciaC;
 use Illuminate\Support\Facades\Route;
 
 
@@ -308,6 +309,8 @@ Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp']
 Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see')->middleware('auth');
 Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
 Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
+
+Route::get('/tableinstructor/generate-pdf/constancias/{id}', [ReporteConstanciaC::class, 'generatePdf'])->middleware('auth');
 
 // 📌 Rutas de Cloud Tabla instructores (Carga de documentos)
 Route::get('/tableinstructor/cloud/download/{uuid}', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
