@@ -183,6 +183,12 @@ class OfficeC extends Controller
                 if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $officeM->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
                     $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio'));
                 }
+            } else {
+                if ($request->update_letter) {
+                    $letterM::where('folio_gestion', $request->num_correspondencia)->update([
+                        'id_cat_estatus' => 4
+                    ]);
+                }
             }
 
 

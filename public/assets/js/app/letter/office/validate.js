@@ -37,12 +37,14 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return; // Detener la ejecución aquí
     }
 
-    //guardar
-    $('#num_documento_area').prop('disabled', false); //desabilitar contenid
+    //Validación de poppup de actualizacion de correspondencia
+    if ($('#id_tbl_oficio').val().trim() === '') {
+        refresNota(); // Activación de validador
+        event.preventDefault();  // Detener el envío si la validación falla
+        return;  // Detener la ejecución aquí
+    }
 
-    // Tests
-    event.preventDefault();  // Detener el envío si la validación falla
-    return;  // Detener la ejecución aquí
+    $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
 
 

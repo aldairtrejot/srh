@@ -59,6 +59,9 @@
                                 <x-template-form.template-form-input-hidden name="user_enlace"
                                     value="{{ $user_enlace }}" />
 
+                                <!-- -->
+                                <input type="hidden" id="update_letter" name="update_letter" />
+
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
                                 <div class="contenedor">
@@ -173,3 +176,4 @@
 <script src="{{ asset('assets/js/app/letter/office/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/office/validate.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/office/modal.js') }}"></script>
