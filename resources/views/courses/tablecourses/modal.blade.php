@@ -23,9 +23,9 @@ height="700px">
     </table>
 </div>
 
-<!-- item with add -->
-<input type="file" class="file-input-oficio" style="display: none;" />
-<input type="text" id="id_oficio" style="display: none;" />
+ <!-- item with add -->
+ <input type="file" class="file-input-oficio" style="display: none;" />
+ <input type="text" id="id_oficio" style="display: none;" />
 
 </x-template-modal.modal-template>
 

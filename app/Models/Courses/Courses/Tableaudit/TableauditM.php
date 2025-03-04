@@ -31,7 +31,7 @@ class TableauditM extends Model
     
         return $query; // Retornar los resultados
     }
-    public function auditlist()
+    public function auditlist($id_curso)
     {
         $result = DB::table('capacitacion.cat_auditoria')
         ->select('capacitacion.cat_auditoria.descripcion')
@@ -39,7 +39,7 @@ class TableauditM extends Model
     
         return $result; 
     }
-    public static function getConstanciaUuid()
+    public function getConstanciaUuid()
     {
         try {
             $uuid = DB::table('capacitacion.cat_tipo_uid_cloud AS uid')

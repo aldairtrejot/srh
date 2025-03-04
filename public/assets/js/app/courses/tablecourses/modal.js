@@ -37,7 +37,21 @@ function refreshOficio(id_tbl_cursos) {
 // Función para abrir el modal del Solicitante
 function addSolicitante() {
     $('#modalSolicitante').fadeIn(); // Iniciar ventana modal
+    $('#modalBackdrop').fadeOut();
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/add/courses'),
+        type: 'POST',
+        data: {
+            id_courses : $('#idtbl_cursos_audit').val(),
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+           console.log(response);
+        },
+    });
 }
+
 
 // Función para confirmar la auditoría dentro del modal
 function confirmRefreshOficio() {
@@ -79,85 +93,80 @@ $('.file-input-oficio').on('change', function (event) {
     let file = event.target.files[0]; // Obtener el primer archivo seleccionado
 
     if (file) {
-        if (file) {
-            showSpinner();// Inicio de spinner
-            let data = new FormData();// Crear el objeto FormData
-            data.append('file', file);
-            data.append('id', $('#id_oficio').val());
-            $.ajax({
-                url: URL_DEFAULT.concat("/auditoria/upload"),
-                type: 'POST',
-                data:
-                    data, // Enviar directamente el FormData
-                processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
-                contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
-                headers: {
-                    'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
-                },
-                success: function (response) {
-                    hideSpinner(); // Se oculta el spinner
+        showSpinner(); // Inicio de spinner
+        let data = new FormData(); // Crear el objeto FormData
+        data.append('file', file);
+        data.append('id', $('#id_tbl_auditoria_cursos').val()); // Asegúrate de que el ID se envíe correctamente
+        $.ajax({
+            url: URL_DEFAULT.concat("/auditoria/upload"),
+            type: 'POST',
+            data: data, // Enviar directamente el FormData
+            processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
+            contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
+            headers: {
+                'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
+            },
+            success: function (response) {
+                console.log(response);
+                hideSpinner(); // Se oculta el spinner
 
-                    if (response.status) { //Validacion si es que los cambios se han agregado correctamente
-                        notyfEM.success("Doc. Oficio agregado correctamente.");
-                    } else {
-                        notyfEM.error(response.messages);
-                    }
-                    searchInit(); // Ejecucion de tabla para actualizacion de cambios
+                if (response.status) { // Validación si es que los cambios se han agregado correctamente
+                    notyfEM.success("Se subio el archivo correctamente");
+                    updateTableRow(response.data); // Actualizar la fila de la tabla
+                } else {
+                    notyfEM.error(response.messages);
+                }
+                searchInit(); // Ejecución de tabla para actualización de cambios
 
-                    $('.file-input-oficio').val('');
-                    $('#id_oficio').val('');
-                },
-            });
-        }
+                $('.file-input-oficio').val('');
+                $('#id_tbl_auditoria_cursos').val('');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al subir el archivo: ', error);
+                hideSpinner(); // Se oculta el spinner
+            }
+        });
     }
 });
-
-// Función para subir el archivo a Alfresco
 function uploadFileOficio() {
-    var formData = new FormData();
-    formData.append('file', $('.file-input-oficio')[0].files[0]);
-    formData.append('id_tbl_auditoria_cursos', $('#id_tbl_auditoria_cursos').val());
-    formData.append('_token', token);
+    let fileInput = $('.file-input-oficio')[0];
+    let file = fileInput.files[0]; // Obtener el primer archivo seleccionado
 
-    $.ajax({
-        url: URL_DEFAULT.concat('/auditoria/upload'),
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-            if (response.status) {
-                console.log('Archivo subido correctamente');
-                updateTableRow(response.data);
-            } else {
-                console.error('Error al subir archivo: ', response.messages);
+    if (file) {
+        showSpinner(); // Inicio de spinner
+        let data = new FormData(); // Crear el objeto FormData
+        data.append('file', file);
+        data.append('id', $('#id_tbl_auditoria_cursos').val()); // Asegúrate de que el ID se envíe correctamente
+        $.ajax({
+            url: URL_DEFAULT.concat("/auditoria/upload"),
+            type: 'POST',
+            data: data, // Enviar directamente el FormData
+            processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
+            contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
+            headers: {
+                'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
+            },
+            success: function (response) {
+                console.log(response);
+                hideSpinner(); // Se oculta el spinner
+
+                if (response.status) { // Validación si es que los cambios se han agregado correctamente
+                    notyfEM.success("Doc. Oficio agregado correctamente.");
+                    updateTableRow(response.data); // Actualizar la fila de la tabla
+                } else {
+                    notyfEM.error(response.messages);
+                }
+                searchInit(); // Ejecución de tabla para actualización de cambios
+
+                $('.file-input-oficio').val('');
+                $('#id_tbl_auditoria_cursos').val('');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al subir el archivo: ', error);
+                hideSpinner(); // Se oculta el spinner
             }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error al subir archivo: ', error);
-        }
-    });
-}
-
-// Función para actualizar la fila de la tabla después de subir el archivo
-function updateTableRow(data) {
-    var row = $('#template-tableaudit tbody').find('tr').filter(function () {
-        return $(this).find('button').attr('onclick').includes(data.id);
-    });
-
-    row.find('.button-column').html(`
-        <div class="button-container">
-            <button onclick="seeDocumentUid('${data.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
-                <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
-            </button>
-            <button onclick="download('${data.uuid}')" class="custom-button" title="Descargar">
-                <i style="color: white; font-size: 15px" class="fa fa-download"></i>
-            </button>
-            <button onclick="openModalOificio('${data.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
-                <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
-            </button>
-        </div>
-    `);
+        });
+    }
 }
 
 // Función para buscar la lista de auditorías
@@ -177,8 +186,30 @@ function searchInitaudit() {
                 $('#template-tableaudit tbody').append(
                     '<tr>' +
                     '<td>' + item.descripcion + '</td>' +
-                    '<td>' + (item.aplica ? 'Sí' : 'No') + '</td>' +
-                    '<td><input type="file" name="constancia_' + item.id + '"></td>' +
+                    '<td>' +
+                        '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
+                            '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + (item.aplica ? 'checked' : '') + '>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td class="button-column">' +
+                    (item.uuid == null ? `
+                        <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                            <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                        </button>
+                    ` : `
+                        <div class="button-container">
+                            <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
+                                <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                            </button>
+                            <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
+                                <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                            </button>
+                            <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                                <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    `) +
+                    '</td>' +
                     '</tr>'
                 );
             });
@@ -190,9 +221,6 @@ function searchInitaudit() {
         }
     });
 }
-
-
-
 
 
 
