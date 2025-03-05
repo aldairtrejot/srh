@@ -54,47 +54,80 @@ class TblAuditC extends Controller
 }
 public function saveFile(Request $request)
 {
-    $alfrescoC = new AlfrescoC();
-    $tableauditM = new TableauditM();
-    $now = Carbon::now(); // Hora y fecha actual
-    $status = false;
-    $result = null;
+    try {
+        $alfrescoC = new AlfrescoC();
+        $tableauditM = new TableauditM();
+        $now = Carbon::now(); // Hora y fecha actual
+        $status = false;
+        $result = null;
 
-    if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
-        $file = $request->file('file'); // Obtener el archivo cargado
+        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
+            $file = $request->file('file'); // Obtener el archivo cargado
+            $id_tbl_auditoria_cursos = $request->input('id'); // Obtener el ID del curso
 
-        // Obtener el UUID de la carpeta para Constancias
-        $uuid = $tableauditM->getConstanciaUuid();
-        if (!$uuid) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No se encontró el UUID de la carpeta para Constancias.'
-            ]);
+            if (!$id_tbl_auditoria_cursos) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'ID del curso no proporcionado.'
+                ]);
+            }
+
+            // Validar tipo y tamaño del archivo
+            $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            if (!in_array($file->getMimeType(), $allowedMimeTypes) || $file->getSize() > 10485760) { // 10MB
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Tipo de archivo no permitido o tamaño excedido.'
+                ]);
+            }
+
+            // Obtener el UUID de la carpeta para Constancias
+            $uuid = $tableauditM->getConstanciaUuid();
+            if (!$uuid) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se encontró el UUID de la carpeta para Constancias.'
+                ]);
+            }
+
+            // Subir el archivo a Alfresco
+            $result = $alfrescoC->add($file, $uuid);
+
+            // Validación
+            if ($result) { // Manda el uuid para que se agregue a la tabla
+                Log::info("Archivo subido a Alfresco con UUID: {$result}");
+                $data = [
+                    'uuid_constancias' => $result,
+                    'id_usuario_sistema' => Auth::user()->id,
+                    'fecha_usuario' => $now,
+                ];
+
+                $updateResult = $tableauditM::where('id_tbl_auditoria_cursos', $id_tbl_auditoria_cursos)
+                    ->update($data);
+
+                if ($updateResult) {
+                    Log::info("Tabla actualizada correctamente para ID: {$id_tbl_auditoria_cursos}");
+                    $status = true;
+                } else {
+                    Log::error("Error al actualizar la tabla para ID: {$id_tbl_auditoria_cursos}");
+                }
+            } else {
+                Log::error("Error al subir el archivo a Alfresco.");
+            }
+        } else {
+            Log::error('Archivo no válido o no cargado.');
         }
 
-        // Subir el archivo a Alfresco
-        $result = $alfrescoC->add($file, $uuid);
-
-        // Validación
-        if ($result) { // Manda el uuid para que se agregue a la tabla
-            $data = [
-                'uuid_constancias' => $result,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ];
-
-            $tableauditM::where('id_tbl_auditoria_cursos', $tableauditM->id)
-                ->update($data);
-            $data['id_tbl_auditoria_cursos'] = $tableauditM->id;
-            $status = true;
-        }
-    } else {
-        Log::error('Archivo no válido o no cargado.');
+        return response()->json([
+            'status' => $status,
+            'uuid' => $result,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error al subir el archivo: ' . $e->getMessage());
+        return response()->json([
+            'status' => false,
+            'message' => 'Ocurrió un error al subir el archivo.'
+        ]);
     }
-
-    return response()->json([
-        'status' => $status,
-        'result' => $result,
-    ]);
 }
 }

@@ -131,46 +131,104 @@ $('.file-input-oficio').on('change', function (event) {
         });
     }
 });
+// Modificación en uploadFileOficio para enviar correctamente el ID y actualizar la tabla
 function uploadFileOficio() {
     let fileInput = $('.file-input-oficio')[0];
     let file = fileInput.files[0]; // Obtener el primer archivo seleccionado
+    let id_tbl_auditoria_cursos = $('#id_tbl_auditoria_cursos').val(); // Obtener el ID del curso
+
+    if (!id_tbl_auditoria_cursos) {
+        notyfEM.error("Error: No se encontró el ID del curso.");
+        return;
+    }
 
     if (file) {
-        showSpinner(); // Inicio de spinner
-        let data = new FormData(); // Crear el objeto FormData
+        showSpinner(); // Mostrar spinner
+        let data = new FormData();
         data.append('file', file);
-        data.append('id', $('#id_tbl_auditoria_cursos').val()); // Asegúrate de que el ID se envíe correctamente
+        data.append('id', id_tbl_auditoria_cursos); // Asegurar que el ID se envíe correctamente
+
         $.ajax({
             url: URL_DEFAULT.concat("/auditoria/upload"),
             type: 'POST',
-            data: data, // Enviar directamente el FormData
-            processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
-            contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
-            headers: {
-                'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
-            },
+            data: data,
+            processData: false,
+            contentType: false,
+            headers: { 'X-CSRF-TOKEN': token }, // Token CSRF para seguridad
             success: function (response) {
-                console.log(response);
-                hideSpinner(); // Se oculta el spinner
+                hideSpinner(); // Ocultar spinner
+                if (response.status) {
+                    notyfEM.success("Archivo subido correctamente");
 
-                if (response.status) { // Validación si es que los cambios se han agregado correctamente
-                    notyfEM.success("Doc. Oficio agregado correctamente.");
-                    updateTableRow(response.data); // Actualizar la fila de la tabla
+                    // Actualizar la tabla en la vista con el nuevo UUID
+                    updateTableRow(id_tbl_auditoria_cursos, response.uuid);
                 } else {
-                    notyfEM.error(response.messages);
+                    notyfEM.error(response.message);
                 }
-                searchInit(); // Ejecución de tabla para actualización de cambios
 
-                $('.file-input-oficio').val('');
-                $('#id_tbl_auditoria_cursos').val('');
+                searchInit(); // Refrescar tabla
+                $('.file-input-oficio').val(''); // Limpiar input file
             },
             error: function (xhr, status, error) {
-                console.error('Error al subir el archivo: ', error);
-                hideSpinner(); // Se oculta el spinner
+                console.error('Error al subir archivo:', error);
+                notyfEM.error("Error al subir archivo. Intente nuevamente.");
+                hideSpinner();
             }
         });
+    } else {
+        notyfEM.error("Seleccione un archivo antes de subir.");
     }
 }
+// Nueva función para actualizar la fila de la tabla con el UUID subido
+function updateTableRow(id, uuid) {
+    let row = $(`#template-tableaudit tbody tr`).filter(function () {
+        return $(this).find('button[onclick*="addFileOficio"]').attr('onclick').includes(id);
+    });
+
+    if (row.length > 0) {
+        row.find('.button-column').html(`
+            <div class="button-container">
+                <button onclick="seeDocumentUid('${uuid}')" class="custom-button" title="Ver">
+                    <i class="fa fa-eye"></i>
+                </button>
+                <button onclick="download('${uuid}')" class="custom-button" title="Descargar">
+                    <i class="fa fa-download"></i>
+                </button>
+                <button onclick="openModalOificio('${uuid}')" class="custom-button" title="Eliminar">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        `);
+    } else {
+        console.warn(`No se encontró la fila correspondiente al ID ${id} en la tabla.`);
+    }
+}
+
+// Nueva función para actualizar la fila de la tabla con el UUID subido
+function updateTableRow(id, uuid) {
+    let row = $(`#template-tableaudit tbody tr`).filter(function () {
+        return $(this).find('button[onclick*="addFileOficio"]').attr('onclick').includes(id);
+    });
+
+    if (row.length > 0) {
+        row.find('.button-column').html(`
+            <div class="button-container">
+                <button onclick="seeDocumentUid('${uuid}')" class="custom-button" title="Ver">
+                    <i class="fa fa-eye"></i>
+                </button>
+                <button onclick="download('${uuid}')" class="custom-button" title="Descargar">
+                    <i class="fa fa-download"></i>
+                </button>
+                <button onclick="openModalOificio('${uuid}')" class="custom-button" title="Eliminar">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        `);
+    } else {
+        console.warn(`No se encontró la fila correspondiente al ID ${id} en la tabla.`);
+    }
+}
+
 
 // Función para buscar la lista de auditorías
 function searchInitaudit() {
