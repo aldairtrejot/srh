@@ -9,45 +9,39 @@ $.ajaxSetup({
 // Variables globales
 var iterator = 1;  // Página actual (inicia en 1)
 var emptyContent = false; // Controla si hay contenido en la tabla
-var courseIdToDelete = null; // Almacena el ID del curso a eliminarID del curso a eliminar
+var instructorIdToDelete = null; // Almacena el ID del instructor a eliminar
 
+// ✅ Función para abrir el modal de confirmación
+function confirmDelete(id) {
+    instructorIdToDelete = id; // Guardar el ID
+    $('#modalBackdrop').fadeIn(); // Mostrar modal de confirmación
+}
 
 $(document).ready(function () {
     searchInit(); // Carga inicial de la tabla
     setValue();   // Configura la paginación
 
-    // Modal de confirmación de eliminación
-    var modal = document.getElementById("deleteModal");
-    var span = document.getElementsByClassName("close")[0];
-    var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-    var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-
-    // Cerrar el modal al hacer clic en "x"
-    span.onclick = function() {
-        modal.style.display = "none";
-    };
-
-    // Cerrar el modal al hacer clic en "Cancelar"
-    cancelDeleteBtn.onclick = function() {
-        modal.style.display = "none";
-    };
-
-    // Cerrar el modal al hacer clic fuera de él
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+    // Asegurar que los elementos existen antes de asignar eventos
+    $(document).on('click', '#confirmBtn', function () {
+        if (instructorIdToDelete) {
+            deleteInstructor(instructorIdToDelete);
         }
-    };
+    });
 
-    // Confirmar la eliminación
-    confirmDeleteBtn.onclick = function() {
-        if (courseIdToDelete) {
-            deleteCourse(courseIdToDelete);
+    $(document).on('click', '#cancelBtn', function () {
+        $('#modalBackdrop').fadeOut(); // Cerrar modal
+    });
+
+    $(document).on('click', '.close', function () {
+        $('#modalBackdrop').fadeOut(); // Cerrar modal
+    });
+
+    $(document).on('click', function (event) {
+        if ($(event.target).attr('id') === 'modalBackdrop') {
+            $('#modalBackdrop').fadeOut();
         }
-    };
+    });
 });
-
-
 
 // **🔹 Función para inicializar la búsqueda con paginación**
 function searchInit() {
@@ -132,39 +126,30 @@ function searchInit() {
     });
 }
 
-// **🔹 Muestra el modal de confirmación de eliminación**
-function confirmDelete(id) {
-    courseIdToDelete = id;
-    document.getElementById("deleteModal").style.display = "block";
-}
-
-// **🔹 Elimina un curso**
-function deleteCourse(id) {
-    console.log("🗑️ Intentando eliminar el instructor con ID:", id);
-
+// ✅ Función para eliminar un instructor
+function deleteInstructor(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete/`, 
-        type: 'POST', 
+        url: `${URL_DEFAULT}/tableinstructor/delete`,  // Se mantiene la URL sin el ID en la ruta
+        type: 'POST',  // Método POST en lugar de DELETE
         data: { 
             id: id, 
             _token: token 
         },
-        success: function(response) {
-            console.log("✅ Respuesta del servidor:", response);
-            if (response.status) {
-                alert('✅ Instructor eliminado correctamente.');
-                searchInit();
+        success: function (response) {
+            if (response.success) {
+                notyfEM.success(response.message);
+                $('#modalBackdrop').fadeOut(); // Cerrar modal
+                searchInit(); // Recargar la tabla
             } else {
-                alert('❌ No se pudo eliminar el instructor.');
+                notyfEM.error(response.message);
             }
         },
         error: function(xhr) {
-            console.error("❌ Error en la eliminación:", xhr.responseText);
-            alert("❌ Ocurrió un error al intentar eliminar. Revisa la consola y logs.");
+            console.error("Error al eliminar:", xhr);
+            notyfEM.error("Ocurrió un error inesperado.");
         }
     });
 }
-
 
 // **🔹 Funciones para manejar la paginación**
 function paginatorMax1() {

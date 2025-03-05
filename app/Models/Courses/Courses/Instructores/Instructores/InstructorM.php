@@ -334,4 +334,25 @@ public function obtenerOcrearUsuarioPorCurp($curp)
             ->where('capacitacion.tbl_instructores.id_tbl_instructores', '=', $id)
             ->first(); // Obtiene un solo resultado
     }
+
+    public function deleteInstructorById($id)
+{
+    try {
+        // Buscar el instructor antes de eliminar
+        $instructor = self::where('id_tbl_instructores', $id)->first();
+
+        if (!$instructor) {
+            return ['success' => false, 'message' => 'Instructor no encontrado.'];
+        }
+
+        // Eliminar el instructor
+        $instructor->delete();
+
+        return ['success' => true, 'message' => 'Instructor eliminado correctamente.'];
+    } catch (\Exception $e) {
+        \Log::error("🔥 Error al eliminar instructor: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Error al eliminar instructor.'];
+    }
+}
+
 }    

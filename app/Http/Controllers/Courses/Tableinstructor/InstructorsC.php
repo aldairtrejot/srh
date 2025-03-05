@@ -194,29 +194,6 @@ public function edit($id)
         }
     }
 
-    public function delete(Request $request)
-{
-    Log::info("🗑️ Recibiendo solicitud para eliminar instructor con ID: " . json_encode($request->all()));
-
-    $instructor = InstructorM::find($request->id);
-
-    if (!$instructor) {
-        Log::error("❌ No se encontró el instructor con ID: " . $request->id);
-        return response()->json(['status' => false, 'message' => 'Instructor no encontrado.']);
-    }
-
-    try {
-        $instructor->delete();
-        Log::info("✅ Instructor eliminado correctamente con ID: " . $request->id);
-        return response()->json(['status' => true, 'message' => 'Instructor eliminado correctamente.']);
-    } catch (\Exception $e) {
-        Log::error("🔥 Error al eliminar instructor: " . $e->getMessage());
-        return response()->json(['status' => false, 'message' => 'No se pudo eliminar el instructor.']);
-    }
-}
-
-
-
     public function cloud($id)
 {
     Log::info("📌 ID recibido en InstructorsC@cloud():", ['id' => $id]);
@@ -225,6 +202,25 @@ public function edit($id)
         'idInstructor' => $id
     ]);
 }
+
+public function delete(Request $request)
+{
+    try {
+        $id = $request->id;
+
+        // Llamar a la nueva función en el modelo
+        $instructorM = new InstructorM();
+        $response = $instructorM->deleteInstructorById($id);
+
+        return response()->json($response);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al eliminar instructor: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 
 }
 
