@@ -40,7 +40,8 @@ class CloudTableC extends Controller
     }
 
     // Determinar la carpeta en Alfresco
-    $folderId = $esCv ? CloudM::getCvUuid() : CloudM::getConstanciaUuid();
+    $cloudM = new CloudM();
+    $folderId = $esCv ? $cloudM->getCvUuid() : $cloudM->getConstanciaUuid();
 
     if (!$folderId) {
         Log::error("❌ Error: No se encontró la carpeta de destino en Alfresco.");
@@ -90,7 +91,8 @@ class CloudTableC extends Controller
         ($esCv ? 'nombre_cv' : 'nombre_constancia') => $file->getClientOriginalName(),
     ];
 
-    CloudM::updateDocument($id_tbl_cv, $data);
+    $cloudM = new CloudM();
+    $cloudM->updateDocument($id_tbl_cv, $data);
 
     Log::info("✅ Archivo subido correctamente con UID: " . $uid);
     return response()->json(['messages' => 'Archivo subido correctamente.', 'status' => true]);
@@ -188,8 +190,7 @@ class CloudTableC extends Controller
     }
 }
 
-
-    /**
+/**
      * 📌 Vista de Cloud para el instructor
      */
     public function cloud($id)

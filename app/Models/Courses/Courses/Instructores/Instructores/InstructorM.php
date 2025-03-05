@@ -52,6 +52,7 @@ class InstructorM extends Model
             ->leftJoin('public.tbl_empleados_hraes AS public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes');
     
         // 🔍 Agregar condiciones de búsqueda
+
         if (!empty($searchValue)) {
             $searchValue = strtoupper(trim($searchValue));
             $query->where(function ($query) use ($searchValue) {
@@ -281,5 +282,56 @@ public function obtenerOcrearUsuarioPorCurp($curp)
             return null;
         }
     }
-    
-}
+
+
+    public function getDataReport($id)
+    {
+        return DB::table('capacitacion.tbl_instructores')
+            ->select([
+                'capacitacion.tbl_instructores.id_tbl_instructores',
+                DB::raw("
+                    CASE
+                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.curp)
+                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.curp)
+                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.curp)
+                    END AS curp
+                "),
+                DB::raw("
+                    CASE
+                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.nombre)
+                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.nombre)
+                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.nombre)
+                    END AS nombre
+                "),
+                DB::raw("
+                    CASE
+                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.primer_apellido)
+                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.primer_apellido)
+                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.primer_apellido)
+                    END AS primer_apellido
+                "),
+                DB::raw("
+                    CASE
+                        WHEN administration.users.id_cat_tipo_schema = 1 THEN UPPER(central.segundo_apellido)
+                        WHEN administration.users.id_cat_tipo_schema = 2 THEN UPPER(public.segundo_apellido)
+                        WHEN administration.users.id_cat_tipo_schema = 3 THEN UPPER(transferidos.segundo_apellido)
+                    END AS segundo_apellido
+                "),
+                DB::raw("
+                    CASE
+                        WHEN CAST(capacitacion.tbl_instructores.estatus AS BOOLEAN) = TRUE THEN 'ACTIVO'
+                        ELSE 'INACTIVO'
+                    END AS estatus_instructor
+                "),
+                'administration.users.email',
+                'administration.users.name AS usuario_sistema',
+                'capacitacion.tbl_instructores.fecha_usuario'
+            ])
+            ->join('administration.users', 'capacitacion.tbl_instructores.id_usuario_empleado', '=', 'administration.users.id')
+            ->leftJoin('central.tbl_empleados_hraes AS central', 'administration.users.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
+            ->leftJoin('transferidos.tbl_empleados AS transferidos', 'administration.users.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
+            ->leftJoin('public.tbl_empleados_hraes AS public', 'administration.users.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes')
+            ->where('capacitacion.tbl_instructores.id_tbl_instructores', '=', $id)
+            ->first(); // Obtiene un solo resultado
+    }
+}    

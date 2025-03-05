@@ -24,7 +24,7 @@ class CloudM extends Model
     /**
      * 📌 Obtiene el UID de la carpeta donde se subirá el CV.
      */
-    public static function getCvUuid()
+    public  function getCvUuid()
     {
         try {
             $uuid = DB::table('capacitacion.cat_tipo_uid_cloud AS uid')
@@ -48,7 +48,7 @@ class CloudM extends Model
     /**
      * 📌 Obtiene el UID de la carpeta donde se subirá la Constancia.
      */
-    public static function getConstanciaUuid()
+    public  function getConstanciaUuid()
     {
         try {
             $uuid = DB::table('capacitacion.cat_tipo_uid_cloud AS uid')
@@ -69,7 +69,7 @@ class CloudM extends Model
         }
     }
 
-    public static function updateDocument($id, $data)
+    public  function updateDocument($id, $data)
 {
     try {
         if (!is_numeric($id)) {

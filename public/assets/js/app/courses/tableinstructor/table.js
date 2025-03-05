@@ -69,6 +69,7 @@ function searchInit() {
                     const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
                     const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
                     const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
+                    const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
                     const rowHTML = `
                         <tr>
                             <td>
@@ -95,7 +96,7 @@ function searchInit() {
                                             Cloud
                                         </a>
                                          <!-- Nuevo Botón Constancia -->
-                                        <a class="dropdown-item" href="#" onclick="viewConstancia(${object.id_tbl_instructores})">
+                                        <a class="dropdown-item" href="${urlReport}">
                                             <span style="background:#1E90FF" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-file item-icon-menu"></i>
