@@ -20,17 +20,17 @@ class TableauditM extends Model
         'fecha_usuario',
     ];
 
-    public function list()
+    public function list($id_tbl_cursos)
     {
-        // Preparar la consulta base
-        $query = DB::table('capacitacion.cat_auditoria')
-            ->select([
-                DB::raw('capacitacion.cat_auditoria.descripcion AS descripcion')
-            ])
-            ->get(); // Ejecutar la consulta y obtener los resultados
+        $query = DB::table('capacitacion.tbl_auditoria_cursos')
+            ->join('capacitacion.cat_auditoria', 'capacitacion.tbl_auditoria_cursos.id_cat_auditoria', '=', 'capacitacion.cat_auditoria.id_cat_auditoria')
+            ->where('capacitacion.tbl_auditoria_cursos.id_tbl_cursos', $id_tbl_cursos)
+            ->select('capacitacion.tbl_auditoria_cursos.id_tbl_auditoria_cursos AS id', 'capacitacion.cat_auditoria.descripcion')
+            ->get();
     
-        return $query; // Retornar los resultados
+        return response()->json($query); // Retornar en formato JSON
     }
+    
 
     public function auditlist($id_curso)
     {

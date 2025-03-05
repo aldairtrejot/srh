@@ -89,12 +89,13 @@ function confirmSolicitante() {
 
 // Función que se activa al momento de presionar el botón de agregar
 function addFileOficio(id) {
+    console.log(id);
     $('#id_tbl_auditoria_cursos').val(id); // Se define el id oculto para su validación
     $('.file-input-oficio').click(); // Se abre el botón para agregar archivo
 }
 $('.file-input-oficio').on('change', function (event) {
     let file = event.target.files[0]; // Obtener el primer archivo seleccionado
-
+console.log($('#id_tbl_auditoria_cursos').val())
     if (file) {
         showSpinner(); // Inicio de spinner
         let data = new FormData(); // Crear el objeto FormData
@@ -179,56 +180,6 @@ function uploadFileOficio() {
         notyfEM.error("Seleccione un archivo antes de subir.");
     }
 }
-// Nueva función para actualizar la fila de la tabla con el UUID subido
-function updateTableRow(id, uuid) {
-    let row = $(`#template-tableaudit tbody tr`).filter(function () {
-        return $(this).find('button[onclick*="addFileOficio"]').attr('onclick').includes(id);
-    });
-
-    if (row.length > 0) {
-        row.find('.button-column').html(`
-            <div class="button-container">
-                <button onclick="seeDocumentUid('${uuid}')" class="custom-button" title="Ver">
-                    <i class="fa fa-eye"></i>
-                </button>
-                <button onclick="download('${uuid}')" class="custom-button" title="Descargar">
-                    <i class="fa fa-download"></i>
-                </button>
-                <button onclick="openModalOificio('${uuid}')" class="custom-button" title="Eliminar">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </div>
-        `);
-    } else {
-        console.warn(`No se encontró la fila correspondiente al ID ${id} en la tabla.`);
-    }
-}
-
-// Nueva función para actualizar la fila de la tabla con el UUID subido
-function updateTableRow(id, uuid) {
-    let row = $(`#template-tableaudit tbody tr`).filter(function () {
-        return $(this).find('button[onclick*="addFileOficio"]').attr('onclick').includes(id);
-    });
-
-    if (row.length > 0) {
-        row.find('.button-column').html(`
-            <div class="button-container">
-                <button onclick="seeDocumentUid('${uuid}')" class="custom-button" title="Ver">
-                    <i class="fa fa-eye"></i>
-                </button>
-                <button onclick="download('${uuid}')" class="custom-button" title="Descargar">
-                    <i class="fa fa-download"></i>
-                </button>
-                <button onclick="openModalOificio('${uuid}')" class="custom-button" title="Eliminar">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </div>
-        `);
-    } else {
-        console.warn(`No se encontró la fila correspondiente al ID ${id} en la tabla.`);
-    }
-}
-
 
 // Función para buscar la lista de auditorías
 function searchInitaudit() {
@@ -236,46 +187,58 @@ function searchInitaudit() {
         url: URL_DEFAULT.concat('/auditoria/list/courses'),
         type: 'POST',
         data: {
+            id_tbl_cursos: $('#idtbl_cursos_audit').val(),
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            // Limpiar la tabla antes de agregar nuevos datos
-            $('#template-tableaudit tbody').empty();
+            console.log(response);
 
-            // Iterar sobre los datos recibidos y agregarlos a la tabla
-            response.data.forEach(function (item) {
-                $('#template-tableaudit tbody').append(
-                    '<tr>' +
-                    '<td>' + item.descripcion + '</td>' +
-                    '<td>' +
-                        '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
-                            '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + (item.aplica ? 'checked' : '') + '>' +
-                        '</div>' +
-                    '</td>' +
-                    '<td class="button-column">' +
-                    (item.uuid == null ? `
-                        <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
-                            <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
-                        </button>
-                    ` : `
-                        <div class="button-container">
-                            <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
-                                <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
-                            </button>
-                            <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
-                                <i style="color: white; font-size: 15px" class="fa fa-download"></i>
-                            </button>
-                            <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
-                                <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
-                            </button>
-                        </div>
-                    `) +
-                    '</td>' +
-                    '</tr>'
-                );
-            });
+            // Verificar si response.data.original es un array
+            if (Array.isArray(response.data.original)) {
+                // Limpiar la tabla antes de agregar nuevos datos
+                let tableBody = $('#template-tableaudit tbody');
+                tableBody.empty();
 
-            console.log('Datos de auditoría cargados');
+                // Construir el HTML de la tabla
+                let rows = '';
+                response.data.original.forEach(function (item) {
+                    rows += '<tr>' +
+                            '<td>' + item.descripcion + '</td>' +
+                            '<td>' +
+                                '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
+                                    '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + (item.aplica ? 'checked' : '') + '>' +
+                                '</div>' +
+                            '</td>' +
+                            '<td class="button-column">' +
+                            (item.uuid == null ? `
+                                <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                                    <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                                </button>
+                            ` : `
+                                <div class="button-container">
+                                    <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
+                                        <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                                    </button>
+                                    <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                                    </button>
+                                    <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            `) +
+                            '</td>' +
+                            '<td style="display:none;">' + item.id_cat_auditoria + '</td>' + // Campo oculto
+                            '</tr>';
+                });
+
+                // Agregar las filas a la tabla
+                tableBody.append(rows);
+
+                console.log('Datos de auditoría cargados');
+            } else {
+                console.error('Formato de datos inesperado:', response.data);
+            }
         },
         error: function (xhr, status, error) {
             console.error('Error al cargar datos de auditoría: ', error);

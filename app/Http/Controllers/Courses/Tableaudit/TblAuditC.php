@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Courses\Tableaudit;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;  
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Courses\Courses\Tableaudit\TableauditM;
@@ -38,7 +38,7 @@ class TblAuditC extends Controller
 {
     try {
         $tableauditm = new TableauditM();
-        $result = $tableauditm->list();
+        $result = $tableauditm->list($request->id_tbl_cursos);
 
         return response()->json([
             'status' => true,
