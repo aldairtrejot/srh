@@ -116,7 +116,7 @@ console.log($('#id_tbl_auditoria_cursos').val())
 
                 if (response.status) { // Validación si es que los cambios se han agregado correctamente
                     notyfEM.success("Se subio el archivo correctamente");
-                    updateTableRow(response.data); // Actualizar la fila de la tabla
+                   // updateTableRow(response.data); // Actualizar la fila de la tabla
                 } else {
                     notyfEM.error(response.messages);
                 }
@@ -134,51 +134,53 @@ console.log($('#id_tbl_auditoria_cursos').val())
 });
 // Modificación en uploadFileOficio para enviar correctamente el ID y actualizar la tabla
 function uploadFileOficio() {
-    let fileInput = $('.file-input-oficio')[0];
-    let file = fileInput.files[0]; // Obtener el primer archivo seleccionado
-    let id_tbl_auditoria_cursos = $('#id_tbl_auditoria_cursos').val(); // Obtener el ID del curso
-
-    if (!id_tbl_auditoria_cursos) {
-        notyfEM.error("Error: No se encontró el ID del curso.");
-        return;
-    }
-
-    if (file) {
-        showSpinner(); // Mostrar spinner
-        let data = new FormData();
-        data.append('file', file);
-        data.append('id', id_tbl_auditoria_cursos); // Asegurar que el ID se envíe correctamente
-
-        $.ajax({
-            url: URL_DEFAULT.concat("/auditoria/upload"),
-            type: 'POST',
-            data: data,
-            processData: false,
-            contentType: false,
-            headers: { 'X-CSRF-TOKEN': token }, // Token CSRF para seguridad
-            success: function (response) {
-                hideSpinner(); // Ocultar spinner
-                if (response.status) {
-                    notyfEM.success("Archivo subido correctamente");
-
-                    // Actualizar la tabla en la vista con el nuevo UUID
-                    updateTableRow(id_tbl_auditoria_cursos, response.uuid);
-                } else {
-                    notyfEM.error(response.message);
+    $('.file-input-oficio').on('change', function (event) {
+        let file = event.target.files[0]; // Obtener el primer archivo seleccionado
+        let id_tbl_auditoria_cursos = $('#id_tbl_auditoria_cursos').val(); // Obtener el ID del curso
+    
+        if (file) {
+            showSpinner(); // Mostrar spinner
+            let data = new FormData();
+            data.append('file', file); // 'file' es el nombre del campo para el archivo
+            data.append('id', id_tbl_auditoria_cursos); // Enviar el ID del curso
+    
+            $.ajax({
+                url: URL_DEFAULT.concat("/auditoria/upload"), // Ruta para subir el archivo
+                type: 'POST',
+                data: data,
+                processData: false,
+                contentType: false,
+                headers: { 'X-CSRF-TOKEN': token }, // Token CSRF para seguridad
+                success: function (response) {
+                    hideSpinner(); // Ocultar spinner
+                    if (response.status) {
+                        notyfEM.success("Archivo subido correctamente");
+    
+                        // Obtener el UUID del archivo subido
+                        console.log("UUID del archivo:", response.uuid);
+    
+                        // Actualizar la tabla con el nuevo UUID
+                        // Aquí puedes hacer lo que sea necesario con el UUID, como actualizar la fila
+                       // updateTableRow(id_tbl_auditoria_cursos, response.uuid);
+                    } else {
+                        notyfEM.error(response.message);
+                    }
+    
+                    searchInitaudit(); // Refrescar tabla
+                    $('.file-input-oficio').val(''); // Limpiar input file
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al subir el archivo:', error);
+                    notyfEM.error("Error al subir archivo. Intente nuevamente.");
+                    hideSpinner();
                 }
-
-                searchInit(); // Refrescar tabla
-                $('.file-input-oficio').val(''); // Limpiar input file
-            },
-            error: function (xhr, status, error) {
-                console.error('Error al subir archivo:', error);
-                notyfEM.error("Error al subir archivo. Intente nuevamente.");
-                hideSpinner();
-            }
-        });
-    } else {
-        notyfEM.error("Seleccione un archivo antes de subir.");
-    }
+            });
+        } else {
+            notyfEM.error("Seleccione un archivo antes de subir.");
+        }
+    });
+    
+    
 }
 
 // Función para buscar la lista de auditorías

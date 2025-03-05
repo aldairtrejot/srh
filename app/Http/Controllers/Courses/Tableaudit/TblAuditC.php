@@ -130,4 +130,65 @@ public function saveFile(Request $request)
         ]);
     }
 }
+
+public function uploadFile(Request $request)
+{
+    // Obtener el archivo y su ID
+    $file = $request->file('file');
+    $id_tbl_auditoria_cursos = $request->input('id');
+
+    // Verificar que el archivo esté presente
+    if (!$file) {
+        return response()->json(['status' => false, 'message' => 'No se seleccionó ningún archivo.']);
+    }
+
+    // Subir archivo a Alfresco (simulación de proceso de subida)
+    // Aquí iría tu código para subir el archivo a Alfresco y obtener el UUID
+    // Ejemplo:
+    $alfrescoResponse = $this->uploadToAlfresco($file); // Esta función debe devolver el UUID
+
+    // Suponiendo que el UUID es parte de la respuesta de Alfresco
+    $uuid = $alfrescoResponse['uuid']; // Asegúrate de que 'uuid' esté presente en la respuesta
+
+    if (!$uuid) {
+        return response()->json(['status' => false, 'message' => 'Error al obtener el UUID del archivo.']);
+    }
+
+    // Llamar a la función del modelo para actualizar el UUID en la base de datos
+    $tableauditModel = new TableauditM();
+    $result = $tableauditModel->updateUuidConstancia($id_tbl_auditoria_cursos, $uuid);
+
+    // Verificar si la actualización fue exitosa
+    if ($result) {
+        return response()->json(['status' => true, 'uuid' => $uuid]);
+    } else {
+        return response()->json(['status' => false, 'message' => 'Error al actualizar la base de datos']);
+    }
+}
+
+public function uploadToAlfresco($file)
+{
+    // Aquí iría la lógica para subir el archivo a Alfresco y obtener su UUID
+    // Por ejemplo, se puede usar una API de Alfresco para subir el archivo
+    // y obtener la respuesta con el UUID.
+    // Este es un ejemplo ficticio de cómo podrías hacerlo:
+
+    $alfrescoApiUrl = 'https://tu-servidor-alfresco/api/upload'; // URL de la API de Alfresco
+    $client = new \GuzzleHttp\Client();
+    $response = $client->post($alfrescoApiUrl, [
+        'multipart' => [
+            [
+                'name'     => 'file',
+                'contents' => fopen($file->getRealPath(), 'r'),
+                'filename' => $file->getClientOriginalName()
+            ]
+        ]
+    ]);
+
+    $responseBody = json_decode($response->getBody()->getContents(), true);
+
+    // Retornar el UUID del archivo subido
+    return $responseBody; // Asegúrate de que la respuesta contenga el 'uuid'
+}
+
 }
