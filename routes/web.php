@@ -327,7 +327,16 @@ Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('table
 Route::post('/auditoria/add/courses', [TblAuditC::class, 'storeAudit'])->name('auditoria.add.courses')->middleware('auth');
 Route::post('/auditoria/list/courses', [TblAuditC::class, 'getAuditList'])->name('auditoria.list.courses')->middleware('auth');
 Route::post('/auditoria/upload', [TblAuditC::class, 'saveFile'])->name('auditoria.upload.courses')->middleware('auth');
-Route::post('/auditoria/addOficio', [CommunicationC::class, 'addOficio'])->name('communication.addOficio')->middleware('auth');
+Route::post('/auditoria/addOficio', [CommunicationC::class, 'addOficio'])->name('auditoria.addOficio')->middleware('auth');
+Route::post('/auditoria/see', [AlfrescoC::class, 'see'])->name('auditoria.see')->middleware('auth');
+Route::post('/auditoria/download', [AlfrescoC::class, 'download'])->name('auditoria.download')->middleware('auth');
+Route::post('/auditoria/delete', [TblAuditC::class, 'deleteDocument'])->name('auditoria.delete')->middleware('auth');
+
+
+
+
+
+
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');

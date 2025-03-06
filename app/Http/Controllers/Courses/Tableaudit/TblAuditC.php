@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Courses\Courses\Tableaudit\TableauditM;
+
 use Illuminate\Support\Carbon;
 
 class TblAuditC extends Controller
@@ -190,5 +191,55 @@ public function uploadToAlfresco($file)
     // Retornar el UUID del archivo subido
     return $responseBody; // Asegúrate de que la respuesta contenga el 'uuid'
 }
+
+public function seeDocument(Request $request)
+{
+    $alfresco = new AlfrescoC(); // Crear una instancia del controlador
+    return $alfresco->see($request); // Llamar la función see y retornar la respuesta
+}
+public function downloadDocument(Request $request)
+{
+    $alfresco = new AlfrescoC(); // Instancia del controlador Alfresco
+    return $alfresco->download($request); // Llamar a la función de descarga y devolver la respuesta
+}
+public function deleteDocument(Request $request)
+{
+    $uid = $request->uid;
+
+    Log::info("🗑️ Intentando eliminar el documento con UID: " . $uid);
+
+    // Verificar que el UID es válido
+    if (!$uid) {
+        Log::error("❌ Error: No se recibió un UID válido para eliminar.");
+        return response()->json(['status' => false, 'message' => 'UID inválido.']);
+    }
+
+    // Llamar a la función de eliminación en Alfresco
+    $eliminado = $this->alfresco->delete($uid);
+
+    if ($eliminado) {
+        Log::info("✅ Documento eliminado en Alfresco. Procediendo a eliminar en la base de datos.");
+
+        // Buscar y actualizar la base de datos para eliminar la referencia de `uuid_constancias`
+        $documento = TableauditM::where('uuid_constancias', $uid)->first();
+
+        if ($documento) {
+            // Eliminar la referencia de `uuid_constancias`
+            $documento->uuid_constancias = null;
+
+            $documento->save();
+            Log::info("✅ Documento eliminado de la base de datos.");
+
+            return response()->json(['status' => true, 'message' => 'Documento eliminado.']);
+        } else {
+            Log::warning("⚠️ No se encontró el documento en la base de datos.");
+            return response()->json(['status' => true, 'message' => 'Documento eliminado de Alfresco, pero no encontrado en la base de datos.']);
+        }
+    } else {
+        Log::error("❌ Error: No se pudo eliminar el documento en Alfresco.");
+        return response()->json(['status' => false, 'message' => 'No se pudo eliminar el documento.']);
+    }
+}
+
 
 }

@@ -155,6 +155,7 @@ function uploadFileOficio() {
                     hideSpinner(); // Ocultar spinner
                     if (response.status) {
                         notyfEM.success("Archivo subido correctamente");
+                        location.reload(); // Recargar la página para actualizar la lista
     
                         // Obtener el UUID del archivo subido
                         console.log("UUID del archivo:", response.uuid);
@@ -163,7 +164,7 @@ function uploadFileOficio() {
                         // Aquí puedes hacer lo que sea necesario con el UUID, como actualizar la fila
                        // updateTableRow(id_tbl_auditoria_cursos, response.uuid);
                     } else {
-                        notyfEM.error(response.message);
+                        alert("Error al eliminar el archivo: " + data.message);
                     }
     
                     searchInitaudit(); // Refrescar tabla
@@ -182,6 +183,80 @@ function uploadFileOficio() {
     
     
 }
+function seeDocumentUid(uuid) {// ESTA FUNCION ES PARA PODER VISUALIZAR EL ARCHIVO QUE SE SUBIO A ALFRESCO
+    $.ajax({
+        url: URL_DEFAULT.concat("/auditoria/see"),
+        type: "POST",
+        data: {
+            uid: uuid,
+            _token: token // Token CSRF
+        },
+        xhrFields: {
+            responseType: 'blob' // Para recibir archivos binarios (PDF, imágenes, etc.)
+        },
+        success: function (response, status, xhr) {
+            let contentType = xhr.getResponseHeader("Content-Type");
+
+            // Crear un objeto Blob con el contenido recibido
+            let blob = new Blob([response], { type: contentType });
+
+            // Crear una URL temporal para el archivo y abrirlo
+            let url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al visualizar el documento:", error);
+            alert("No se pudo abrir el documento.");
+        }
+    });
+}
+function download(uuid) {// ESTA FUNCION ES PARA DESCARGAR EL ARCHIVO QUE SE SUBIO EN ALFRESCO
+    let form = document.createElement("form");
+    form.setAttribute("method", "POST");
+    form.setAttribute("action", URL_DEFAULT.concat("/auditoria/download"));
+
+    let tokenInput = document.createElement("input");
+    tokenInput.setAttribute("type", "hidden");
+    tokenInput.setAttribute("name", "_token");
+    tokenInput.setAttribute("value", token); // Token CSRF
+
+    let uuidInput = document.createElement("input");
+    uuidInput.setAttribute("type", "hidden");
+    uuidInput.setAttribute("name", "uid");
+    uuidInput.setAttribute("value", uuid);
+
+    form.appendChild(tokenInput);
+    form.appendChild(uuidInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function openModalOificio(uuid) {//ESTA FUNCION ES PARA ELIMINAR EL ARCHIVO QUE SE SUBIO EN ALFRESCO
+    if (confirm("¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.")) {
+        fetch(URL_DEFAULT.concat('/auditoria/delete'), {
+            method: "POST",  // Método POST para la eliminación
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": token // Agregar el token CSRF
+            },
+            body: JSON.stringify({ uid: uuid })  // Enviar el UID en el cuerpo de la solicitud
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status) {
+                alert("Archivo eliminado correctamente.");
+                location.reload(); // Recargar la página para actualizar la lista
+            } else {
+                alert("Error al eliminar el archivo: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error en la solicitud:", error);
+            alert("No se pudo eliminar el archivo. Inténtalo de nuevo.");
+        });
+    }
+}
+
 
 // Función para buscar la lista de auditorías
 function searchInitaudit() {
@@ -204,7 +279,7 @@ function searchInitaudit() {
                 // Construir el HTML de la tabla
                 let rows = '';
                 response.data.original.forEach(function (item) {
-                    rows += '<tr>' +
+                    rows += '<tr data-uuid="${item.uuid}">' +
                             '<td>' + item.descripcion + '</td>' +
                             '<td>' +
                                 '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
@@ -233,6 +308,8 @@ function searchInitaudit() {
                             '<td style="display:none;">' + item.id_cat_auditoria + '</td>' + // Campo oculto
                             '</tr>';
                 });
+               
+                
 
                 // Agregar las filas a la tabla
                 tableBody.append(rows);
