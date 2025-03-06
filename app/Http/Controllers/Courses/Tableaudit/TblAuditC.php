@@ -169,28 +169,24 @@ public function uploadFile(Request $request)
 
 public function uploadToAlfresco($file)
 {
-    // Aquí iría la lógica para subir el archivo a Alfresco y obtener su UUID
-    // Por ejemplo, se puede usar una API de Alfresco para subir el archivo
-    // y obtener la respuesta con el UUID.
-    // Este es un ejemplo ficticio de cómo podrías hacerlo:
+    // Obtener el folderId de alguna manera, puede ser de la base de datos o parámetros de entrada
+    $folderId = 'id_del_folder_alfresco'; // Aquí deberías tener el folderId correspondiente
 
-    $alfrescoApiUrl = 'https://tu-servidor-alfresco/api/upload'; // URL de la API de Alfresco
-    $client = new \GuzzleHttp\Client();
-    $response = $client->post($alfrescoApiUrl, [
-        'multipart' => [
-            [
-                'name'     => 'file',
-                'contents' => fopen($file->getRealPath(), 'r'),
-                'filename' => $file->getClientOriginalName()
-            ]
-        ]
-    ]);
+    // Crear una instancia de AlfrescoC para poder usar su método add
+    $alfrescoC = new AlfrescoC();
 
-    $responseBody = json_decode($response->getBody()->getContents(), true);
+    // Llamar a la función add en el controlador de AlfrescoC para subir el archivo
+    $fileUid = $alfrescoC->add($file, $folderId); // Usamos el método add de AlfrescoC para subir el archivo
 
-    // Retornar el UUID del archivo subido
-    return $responseBody; // Asegúrate de que la respuesta contenga el 'uuid'
+    if (!$fileUid) {
+        // Si no se puede subir el archivo, retornamos un error
+        return response()->json(['status' => false, 'message' => 'Error al subir el archivo a Alfresco.']);
+    }
+
+    // Si el archivo se subió correctamente, retornamos el UUID
+    return $fileUid; // Retornamos el UUID que nos da Alfresco
 }
+
 
 public function seeDocument(Request $request)
 {
@@ -240,6 +236,8 @@ public function deleteDocument(Request $request)
         return response()->json(['status' => false, 'message' => 'No se pudo eliminar el documento.']);
     }
 }
+
+
 
 
 }

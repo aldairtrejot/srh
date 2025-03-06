@@ -27,6 +27,8 @@ class TableauditM extends Model
             ->join('capacitacion.cat_auditoria', 'capacitacion.tbl_auditoria_cursos.id_cat_auditoria', '=', 'capacitacion.cat_auditoria.id_cat_auditoria')
             ->where('capacitacion.tbl_auditoria_cursos.id_tbl_cursos', $id_tbl_cursos)
             ->select('capacitacion.tbl_auditoria_cursos.id_tbl_auditoria_cursos AS id', 'capacitacion.cat_auditoria.descripcion','capacitacion.tbl_auditoria_cursos.uuid_constancias AS uuid')
+            ->orderBy('capacitacion.tbl_auditoria_cursos.id_tbl_auditoria_cursos','ASC')
+            ->orderBy('capacitacion.tbl_auditoria_cursos.id_cat_auditoria','ASC')
             ->get();
     
         return response()->json($query); // Retornar en formato JSON

@@ -338,6 +338,7 @@ Route::post('/auditoria/delete', [TblAuditC::class, 'deleteDocument'])->name('au
 
 
 
+
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 

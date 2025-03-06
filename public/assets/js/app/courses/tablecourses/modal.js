@@ -22,7 +22,7 @@ $(document).ready(function () {
 
     // Evento change para el input de archivo
     $('.file-input-oficio').change(function () {
-        uploadFileOficio();
+        $('#id_oficio').fadeOut();
     });
 });
 
@@ -120,7 +120,8 @@ console.log($('#id_tbl_auditoria_cursos').val())
                 } else {
                     notyfEM.error(response.messages);
                 }
-                searchInit(); // Ejecución de tabla para actualización de cambios
+                
+                searchInitaudit(); // Ejecución de tabla para actualización de cambios
 
                 $('.file-input-oficio').val('');
                 $('#id_tbl_auditoria_cursos').val('');
@@ -132,57 +133,41 @@ console.log($('#id_tbl_auditoria_cursos').val())
         });
     }
 });
-// Modificación en uploadFileOficio para enviar correctamente el ID y actualizar la tabla
-function uploadFileOficio() {
-    $('.file-input-oficio').on('change', function (event) {
-        let file = event.target.files[0]; // Obtener el primer archivo seleccionado
-        let id_tbl_auditoria_cursos = $('#id_tbl_auditoria_cursos').val(); // Obtener el ID del curso
-    
-        if (file) {
-            showSpinner(); // Mostrar spinner
-            let data = new FormData();
-            data.append('file', file); // 'file' es el nombre del campo para el archivo
-            data.append('id', id_tbl_auditoria_cursos); // Enviar el ID del curso
-    
-            $.ajax({
-                url: URL_DEFAULT.concat("/auditoria/upload"), // Ruta para subir el archivo
-                type: 'POST',
-                data: data,
-                processData: false,
-                contentType: false,
-                headers: { 'X-CSRF-TOKEN': token }, // Token CSRF para seguridad
-                success: function (response) {
-                    hideSpinner(); // Ocultar spinner
-                    if (response.status) {
-                        notyfEM.success("Archivo subido correctamente");
-                        location.reload(); // Recargar la página para actualizar la lista
-    
-                        // Obtener el UUID del archivo subido
-                        console.log("UUID del archivo:", response.uuid);
-    
-                        // Actualizar la tabla con el nuevo UUID
-                        // Aquí puedes hacer lo que sea necesario con el UUID, como actualizar la fila
-                       // updateTableRow(id_tbl_auditoria_cursos, response.uuid);
-                    } else {
-                        alert("Error al eliminar el archivo: " + data.message);
-                    }
-    
-                    searchInitaudit(); // Refrescar tabla
-                    $('.file-input-oficio').val(''); // Limpiar input file
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error al subir el archivo:', error);
-                    notyfEM.error("Error al subir archivo. Intente nuevamente.");
-                    hideSpinner();
-                }
-            });
-        } else {
-            notyfEM.error("Seleccione un archivo antes de subir.");
+
+// Función para actualizar el estatus
+function updateEstatus(id, estatus) {
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/update/estatus'),
+        type: 'POST',
+        data: {
+            id: id,          // Enviar el ID del curso
+            estatus: estatus, // El nuevo estatus (true o false)
+            _token: token    // Token CSRF
+        },
+        success: function(response) {
+            if (response.status) {
+                console.log("Estatus actualizado correctamente");
+                
+            } else {
+                console.error("Error al actualizar el estatus");
+            }
+            searchInitaudit(); // Llamar a searchInitaudit para refrescar la tabla
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al actualizar el estatus: ', error);
         }
     });
-    
-    
 }
+// Evento para cambiar el estatus cuando el interruptor se cambia
+$('.toggle-switch').on('change', function() {
+    // Obtener el ID de la fila (suponiendo que el ID está en un atributo data-uuid)
+    let id = $(this).closest('tr').data('uuid');
+    let estatus = $(this).prop('checked');  // Obtener el valor del interruptor (true o false)
+
+    updateEstatus(id, estatus); // Llamar a la función para actualizar el estatus
+});
+
+
 function seeDocumentUid(uuid) {// ESTA FUNCION ES PARA PODER VISUALIZAR EL ARCHIVO QUE SE SUBIO A ALFRESCO
     $.ajax({
         url: URL_DEFAULT.concat("/auditoria/see"),
@@ -245,7 +230,7 @@ function openModalOificio(uuid) {//ESTA FUNCION ES PARA ELIMINAR EL ARCHIVO QUE 
         .then(data => {
             if (data.status) {
                 alert("Archivo eliminado correctamente.");
-                location.reload(); // Recargar la página para actualizar la lista
+                searchInitaudit(); // Recargar la página para actualizar la lista
             } else {
                 alert("Error al eliminar el archivo: " + data.message);
             }
@@ -280,14 +265,15 @@ function searchInitaudit() {
                 let rows = '';
                 response.data.original.forEach(function (item) {
                     rows += '<tr data-uuid="${item.uuid}">' +
-                            '<td>' + item.descripcion + '</td>' +
+                            '<td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">' + item.descripcion + '</td>' +
                             '<td>' +
-                                '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
-                                    '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + (item.aplica ? 'checked' : '') + '>' +
+                               '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
+                                '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" checked>' +
                                 '</div>' +
+
                             '</td>' +
                             '<td class="button-column">' +
-                            (item.uuid == null ? `
+                            (item.uuid == null ? ` 
                                 <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
                                     <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
                                 </button>
@@ -309,8 +295,6 @@ function searchInitaudit() {
                             '</tr>';
                 });
                
-                
-
                 // Agregar las filas a la tabla
                 tableBody.append(rows);
 
@@ -324,6 +308,7 @@ function searchInitaudit() {
         }
     });
 }
+
 
 
 
