@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
 use Illuminate\Support\Facades\Log;
 use App\Models\Letter\Collection\CollectionRolAreaM;
+use Illuminate\Support\Facades\DB;
 
 class OfficeC extends Controller
 {
@@ -187,6 +188,7 @@ class OfficeC extends Controller
                 if ($request->update_letter) {
                     $data = [
                         'id_cat_estatus' => 4,
+                        'observaciones' => DB::raw("CONCAT(observaciones, '  //  ' , '" . $request->observaciones . "')")
                     ];
 
                     $letterM::where('folio_gestion', $request->num_correspondencia)->update($data);
