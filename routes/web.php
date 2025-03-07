@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Mobile\InitA;
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
@@ -48,8 +49,10 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 
 
-
 use Illuminate\Support\Facades\Route;
+
+//API TEST
+Route::get('/api/mobile/recover_data', [InitA::class, 'getData'])->middleware('auth.basic');
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
