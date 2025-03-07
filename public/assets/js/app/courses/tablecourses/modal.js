@@ -19,6 +19,10 @@ $(document).ready(function () {
     $('#cancelBtn_solicitante').click(function () {
         $('#modalSolicitante').fadeOut();
     });
+    // Cerrar modal cuando se presiona el botón de cancelar en el modalSolicitante
+    $('#confir_sol').click(function () {
+        $('#modalSolicitante').fadeOut();
+    });
 
     // Evento change para el input de archivo
     $('.file-input-oficio').change(function () {
@@ -81,6 +85,32 @@ function confirmRefreshOficio() {
     searchInitaudit(); // Llamar a la función searchInitaudit si es necesario
 }
 
+function checkAndConfirmAudit() {
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/check/exist-by-id-and-cat'),
+        type: 'POST',
+        data: {
+            id_tbl_cursos: $('#idtbl_cursos_audit').val(),  // ID del curso
+            _token: token  // Token CSRF
+        },
+        success: function (response) {
+            if (response.exists) {
+                // Si ya existe la combinación de id_tbl_cursos e id_cat_auditoria, muestra mensaje
+                notyfEM.success("Ya existe una auditoría registrada para este curso y auditoría.");
+            } else {
+                // Si no existe, proceder con la función de confirmación
+                confirmRefreshOficio();  // Llamamos a tu función original para proceder con la inserción
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al verificar si existen datos: ', error);
+            notyfEM.error("Error al verificar si existen datos.");
+        }
+    });
+}
+
+
+
 // Función para guardar o validar contenido del Solicitante
 function confirmSolicitante() {
     console.log('Confirmar solicitante');
@@ -133,62 +163,6 @@ console.log($('#id_tbl_auditoria_cursos').val())
         });
     }
 });
-$(document).on('change', '.toggle-switch', function() {
-    let estatus = $(this).is(':checked') ? 1 : 0;
-    let id_tbl_auditoria_cursos = $(this).closest('tr').data('uuid');
-
-    console.log('ID:', id_tbl_auditoria_cursos); // Verificar el valor de ID
-
-    $.ajax({
-        url: URL_DEFAULT.concat('/auditoria/update-status'),
-        type: 'POST',
-        data: {
-            id_tbl_auditoria_cursos: id_tbl_auditoria_cursos,
-            estatus: estatus,
-            _token: token  // Usar el token extraído de la metaetiqueta
-        },
-        success: function(response) {
-            console.log('Estado actualizado correctamente');
-            searchInitaudit(); // Llamar a searchInitaudit para refrescar la tabla
-        },
-        error: function(xhr, status, error) {
-            console.error('Error al actualizar el estado: ', error);
-        }
-    });
-});
-
-// Función para actualizar el estatus
-function updateEstatus(id, estatus) {
-    $.ajax({
-        url: URL_DEFAULT.concat('/auditoria/update/estatus'),
-        type: 'POST',
-        data: {
-            id: id,          // Enviar el ID del curso
-            estatus: estatus, // El nuevo estatus (true o false)
-            _token: token    // Token CSRF
-        },
-        success: function(response) {
-            if (response.status) {
-                console.log("Estatus actualizado correctamente");
-                
-            } else {
-                console.error("Error al actualizar el estatus");
-            }
-            searchInitaudit(); // Llamar a searchInitaudit para refrescar la tabla
-        },
-        error: function(xhr, status, error) {
-            console.error('Error al actualizar el estatus: ', error);
-        }
-    });
-}
-// Evento para cambiar el estatus cuando el interruptor se cambia
-$('.toggle-switch').on('change', function() {
-    // Obtener el ID de la fila (suponiendo que el ID está en un atributo data-uuid)
-    let id = $(this).closest('tr').data('uuid');
-    let estatus = $(this).prop('checked');  // Obtener el valor del interruptor (true o false)
-
-    updateEstatus(id, estatus); // Llamar a la función para actualizar el estatus
-});
 
 
 function seeDocumentUid(uuid) {// ESTA FUNCION ES PARA PODER VISUALIZAR EL ARCHIVO QUE SE SUBIO A ALFRESCO
@@ -239,31 +213,84 @@ function download(uuid) {// ESTA FUNCION ES PARA DESCARGAR EL ARCHIVO QUE SE SUB
     form.submit();
 }
 
-function openModalOificio(uuid) {//ESTA FUNCION ES PARA ELIMINAR EL ARCHIVO QUE SE SUBIO EN ALFRESCO
-    if (confirm("¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.")) {
+function openModalOificio(uuid) {
+    console.log("Abriendo modal de confirmación para UID:", uuid);
+
+    // Mostrar el modal de confirmación
+    $('#modalDelete').fadeIn();
+
+    // Delegar el evento al documento para garantizar que funcione
+    $(document).off('click', '#confirmBtn').on('click', '#confirmBtn', function () {
+        console.log("Botón 'Eliminar' presionado, cerrando modal...");
+        $('#modalDelete').fadeOut();
+
+        // Proceder con la eliminación
         fetch(URL_DEFAULT.concat('/auditoria/delete'), {
-            method: "POST",  // Método POST para la eliminación
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": token // Agregar el token CSRF
+                "X-CSRF-TOKEN": token
             },
-            body: JSON.stringify({ uid: uuid })  // Enviar el UID en el cuerpo de la solicitud
+            body: JSON.stringify({ uid: uuid })
         })
         .then(response => response.json())
         .then(data => {
+            console.log("Respuesta del servidor:", data);
             if (data.status) {
-                alert("Archivo eliminado correctamente.");
-                searchInitaudit(); // Recargar la página para actualizar la lista
+                notyfEM.success("Archivo eliminado correctamente.");
+                searchInitaudit(); // Recargar la tabla
             } else {
-                alert("Error al eliminar el archivo: " + data.message);
+                notyfEM.error("Error al eliminar el archivo: " + data.message);
             }
         })
         .catch(error => {
             console.error("Error en la solicitud:", error);
-            alert("No se pudo eliminar el archivo. Inténtalo de nuevo.");
+            notyfEM.error("No se pudo eliminar el archivo. Inténtalo de nuevo.");
         });
-    }
+    });
+
+    // Botón Cancelar - Cierra el modal
+    $(document).off('click', '#cancelBtn').on('click', '#cancelBtn', function () {
+        console.log("Botón 'Cancelar' presionado, cerrando modal...");
+        $('#modalDelete').fadeOut();
+    });
+
+    // También cerrar el modal al hacer clic en la "X"
+    $(document).off('click', '.close').on('click', '.close', function () {
+        console.log("Botón 'Cerrar' presionado, cerrando modal...");
+        $('#modalDelete').fadeOut();
+    });
 }
+
+
+
+
+function updateEstatus(id_tbl_auditoria_cursos, nuevoEstatus) {//ESTA FUNCION ES PARA ACTUALIZAR EL ESTATUS 
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/update/estatus'),
+        type: 'POST',
+        data: {
+            id: id_tbl_auditoria_cursos,
+            estatus: nuevoEstatus ? 1 : 0,  // Convertir a 1 o 0 para la BD
+            _token: token  // Token CSRF
+        },
+        success: function (response) {
+            console.log(response);
+            if (response.status) {
+                notyfEM.success("Estatus actualizado correctamente");
+                searchInitaudit(); // 🔄 Refrescar la tabla después de la actualización
+            } else {
+                notyfEM.error("Error al actualizar el estatus");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al actualizar estatus: ', error);
+            notyfEM.error("Error en la actualización");
+        }
+    });
+}
+
+
 
 
 
@@ -287,12 +314,14 @@ function searchInitaudit() {
                 // Construir el HTML de la tabla
                 let rows = '';
                 response.data.original.forEach(function (item) {
-                    console.log('Estatus:', item.estatus); // Verificar el valor de estatus
                     rows += `<tr data-uuid="${item.id_tbl_auditoria_cursos}">` +
                     `<td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">${item.descripcion}</td>` +
                     `<td>` +
                        `<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">` +
-                        `<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ${item.estatus ? 'checked' : ''}>` +
+                        '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + 
+(item.estatus ? 'checked' : '') + 
+' onchange="updateEstatus(' + item.id + ', this.checked)">' +
+
                         `</div>` +
                     `</td>` +
                     `<td class="button-column">` +
@@ -300,7 +329,7 @@ function searchInitaudit() {
                         <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
                             <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
                         </button>
-                    ` : `
+                    ` : ` 
                         <div class="button-container">
                             <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
                                 <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
@@ -331,6 +360,12 @@ function searchInitaudit() {
         }
     });
 }
+
+   
+
+
+
+
   
 
 

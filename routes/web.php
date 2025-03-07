@@ -331,9 +331,8 @@ Route::post('/auditoria/addOficio', [CommunicationC::class, 'addOficio'])->name(
 Route::post('/auditoria/see', [AlfrescoC::class, 'see'])->name('auditoria.see')->middleware('auth');
 Route::post('/auditoria/download', [AlfrescoC::class, 'download'])->name('auditoria.download')->middleware('auth');
 Route::post('/auditoria/delete', [TblAuditC::class, 'deleteDocument'])->name('auditoria.delete')->middleware('auth');
-Route::post('/auditoria/update-status', [TblAuditC::class, 'updateStatus'])->name('auditoria.update.status')->middleware('auth');
-
-
+Route::post('/auditoria/update/estatus', [TblAuditC::class, 'updateEstatus'])->name('auditoria.update.estatus')->middleware('auth');
+Route::post('/auditoria/check/exist-by-id', [TblAuditC::class, 'checkExistenceById'])->name('auditoria.check.existence')->middleware('auth');
 
 
 

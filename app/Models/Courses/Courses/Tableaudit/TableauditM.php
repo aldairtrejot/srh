@@ -37,13 +37,28 @@ class TableauditM extends Model
     // Función para realizar auditoría
     public function auditlist($id_curso)
     {
-        DB::table('capacitacion.tbl_auditoria_cursos')->insertUsing(
-            ['id_cat_auditoria', 'id_tbl_cursos', 'estatus'],
-            DB::table('capacitacion.cat_auditoria')
-                ->select('id_cat_auditoria', DB::raw($id_curso), DB::raw('true'))
-                ->where('estatus', true)
-        );
+        // Verifica si ya existe un registro con el mismo id_tbl_cursos y id_cat_auditoria
+        $existing = DB::table('capacitacion.tbl_auditoria_cursos')
+            ->where('id_tbl_cursos', $id_curso)
+            ->whereIn('id_cat_auditoria', function ($query) use ($id_curso) {
+                $query->select('id_cat_auditoria')
+                    ->from('capacitacion.cat_auditoria')
+                    ->where('estatus', true)
+                    ->where('id_tbl_cursos', $id_curso);
+            })
+            ->exists();
+    
+        if (!$existing) {
+            // Si no existe, entonces insertamos los registros
+            DB::table('capacitacion.tbl_auditoria_cursos')->insertUsing(
+                ['id_cat_auditoria', 'id_tbl_cursos', 'estatus'],
+                DB::table('capacitacion.cat_auditoria')
+                    ->select('id_cat_auditoria', DB::raw($id_curso), DB::raw('true'))
+                    ->where('estatus', true)
+            );
+        }
     }
+    
 
     // Función para obtener el UUID de la carpeta de Constancias
     public function getConstanciaUuid()

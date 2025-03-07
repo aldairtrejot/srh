@@ -258,6 +258,41 @@ public function updateStatus(Request $request)
         return response()->json(['error' => 'Error al actualizar el estado'], 500);
     }
 }
+public function updateEstatus(Request $request)
+{
+    try {
+        $affected = DB::table('capacitacion.tbl_auditoria_cursos')
+            ->where('id_tbl_auditoria_cursos', $request->id)
+            ->update(['estatus' => $request->estatus]);
+
+        if ($affected) {
+            return response()->json(['status' => true, 'message' => 'Estatus actualizado']);
+        } else {
+            return response()->json(['status' => false, 'message' => 'No se pudo actualizar']);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['status' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+public function checkExistenceByIdAndCat($id_tbl_cursos)
+{
+    // Verifica si ya existe una combinación de id_tbl_cursos y id_cat_auditoria
+    $exists = DB::table('capacitacion.tbl_auditoria_cursos')
+        ->where('id_tbl_cursos', $id_tbl_cursos)
+        ->whereIn('id_cat_auditoria', function ($query) use ($id_tbl_cursos) {
+            $query->select('id_cat_auditoria')
+                ->from('capacitacion.cat_auditoria')
+                ->where('estatus', true)
+                ->where('id_tbl_cursos', $id_tbl_cursos);
+        })
+        ->exists();
+
+    return response()->json(['exists' => $exists]);
+}
+
+
+
 
 
 }

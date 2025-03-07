@@ -25,6 +25,20 @@ height="700px">
     </table>
 </div>
 
+<x-template-form.template-form-delete tittleModal="modalDelete" cancelModal="cancelBtn"
+                            confirmButton="confirmBtn" />
+
+<!-- Modal de Confirmación -->
+<div id="modalDelete" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>¿Estás seguro de que deseas eliminar este Archivo? Esta acción no se puede deshacer.</p>
+        <button id="confirmBtn">Eliminar</button>
+        <button id="cancelBtn">Cancelar</button>
+    </div>
+</div>
+
+
  <!-- item with add -->
  <input type="file" class="file-input-oficio" style="display: none;" />
  <input type="text" id="id_oficio" style="display: none;" />
