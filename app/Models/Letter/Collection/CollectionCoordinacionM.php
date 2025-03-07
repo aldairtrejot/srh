@@ -27,6 +27,17 @@ class CollectionCoordinacionM extends Model
             ->get();
     }
 
+
+    public function listEdit($idUnidad)
+    {
+        return DB::table('correspondencia.cat_coordinacion')
+            ->select(DB::raw('correspondencia.cat_coordinacion.id_cat_coordinacion AS id, UPPER(correspondencia.cat_coordinacion.descripcion) AS descripcion'))
+            ->join('correspondencia.rel_unidad_coordinacion', 'correspondencia.cat_coordinacion.id_cat_coordinacion', '=', 'correspondencia.rel_unidad_coordinacion.id_cat_coordinacion')
+            ->where('correspondencia.rel_unidad_coordinacion.id_cat_unidad', $idUnidad)
+            ->orderBy('correspondencia.cat_coordinacion.descripcion', 'ASC')
+            ->get();
+    }
+
     public function edit($id)
     {
         $query = DB::table('correspondencia.cat_coordinacion')

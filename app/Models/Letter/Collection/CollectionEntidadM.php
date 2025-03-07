@@ -19,6 +19,17 @@ class CollectionEntidadM extends Model
         return $result;
     }
 
+
+    public function listEdit()
+    {
+        $result = DB::table(table: 'correspondencia.cat_entidad')
+            ->select('id_cat_entidad as id', 'descripcion as descripcion')
+            ->orderBy('descripcion', 'ASC')
+            ->get();
+
+        return $result;
+    }
+
     
     // La funcón obtiene el estado actual del id que se selecciono
     public function edit($id)

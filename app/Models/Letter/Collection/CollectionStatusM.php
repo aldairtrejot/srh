@@ -20,6 +20,17 @@ class CollectionStatusM extends Model
         return $result;
     }
 
+    public function listEdit()
+    {
+        $result = DB::table('correspondencia.cat_estatus')
+            ->selectRaw('id_cat_estatus AS id, UPPER(descripcion) AS descripcion')
+            ->orderBy('descripcion', 'ASC')
+            ->get();
+
+        // Retornar el resultado
+        return $result;
+    }
+
     public function listByUser()
     {
         $result = DB::table('correspondencia.cat_estatus')

@@ -129,14 +129,14 @@ class LetterC extends Controller
         $item = $letterM->edit($id); // Obtener el elemento con el ID pasado
 
         //Validacion de catalogo de estatus
-        $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
+        $selectStatus = $collectionStatusM->listEdit(); //Obtenemos el catalogo de estatus - muestra todos los estatus
         $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : [];//Catalogos debe estar vacio
         /*
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
             $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
         }*/
 
-        $selectArea = $collectionAreaM->list();// Obtener todos los registros del catálogo de áreas
+        $selectArea = $collectionAreaM->listEdit();// Obtener todos los registros del catálogo de áreas
         $selectAreaEdit = isset($item->id_cat_area) ? $collectionAreaM->edit($item->id_cat_area) : []; //Validacion de id_en DB para definir si se poblan los catalogos o son vacios
 
         $selectUser = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
@@ -145,22 +145,22 @@ class LetterC extends Controller
         $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        $selectUnidad = $collectionUnidadM->list();//Catalogo de unidad
+        $selectUnidad = $collectionUnidadM->listEdit();//Catalogo de unidad
         $selectUnidadEdit = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : [];
 
-        $selectCoordinacion = isset($item->id_cat_unidad) ? $collectionCoordinacionM->list($item->id_cat_unidad) : []; //Catalogos de coordinacion vacios
+        $selectCoordinacion = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : []; //Catalogos de coordinacion vacios
         $selectCoordinacionEdit = isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : [];//Catalogos de coordinacion vacios
 
-        $selectTramite = isset($item->id_cat_area) ? $collectionTramiteM->list($item->id_cat_area) : [];
+        $selectTramite = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
         $selectTramiteEdit = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionTramiteM->edit($item->id_cat_tramite) : [];
 
-        $selectClave = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionClaveM->list($item->id_cat_tramite) : [];
+        $selectClave = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
         $selectClaveEdit = isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave) ? $collectionClaveM->edit($item->id_cat_clave) : [];
 
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidad = $collectionEntidadM->listEdit();
         $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
 
         return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
