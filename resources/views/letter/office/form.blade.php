@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Oficio" />
+                        <x-template-tittle.tittle-header tittle="Control de gestión" caption="Oficio" />
                     </div>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                                 </p>
 
                                 <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip"
-                                    name="idcheckboxTemplate" label="¿No tengo un No. de Correspondencia?" />
+                                    name="idcheckboxTemplate" label="¿No tengo un folio de gestión?" />
 
                                 <div id="mostrar_ocultar_no_area">
                                     <br>

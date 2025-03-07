@@ -33,7 +33,7 @@
                         <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres" aria-expanded="false"
                             aria-controls="ui-basic_corres">
                             <i class="fa fa-archive menu-icon"></i>
-                            <span class="menu-title">G. Control</span>
+                            <span class="menu-title">C. Gestión</span>
                             <i class="menu-arrow"></i>
                         </a>
                         <div class="collapse" id="ui-basic_corres">
