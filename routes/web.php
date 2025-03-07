@@ -49,6 +49,7 @@ use App\Http\Controllers\Courses\Tableinstructor\CloudtableinsC;
 use App\Http\Controllers\Courses\Tableinstructor\CloudTableC;
 use App\Http\Controllers\Courses\Tableinstructor\ReporteConstanciaC;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
 
 
 
@@ -291,7 +292,7 @@ Route::delete('/coursestipocur/delete/{id}', [Courses10C::class, 'destroy']);
 //ROUTE_COUSER ---- > Auditoria
 Route::get('/coursesauditoria/list', Courses11C::class)->name('coursesauditoria.list')->middleware('auth');
 Route::get('/coursesauditoria/create', [Courses11C::class, 'create'])->name('coursesauditoria.create')->middleware('auth');
-Route::post('/coursesauditoria/save', [Courses11C::class, 'save'])->name('coursesauditoria.save')->middleware('auth');
+Route::post('/coursesauditoria/save', action: [Courses11C::class, 'save'])->name('coursesauditoria.save')->middleware('auth');
 Route::post('/coursesauditoria/table', [Courses11C::class, 'searchTable']);
 Route::match(['get', 'post'], '/coursesauditoria/edit/{id}', [Courses11C::class, 'edit'])->name('coursesauditoria.edit')->middleware('auth');
 Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
@@ -302,15 +303,14 @@ Route::get('/tableinstructor/create', [InstructorsC::class, 'create'])->name('ta
 Route::post('/tableinstructor/save', [InstructorsC::class, 'save'])->name('tableinstructor.save')->middleware('auth');
 Route::post('/tableinstructor/table', [InstructorsC::class, 'searchTable'])->name('tableinstructor.searchTable')->middleware('auth');
 Route::post('/tableinstructor/delete/', [InstructorsC::class, 'delete'])->name('tableinstructor.delete')->middleware('auth');
-
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update')->middleware('auth');
+
 Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
 Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see')->middleware('auth');
 Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
 Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
-
 Route::get('/tableinstructor/generate-pdf/constancias/{id}', [ReporteConstanciaC::class, 'generatePdf'])->middleware('auth');
 
 // 📌 Rutas de Cloud Tabla instructores (Carga de documentos)
@@ -352,3 +352,12 @@ Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablec
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 // CONSULTA DE USUARIO, ENLACE Y AREA
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');
+
+// 📌 ASSIGNED_COURSES ---- > Curso Asignado
+Route::get('/assignedcourse/list', [AssignedcourseC::class,'list'])->name('assignedcourse.list')->middleware('auth');
+Route::get('/assignedcourse/create', [AssignedcourseC::class, 'create'])->name('assignedcourse.create')->middleware('auth');
+Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('assignedcourse.save')->middleware('auth');
+Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable')->middleware('auth');
+Route::post('/assignedcourse/delete/', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
+Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name('assignedcourse.edit')->middleware('auth');
+

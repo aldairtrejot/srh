@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">INSTRUCTORES</h5>
+                            <h5 class="font-weight-normal mb-0">Alumnos</h5>
                         </div>
                     </div>
                 </div>
@@ -21,12 +21,12 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Instructores</h4>
+                                <h4 class="card-title">Grupo Alumnos</h4>
                                 @if($coursesMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
-                                        <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
-                                            <i class="fa fa-arrow-up"></i> Agregar Registro
+                                        <a href="{{ route('assignedcourse.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Agregar Alumno
                                         </a>
                                     </p>
                                 @endif
@@ -43,8 +43,10 @@
                                 <tr>
                                     <th>MENU</th>
                                     <th>CURP</th>
+                                    <th>RFC</th>
+                                    <th>PATERNO</th>
+                                    <th>MATERNO</th>
                                     <th>NOMBRE</th>
-                                    <th>ESTATUS</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
@@ -74,7 +76,7 @@
     </div>
  
  <!-- CODE SCRIPT-->
- <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
+ <script src="{{ asset('assets/js/app/courses/assignedcourse/table.js') }}"></script>
 </x-template-app.app-layout>
 
    
