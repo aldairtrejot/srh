@@ -236,8 +236,28 @@ public function deleteDocument(Request $request)
         return response()->json(['status' => false, 'message' => 'No se pudo eliminar el documento.']);
     }
 }
+public function updateStatus(Request $request)
+{
+    try {
+        $id_tbl_auditoria_cursos = (int) $request->input('id_tbl_auditoria_cursos');
+        $estatus = (int) $request->input('estatus');
 
+        Log::info('Actualizando estatus a: ' . $estatus . ' para ID: ' . $id_tbl_auditoria_cursos);
 
+        if ($id_tbl_auditoria_cursos > 0) {
+            DB::table('capacitacion.tbl_auditoria_cursos')
+                ->where('id_tbl_auditoria_cursos', $id_tbl_auditoria_cursos)
+                ->update(['estatus' => $estatus]);
+
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['error' => 'ID inválido'], 400);
+        }
+    } catch (\Exception $e) {
+        Log::error('Error al actualizar el estado: ' . $e->getMessage());
+        return response()->json(['error' => 'Error al actualizar el estado'], 500);
+    }
+}
 
 
 }

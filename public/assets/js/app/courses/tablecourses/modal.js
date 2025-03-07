@@ -133,6 +133,29 @@ console.log($('#id_tbl_auditoria_cursos').val())
         });
     }
 });
+$(document).on('change', '.toggle-switch', function() {
+    let estatus = $(this).is(':checked') ? 1 : 0;
+    let id_tbl_auditoria_cursos = $(this).closest('tr').data('uuid');
+
+    console.log('ID:', id_tbl_auditoria_cursos); // Verificar el valor de ID
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/update-status'),
+        type: 'POST',
+        data: {
+            id_tbl_auditoria_cursos: id_tbl_auditoria_cursos,
+            estatus: estatus,
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function(response) {
+            console.log('Estado actualizado correctamente');
+            searchInitaudit(); // Llamar a searchInitaudit para refrescar la tabla
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al actualizar el estado: ', error);
+        }
+    });
+});
 
 // Función para actualizar el estatus
 function updateEstatus(id, estatus) {
@@ -243,7 +266,7 @@ function openModalOificio(uuid) {//ESTA FUNCION ES PARA ELIMINAR EL ARCHIVO QUE 
 }
 
 
-// Función para buscar la lista de auditorías
+
 function searchInitaudit() {
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/list/courses'),
@@ -264,35 +287,35 @@ function searchInitaudit() {
                 // Construir el HTML de la tabla
                 let rows = '';
                 response.data.original.forEach(function (item) {
-                    rows += '<tr data-uuid="${item.uuid}">' +
-                            '<td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">' + item.descripcion + '</td>' +
-                            '<td>' +
-                               '<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">' +
-                                '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" checked>' +
-                                '</div>' +
-
-                            '</td>' +
-                            '<td class="button-column">' +
-                            (item.uuid == null ? ` 
-                                <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
-                                    <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
-                                </button>
-                            ` : `
-                                <div class="button-container">
-                                    <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
-                                        <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
-                                    </button>
-                                    <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
-                                        <i style="color: white; font-size: 15px" class="fa fa-download"></i>
-                                    </button>
-                                    <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
-                                        <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                            `) +
-                            '</td>' +
-                            '<td style="display:none;">' + item.id_cat_auditoria + '</td>' + // Campo oculto
-                            '</tr>';
+                    console.log('Estatus:', item.estatus); // Verificar el valor de estatus
+                    rows += `<tr data-uuid="${item.id_tbl_auditoria_cursos}">` +
+                    `<td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">${item.descripcion}</td>` +
+                    `<td>` +
+                       `<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">` +
+                        `<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ${item.estatus ? 'checked' : ''}>` +
+                        `</div>` +
+                    `</td>` +
+                    `<td class="button-column">` +
+                    (item.uuid == null ? ` 
+                        <button onclick="addFileOficio('${item.id}')" style="background:#003366" class="custom-button centered-button" title="Cargar">
+                            <i style="color: white; font-size: 15px" class="fas fa-upload"></i>
+                        </button>
+                    ` : `
+                        <div class="button-container">
+                            <button onclick="seeDocumentUid('${item.uuid}')" style="background: #10312b" class="custom-button" title="Ver">
+                                <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
+                            </button>
+                            <button onclick="download('${item.uuid}')" class="custom-button" title="Descargar">
+                                <i style="color: white; font-size: 15px" class="fa fa-download"></i>
+                            </button>
+                            <button onclick="openModalOificio('${item.uuid}')" style="background: #6A1B3D" class="custom-button" title="Eliminar">
+                                <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    `) +
+                    `</td>` +
+                    `<td style="display:none;">${item.id_cat_auditoria}</td>` + // Campo oculto
+                    `</tr>`;
                 });
                
                 // Agregar las filas a la tabla
@@ -308,6 +331,8 @@ function searchInitaudit() {
         }
     });
 }
+  
+
 
 
 
