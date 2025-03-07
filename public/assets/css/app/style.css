@@ -50301,3 +50301,10 @@ select:disabled {
     height: 70px;
     font-size: 36px;
 }
+
+.custom-button-x:hover {
+    transform: scale(1.1);
+    /* Aumenta el tamaño en un 20% */
+    transition: transform 0.2s ease-in-out;
+    /* Suaviza la animación */
+}

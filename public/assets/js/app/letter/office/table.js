@@ -35,8 +35,8 @@ function searchInit() {
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                    <button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">
+                                        <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
                                         <h6 class="dropdown-header">Acciones</h6>
@@ -87,9 +87,9 @@ function searchInit() {
                                 </div>
                             </td>
                             <td>
-                                ${object.status == 1 ? 
-                                    '<i class="fa fa-check-circle" style="color: #26874A; font-size: 1.3rem;"></i>' : 
-                                    '<i class="fa fa-exclamation-circle" style="color: #FFA82E; font-size: 1.3rem;"></i>'}
+                                ${object.status == 1 ?
+                            '<i class="fa fa-check-circle" style="color: #26874A; font-size: 1.3rem;"></i>' :
+                            '<i class="fa fa-exclamation-circle" style="color: #FFA82E; font-size: 1.3rem;"></i>'}
                             </td>
                             <td>${object.anio}</td>
                             <td>${object.num_documento}</td>
