@@ -50,19 +50,19 @@
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
-<!-- modal delete -->
-<x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
+                    <!-- modal delete -->
+                    <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
                             confirmButton="confirmBtn" />
 
-<!-- Modal de Confirmación -->
-<div id="modalBackdrop" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <p>¿Estás seguro de que deseas eliminar este instructor?</p>
-        <button id="confirmBtn">Confirmar</button>
-        <button id="cancelBtn">Cancelar</button>
-    </div>
-</div>
+                    <!-- Modal de Confirmación -->
+                    <div id="modalBackdrop" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <p>¿Estás seguro de que deseas eliminar este instructor?</p>
+                        <button id="confirmBtn">Confirmar</button>
+                        <button id="cancelBtn">Cancelar</button>
+                    </div>
+                    </div>
 
 
                         <!-- TEMPLATE PAGINATOR-->
