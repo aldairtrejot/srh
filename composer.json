@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.9",
         "league/flysystem": "*",
         "maatwebsite/excel": "^1.1",
+        "mews/captcha": "^3.4",
         "phpoffice/phpspreadsheet": "^1.18",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",

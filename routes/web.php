@@ -47,9 +47,13 @@ use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 
-
+use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
+
+Route::get('captcha/{config?}', function ($config = 'default') {
+    return Captcha::create($config);
+})->name('captcha');
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
