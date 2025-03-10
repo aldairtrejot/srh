@@ -47,10 +47,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- Input del CAPTCHA 
-                                <input type="text" name="captcha" placeholder="Ingrese el CAPTCHA">
--->
-
                                 <div class="form-group">
                                     <input type="text" name="captcha" class="form-control form-control-lg"
                                         placeholder="Captcha" value="" autocomplete="current-password">
@@ -61,45 +57,14 @@
                                     @enderror
                                 </div>
 
+                                <div class="captcha-container">
+                                    <img src="{{ captcha_src() }}" id="captcha-img">
 
-
-                                <!-- Imagen del CAPTCHA -->
-
-                                <!--
-                                <img src="{{ captcha_src() }}" id="captcha-img">
-
-
-                                <button type="button"
-                                    onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
-                                    Refrescar CAPTCHA
-                                </button>-->
-
-                                <style>
-                                    #captcha-img {
-                                        width: 450px;
-                                        /* Ajusta el tamaño según lo necesites */
-                                        height: 80px;
-                                    }
-
-                                    .refresh-btn {
-                                        background: none;
-                                        border: none;
-                                        cursor: pointer;
-                                    }
-
-                                    .refresh-btn i {
-                                        font-size: 20px;
-                                        /* Tamaño del icono */
-                                    }
-                                </style>
-
-                                <img src="{{ captcha_src() }}" id="captcha-img">
-
-                                <button type="button" class="refresh-btn" title="Refresh"
-                                    onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
-                                    <i class="fas fa-sync-alt"></i> <!-- Icono de refrescar -->
-                                </button>
-
+                                    <button type="button" class="refresh-btn" title="Refresh"
+                                        onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
+                                        <i class="fas fa-sync-alt"></i> Refrescar
+                                    </button>
+                                </div>
 
                                 <div class="mt-3">
                                     <button type="submit" style="background-color: #6c757d"

@@ -49015,4 +49015,44 @@ div.tagsinput span.tag a {
   }
 }
 
+#captcha-img {
+  width: 75%;
+  max-width: 450px;
+  /* Máximo ancho */
+  height: auto;
+  /* Mantiene la proporción */
+  display: block;
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* Espacio entre icono y texto */
+  font-size: 16px;
+  /* Tamaño base */
+  transition: transform 0.2s ease-in-out;
+  /* Efecto suave */
+}
+
+.refresh-btn:hover {
+  transform: scale(1.08);
+  /* Aumenta el tamaño en 20% */
+}
+
+.refresh-btn i {
+  font-size: 20px;
+  /* Tamaño del icono */
+}
+
+.captcha-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /* Espacio entre elementos */
+}
 /*# sourceMappingURL=../maps/vertical-layout-light/style.css.map */

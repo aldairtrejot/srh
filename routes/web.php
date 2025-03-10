@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administration\ResultC;
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
@@ -46,7 +47,6 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
-
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -59,6 +59,11 @@ Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
 Route::get('/recover', RecoverC::class)->name('recover');//ROUTE_RECOVER
 Route::post('/login', [LoginC::class, 'authenticate']);///ROUTE_AUTHENTICATE
+Route::get('/result', [ResultC::class, 'result'])->name('result');
+
+// Recover password
+Route::post('/password/result', [RecoverC::class, 'updatePassword'])->name('recover.password');
+
 
 ///IS_PROTECT
 Route::get('/dashboard', [DashboardC::class, 'dashboard'])->name('dashboard')->middleware('auth'); //ROUTE_DASH BOARD
