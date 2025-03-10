@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIRH</title>
     <link rel="stylesheet" href="assets/css/login/style.css" />
     <link rel="shortcut icon" href="assets/images/imss/favicon.png" />
@@ -24,26 +24,31 @@
                             <h4>Sistema Integral para Recursos Humanos</h4>
                             <h6 class="font-weight-light">Respuesta</h6>
 
-                            @if(session('existsEmail'))
-                                <p style="font-size: 18px;">
-                                    Se ha enviado una nueva contraseña al correo:
-                                    <strong style="font-size: 20px;">{{ session('email') }}</strong>
-                                </p>
-                            @else
-                                <p style="font-size: 18px;">
-                                    El correo <strong style="font-size: 20px;">{{ session('email') }}</strong> no se
-                                    encuentra registrado.
-                                    Por favor, verifica la dirección e inténtalo de nuevo.
-                                </p>
-                            @endif
-
-
+                            <div class="message-container">
+                                @if(session('existsEmail'))
+                                    <div>
+                                        <i class="fas fa-check-circle success-message"></i>
+                                    </div>
+                                    <div class="message-text">
+                                        Se ha enviado una nueva contraseña al correo:
+                                        <strong class="email">{{ session('email') }}</strong>
+                                    </div>
+                                @else
+                                    <div>
+                                        <i class="fas fa-times-circle error-message"></i>
+                                    </div>
+                                    <div class="message-text">
+                                        El correo <strong class="email">{{ session('email') }}</strong> no se
+                                        encuentra registrado.
+                                        Por favor, verifica la dirección e inténtalo de nuevo.
+                                    </div>
+                                @endif
+                            </div>
 
                             <div class="text-center mt-4 font-weight-light">
                                 <a href="{{ route('login') }}" class="text-primary">
                                     Regresar al inicio</a>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>

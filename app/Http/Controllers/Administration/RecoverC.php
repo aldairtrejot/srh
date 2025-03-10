@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 class RecoverC extends Controller
 {
     public function __invoke()
@@ -20,8 +21,8 @@ class RecoverC extends Controller
         $existsEmail = false;
 
         $request->validate([
-            //'email' => 'required|email',
-            //'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
+            'email' => 'required|email',
+            'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
         ]);
 
         $exists = User::where('email', $request->email)->exists();
@@ -31,7 +32,7 @@ class RecoverC extends Controller
             $newPassword = Str::random(10);
             $user->password = Hash::make($newPassword);
             $user->save();
-            $this->sendEmail('rodolfo.trejo@imssbienestar.gob.mx', $user->name, $newPassword);
+            $this->sendEmail($request->email, $user->name, $newPassword);
             $existsEmail = true;
         }
 
@@ -46,12 +47,17 @@ class RecoverC extends Controller
     private function sendEmail($email, $name, $password)
     {
         $subject = 'ACTUALIZACIÓN DE CONTRASEÑA';
+        $currentDate = Carbon::now();
+        $yearMonthDay = $currentDate->format('d/m/y');  // Año-Mes-Día
+        $time = $currentDate->format('H:i');  // Hora:Minutos:Segundos
 
         // Datos que se pasarán a la vista
         $data = [
             'subject' => $subject,
             'password' => $password,
-            'name' => $name,
+            'name' => strtoupper($name),
+            'fecha' => $yearMonthDay,
+            'hora' => $time,
         ];
 
         // Enviar el correo con la vista Blade

@@ -76,10 +76,12 @@
                                     <a href="{{ route('recover') }}" class="text-primary">
                                         ¿Olvidaste tu contraseña?</a>
                                 </div>
+                                <!--
                                 <div class="text-center mt-4 font-weight-light">
                                     ¿Aún no estás registrado? <a href="{{ route('register') }}" class="text-primary">
                                         Registro</a>
                                 </div>
+-->
                             </form>
                         </div>
                     </div>
