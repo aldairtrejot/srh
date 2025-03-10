@@ -16,8 +16,8 @@ height="700px">
         <thead>
             <tr>
                 <th>Requisito</th>
-                <th>Aplica</th>
-                <th>Cargar Constancia</th>
+                <th style="width: 2%;">Aplica</th>
+                <th style="width: 2%;">Cargar Constancia</th>
             </tr>
         </thead>
         <tbody>
