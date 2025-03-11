@@ -30,13 +30,43 @@ $(document).ready(function () {
     });
 });
 
-// Función para abrir el modal de Auditoría
+// Función para abrir el modal de Auditoría con reglas de modal de vista
 function refreshOficio(id_tbl_cursos) {
-    console.log(id_tbl_cursos);
-    $('#modalBackdrop').fadeIn();
-    $('#idtbl_cursos_audit').val(id_tbl_cursos); // Mostrar la ventana modal con el ID
-    console.log($('#idtbl_cursos_audit').val());
+    console.log("ID recibido:", id_tbl_cursos);
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/auditoria/check/id'),
+        type: 'POST',
+        data: {
+            id_tbl_cursos: id_tbl_cursos, // Enviamos correctamente el ID
+            _token: token
+        },
+        success: function (response) {
+            console.log("Respuesta del servidor:", response);
+
+            // Guardamos el ID en el campo oculto
+            $('#idtbl_cursos_audit').val(id_tbl_cursos);
+
+            if (response.exists) {
+                console.log("Datos encontrados. Abriendo modal grande...");
+
+                // Abrir modal grande
+                $('#modalSolicitante').fadeIn();
+
+                // Llamar la función que carga la tabla con el ID correcto
+                searchInitaudit(id_tbl_cursos);
+            } else {
+                console.log("No hay datos. Mostrando confirmación...");
+                $('#modalBackdrop').fadeIn();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error en la verificación de auditoría:', error);
+        }
+    });
 }
+
+
 
 // Función para abrir el modal del Solicitante
 function addSolicitante() {
@@ -294,11 +324,12 @@ function updateEstatus(id_tbl_auditoria_cursos, nuevoEstatus) {//ESTA FUNCION ES
 
 
 
-function searchInitaudit() {
+function searchInitaudit(id_tbl_cursos) {
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/list/courses'),
         type: 'POST',
         data: {
+            id_courses: id_tbl_cursos,
             id_tbl_cursos: $('#idtbl_cursos_audit').val(),
             _token: token  // Usar el token extraído de la metaetiqueta
         },
@@ -319,8 +350,8 @@ function searchInitaudit() {
                     `<td>` +
                        `<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">` +
                         '<input type="checkbox" id="estatus" name="estatus" class="toggle-switch" ' + 
-(item.estatus ? 'checked' : '') + 
-' onchange="updateEstatus(' + item.id + ', this.checked)">' +
+                                                                        (item.estatus ? 'checked' : '') + 
+                            ' onchange="updateEstatus(' + item.id + ', this.checked)">' +
 
                         `</div>` +
                     `</td>` +

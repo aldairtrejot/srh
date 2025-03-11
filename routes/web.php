@@ -333,7 +333,7 @@ Route::post('/auditoria/download', [AlfrescoC::class, 'download'])->name('audito
 Route::post('/auditoria/delete', [TblAuditC::class, 'deleteDocument'])->name('auditoria.delete')->middleware('auth');
 Route::post('/auditoria/update/estatus', [TblAuditC::class, 'updateEstatus'])->name('auditoria.update.estatus')->middleware('auth');
 Route::post('/auditoria/check/exist-by-id', [TblAuditC::class, 'checkExistenceById'])->name('auditoria.check.existence')->middleware('auth');
-
+Route::post('/auditoria/check/id', [TblAuditC::class, 'checkId'])->name('auditoria.check.id')->middleware('auth');
 
 
 

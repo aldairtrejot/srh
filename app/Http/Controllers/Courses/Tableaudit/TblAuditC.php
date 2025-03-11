@@ -290,6 +290,16 @@ public function checkExistenceByIdAndCat($id_tbl_cursos)
 
     return response()->json(['exists' => $exists]);
 }
+public function checkId(Request $request)
+{
+    $id_tbl_cursos = $request->input('id_tbl_cursos');
+
+    // Verificar si existe una auditoría para este curso
+    $exists = Tableauditm::existsByCourseId($id_tbl_cursos);
+
+    return response()->json(['exists' => $exists]);
+}
+
 
 
 

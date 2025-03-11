@@ -100,14 +100,7 @@ function searchInit() {
                                             Modificar
                                         </a>
                                         ${auditoriaButton} <!-- Mostrar solo si costo_total > 0 -->
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_cursos})">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
-                                        </a>
+                                    
                                     </div>
                                 </div>
                             </td>

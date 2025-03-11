@@ -19,6 +19,11 @@ class TableauditM extends Model
         'id_usuario_sistema',
         'fecha_usuario',
     ];
+    //FUNCION PARA REVISAR SI EXISTE DATOS EN LA TABLA PARA LA REGLAS DE MODALES
+    public static function existsByCourseId($id_tbl_cursos)
+    {
+        return self::where('id_tbl_cursos', $id_tbl_cursos)->exists();
+    }
 
     // Función para listar auditorías
     public function list($id_tbl_cursos)
