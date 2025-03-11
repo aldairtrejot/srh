@@ -8,8 +8,8 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Circular</h5>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
+                            <h5 class="font-weight-normal mb-0">Circular Interna</h5>
                         </div>
                     </div>
                 </div>
@@ -35,6 +35,9 @@
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
                                 value="{{  config('custom_config.CLOUD_ALFRESCO_CIRCULAR') }}" />
+
+                            <x-template-form.template-form-input-hidden name="bool_user_role"
+                                value="{{  $letterAdminMatch }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />

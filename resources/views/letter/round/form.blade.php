@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Circular" />
+                        <x-template-tittle.tittle-header tittle="Control de gestión" caption="Circularres Internas" />
                     </div>
                 </div>
             </div>
@@ -16,7 +16,7 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_circular) ? 'Modificar' : 'Agregar ' }} Circular"
+                            tittle="{{ isset($item->id_tbl_circular) ? 'Modificar' : 'Agregar ' }} Circular Interna"
                             route="{{ route('round.list') }}" />
                         <div>
                             <form id="myForm" action="{{ route('round.save') }}" method="POST" class="form-sample">
@@ -119,7 +119,8 @@
                                         value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
-                                <x-template-button.button-form-footer routeBack="{{ route('round.list') }}" />
+                                <x-template-button.button-form-footer-boolean routeBack="{{ route('round.list') }}"
+                                    :status="$letterAdminMatch" />
 
                             </form>
                         </div>

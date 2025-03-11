@@ -33,10 +33,11 @@ function searchInit() {
                     // Generar el HTML con template literals
                     const rowHTML = `
                         <tr>
+                        <!--
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                    <button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">
+                                        <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
                                         <h6 class="dropdown-header">Acciones</h6>
@@ -57,6 +58,7 @@ function searchInit() {
                                             </span>
                                             Cloud
                                         </a>
+                                        <!--
                                          <a class="dropdown-item" href="${urlReport}">
                                             <span style="background:#707070" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -65,8 +67,7 @@ function searchInit() {
                                             </span>
                                             Reporte
                                         </a>
-                                    <!--
-                                        <a class="dropdown-item" href="#" style="pointer-events: none; color: grey;">
+                                        <a class="dropdown-item custom-button-x" href="#" style="pointer-events: none; color: grey;">
                                             <span style="background:#003366" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-user item-icon-menu"></i>
@@ -74,7 +75,7 @@ function searchInit() {
                                             </span>
                                             Usuario
                                         </a>
-                                        <a class="dropdown-item" style="pointer-events: none; color: grey;">
+                                        <a class="dropdown-item custom-button-x" style="pointer-events: none; color: grey;">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-trash item-icon-menu"></i>
@@ -86,10 +87,22 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
+                            -->
+
+                            <td>
+                                <div class="button-container" style="display: flex; gap: 2px;">
+                                    <a href="${finalUrl}" style="background: #10312b; padding: 8px 12px;" class="custom-button custom-button-x" title="Modificar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="${finalCloud}" style="background: #8a6f19; padding: 8px 12px;" class="custom-button custom-button-x" title="Cloud">
+                                        <i style="color: white; font-size: 15px" class="fa fa-cloud"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>${object.anio}</td>
                             <td>${object.num_turno_sistema}</td>
                             <td>${object.num_documento}</td>
-                            <td>${object.anio}</td>
-                            <td>${object.asunto}</td>
+                            <td style="font-size: 12px; width: 1100px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);

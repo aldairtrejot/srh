@@ -8,8 +8,8 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Circulares</h5>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
+                            <h5 class="font-weight-normal mb-0">Circulares Internas</h5>
                         </div>
                     </div>
                 </div>
@@ -21,13 +21,15 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Circulares</h4>
-                                <p class="card-description">
-                                    ¿Deseas agregar un registro? <a href="{{ route('round.create') }}"
-                                        class="text-danger" style="margin-left: 10px;">
-                                        <i class="fa fa-arrow-up"></i> Agregar Registro
-                                    </a>
-                                </p>
+                                <h4 class="card-title">Circulares Internas</h4>
+                                @if($letterAdminMatch)
+                                    <p class="card-description">
+                                        ¿Deseas agregar un registro? <a href="{{ route('round.create') }}"
+                                            class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Agregar Registro
+                                        </a>
+                                    </p>
+                                @endif
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
@@ -43,13 +45,13 @@
                                         Menú
                                     </th>
                                     <th>
+                                        Año
+                                    </th>
+                                    <th>
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Doc.
-                                    </th>
-                                    <th>
-                                        Año
+                                        No. Asoc.
                                     </th>
                                     <th>
                                         Asunto
