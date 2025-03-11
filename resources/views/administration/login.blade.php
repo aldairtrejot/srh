@@ -47,6 +47,7 @@
                                     @enderror
                                 </div>
 
+                                <!--
                                 <div class="form-group">
                                     <input type="text" name="captcha" class="form-control form-control-lg"
                                         placeholder="Captcha" value="" autocomplete="current-password">
@@ -65,6 +66,7 @@
                                         <i class="fas fa-sync-alt"></i> Refrescar
                                     </button>
                                 </div>
+-->
 
                                 <div class="mt-3">
                                     <button type="submit" style="background-color: #6c757d"

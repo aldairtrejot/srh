@@ -24,7 +24,7 @@ class LoginC extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
+            //'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
         ]);
 
         //  Intentar autenticar al usuario (sin incluir el CAPTCHA)
