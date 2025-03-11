@@ -87,7 +87,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursestipocur.list') }}">Tipo Cursos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tableinstructor.list') }}">Instructores</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tablecourses.list') }}">Cursos Tabla</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('assignedcourse.list') }}">Cursos Asignados</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('assignedcourse.list') }}">Alumnos</a></li>
                     </ul>
                 </div>
             </li>

@@ -1,3 +1,5 @@
+
+const URL_BASE = window.location.origin + "/srh/public"; 
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
 $.ajaxSetup({
@@ -7,9 +9,9 @@ $.ajaxSetup({
 });
 
 // Variables globales
-var iterator = 1;  // Página actual (inicia en 1)
+var iterator = 1;
 var emptyContent = false; // Controla si hay contenido en la tabla
-var instructorIdToDelete = null; // Almacena el ID del instructor a eliminar
+var instructorIdToDelete = null; 
 
 // ✅ Función para abrir el modal de confirmación
 function confirmDelete(id) {
@@ -18,8 +20,8 @@ function confirmDelete(id) {
 }
 
 $(document).ready(function () {
-    searchInit(); // Carga inicial de la tabla
-    setValue();   // Configura la paginación
+    searchInit();
+    setValue();
 
     // Asegurar que los elementos existen antes de asignar eventos
     $(document).on('click', '#confirmBtn', function () {
@@ -29,11 +31,11 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '#cancelBtn', function () {
-        $('#modalBackdrop').fadeOut(); // Cerrar modal
+        $('#modalBackdrop').fadeOut();
     });
 
     $(document).on('click', '.close', function () {
-        $('#modalBackdrop').fadeOut(); // Cerrar modal
+        $('#modalBackdrop').fadeOut();
     });
 
     $(document).on('click', function (event) {
@@ -43,11 +45,11 @@ $(document).ready(function () {
     });
 });
 
-// **🔹 Función para inicializar la búsqueda con paginación**
+// 🔹 Función para inicializar la búsqueda con paginación
 function searchInit() {
-    const searchValue = $('#searchValue').val(); // Usar jQuery para obtener el valor
+    const searchValue = $('#searchValue').val(); 
     $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/table`,
+        url: `${URL_BASE}/assignedcourse/table`,
         type: 'POST',
         data: {
             iterator: iterator,
@@ -56,13 +58,11 @@ function searchInit() {
         },
         success: function(response) {
             const tbody = $('#template-table tbody');
-            tbody.empty(); // Limpiar tabla
+            tbody.empty();
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/${object.id_tbl_instructores}`;
-                    const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
-                    const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
+                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
                     const rowHTML =`
                         <tr>
                             <td>
@@ -72,55 +72,27 @@ function searchInit() {
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${finalUrl}">
-                                            <span style="background:#1D5B3B" class="icon-container-template">
+                                         <a class="dropdown-item" href="${finalCourses}">
+                                            <span style="background:#FF8C00" class="icon-container-template">
                                                 <div style="text-align: center;">
-                                                    <i class="fa fa-pencil item-icon-menu"></i>
+                                                    <i class="fa fa-book item-icon-menu"></i>
                                                 </div>
                                             </span>
-                                            Modificar
-                                        </a>
-                                        <a class="dropdown-item" href="${finalCloud}">
-                                            <span style="background:#8a6f19" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-cloud item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Cloud
-                                        </a>
-                                         <!-- Nuevo Botón Constancia -->
-                                        <a class="dropdown-item" href="${urlReport}">
-                                            <span style="background:#1E90FF" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-file item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Constancia
-                                        </a>
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
+                                            Cursos
                                         </a>
                                     </div>
                                 </div>
                             </td>
-                            <td>${_}</td>
-                            <td>${_}</td>
-                            <td>${_}</td>
-                            <td>${_}</td>
-                            <td>${_}</td>
-                            <td>${_}</td>
-                            <td>${_}</td>
+                            <td>${object.curp}</td>
+                            <td>${object.primer_apellido}</td>
+                            <td>${object.segundo_apellido}</td>
+                            <td>${object.nombre}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
                 });
             } else {
-                tbody.html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
+                tbody.html('<tr><td colspan="5" class="text-center">No se encontraron resultados</td></tr>');
             }
         },
         error: function(xhr) {
@@ -132,8 +104,8 @@ function searchInit() {
 // ✅ Función para eliminar un instructor
 function deleteInstructor(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/tableinstructor/delete`,  // Se mantiene la URL sin el ID en la ruta
-        type: 'POST',  // Método POST en lugar de DELETE
+        url: `${URL_BASE}/assignedcourse/delete`,  
+        type: 'POST',
         data: { 
             id: id, 
             _token: token 
@@ -141,8 +113,8 @@ function deleteInstructor(id) {
         success: function (response) {
             if (response.success) {
                 notyfEM.success(response.message);
-                $('#modalBackdrop').fadeOut(); // Cerrar modal
-                searchInit(); // Recargar la tabla
+                $('#modalBackdrop').fadeOut();
+                searchInit();
             } else {
                 notyfEM.error(response.message);
             }
@@ -154,7 +126,7 @@ function deleteInstructor(id) {
     });
 }
 
-// **🔹 Funciones para manejar la paginación**
+// 🔹 Funciones para manejar la paginación
 function paginatorMax1() {
     iterator += 1;
     setValue();
@@ -179,14 +151,14 @@ function paginatorMin5() {
     searchInit();
 }
 
-// **🔹 Función para realizar la búsqueda al escribir en el campo de texto**
+// 🔹 Función para realizar la búsqueda
 function searchValue() {
-    iterator = 1; // Reiniciar la paginación
-    setValue(); // Actualizar la paginación
-    searchInit(); // Realizar la búsqueda
+    iterator = 1;
+    setValue();
+    searchInit();
 }
 
-// **🔹 Función para manejar la paginación y mostrar el número actual de la página**
+// 🔹 Función para manejar la paginación y mostrar el número actual de la página
 function setValue() {
     let iteratorAux = iterator;
     document.getElementById("is_iterator").innerHTML = iteratorAux;

@@ -43,7 +43,6 @@
                                 <tr>
                                     <th>MENU</th>
                                     <th>CURP</th>
-                                    <th>RFC</th>
                                     <th>PATERNO</th>
                                     <th>MATERNO</th>
                                     <th>NOMBRE</th>

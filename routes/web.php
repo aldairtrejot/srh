@@ -360,4 +360,7 @@ Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('ass
 Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable')->middleware('auth');
 Route::post('/assignedcourse/delete/', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
 Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name('assignedcourse.edit')->middleware('auth');
+Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->name('assignedcourse.dataCurp');
+Route::get('/assignedcourse/courses', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
+
 

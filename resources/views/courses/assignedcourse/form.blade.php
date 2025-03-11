@@ -14,7 +14,7 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_instructores) ? 'Modificar' : 'Agregar' }} Alumnos"
+                            tittle="{{ isset($item->id_usuarios) ? 'Modificar' : 'Agregar' }} Alumnos"
                             route="{{ route('assignedcourse.list') }}" />
 
                         <x-template-tittle.tittle-caption-secon tittle="Información del Trabajador" />
@@ -42,20 +42,20 @@
                     <br>
 
                         <!-- FORMULARIO -->
-                        <form id="form-instructor"
-                            action="{{ isset($item->id_tbl_instructores) ? route('tableinstructor.update', $item->id_tbl_instructores) : route('tableinstructor.save') }}"
+                        <form id="form-assignedcourse"
+                            action="{{ isset($item->id_usuarios) ? route('assignedcourse.update', $item->id_usuarios) : route('assignedcourse.save') }}"
                             method="POST"
                             class="form-sample">
                             
                             @csrf
 
-                            @if(isset($item->id_tbl_instructores))
+                            @if(isset($item->id_usuarios))
                                 @method('PUT')
                             @endif
 
                             <!-- 🔹 Campos ocultos para ID e identificación de edición -->
-                            <input type="hidden" name="id_tbl_instructores" id="id_tbl_instructores" value="{{ $item->id_tbl_instructores ?? '' }}">
-                            <input type="hidden" name="is_editing" id="is_editing" value="{{ isset($item->id_tbl_instructores) ? '1' : '0' }}">
+                            <input type="hidden" name="id_usuarios" id="id_usuarios" value="{{ $item->id_usuarios ?? '' }}">
+                            <input type="hidden" name="is_editing" id="is_editing" value="{{ isset($item->id_usuarios) ? '1' : '0' }}">
 
                             <!-- Campos ocultos para asegurar que los valores se llenan al editar -->
                             <input type="hidden" id="nombre" value="{{ $item->nombre ?? '' }}">
@@ -78,7 +78,7 @@
                                     <button id="boton-consultar-curp" class="btn ml-2" onclick="validarcurp();" type="button"
                                         style="background-color:rgb(235, 235, 235); color:#646464; border: none;display: inline-flex; justify-content: center; align-items: center;"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar CURP"
-                                        {{ isset($item->id_tbl_instructores) ? 'disabled' : '' }}>
+                                        {{ isset($item->id_usuarios) ? 'disabled' : '' }}>
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </div>
@@ -94,7 +94,7 @@
 
                             <br>
 
-                            <x-template-button.button-form-footer routeBack="{{ route('tableinstructor.list') }}" />
+                            <x-template-button.button-form-footer routeBack="{{ route('assignedcourse.list') }}" />
                         </form>
                     </div>
                 </div>
@@ -104,4 +104,4 @@
 </x-template-app.app-layout>
 
 <!-- CODE SCRIPT -->
-<!--<script src="{{ asset('assets/js/app/courses/tableinstructor/form.js') }}"></script>-->
+<script src="{{ asset('assets/js/app/courses/assignedcourse/form.js') }}"></script>
