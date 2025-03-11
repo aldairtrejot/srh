@@ -131,6 +131,9 @@ class LetterM extends Model
                         ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
                 });
             }
+
+            $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
