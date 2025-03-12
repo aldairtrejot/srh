@@ -32,7 +32,6 @@ $(document).ready(function () {
 
 // Función para abrir el modal de Auditoría con reglas de modal de vista
 function refreshOficio(id_tbl_cursos) {
-    console.log("ID recibido:", id_tbl_cursos);
 
     $.ajax({
         url: URL_DEFAULT.concat('/auditoria/check/id'),
@@ -42,7 +41,6 @@ function refreshOficio(id_tbl_cursos) {
             _token: token
         },
         success: function (response) {
-            console.log("Respuesta del servidor:", response);
 
             // Guardamos el ID en el campo oculto
             $('#idtbl_cursos_audit').val(id_tbl_cursos);
@@ -143,7 +141,6 @@ function checkAndConfirmAudit() {
 
 // Función para guardar o validar contenido del Solicitante
 function confirmSolicitante() {
-    console.log('Confirmar solicitante');
     // Aquí puedes agregar la lógica de validación y envío para el solicitante
 }
 
