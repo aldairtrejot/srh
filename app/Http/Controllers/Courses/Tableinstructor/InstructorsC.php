@@ -26,90 +26,6 @@ class InstructorsC extends Controller
         Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
         $messagesC = new MessagesC();
 
-        $instructorM = new InstructorM();
-        $messagesC = new MessagesC();
-        $now = Carbon::now();
-
-        $request->validate([
-            'estatus' => 'required|boolean',
-        ]);
-
-        $instructorM::create([
-            'estatus' => $request->estatus,
-            'id_usuario_sistema' => Auth::id(),
-            'fecha_usuario' => $now,
-        ]);
-
-        return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor guardado exitosamente.');
-    }
-
-    public function create()
-    {
-        $item = new InstructorM();
-        $item->estatus = '';
-        return view('courses.tableinstructor.form', compact('item'));
-    }
-
-    public function searchTable(Request $request)
-    {
-        try {
-            $iterator = $request->input('iterator'); // OFSET valor de paginador
-            $searchValue = $request->input('searchValue');
-
-            $instructorM = new InstructorM();
-            $value = $instructorM->list($iterator, $searchValue);
-
-            return response()->json([ 
-                'value' => $value,
-                'status' => true,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $instructor = InstructorM::findOrFail($id);
-            $instructor->delete();
-
-            return response()->json(['success' => true, 'message' => 'Instructor eliminado exitosamente.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al eliminar el instructor.'], 500);
-        }
-    }
-
-    public function edit(Request $request, $id)
-    {
-        $instructor = InstructorM::find($id);
-        $messagesC = new MessagesC();
-
-        if (!$instructor) {
-            abort(404, 'Instructor no encontrado.');
-        }
-
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'estatus' => 'required|boolean',
-            ]);
-
-            $instructor->estatus = $request->input('estatus') ? true : false;
-            $instructor->save();
-
-            return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor actualizado exitosamente.');
-        }
-
-        return view('courses.tableinstructor.edit', compact('instructor'));
-    }
-
-    // BUSQUEDA DE CURP
-    // Método dataCurp en InstructorsC.php
-    public function dataCurp(Request $request)
-    {
         try {
             $request->validate([
                 'curp' => 'required|string|size:18',
@@ -117,24 +33,6 @@ class InstructorsC extends Controller
 
             if ($request->is_editing == 1) {
                 return $this->update($request);
-    
-            $instructorM = new InstructorM();
-    
-            // Obtener los datos de las fuentes
-            $centralCurp = $instructorM->centralCurp($request->curp);
-            $empleadoHRAES = $instructorM->buscarEmpleadoHRAES($request->curp);
-            $empleadoTransferidos = $instructorM->buscarEmpleadoTransferidos($request->curp);
-    
-            // Filtrar resultados vacíos
-            $resultados = array_filter([$centralCurp, $empleadoHRAES, $empleadoTransferidos]);
-    
-            // Si no se encuentra nada, retorna un array vacío
-            if (empty($resultados)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No se encontraron resultados para la CURP proporcionada.',
-                    'value' => [],
-                ], 200);
             }
 
             $instructorM = new InstructorM();
@@ -167,7 +65,6 @@ class InstructorsC extends Controller
             $instructorM = new InstructorM();
             $courses = $instructorM->list($iterator, $searchValue);
     
-            // Si se encuentran resultados, retornar la lista completa de resultados
             return response()->json([
                 'status' => true,
                 'message' => 'Resultados obtenidos correctamente',
