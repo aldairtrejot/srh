@@ -72,7 +72,7 @@
                                         :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
-                                    <x-template-form.template-form-input-required label="No. Doc" type="text"
+                                    <x-template-form.template-form-input-required label="No. Folio" type="text"
                                         name="num_documento_area" placeholder="NO. DOCUMENTO"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                         value="{{optional($item)->num_documento_area ?? '' }}" />
