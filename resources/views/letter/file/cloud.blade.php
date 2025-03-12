@@ -157,7 +157,7 @@
                                     <div id="container_anexo_salida"></div>
                                 </div>
                             </div>
-                            </di </div>
+                          </div>
                         </div>
                     </div>
                 </div>

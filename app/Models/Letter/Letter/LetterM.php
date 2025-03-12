@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models\Letter\Letter;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 class LetterM extends Model
@@ -53,7 +53,19 @@ class LetterM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function list($iterator, $searchValue, $idArea, $idEnlace)
+
+    public function editFol(string $fol)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->whereRaw('UPPER(TRIM(folio_gestion)) = ?', [strtoupper(trim($fol))]) // Parametrizamos la consulta
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el resultado, si no se encuentra, retorna null
+        return $query ?? null;
+    }
+
+    public function list($iterator, $searchValue, $idUser)
     {
         // Preparar la consulta base
         $query = DB::table('correspondencia.tbl_correspondencia')
@@ -61,7 +73,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
                 //DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'), // No es necesario DISTINCT
                 DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
                 DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area'),
@@ -71,26 +83,52 @@ class LetterM extends Model
             ])
             ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
             ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
-            ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite');
+            ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->groupBy(
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+                'correspondencia.tbl_correspondencia.num_documento',
+                'correspondencia.tbl_correspondencia.folio_gestion', // Usamos GROUP BY para este campo
+                'correspondencia.cat_estatus.descripcion',
+                'correspondencia.cat_tramite.descripcion',
+                'correspondencia.cat_area.descripcion',
+                'correspondencia.tbl_correspondencia.asunto',
+                'correspondencia.tbl_correspondencia.fecha_fin'
+            );
 
         // Filtrar por área si se proporciona el id
-        if (!empty($idArea)) {
-            $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idArea);
-        }
+        if (!empty($idUser)) {
 
-        // Filtrar por enlace si se proporciona el id
-        if (!empty($idEnlace)) {
-            $query->where('correspondencia.tbl_correspondencia.id_usuario_enlace', $idEnlace);
+            $ZONA_SURESTE = 10;
+            $NO_CONCURRENTES = 15;
+
+            //Changes
+            // Changes // Validacion para que el area de mtro Ramon puede ver dos areas
+            if ($idUser == $ZONA_SURESTE || $idUser == $NO_CONCURRENTES) {
+                $query->where(function ($query) use ($idUser, $ZONA_SURESTE, $NO_CONCURRENTES) {
+                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $ZONA_SURESTE)
+                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $NO_CONCURRENTES)
+                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $ZONA_SURESTE)
+                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $NO_CONCURRENTES)
+                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+                });
+            } else {
+                $query->where(function ($query) use ($idUser) {
+                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+                });
+            }
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
         if (!empty($searchValue)) {
             $searchValue = strtoupper(trim($searchValue));  // Limpiar y convertir a mayúsculas
 
+
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
@@ -108,6 +146,7 @@ class LetterM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
 
     //La funcion valida que el no de documento sea unico
     public function validateNoDocument($id, $value)
@@ -157,7 +196,8 @@ class LetterM extends Model
                 'correspondencia.cat_unidad.descripcion AS unidad',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.puesto_remitente AS puesto_remitente',
-                'correspondencia.cat_entidad.descripcion AS entidad'
+                'correspondencia.cat_entidad.descripcion AS entidad',
+                'administration.users.name AS user_area'
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
@@ -167,6 +207,7 @@ class LetterM extends Model
             ->leftJoin('correspondencia.cat_unidad', 'correspondencia.tbl_correspondencia.id_cat_unidad', '=', 'correspondencia.cat_unidad.id_cat_unidad')
             ->leftJoin('correspondencia.cat_coordinacion', 'correspondencia.tbl_correspondencia.id_cat_coordinacion', '=', 'correspondencia.cat_coordinacion.id_cat_coordinacion')
             ->leftJoin('correspondencia.cat_entidad', 'correspondencia.tbl_correspondencia.id_cat_entidad', '=', 'correspondencia.cat_entidad.id_cat_entidad')
+            ->leftJoin('administration.users', 'correspondencia.tbl_correspondencia.id_usuario_captura', '=', 'administration.users.id')
             ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
             ->first(); // Obtener solo el primer resultado
 
@@ -180,7 +221,7 @@ class LetterM extends Model
         // Realizar la consulta utilizando el query builder de Laravel
         $turno = DB::table('correspondencia.tbl_correspondencia')
             ->where('id_tbl_correspondencia', $id)
-            ->value('num_turno_sistema');
+            ->value('folio_gestion');
 
         // Si no se encuentra información, retornamos null
         return $turno ?: null;
@@ -303,7 +344,49 @@ class LetterM extends Model
             ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
             ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
-    
+
         return $maxNumTurno;
+    }
+
+
+    // LA función retorna la tabla de copy, con copia a de turnos
+    public function tableCopy($id)
+    {
+        $result = DB::table('correspondencia.ctrl_transcribir_correspondencia')
+            ->select(
+                'correspondencia.ctrl_transcribir_correspondencia.id_ctrl_transcribir_correspondencia AS id',
+                'correspondencia.cat_area.descripcion AS area',
+                'usuario_x.name AS usuario',
+                'enlace_y.name AS enlace',
+                'correspondencia.cat_tramite.descripcion AS tramite',
+                'correspondencia.cat_clave.descripcion AS clave'
+            )
+            ->join('correspondencia.cat_area', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('administration.users AS usuario_x', 'correspondencia.ctrl_transcribir_correspondencia.id_usuario_area', '=', 'usuario_x.id')
+            ->join('administration.users AS enlace_y', 'correspondencia.ctrl_transcribir_correspondencia.id_usuario_enlace', '=', 'enlace_y.id')
+            ->join('correspondencia.cat_tramite', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+            ->join('correspondencia.cat_clave', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_clave', '=', 'correspondencia.cat_clave.id_cat_clave')
+            ->where('correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia', '=', $id)
+            ->limit(20)
+            ->get();
+
+        return $result;
+    }
+
+    // La Funcion valida que el area y el no de correspondencia no esten asociados
+    // La retorna verdadero si la consulta esta vacia o falso si lleva información
+    public function getValue($id_letter, $id_area)
+    {
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->select('correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', $id_letter)
+            ->where(function ($query) use ($id_area) {
+                $query->where('correspondencia.tbl_correspondencia.id_cat_area', '=', $id_area)
+                    ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', $id_area);
+            })
+            ->exists();  // Devuelve true si existen resultados, false si no existen
+
+        return !$query;  // Si hay resultados, retorna false; si no, retorna true
     }
 }

@@ -8,7 +8,7 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">TABLA</h3>
+                            <h3 class="font-weight-bold">Gestión de control</h3>
                             <h5 class="font-weight-normal mb-0">INSTRUCTORES</h5>
                         </div>
                     </div>
@@ -22,7 +22,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Instructores</h4>
-                                @if($letterAdminMatch)
+                                @if($coursesMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
                                         <a href="{{ route('tableinstructor.create') }}" class="text-danger" style="margin-left: 10px;">
@@ -48,6 +48,20 @@
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
+<!-- modal delete -->
+<x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
+                            confirmButton="confirmBtn" />
+
+<!-- Modal de Confirmación -->
+<div id="modalBackdrop" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>¿Estás seguro de que deseas eliminar este instructor?</p>
+        <button id="confirmBtn">Confirmar</button>
+        <button id="cancelBtn">Cancelar</button>
+    </div>
+</div>
+
 
                         <!-- TEMPLATE PAGINATOR-->
                         <x-template-table.template-paginator />
@@ -58,17 +72,9 @@
 
         </div>
     </div>
-    <!-- Modal de confirmación -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Estás seguro de que deseas eliminar este curso?</p>
-        <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
-        <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
-    </div>
-</div>
-
-    <!-- CODE SCRIPT-->
-    <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
+ 
+ <!-- CODE SCRIPT-->
+ <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
 </x-template-app.app-layout>
+
+   

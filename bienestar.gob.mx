@@ -1,0 +1,494 @@
+[33mcommit 0a4872fe681a136ba70cecad0cde462d9f77ae16[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev-correspondencia-v2[m[33m)[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 19 19:28:29 2025 -0600
+
+    cambios para busquerda por el mtro
+
+[33mcommit cf04b98398ab0e5776879f37345e49626a89b0cf[m[33m ([m[1;31morigin/dev-correspondencia-v2[m[33m, [m[1;31morigin/dev-correspondencia-more-area[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev-correspondencia-more-area[m[33m, [m[1;32mdev-correspondencia[m[33m)[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 19 09:51:55 2025 -0600
+
+    cambios finales por area
+
+[33mcommit aee739f4d24fdd446e00dc3f75a1418dbc366970[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 19:34:00 2025 -0600
+
+    more changes
+
+[33mcommit 2d345432fc6b74dea6219a68b5ac1177670542ad[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 15:02:23 2025 -0600
+
+    mejoras en tablas
+
+[33mcommit 31634e34c5bba7391e18dd334aefcb46e332799d[m
+Merge: 4dd71b8 94cc745
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 14:40:07 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-more-area
+
+[33mcommit 4dd71b8d4e64ee96e0b3d602a3eb8cc95b16dc53[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 14:39:40 2025 -0600
+
+    cambos
+
+[33mcommit 94cc74543b804b4f6c790aea3b09f5ba5aea0c9d[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 14:32:05 2025 -0600
+
+    mas cambios
+
+[33mcommit f9581835795e0d1f9de49b2494d16c75ec729e73[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 14:19:29 2025 -0600
+
+    cambios en busqueda
+    
+    se mejoro la busqueda
+
+[33mcommit 677b8bff72db5f592c558ad2bc8d14d0804c56a4[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 11:02:08 2025 -0600
+
+    cambios finales
+
+[33mcommit 3683c45223143f3085bb0c275e4c39fbae7fcdd8[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 18 10:07:17 2025 -0600
+
+    Validación de correspondencia
+    
+    Se mejora la validacion de los remitentes en correspondencia
+
+[33mcommit 1fc4d092a0f3c6b7ce95e625bbe888c182eecb0d[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 18:54:42 2025 -0600
+
+    cambios de explosion y corregir mejora
+
+[33mcommit 7bbf2e1723a649fbe125a01f2d4aa0f7b0bbe302[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 17:58:55 2025 -0600
+
+    cambios en documentos
+
+[33mcommit a2f08222800b939aeb067966e6fcfe8bb20942af[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 17:45:39 2025 -0600
+
+    more chnages
+
+[33mcommit 79ab2dd8124ef7da8bf39f44805c0e304688df0a[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 14:46:10 2025 -0600
+
+    more chnages
+
+[33mcommit 73d99fdd83b9a754afd9b44be7be709b0076f6f4[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 13:09:23 2025 -0600
+
+    role en more actions
+
+[33mcommit d1c5e0cd54b96114ed2f594b1d02658590c4fa3d[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 12:58:52 2025 -0600
+
+    more changes
+
+[33mcommit 5c57e41beb9f7231680e697daab7d8b0ad9a3875[m
+Merge: fab3f83 e4d3ec8
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 12:51:07 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-more-area
+
+[33mcommit e4d3ec85b53fd507b9bcdfb520254e0f6c3989df[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 12:47:27 2025 -0600
+
+    cambios
+
+[33mcommit f6a628b063e00f16a868e0a619ed5347536bd7fe[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 14 09:44:48 2025 -0600
+
+    mas cambios
+
+[33mcommit f2693e0b962e44ff83e8cd1fd09ca4ce93a40090[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 13 15:38:28 2025 -0600
+
+    correcciones en oficio
+
+[33mcommit fab3f83ff20a4188450bd8e40f51d83fdb41f57e[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 13 12:35:50 2025 -0600
+
+    cambios en tabla
+
+[33mcommit 9c7c88836df3c07d892f0e1d320fd00d99ae1934[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 13 12:21:23 2025 -0600
+
+    camnbios
+
+[33mcommit 639c94bc8c7af8992598c1d4215ed17d3af73157[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 13 11:28:21 2025 -0600
+
+    cambios en modal
+
+[33mcommit 90920380d4487e31cb2f25e58721139a10062834[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 12 18:59:38 2025 -0600
+
+    more changes
+
+[33mcommit cbb8b5f3edd83f670e40f0ce53d000909c15cd1f[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 12 18:58:30 2025 -0600
+
+    more changes
+
+[33mcommit 2be01cea888b52d8e6945b7120fb4aa8027c23ac[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 12 18:10:10 2025 -0600
+
+    cambios en agregar correspondencia
+
+[33mcommit 24e7a59ed468f4c1c4ca4bf04101509ee7251010[m[33m ([m[1;31morigin/dev-correspondencia-interno[m[33m, [m[1;32mdev-correspondencia-interno[m[33m)[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 19:46:17 2025 -0600
+
+    cabios en roles y en sistemas
+
+[33mcommit 43b46cdf84fc7ab6f0a9cb3a88f6f347b0759577[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 18:48:25 2025 -0600
+
+    cambios en tabla y alfresco de certificaciones
+
+[33mcommit f12078e7522b52f814d045adb117257a7696b135[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 18:13:19 2025 -0600
+
+    Buscador de certificaciones
+
+[33mcommit 363329555bb56a9c38cc6d403a90b12f05072c34[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 16:24:23 2025 -0600
+
+    cambios finales en notas informativas
+
+[33mcommit 5a1bb7c167bc89689c047738487587c6852867b1[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 15:12:37 2025 -0600
+
+    more changes
+
+[33mcommit 4cb6cff082bca10a8817a4c16ee174fbb6f5cdd4[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 14:02:03 2025 -0600
+
+    more changes
+
+[33mcommit d24f1309df8c0330d75c6e8e1cbfe847becc7535[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 12:44:38 2025 -0600
+
+    cambios finales en notas de requerimient
+
+[33mcommit 8bd5d97e822cd934aba9bac032aae7b938c8c557[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 12:13:25 2025 -0600
+
+    cambnios en formaulario de notas de requerimiento
+
+[33mcommit ec956a5e6e384e849e5e493095e292d8c12739b1[m
+Merge: 090d3e3 84cc588
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 11:20:44 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 84cc588b34911efef8a5a248882c58724e59aeae[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 11:11:47 2025 -0600
+
+    cambios en documento pdf y correo
+
+[33mcommit 090d3e36c86007afa9ef50a89e3897902fe33b69[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 11:07:57 2025 -0600
+
+    more changes
+
+[33mcommit 161cd103e7aafcc49daed8d2f5b6c49ebc4b2399[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Tue Feb 11 09:47:11 2025 -0600
+
+    CAMBIOS NUEVOS EN REQUERIMIENTO
+
+[33mcommit d8c26d26c5d23e31ee096acd84fc750c4ec1ab8c[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 19:23:54 2025 -0600
+
+    MORE CHNGAES
+
+[33mcommit e908fe9557a103d58f50d375288dd0e26f68c3d9[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 17:54:20 2025 -0600
+
+    cambios totales y finales en comunicados
+
+[33mcommit c7a49221fda162affd40900b9657cf3cb04ad833[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 17:26:16 2025 -0600
+
+    Se suben cambios en oficio final
+
+[33mcommit 75467746c390df3f9012e3200d792b3cded14ac7[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 14:56:48 2025 -0600
+
+    mas cambios
+
+[33mcommit db4c4dd4da0a0af87f18dca46b796d81583297d7[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 14:43:28 2025 -0600
+
+    cambios en eliminar
+
+[33mcommit cde5a452b5870fdcd2b0d4daec9c9f762ba680fa[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 14:04:13 2025 -0600
+
+    MAS CAMBIOS
+
+[33mcommit 0a490e779dd271abd3817d432326c29f99d64d5c[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 12:50:22 2025 -0600
+
+    cambios antes de alfresco
+
+[33mcommit 393db3e709da6ad98572065d704415b0e0650a48[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Mon Feb 10 10:58:50 2025 -0600
+
+    CA,BIOS
+
+[33mcommit 3297cbc912790079659163a627c3d7c19a9fefb0[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 7 18:06:41 2025 -0600
+
+    more chnages
+
+[33mcommit 6fbbf79a717151d795c7bfb1a18043f8bd2b4ef7[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 7 12:48:30 2025 -0600
+
+    cambios
+
+[33mcommit 1ecba9c76dc5a413774d741f0d26ea0ff68a340f[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 7 12:30:04 2025 -0600
+
+    cambios de prueba
+
+[33mcommit a3362e223785dd68e4818e0cc867b0020ea8b41e[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Fri Feb 7 11:57:54 2025 -0600
+
+    more changes
+
+[33mcommit 53e98a4ea4bac9454ed3d578895ce5f247c42374[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 19:33:19 2025 -0600
+
+    mas cambios
+
+[33mcommit d8e0b872a4d83b52ec42beda8da36a4d45aa6c66[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 18:32:28 2025 -0600
+
+    more changes
+
+[33mcommit 485eee43703bfa48f883c1b99b071ff71849090a[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 14:43:19 2025 -0600
+
+    cambios
+
+[33mcommit bbbe7cdabe90375e2788e41668f58659e60845b8[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 12:26:48 2025 -0600
+
+    cambios
+
+[33mcommit e2f90d9a5ff228ad5e75696f13009bcec6328163[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 11:04:30 2025 -0600
+
+    more changes
+
+[33mcommit ab811af0c9e3c66c4c975694b34c71ce56b23720[m
+Merge: dd6495a 28dc7e0
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 09:40:15 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 28dc7e06a1a686c5a4e157d5a5ae40a02b11cd16[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 09:35:24 2025 -0600
+
+    cambios en mayusuculas
+
+[33mcommit 411d71f6b9cad4004c5697506ded8a843ac6c801[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 09:30:23 2025 -0600
+
+    Cambios en .env
+
+[33mcommit bbc2411c81a1dec078065458d956f0cfba201981[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Thu Feb 6 08:40:35 2025 -0600
+
+    cambios en leyendas y asunto de circulares, internos y lineamientos
+
+[33mcommit 5539e7beb54db41ce3f6a6e1e540379580912d4b[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 19:55:54 2025 -0600
+
+    cambios
+
+[33mcommit f499d3c681b81b5f44fa3479d282e208963f6a54[m
+Merge: 13e425a f871a60
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 19:44:21 2025 -0600
+
+    Merge branch 'dev-correspondencia-v2' into dev-correspondencia
+
+[33mcommit 13e425a438d4a08abb73967dedf5f1324fa06f52[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 19:44:14 2025 -0600
+
+    cambios
+
+[33mcommit f871a6055a48be2ee71f674bc5c862ad9b75961f[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 19:44:02 2025 -0600
+
+    CAMBIOS EN REPORTE
+
+[33mcommit dd6495a0ea762c8d99fc4577326586de2ba588bc[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 18:52:19 2025 -0600
+
+    more changes
+
+[33mcommit 3246165e06984954d37a0ab10e8058411d25ca59[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 17:50:12 2025 -0600
+
+    cambios en titulo
+
+[33mcommit c46e7bd9aca843bc3db0ee00c861e03930f8b512[m
+Merge: 385ef2c 40fc36d
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 17:36:17 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 40fc36d76d53edfb5e237c7bd291d4cae3078b9e[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 17:31:00 2025 -0600
+
+    cambios en leyenda
+
+[33mcommit d457efa94e88efde5ca1cf05e675b24e60cf81b4[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 17:18:14 2025 -0600
+
+    cambios en asunto
+
+[33mcommit 385ef2c8b548ab650037af282fc3e71f4c52d169[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 17:12:53 2025 -0600
+
+    cambios
+
+[33mcommit 22d41ba4c137f515e07e6096329342299cd4d1b8[m
+Merge: f38a492 02c5a9c
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 14:08:11 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 02c5a9c2712d83e45e8484996d0ebb9c93e71301[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:59:30 2025 -0600
+
+    se agregao destinatario a circularesq
+    
+    q
+
+[33mcommit f38a4929459b8a1b06f8c8442b69da5d9b92cfc2[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:50:41 2025 -0600
+
+    mas chnages
+
+[33mcommit da0aa8a5c06e07b30355a05dcebc8d88bf6f4dbd[m
+Merge: ea8cfa8 816ad04
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:35:11 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 816ad04dfae9b00ee54b13a7b92e3368bd3dff55[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:34:26 2025 -0600
+
+    cambios en circuklares
+
+[33mcommit ea8cfa86e8648a74a2039100656721a0bc30d14d[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:32:49 2025 -0600
+
+    cambios
+
+[33mcommit a56f49bbe08df887d4d5704c6d6d964c75d24bb9[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 13:13:38 2025 -0600
+
+    more chnages
+
+[33mcommit f7dbd1ce877f6c01ed28264d58cfafec367990af[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 12:14:17 2025 -0600
+
+    more chnages
+
+[33mcommit 76ff78501f9dbc5f02bff004f896f5f04622ce56[m
+Merge: 2bb0830 75535cd
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 11:07:16 2025 -0600
+
+    Merge branch 'dev-correspondencia' into dev-correspondencia-interno
+
+[33mcommit 75535cd7bbd0c45ae8117cb875059f24e2e653a0[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 10:52:29 2025 -0600
+
+    cambios en validacion
+
+[33mcommit e56fa14baac707fc3bbec9a2fef94726bdeacb45[m
+Author: Aldair Trejo <147780739+aldairtrejot@users.noreply.github.com>
+Date:   Wed Feb 5 10:16:15 2025 -0600
+
+    cambios en consecutivo

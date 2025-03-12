@@ -47,7 +47,7 @@
                                     @enderror
                                 </div>
                                 <div class="mt-3">
-                                    <button type="submit" style="background-color: #6c757d"
+                                    <button type="submit" style="background-color: #555555"
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
                                         Ingresar
                                     </button>

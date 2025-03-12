@@ -2,6 +2,9 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
 
+
+    <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
@@ -14,6 +17,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- View->modal -->
+            @include('letter.letter.modal')
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -77,10 +83,13 @@
     </div>
 
     <x-template-other.app-mail />
+
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
 
 
 </x-template-app.app-layout>

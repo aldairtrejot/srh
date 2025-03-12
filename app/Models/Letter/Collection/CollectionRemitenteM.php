@@ -20,11 +20,13 @@ class CollectionRemitenteM extends Model
     ];
 
     // La funcion retorna el id de remitente, buscandolo por rfc
-    public function getRfc($rfc)
+    public function getRfc($rfc, $primer_apellido, $segundo_apellido)
     {
         // Usamos Query Builder para realizar la consulta
         $remitente = DB::table('correspondencia.cat_remitente')
             ->where('nombre', $rfc)
+            ->where('primer_apellido', $primer_apellido)
+            ->where('segundo_apellido', $segundo_apellido)
             ->first();
 
         return $remitente->id_cat_remitente;
@@ -43,6 +45,23 @@ class CollectionRemitenteM extends Model
         return $result;//$result !== null;
     }
 
+
+    // La función valida que el remitente por nombre, primer apellido y segundo apellido no exista en el catalogo
+    public function uniqueRemitenteName($name, $lastName, $lastNameSecon)
+    {
+        // Realizar la consulta correctamente
+        $query = DB::table('correspondencia.cat_remitente')
+            ->select('correspondencia.cat_remitente.id_cat_remitente')
+            ->whereRaw('UPPER(TRIM(correspondencia.cat_remitente.nombre)) = UPPER(TRIM(?))', [trim($name)])
+            ->whereRaw('UPPER(TRIM(correspondencia.cat_remitente.primer_apellido)) = UPPER(TRIM(?))', [trim($lastName)])
+            ->whereRaw('UPPER(TRIM(correspondencia.cat_remitente.segundo_apellido)) = UPPER(TRIM(?))', [trim($lastNameSecon)]);
+
+        // Ejecutar la consulta y verificar si hay resultados
+        $result = $query->first();
+
+        // Retornar true si se encuentra algún resultado, de lo contrario false
+        return $result;
+    }
     //LA funcion obtienen el catalogo de remitente
     public function list()
     {

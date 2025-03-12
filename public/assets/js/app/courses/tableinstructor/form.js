@@ -1,26 +1,49 @@
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
 
-// Configurar el token CSRF para todas las solicitudes AJAX
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': token
-    }
+$(document).ready(function () {
+    llenarDatosInstructor();
 });
 
-// Función para validar la CURP
+function llenarDatosInstructor() {
+    const isEditing = $('#is_editing').val() === "1";
+
+    if (isEditing) {
+        console.log("🔄 Modo Edición: Cargando datos del instructor...");
+
+        // Obtener los valores desde los inputs ocultos
+        let nombre = $('#nombre').val()?.trim() || '';
+        let primer_apellido = $('#primer_apellido').val()?.trim() || '';
+        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '';
+        let rfc = $('#rfc').val()?.trim() || '';
+        let curp = $('#curp').val()?.trim() || '';
+
+        // Si los valores están vacíos, coloca un placeholder "_"
+        nombre = nombre || '_';
+        primer_apellido = primer_apellido || '_';
+        segundo_apellido = segundo_apellido || '_';
+        rfc = rfc || '_';
+
+        // Insertar valores en la interfaz
+        $('#label_nombre').text(nombre);
+        $('#label_primer_apellido').text(primer_apellido);
+        $('#label_segundo_apellido').text(segundo_apellido);
+        $('#label_rfc').text(rfc);
+        $('#curp').val(curp);
+
+        console.log(`🔍 Datos cargados: ${nombre} ${primer_apellido} ${segundo_apellido} ${rfc} ${curp}`);
+    }
+}
+
+function limpiarValores() {
+    $('#label_nombre, #label_primer_apellido, #label_segundo_apellido, #label_rfc').text('_');
+}
 
 function validarcurp() {
     let curp = $('#curp').val().trim();
 
-    if (curp === '') {
-        alert('Por favor, ingresa una CURP.');
-        return;
-    }
-
-    const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]{2}$/i;
-    if (!curpRegex.test(curp)) {
-        alert('El formato de CURP no es válido.');
+    if (curp.length !== 18) {
+        alert("La CURP debe tener 18 caracteres.");
         return;
     }
 
@@ -29,27 +52,63 @@ function validarcurp() {
         type: 'POST',
         data: { curp: curp },
         success: function (response) {
-            if (response.status) {
-                let data = response.value[0] // Asume que es un array con al menos un resultado
-                $('#remitente_nombre').text(data.nombre || 'N/A');
-                $('#remitente_primer_apellido').text(data.primer_apellido || 'N/A');
-                $('#remitente_segundo_apellido').text(data.segundo_apellido || 'N/A');
-                $('#remitente_rfc').text(data.rfc || 'N/A');
+            if (response.status && response.value) {
+                $('#label_nombre').text(response.value.nombre || '_');
+                $('#label_primer_apellido').text(response.value.primer_apellido || '_');
+                $('#label_segundo_apellido').text(response.value.segundo_apellido || '_');
+                $('#label_rfc').text(response.value.rfc || '_');
             } else {
-                alert(response.message);
+                alert(response.message || 'No se encontraron datos.');
                 limpiarValores();
             }
         },
         error: function () {
-            alert('Ocurrió un error al validar la CURP.');
+            alert("Error en la consulta de CURP.");
             limpiarValores();
         }
     });
 }
 
-function limpiarValores() {
-    $('#remitente_nombre').text('');
-    $('#remitente_primer_apellido').text('');
-    $('#remitente_segundo_apellido').text('');
-    $('#remitente_rfc').text('');
-}
+$.ajaxSetup({
+    headers: { 'X-CSRF-TOKEN': token }
+});
+
+$('#form-instructor').on('submit', function (event) {
+    event.preventDefault();
+
+    let formData = $(this).serializeArray();
+    let instructorId = $('#id_tbl_instructores').val();
+    let isEditing = $('#is_editing').val() === "1";
+
+    if (instructorId) {
+        formData.push({ name: "id_tbl_instructores", value: instructorId });
+    }
+
+    let estatus = $('#estatus').is(':checked') ? "1" : "0";
+    formData = formData.filter(item => item.name !== "estatus");
+    formData.push({ name: "estatus", value: estatus });
+
+    console.log("📤 Datos enviados:", formData);
+
+    let requestType = isEditing ? 'POST' : 'POST';
+    let requestData = $.param(formData);
+
+    if (isEditing) {
+        requestData += '&_method=PUT';
+    }
+
+    $.ajax({
+        url: $(this).attr('action'),
+        type: requestType,
+        data: requestData,
+        success: function () {
+            let message = isEditing ? "✅ Instructor actualizado correctamente." : "✅ Instructor agregado correctamente.";
+            alert(message);
+            window.location.href = URL_DEFAULT.concat('/tableinstructor/list');
+        },
+        error: function () {
+            let errorMessage = isEditing ? "❌ Error al actualizar el instructor." : "❌ Error al agregar el instructor.";
+            alert(errorMessage);
+        }
+    });
+});

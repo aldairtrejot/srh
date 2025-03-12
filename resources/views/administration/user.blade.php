@@ -129,7 +129,7 @@
                             }
 
                             .modal-footer .btn-secondary {
-                                background-color: #6c757d;
+                                background-color: #555555;
                                 color: white;
                             }
 
@@ -170,7 +170,7 @@
                                     <div class="modal-footer">
                                         <div class="d-flex justify-content-end">
                                             <a class="btn btn-secondary" href="#" id="closeModal"
-                                                style="font-size: 1rem; padding: 10px 20px; margin-left: 10px; background-color: #6c757d; color: white; border: none;">
+                                                style="font-size: 1rem; padding: 10px 20px; margin-left: 10px; background-color: #555555; color: white; border: none;">
                                                 <i class="fas fa-times"></i> Cancelar
                                             </a>
                                             <button onclick="passwordSave();"

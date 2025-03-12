@@ -34,8 +34,17 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     // Valida el check de agregar remitentes, mas de dos
     if ($('#son_mas_remitentes').val()) {
+        console.log('intro to remitentes');
         if (isFieldEmpty($('#remitente').val(), 'Remitente') ||
             isExceedingLength($('#remitente').val(), 'Remitente', 230)) {
+            event.preventDefault();  // Evita el envío del formulario
+            return;  // Detener la ejecución aquí
+        }
+    }
+
+    if (!$('#son_mas_remitentes').val() && !$('#rfc_remitente_bool').val()) {
+        console.log('es un remitente');
+        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
             event.preventDefault();  // Evita el envío del formulario
             return;  // Detener la ejecución aquí
         }
@@ -64,7 +73,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
 
         // Validacion de nombre unico de remitente
-        let isValidN = getUniqueRemitente($('#remitente_nombre').val(), 'nombre');
+        let isValidN = getUniqueNameRemitente($('#remitente_nombre').val(), $('#remitente_apellido_paterno').val(), $('#remitente_apellido_materno').val(), 'nombre');
         if (isValidN) {
             notyfEM.error('El Nombre de remitente ya está registrado.');
             event.preventDefault();  // Detener el envío si la validación falla
@@ -73,18 +82,12 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
         // Validacion de rfc unico de remitente
         let isValidR = getUniqueRemitente($('#remitente_rfc').val(), 'rfc');
-        console.log(isValidR);
         if (isValidR) {
             notyfEM.error('El RFC de remitente ya está registrado.');
             event.preventDefault();  // Detener el envío si la validación falla
             return;  // Detener la ejecución aquí
         }
 
-    } else {
-        if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
-            event.preventDefault();  // Evita el envío del formulario
-            return;  // Detener la ejecución aquí
-        }
     }
 
     // Valida que si las fechas son iguales sean requeridas las horas
@@ -119,6 +122,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     }
 
     $('#id_cat_estatus').prop('disabled', false); //desabilitar contenido
+    $('#id_cat_area').prop('disabled', false); //desabilitar contenido
 });
 
 //Validacion cuando se cambia el evento de fecha

@@ -22,7 +22,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Nombre Organizacion</h4>
-                                @if($letterAdminMatch)
+                                @if($coursesMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
                                         <a href="{{ route('coursesorganizacion.create') }}" class="text-danger" style="margin-left: 10px;">

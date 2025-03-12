@@ -35,7 +35,7 @@
                                     <input type="email" class="form-control form-control-lg" placeholder="Confirmar correo electrónico" />
                                 </div>
                                 <div class="mt-3">
-                                    <a style="background-color: #6c757d"
+                                    <a style="background-color: #555555"
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                                         href="../../index.html">Enviar</a>
                                 </div>

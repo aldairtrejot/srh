@@ -45,7 +45,7 @@
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Turno Asoc.:</label>
+                                    <label class="etiqueta">No. Turno Asoc. / Fol. Gestión:</label>
                                     <label id="_noCorrespondencia" class="valor"></label>
                                 </div>
                                 <div class="item">
@@ -63,7 +63,7 @@
                             </div>
                         </div>
 
-                        <!-- modal deelete -->
+                        <!-- modal delete -->
                         <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
                             confirmButton="confirmBtn" />
 
@@ -158,7 +158,6 @@
                                     <div id="container_anexo_salida"></div>
                                 </div>
                             </div>
-                            </di </div>
                         </div>
                     </div>
                 </div>

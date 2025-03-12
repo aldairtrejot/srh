@@ -52,7 +52,7 @@
                                         No. Turno
                                     </th>
                                     <th>
-                                        No. Turno Asoc.
+                                        No. Turno Asoc. / Fol. Gestión
                                     </th>
                                     <th>
                                         Año

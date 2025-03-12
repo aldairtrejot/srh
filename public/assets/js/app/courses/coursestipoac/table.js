@@ -41,63 +41,15 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: `${URL_DEFAULT}/coursestipoac/table`,
+        url: `${URL_DEFAULT}/tableinstructor/table`,
         type: 'POST',
         data: {
             iterator: iteradorAux,
             searchValue: searchValue,
             _token: token
         },
-        success: function (response) {
-            const tbody = $('#template-table tbody');
-            tbody.empty();  // Limpiar la tabla antes de agregar los nuevos resultados
-
-            if (response.value && response.value.length > 0) {
-                response.value.forEach(function (object) {
-                    const finalUrl = `/srh/public/coursestipoac/edit/${object.id_cat_tipo_accion}`;
-
-                    // Generar el HTML con template literals
-                    const rowHTML = `
-                        <tr>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
-                                        <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${finalUrl}">
-                                            <span style="background:#1D5B3B" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-pencil item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Modificar
-                                        </a>
-                                       <!-- Aquí se agrega la opción para eliminar -->
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_tipo_accion})">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>${object.descripcion}</td>
-                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
-                        </tr>
-                    `;
-                    tbody.append(rowHTML);
-                });
-                emptyContent = false;
-            } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
-                emptyContent = true;
-            }
-        }
+        success: (response) => renderTable(response),
+        error: (xhr) => handleAjaxError(xhr)
     });
 }
 
@@ -108,7 +60,7 @@ function renderTable(response) {
 
     if (response.value && response.value.length > 0) {
         response.value.forEach((object) => {
-            const finalUrl = `${URL_DEFAULT}/coursestipoac/edit/${object.id_tipo_accion}`;
+            const finalUrl = `${URL_DEFAULT}/tableinstructor/edit/{id}${object.id_tbl_instructores}`;
             const rowHTML = `
                 <tr>
                     <td>
@@ -126,7 +78,7 @@ function renderTable(response) {
                                     </span>
                                     Modificar
                                 </a>
-                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tipo_accion})">
+                                <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
                                     <span style="background:#6A1B3D" class="icon-container-template">
                                         <div style="text-align: center;">
                                             <i class="fa fa-trash item-icon-menu"></i>
@@ -137,7 +89,8 @@ function renderTable(response) {
                             </div>
                         </div>
                     </td>
-                    <td>${object.descripcion || '-'}</td>
+                    <td>${object.curp || ' '}</td>
+                    <td>${object.nombre_completo || ' '}</td>
                     <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
                 </tr>
             `;
@@ -153,7 +106,7 @@ function renderTable(response) {
 // Manejo de errores en AJAX
 function handleAjaxError(xhr) {
     console.error('Error en la solicitud:', xhr.responseText);
-    alert('Hubo un error al procesar la solicitud. Por favor, inténtalo de nuevo.');
+    alert('Ocurrió un error al procesar la solicitud.');
 }
 
 // Funciones de paginación
@@ -204,12 +157,12 @@ function confirmDelete(id) {
 // Elimina un curso
 function deleteCourse(id) {
     $.ajax({
-        url: `${URL_DEFAULT}/coursestipoac/delete/${id}`,
+        url: `${URL_DEFAULT}/tableinstructor/delete/${id}`,
         type: 'DELETE',
         data: { _token: token },
         success: () => {
-            alert('Tipo de acción eliminado exitosamente.');
-            window.location.href = `${URL_DEFAULT}/coursestipoac/list`;
+            alert('Instructor eliminado exitosamente.');
+            window.location.href = `${URL_DEFAULT}/tableinstructor/list`;
         },
         error: (xhr) => handleAjaxError(xhr)
     });
