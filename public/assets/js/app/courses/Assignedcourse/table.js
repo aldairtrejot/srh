@@ -63,6 +63,7 @@ function searchInit() {
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
                     const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
+                    const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
                     const rowHTML =`
                         <tr>
                             <td>
@@ -79,6 +80,14 @@ function searchInit() {
                                                 </div>
                                             </span>
                                             Cursos
+                                        </a>
+                                        <a class="dropdown-item" href="${urlReport}">
+                                            <span style="background:#1E90FF" class="icon-container-template">
+                                                <div style="text-align: center;">
+                                                    <i class="fa fa-file item-icon-menu"></i>
+                                                </div>
+                                            </span>
+                                            Constancia
                                         </a>
                                     </div>
                                 </div>
