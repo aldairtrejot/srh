@@ -16,11 +16,8 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/other/bootstrap-select/dist/css/bootstrap-select.min.css') }}">    
     <link rel="stylesheet" href="{{ asset('assets/other/tippy/tippy.css') }}">
-    
     <script src="{{ asset('assets/js/jquery/jquery-3.7.1.min.js') }}"></script> <!-- jquery-->
 
 
-    <!--
-    <link href="https://unpkg.com/tippy.js@6.3.1/dist/tippy.css" rel="stylesheet">
--->
+
 </head>
