@@ -15,14 +15,17 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_auditoria) ? 'Modificar' : 'Agregar ' }} Curso Auditoria"
+                            tittle="{{ isset($item->id_cat_auditoria) ? 'Modificar' : 'Agregar ' }} Curso Auditoria"
                             route="{{ route('coursesauditoria.list') }}" />
                         
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('coursesauditoria.save') }}" method="POST" class="form-sample">
+                       <form action="{{ route('coursesauditoria.save') }}" method="POST" class="form-sample" id="myForm">
                         @csrf
+                        <x-template-form.template-form-input-hidden name="id_cat_auditoria"
+                                    value="{{ optional($item)->id_cat_auditoria ?? '' }}" />
+
                         <x-template-form.template-form-input-required label="Descripcion" type="text"
                             name="descripcion" placeholder="Descripcion"
                             grid="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" autocomplete=""

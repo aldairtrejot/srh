@@ -26,6 +26,18 @@ class CoursestipoacM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_tipo_accion')
+        ->select(['capacitacion.cat_tipo_accion.id_cat_tipo_accion AS id',
+                    DB::raw('UPPER(capacitacion.cat_tipo_accion.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_tipo_accion.id_cat_tipo_accion', '=', $id);
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
+    }
     public function list($iterator, $searchValue )
     {
         // Preparar la consulta base

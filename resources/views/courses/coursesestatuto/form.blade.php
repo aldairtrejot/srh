@@ -21,8 +21,11 @@
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('coursesestatuto.save') }}" method="POST" class="form-sample">
+                       <form action="{{ route('coursesestatuto.save') }}" method="POST" class="form-sample" id="myForm">
                         @csrf
+                        <x-template-form.template-form-input-hidden name="id_cat_estatuto_organico"
+                                    value="{{ optional($item)->id_cat_estatuto_organico ?? '' }}" />
+
                         <x-template-form.template-form-input-required label="Descripcion" type="text"
                             name="descripcion" placeholder="Descripcion"
                             grid="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" autocomplete=""
@@ -45,4 +48,5 @@
             </div>
         </div>
     </div>
+    <script src="/srh/public/assets/js/app/courses/coursesestatuto/validate.js"></script>
 </x-template-app.app-layout>

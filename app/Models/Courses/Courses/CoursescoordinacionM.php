@@ -54,6 +54,18 @@ class CoursescoordinacionM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_coordinacion')
+        ->select(['capacitacion.cat_coordinacion.id_cat_coordinacion AS id',
+                    DB::raw('UPPER(capacitacion.cat_coordinacion.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_coordinacion.id_cat_coordinacion', '=', $id);
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
+    }
     public function listcoordinacion()
     {
         $query = DB::table('capacitacion.cat_coordinacion')

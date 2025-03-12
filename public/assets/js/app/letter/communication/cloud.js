@@ -144,7 +144,7 @@ $('.file-input-acuse').on('change', function (event) {
 
     if (file) {
         if (file) {
-            showSpinner();// Inicio de spinner
+            showSpinner();// Inicio de spinner  
             let data = new FormData();// Crear el objeto FormData
             data.append('file', file);
             data.append('id', $('#id_acuse').val());

@@ -20,12 +20,23 @@ class CoursestipocurM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_tipo_cursos')
-            ->where('id_tipocursos', $id)
             ->where('id_cat_tipo_cursos', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
+    }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_tipo_cursos')
+        ->select(['capacitacion.cat_tipo_cursos.id_cat_tipo_cursos AS id',
+                    DB::raw('UPPER(capacitacion.cat_tipo_cursos.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_tipo_cursos.id_cat_tipo_cursos', '=', $id);
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
     }
     public function list($iterator, $searchValue )
     {

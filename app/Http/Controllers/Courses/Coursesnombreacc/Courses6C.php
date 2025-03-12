@@ -25,33 +25,35 @@ class Courses6C extends Controller
         $coursesnombreaccM = new CoursesnombreaccM();
         $messagesC = new MessagesC();
         $now = Carbon::now(); // Usando Carbon para la fecha actual
-        // Validar los datos del formulario
-        $request->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
-
-        // Crear usuario
-        $coursesnombreaccM::create([
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false, // Manejar estatus como false si es null
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now, 
-            'nombre' => $request->nombre,
-        ]);
-
-        // Redirigir a la lista de cursos con un mensaje de éxito
-        //return redirect()->route('coursesnombreacc.list')->with('success', 'Curso guardado exitosamente.');
+    
+        if (!$request->id_cat_nombre_accion) {
+            // Crear nuevo curso
+            $nuevoCurso = $coursesnombreaccM::create([
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                'nombre' => $request->nombre,
+            ]);
+        } else {
+            // Modificar curso existente
+            $data = [
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+                'nombre' => $request->nombre,
+            ];
+    
+            $coursesnombreaccM::where('id_cat_nombre_accion', $request->id_cat_nombre_accion)->update($data);
+        }
+    
+        // Redirigir con mensaje de éxito
         return $messagesC->messageSuccessRedirect('coursesnombreacc.list', 'Curso guardado exitosamente.');
     }
-
     public function create()
     {
         $item = new CoursesnombreaccM();
-        $item->id_cat_nombre_accion = '';  // Valor por defecto
-        $item->descripcion = '';    // Valor por defecto
-        $item->estatus = '';     
-        $item->nombre = '';    
-
 
         return view('courses.coursesnombreacc.form', compact('item'));
     }
@@ -84,28 +86,12 @@ class Courses6C extends Controller
             
     }
 
-    public function edit(Request $request, $id)
+    public function edit(string $id)
     {
-        $course = CoursesnombreaccM ::find($id);
-        $messagesC = new MessagesC();
+        $coursesnombreaccM = new CoursesnombreaccM();
+        $item = $coursesnombreaccM->edit($id);
 
-        if ($request->isMethod('post')) {
-            // Validar los datos del formulario
-            $request->validate([
-                'descripcion' => 'required|string|max:255',
-            ]);
-
-            // Actualizar los datos del curso
-            $course->descripcion = $request->input('descripcion');
-            $course->estatus = $request->input('estatus') ? true : false;
-            $course->nombre = $request->input('nombre');
-            $course->save();
-
-            // Redirigir a la lista de cursos con un mensaje de éxito
-           // return redirect()->route('coursesnombreacc.list')->with('success', 'Curso actualizado exitosamente.');
-           return $messagesC->messageSuccessRedirect('coursesnombreacc.list', 'Curso actualizado exitosamente.');
-        }
-
-        return view('courses.coursesnombreacc.edit', compact('course'));
+        return view('courses.coursesnombreacc.form', compact('item'));
+       
     }
 }

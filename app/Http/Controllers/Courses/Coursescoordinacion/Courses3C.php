@@ -25,30 +25,35 @@ class Courses3C extends Controller
         $coursescoordinacionM = new CoursescoordinacionM();
         $messagesC = new MessagesC();
         $now = Carbon::now(); // Usando Carbon para la fecha actual
-        // Validar los datos del formulario
-        $request->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
-
-        // Crear usuario
-        $coursescoordinacionM::create([
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false, // Manejar estatus como false si es null
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now, 
-        ]);
-
-        // Redirigir a la lista de cursos con un mensaje de éxito
-        //return redirect()->route('coursescoordinacion.list')->with('success', 'Curso guardado exitosamente.');
+    
+        if (!$request->id_cat_coordinacion) {
+            // Crear nuevo curso
+            $nuevoCurso = $coursescoordinacionM::create([
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ]);
+        } else {
+            // Modificar curso existente
+            $data = [
+                'descripcion' => $request->descripcion,
+                'estatus' => $request->estatus ?? false,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario' => $now,
+            ];
+    
+            $coursescoordinacionM::where('id_cat_coordinacion', $request->id_cat_coordinacion)->update($data);
+        }
+    
+        // Redirigir con mensaje de éxito
         return $messagesC->messageSuccessRedirect('coursescoordinacion.list', 'Curso guardado exitosamente.');
     }
+    
 
     public function create()
     {
-        $item = new CoursescoordinacionM();
-        $item->id_cat_coordinacion = '';  // Valor por defecto
-        $item->descripcion = '';    // Valor por defecto
-        $item->estatus = '';     
+        $item = new CoursescoordinacionM(); 
 
         return view('courses.coursescoordinacion.form', compact('item'));
     }
@@ -81,28 +86,13 @@ class Courses3C extends Controller
             }
             
     }
-    public function edit(Request $request, $id)
+    public function edit(string $id)
     {
-        $course = CoursescoordinacionM::find($id);
-        $messagesC = new MessagesC();
+        $coursescoordinacionM = new CoursescoordinacionM();
+        $item = $coursescoordinacionM ->edit($id);
 
-        if ($request->isMethod('post')) {
-            // Validar los datos del formulario
-            $request->validate([
-                'descripcion' => 'required|string|max:255',
-            ]);
-
-            // Actualizar los datos del curso
-            $course->descripcion = $request->input('descripcion');
-            $course->estatus = $request->input('estatus') ? true : false;
-            $course->save();
-
-            // Redirigir a la lista de cursos con un mensaje de éxito
-            //return redirect()->route('coursescoordinacion.list')->with('success', 'Curso actualizado exitosamente.');
-            return $messagesC->messageSuccessRedirect('coursescoordinacion.list', 'Curso actualizado exitosamente.');
-        }
-
-        return view('courses.coursescoordinacion.edit', compact('course'));
+        return view('courses.coursescoordinacion.form', compact('item'));
+       
     }
 
 }

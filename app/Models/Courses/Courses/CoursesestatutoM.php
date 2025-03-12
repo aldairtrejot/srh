@@ -14,6 +14,7 @@ class CoursesestatutoM extends Model
         'estatus',
         'id_usuario_sistema',
         'fecha_usuario',
+        'nombre',
     ];
 
     public function edit(string $id)
@@ -25,6 +26,18 @@ class CoursesestatutoM extends Model
 
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
+    }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_estatuto_organico')
+        ->select(['capacitacion.cat_estatuto_organico.id_cat_estatuto_organico AS id',
+                    DB::raw('UPPER(capacitacion.cat_estatuto_organico.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_estatuto_organico.id_cat_estatuto_organico', '=', $id);
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
     }
     public function list($iterator, $searchValue )
     {
@@ -58,19 +71,19 @@ class CoursesestatutoM extends Model
         return $query->get();
     }
     public function listestatuto()
-    {
-        $query = DB::table('capacitacion.cat_estatuto_organico')
-            ->select([
-                'capacitacion.cat_estatuto_organico.id_cat_estatuto_organico AS id',
-                DB::raw('UPPER(capacitacion.cat_estatuto_organico.descripcion) AS descripcion')
-            ])
-            ->where('estatus', '=', true)
-            ->orderBy('capacitacion.cat_estatuto_organico.descripcion', 'ASC');
-    
-        // Ejecutar la consulta y obtener los resultados
-        $results = $query->get();
-    
-        // Retornar los resultados
-        return $results;
-    }
+{
+    $query = DB::table('capacitacion.cat_estatuto_organico')
+        ->select([
+            'capacitacion.cat_estatuto_organico.id_cat_estatuto_organico AS id',
+            DB::raw("UPPER(capacitacion.cat_estatuto_organico.nombre || ' - ' || capacitacion.cat_estatuto_organico.descripcion) AS descripcion")
+        ])
+        ->where('estatus', '=', true)
+        ->orderBy('capacitacion.cat_estatuto_organico.descripcion', 'ASC');
+
+    // Ejecutar la consulta y obtener los resultados
+    $results = $query->get();
+
+    // Retornar los resultados
+    return $results;
+}
 }

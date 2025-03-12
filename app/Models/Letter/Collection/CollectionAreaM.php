@@ -121,6 +121,8 @@ class CollectionAreaM extends Model
         $result = $query->first();
         return $result;
     }
+   
+    
 
     // Obtener solo la clave del area
     public function getClave($id)

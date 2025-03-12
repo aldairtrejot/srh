@@ -47,27 +47,41 @@ $(document).ready(function () {
 
 // Función para inicializar la búsqueda y cargar datos
 function searchInit() {
-    const searchValue = document.getElementById('searchValue').value; // Obtener el valor de búsqueda
-    const iteradorAux = (iterator * 5) - 5; // Calcular el índice inicial para la paginación
+    const searchValue = $('#searchValue').val(); // Usar jQuery para obtener el valor
+    const iteradorAux = (iterator - 1) * 5; // Se puede simplificar
 
-    // Realizar la solicitud AJAX
     $.ajax({
         url: '/srh/public/tablecourses/table',
         type: 'POST',
         data: {
-            iterator: iterator, // Número de página para la paginación
-            searchValue: searchValue, // Valor de búsqueda
-            _token: token,  // Token CSRF
+            iterator: iterator,
+            searchValue: searchValue,
+            _token: token,
         },
-        success: function (response) {
+        success: function(response) {
             const tbody = $('#template-table tbody');
-            tbody.empty(); // Limpiar la tabla antes de agregar nuevos resultados
+            tbody.empty(); // Limpiar tabla
 
             if (response.data && response.data.length > 0) {
-                response.data.forEach(function (object) {
-                    const finalUrl = `/srh/public/coursestipocur/edit/${object.id_tbl_cursos}`;
+                response.data.forEach(function(object) {
+                    const finalUrl = `/srh/public/tablecourses/edit/${object.id_tbl_cursos}`;
 
-                    // Generar el HTML con template literals
+                    // Verificar si el costo_total es mayor a 0
+                    let auditoriaButton = '';
+                    if (object.costo_total > 0) {
+                        auditoriaButton = `
+                            <button class="dropdown-item" onclick="refreshOficio(${object.id_tbl_cursos})">
+                                <span style="background:#B38E5D" class="icon-container-template">
+                                    <div style="text-align: center;">
+                                        <i class=" fa fa-list-alt item-icon-menu"></i>
+                                    </div>
+                                </span>
+                                Auditoria
+                            </button>
+                        `;
+                    }
+
+                    // Generar el HTML con el botón de auditoría solo si corresponde
                     const rowHTML = `
                         <tr>
                             <td>
@@ -85,14 +99,8 @@ function searchInit() {
                                             </span>
                                             Modificar
                                         </a>
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_cursos})">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
-                                        </a>
+                                        ${auditoriaButton} <!-- Mostrar solo si costo_total > 0 -->
+                                    
                                     </div>
                                 </div>
                             </td>
@@ -101,7 +109,7 @@ function searchInit() {
                             <td>${object.categoria_tipo_curso}</td>
                             <td>${object.categoria_tipo_accion}</td>
                             <td>${object.categoria_programa_institucional}</td>
-                            <td>${object.costo_total}</td>
+                            <td>${'$ ' + object.costo_total}</td>
                             <td>${object.fecha_inicio}</td>
                             <td>${object.fecha_fin}</td>
                             <td>${object.horas_curso}</td>
@@ -117,8 +125,9 @@ function searchInit() {
                 emptyContent = true;
             }
         },
-        error: function (xhr, status, error) {
+        error: function(xhr, status, error) {
             console.error('Error al cargar los datos:', error);
+            alert('Hubo un error al cargar los datos. Intenta nuevamente.');
         }
     });
 }
@@ -188,3 +197,4 @@ function searchValue() {
     setValue(); // Actualizar la paginación
     searchInit(); // Realizar la búsqueda
 }
+

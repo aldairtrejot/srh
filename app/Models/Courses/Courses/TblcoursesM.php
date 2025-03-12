@@ -12,24 +12,25 @@ class TblcoursesM extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_cat_beneficio',
         'id_cat_tipo_cursos',
+        'id_cat_tipo_accion',
         'id_cat_coordinacion',
         'id_cat_nombre_accion',
         'id_cat_programa_institucional',
         'id_cat_estatuto_organico',
-        'programa_proyecto',
-        'id_cat_beneficio',
         'id_cat_organizacion',
-        'id_cat_tipo_accion',
+        'programa_proyecto',
         'id_cat_modalidad',
         'id_cat_categoria',
+        'id_tbl_instructores',
         'costo',
         'iva',
         'fecha_inicio',
         'fecha_fin',
         'horas',
         'id_usuario_sistema',
-        'nombre_completo',
+        'estatus',
     ];
 
     public function list($iterator, $searchValue)
@@ -41,8 +42,8 @@ class TblcoursesM extends Model
                 DB::raw("UPPER(beneficio.descripcion) AS categoria_beneficio"),
                 DB::raw("UPPER(curso.descripcion) AS categoria_tipo_curso"),
                 DB::raw("UPPER(taccion.descripcion) AS categoria_tipo_accion"),
-                DB::raw("UPPER(pinstitucional.descripcion) AS categoria_programa_institucional"),
-                DB::raw("(cursos.costo + cursos.iva) AS costo_total"),
+                DB::raw("UPPER(pinstitucional.nombre) AS categoria_programa_institucional"),
+                DB::raw("CONCAT((cursos.costo * (cursos.iva * 0.01)) + cursos.costo) AS costo_total"),
                 DB::raw("TO_CHAR(cursos.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(cursos.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
                 'cursos.horas AS horas_curso',
@@ -93,6 +94,17 @@ class TblcoursesM extends Model
         }
 
         return $query->paginate(5, ['*'], 'page', $iterator);
+    }
+
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('capacitacion.tbl_cursos')
+            ->where('id_tbl_cursos', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
     }
 }
 

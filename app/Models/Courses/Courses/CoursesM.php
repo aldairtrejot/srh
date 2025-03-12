@@ -53,11 +53,23 @@ class CoursesM extends Model
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
         $query = DB::table('capacitacion.cat_beneficio')
-            ->where('id_beneficio', $id)
+            ->where('id_cat_beneficio', $id)
             ->first(); // Usamos first() para obtener un único registro
 
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
+    }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_beneficio')
+        ->select(['capacitacion.cat_beneficio.id_cat_beneficio AS id',
+                    DB::raw('UPPER(capacitacion.cat_beneficio.descripcion) AS descripcion')])
+    
+        ->where('capacitacion.cat_beneficio.id_cat_beneficio', '=', $id);
+    
+    // Retornamos el usuario o null si no se encuentra
+    $result = $query->first();
+            return $result;
     }
     public function listbeneficio()
     {

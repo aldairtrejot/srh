@@ -68,6 +68,18 @@ class CoursescategoriaM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+    public function edittblcourses($id)
+    {
+        $query = DB::table('capacitacion.cat_categoria')
+    ->select(['capacitacion.cat_categoria.id_cat_categoria AS id',
+                DB::raw('UPPER(capacitacion.cat_categoria.descripcion) AS descripcion')])
+
+    ->where('capacitacion.cat_categoria.id_cat_categoria', '=', $id);
+
+// Retornamos el usuario o null si no se encuentra
+$result = $query->first();
+        return $result;
+    }
     public function listcategoria()
     {
         $query = DB::table('capacitacion.cat_categoria')

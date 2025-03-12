@@ -21,8 +21,11 @@
                         <br>
                        <!--<x-template-tittle.tittle-caption-secon tittle="Información Catalogo Beneficio" />-->
 
-                       <form action="{{ route('coursestipocur.save') }}" method="POST" class="form-sample">
+                       <form action="{{ route('coursestipocur.save') }}" method="POST" class="form-sample" id="myForm">
                         @csrf
+                        <x-template-form.template-form-input-hidden name="id_cat_tipo_cursos"
+                        value="{{ optional($item)->id_cat_tipo_cursos ?? '' }}" />
+
                         <x-template-form.template-form-input-required label="Descripcion" type="text"
                             name="descripcion" placeholder="Descripcion"
                             grid="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" autocomplete=""
@@ -40,4 +43,5 @@
             </div>
         </div>
     </div>
+    <script src="/srh/public/assets/js/app/courses/coursestipocur/validate.js"></script>
 </x-template-app.app-layout>

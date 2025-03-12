@@ -43,6 +43,7 @@
                                     <th>Menu</th>
                                     <th>Descripción</th>
                                     <th>Estatus</th>
+                                    <th>Nombre</th>
                                 </tr>
                             </thead>
                             

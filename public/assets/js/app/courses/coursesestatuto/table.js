@@ -46,7 +46,7 @@ function searchInit() {
     const iteradorAux = (iterator * 5) - 5;
 
     $.ajax({
-        url: `${URL_DEFAULT}/courses/table`,
+        url: `${URL_DEFAULT}/coursesestatuto/table`,
         type: 'POST',
         data: {
             iterator: iteradorAux,
@@ -93,6 +93,7 @@ function searchInit() {
                             </td>
                             <td>${object.descripcion}</td>
                             <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                            <td>${object.nombre}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
