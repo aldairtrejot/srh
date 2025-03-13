@@ -40,7 +40,6 @@ class CollectionRolAreaM extends Model
             ->where('id_usuario', Auth::user()->id)
             ->get();
 
-        Log::info($result);
         $data = $result->pluck('id_cat_area')->toArray();
         return $data;
     }
