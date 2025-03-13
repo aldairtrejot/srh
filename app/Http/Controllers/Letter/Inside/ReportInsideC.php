@@ -41,35 +41,33 @@ class ReportInsideC extends Controller
         $pdf->Write(0, $data->fecha_aplicacion);
 
         //DATA fecha_aplicacion
-        $pdf->SetXY(100, 73.5); // Posición X, Y en el PDF
+        $pdf->SetXY(49, 73.5); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_turno_sistema);
 
-        /*
-        //AÑO 
-        $pdf->SetXY(147, 65); // Posición X, Y en el PDF
+        //DATA num_documento_area
+        $pdf->SetXY(49, 79.8); // Posición X, Y en el PDF
+        $pdf->Write(0, $data->num_documento_area);
+
+        //DATA anio
+        $pdf->SetXY(49, 86.5); // Posición X, Y en el PDF
         $pdf->Write(0, $data->anio);
 
-        //FECHA DE INICIO
-        $pdf->SetXY(40.5, 59); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->fecha_inicio);
+        // DATA area
+        $pdf->SetXY(49, 96); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($data->area));
 
-        //FECHA DE FIN 
-        $pdf->SetXY(147, 59); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->fecha_fin);
-
-        //DATA NUM DOCUMENTO
-        $pdf->SetXY(40.5, 71); // Posición X, Y en el PDF
-        $pdf->Write(0, $data->num_correspondencia);
-
-        //DATA ASUNTO
-        $pdf->SetXY(40.5, 78.2); // Posición X, Y en el PDF
+        // DATA asunto
+        $pdf->SetXY(49, 107); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
 
-        //DATA LUGAR
-        $pdf->SetXY(40.5, 88); // Posición X, Y en el PDF
+        // DATA destinatario
+        $pdf->SetXY(49, 130); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($data->destinatario));
+
+        // DATA observaciones
+        $pdf->SetXY(49, 150); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
-        */
 
         // Enviar el PDF generado al navegador
         return response($pdf->Output('I'), 200)

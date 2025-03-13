@@ -152,6 +152,10 @@ class CloudInsideC extends Controller
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
         $logC = new LogC();
+        $alfrescoC = new AlfrescoC();
+        
+        //Borrado de alfresco
+        $alfrescoC->delete($request->uid);
 
         $data = [
             'estatus' => false,
