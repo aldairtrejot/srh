@@ -67,10 +67,11 @@ class InsideM extends Model
 
         // Filtrar por usuario si se proporciona el id
         if (!empty($idUser)) {
-            $query->where('correspondencia.tbl_interno.id_usuario_area', $idUser)
-                ->orWhere('correspondencia.tbl_interno.id_usuario_enlace', $idUser);
-        }
 
+            $query->where(function ($query) use ($idUser) {
+                $query->whereIn('correspondencia.tbl_interno.id_cat_area', $idUser);
+            });
+        }
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
         if (!empty($searchValue)) {
             $searchValue = strtoupper(trim($searchValue));  // Limpiar y convertir a mayúsculas

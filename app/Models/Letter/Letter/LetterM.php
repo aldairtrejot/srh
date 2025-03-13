@@ -111,26 +111,10 @@ class LetterM extends Model
         // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
 
-            $ZONA_SURESTE = 10;
-            $NO_CONCURRENTES = 15;
-
-            //Changes
-            // Changes // Validacion para que el area de mtro Ramon puede ver dos areas
-            if ($idUser == $ZONA_SURESTE || $idUser == $NO_CONCURRENTES) {
-                $query->where(function ($query) use ($idUser, $ZONA_SURESTE, $NO_CONCURRENTES) {
-                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $ZONA_SURESTE)
-                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $NO_CONCURRENTES)
-                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $ZONA_SURESTE)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $NO_CONCURRENTES)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-                });
-            } else {
-                $query->where(function ($query) use ($idUser) {
-                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-                });
-            }
+            $query->where(function ($query) use ($idUser) {
+                $query->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                    ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+            });
 
             $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
 

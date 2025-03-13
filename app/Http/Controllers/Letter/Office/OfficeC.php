@@ -60,7 +60,7 @@ class OfficeC extends Controller
                 $value = $officeM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
+                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getListArea());
             }
 
             // Responder con los resultados

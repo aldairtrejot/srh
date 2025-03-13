@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Http\Controllers\Letter\Other\ConsecutivoC;
+use App\Models\Letter\Collection\CollectionRolAreaM;
 class InsideC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -40,6 +41,7 @@ class InsideC extends Controller
     {
         try {
             $model = new InsideM();
+            $collectionRolAreaM = new CollectionRolAreaM();
             // Obtener valores de la solicitud
             $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue'); // Valor de búsqueda
@@ -55,7 +57,7 @@ class InsideC extends Controller
                 $value = $model->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $model->list($iterator, $searchValue, Auth::id());
+                $value = $model->list($iterator, $searchValue, $collectionRolAreaM->getListArea());
             }
 
             // Responder con los resultados
