@@ -50,7 +50,6 @@
                                 <x-template-form.template-form-input-hidden name="son_mas_remitentes"
                                     value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
 
-
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
                                     <div class="item">
