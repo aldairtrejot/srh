@@ -8,6 +8,7 @@ use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
+use App\Http\Controllers\Letter\External\ExternalC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Inside\ReportInsideC;
@@ -143,6 +144,13 @@ Route::post('/round/cloud/oficios', [CloudRoundC::class, 'cloudOficios'])->name(
 Route::post('/round/cloud/upload', [CloudRoundC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
 Route::post('/round/cloud/delete', [CloudRoundC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
 Route::get('/round/generate-pdf/{id}', [ReporteTemplateC::class, 'round'])->middleware('auth');
+
+//ROUTE EXTERNAK / CIRCULARES EXTERNAS
+Route::get('/external/list', [ExternalC::class, 'list'])->name('external.list')->middleware('auth');
+Route::post('/external/table', [ExternalC::class, 'table'])->name('external.table')->middleware('auth');
+Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
+Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
+Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.collection.area')->middleware('auth');
 
 //ROUTE file / EXPEDIENTES
 Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');
