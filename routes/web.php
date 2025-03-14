@@ -151,6 +151,8 @@ Route::post('/external/table', [ExternalC::class, 'table'])->name('external.tabl
 Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
 Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
 Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.collection.area')->middleware('auth');
+Route::post('/external/unique', [ExternalC::class, 'unique'])->name('external.unique')->middleware('auth');
+Route::get('/external/edit/{id}', [ExternalC::class, 'edit'])->name('external.edit')->middleware('auth');
 
 //ROUTE file / EXPEDIENTES
 Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');

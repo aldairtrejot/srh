@@ -21,6 +21,19 @@ class CollectionDependenciaM extends Model
         return $result;
     }
 
+    // La funcion retorna los valores modificados 
+    public function listEdit($id)
+    {
+        $query = DB::table('correspondencia.cat_dependencia')
+            ->select([
+                'correspondencia.cat_dependencia.id_cat_dependencia AS id',
+                DB::raw('correspondencia.cat_dependencia.descripcion AS descripcion')
+            ])
+            ->where('correspondencia.cat_dependencia.id_cat_dependencia', '=', $id);
+        $result = $query->first();
+        return $result;
+    }
+
     // La función retorna las areas, esperando la dependencia esperada
     public function areaList($id)
     {
@@ -36,6 +49,19 @@ class CollectionDependenciaM extends Model
             ->get();
 
         return $query;
+    }
+
+    // La funcion retorna los valores modificados 
+    public function listAreaEdit($id)
+    {
+        $query = DB::table('correspondencia.cat_dependencia_area')
+            ->select([
+                'correspondencia.cat_dependencia_area.id_cat_dependencia_area AS id',
+                DB::raw('correspondencia.cat_dependencia_area.descripcion AS descripcion')
+            ])
+            ->where('correspondencia.cat_dependencia_area.id_cat_dependencia_area', '=', $id);
+        $result = $query->first();
+        return $result;
     }
 
 }

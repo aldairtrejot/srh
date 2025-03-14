@@ -59,4 +59,36 @@ class ExternalM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
+    // La función sirve para modificar
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.tbl_circular_externa')
+            ->where('id_tbl_circular_externa', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
+
+    //La funcion valida que el no de documento sea unico
+    public function unique($id, $value)
+    {
+        // Realizar la consulta a la base de datos, buscando si existe un registro con el valor de documento
+        $query = DB::table('correspondencia.tbl_circular_externa')
+            ->select('correspondencia.tbl_circular_externa.id_tbl_circular_externa')
+            ->whereRaw('UPPER(TRIM(correspondencia.tbl_circular_externa.no_documento)) = UPPER(TRIM(?))', [trim($value)]);
+
+        // Si el ID está presente, agregar la condición para excluir el ID
+        if (isset($id)) {
+            $query->whereRaw('correspondencia.tbl_circular_externa.id_tbl_circular_externa <> ?', [$id]);
+        }
+
+        // Ejecutar la consulta y verificar si hay resultados
+        $result = $query->first();
+
+        // Retornar true si se encuentra algún resultado, de lo contrario false
+        return $result;//$result !== null;
+    }
 }
