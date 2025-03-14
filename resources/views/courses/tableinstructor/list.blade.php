@@ -74,6 +74,7 @@
     </div>
  
  <!-- CODE SCRIPT-->
+ <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
  <script src="{{ asset('assets/js/app/courses/tableinstructor/table.js') }}"></script>
 </x-template-app.app-layout>
 

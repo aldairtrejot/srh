@@ -24,11 +24,20 @@ use Illuminate\Http\Request;
 
 class TblCoursesC extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
-        return view('courses/tablecourses/list');
+        $instructorId = $request->query('instructor_id'); // Capturar el ID del instructor desde la URL
+        $coursesModel = new TblcoursesM();
+    
+        if ($instructorId) {
+            $courses = $coursesModel->getCoursesByInstructor($instructorId); // ✅ Ahora trae todos los cursos sin paginación
+        } else {
+            $courses = TblcoursesM::all(); // ✅ Obtener todos los cursos si no hay instructor seleccionado
+        }
+    
+        return view('courses.tablecourses.list', compact('courses'));
     }
-
+    
     public function searchTable(Request $request)
     {
         try {
