@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Gestión de control</h3>
-                            <h5 class="font-weight-normal mb-0">Interno</h5>
+                            <h5 class="font-weight-normal mb-0">Circulares Externas</h5>
                         </div>
                     </div>
                 </div>
@@ -20,12 +20,9 @@
                     <div class="card-body">
 
                         <div>
-                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('inside.list') }}" />
+                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('external.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id" value="{{  $id }}" />
-
-                            <x-template-form.template-form-input-hidden name="id_cat_area"
-                                value="{{  $id_cat_area }}" />
+                            <x-template-form.template-form-input-hidden name="id" value="{{  $item->id }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_salida"
                                 value="{{  config('custom_config.CONFIG_CLOUD_SALIDA') }}" />
@@ -34,30 +31,22 @@
                                 value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_INTERNO') }}" />
+                                value="{{  config('custom_config.CLOUD_ALFRESCO_CIRCULAR_EXTERNO') }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />
                             <div class="contenedor">
                                 <div class="item">
                                     <label class="etiqueta">No. Turno:</label>
-                                    <label id="_noOficio" class="valor"></label>
+                                    <label class="valor">{{ $item->num_turno_sistema }}</label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Folio:</label>
-                                    <label id="_noCorrespondencia" class="valor"></label>
+                                    <label class="etiqueta">No. Documento:</label>
+                                    <label class="valor">{{ $item->no_documento }}</label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">Año:</label>
-                                    <label id="_noAnio" class="valor"></label>
-                                </div>
-                                <div class="item">
-                                    <label class="etiqueta">Fecha de emisión:</label>
-                                    <label id="_fechaInicio" class="valor"></label>
-                                </div>
-                                <div class="item">
-                                    <label class="etiqueta">Fecha de aplicación:</label>
-                                    <label id="_fechaFin" class="valor"></label>
+                                    <label class="etiqueta">Fecha captura:</label>
+                                    <label class="valor">{{ $item->fecha_captura }}</label>
                                 </div>
                             </div>
                         </div>
@@ -157,7 +146,7 @@
                                     <div id="container_anexo_salida"></div>
                                 </div>
                             </div>
-                            </di </div>
+                            </di>
                         </div>
                     </div>
                 </div>
@@ -166,6 +155,6 @@
 
         <!-- CODE SCRIPT-->
         <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
-        <script src="{{ asset('assets/js/app/letter/inside/cloud.js') }}"></script>
+        <script src="{{ asset('assets/js/app/letter/external/cloud.js') }}"></script>
 
 </x-template-app.app-layout>

@@ -91,4 +91,20 @@ class ExternalM extends Model
         // Retornar true si se encuentra algún resultado, de lo contrario false
         return $result;//$result !== null;
     }
+
+    // La función retorna encabezados de cloud de circulares externas
+    public function getDataCloud($id)
+    {
+        $query = DB::table('correspondencia.tbl_circular_externa')
+            ->select(
+                'correspondencia.tbl_circular_externa.id_tbl_circular_externa AS id',
+                'correspondencia.tbl_circular_externa.num_turno_sistema AS num_turno_sistema',
+                'correspondencia.tbl_circular_externa.no_documento AS no_documento',
+                DB::raw("TO_CHAR(correspondencia.tbl_circular_externa.fecha_captura, 'DD/MM/YYYY') AS fecha_captura")
+            )
+            ->where('correspondencia.tbl_circular_externa.id_tbl_circular_externa', '=', $id)
+            ->first();  // Usamos 'first' para obtener un solo resultado
+
+        return $query;
+    }
 }

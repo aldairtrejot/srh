@@ -2,9 +2,8 @@
 //Scrip que se ejecuta con el formulario, para funciones u herramientas extras
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
-var id = $('#id').val();//Obtener elemento
-var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
 var id_cat_salida = $('#id_cat_salida').val(); //Se obtiene el id de la area
+var id = $('#id').val(); //Se obtiene el id de la area
 var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
 var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de la area
 var es_oficio = 1; //Identifica si es oficio
@@ -12,7 +11,6 @@ var es_anexo = 0;//Identifca si es un anexo
 
 //Inicio de variables
 $(document).ready(function () {
-    getDataCloud();
     getDataDocument();
 
     $(window).click(function (event) {
@@ -34,10 +32,10 @@ function getDataDocument() {
     let container_oficio_salida = $('#container_oficio_salida');
 
     $.ajax({
-        url: URL_DEFAULT.concat('/inside/cloud/anexos'),
+        url: URL_DEFAULT.concat('/external/cloud/anexos'),
         type: 'POST',
         data: {
-            id_tbl_oficio: id,
+            id: id,
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
@@ -59,29 +57,6 @@ function getDataDocument() {
         },
     });
 }
-
-//La funcion obtiene los datos del encabezado de cloud
-function getDataCloud() {
-
-    $.ajax({
-        url: URL_DEFAULT.concat('/inside/cloud/data'),
-        type: 'POST',
-        data: {
-            id: id,
-            _token: token  // Usar el token extraído de la metaetiqueta
-        },
-        success: function (response) {
-            let item = response.value; //Obtenemos la consulta
-
-            $('#_noOficio').text(item.num_turno_sistema); // establecer los valores
-            $('#_noCorrespondencia').text(item.num_turno_sistema_correspondencia); // establecer los valores
-            $('#_noAnio').text(item.anio); // establecer los valores
-            $('#_fechaInicio').text(item.fecha_inicio); // establecer los valores
-            $('#_fechaFin').text(item.fecha_fin); // establecer los valores
-        },
-    });
-}
-
 
 //La funcion sube el archivo que el usuario esta seleccionando
 document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
@@ -117,12 +92,11 @@ function sendFile(file, id_entrada_salida, esOficio) {
         let data = new FormData();// Crear el objeto FormData
         data.append('file', file);
         data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
-        data.append('id_cat_area', id_cat_area);
         data.append('id', id);
         data.append('id_entrada_salida', id_entrada_salida);
         data.append('esOficio', esOficio);
         $.ajax({
-            url: URL_DEFAULT.concat("/inside/cloud/upload"),
+            url: URL_DEFAULT.concat("/external/cloud/upload"),
             type: 'POST',
             data:
                 data, // Enviar directamente el FormData
@@ -162,7 +136,7 @@ function deleteDocument(uid) {
 //La funcion elimina oficios del repositorio, solo de la base
 function deleteDocumenServer(uid) {
     $.ajax({
-        url: URL_DEFAULT.concat('/inside/cloud/delete'),
+        url: URL_DEFAULT.concat('/external/cloud/delete'),
         type: 'POST',
         data: {
             uid: uid,
