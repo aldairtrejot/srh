@@ -6,53 +6,6 @@
     @include('letter.dashboard.modal')
 
     <style>
-        .select-dashboard-custom {
-            padding: 5px 10px;
-            border: 2px solid gray;
-            border-radius: 50px;
-            font-size: 14px;
-            color: gray;
-            background-color: white;
-            transition: transform 0.2s ease;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-        }
-
-        .select-dashboard-custom:hover {
-            transform: scale(1.1);
-        }
-
-        .select-dashboard-custom:focus {
-            outline: none;
-        }
-
-        .select-dashboard-custom option {
-            background-color: white;
-            color: black;
-        }
-
-        .select-label-custom {
-            font-size: 12px;
-            color: #555;
-            font-weight: normal;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .d-flex-custom {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 15px;
-        }
-
-        .select-container-custom {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
         #reporteBtn {
             margin-left: 10px;
             border: 2px solid gray;
@@ -63,25 +16,17 @@
             background-color: white;
             transition: transform 0.2s ease;
         }
-
-        #reporteBtn:hover {
-            transform: scale(1.1);
-        }
     </style>
-
 
 
     <div class="main-panel">
         <div class="content-wrapper">
             <!-- TITTLE -->
-
-
-
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row align-items-center">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de Control</h3>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
                         <!-- Contenedor para los selects y el botón Informe -->
@@ -127,9 +72,6 @@
                     </div>
                 </div>
             </div>
-
-
-
 
             <!-- CAROUSEL -->
             <div class="row">

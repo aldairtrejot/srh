@@ -38,16 +38,8 @@
                 </a>
                 <div class="collapse" id="ui-basic_corres">
                     <ul class="nav flex-column sub-menu">
-                        <!--
-                                                                                                                <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
-                                                                                        -->
-                        <!--
-                                                                            @if($letterAdminMatch)
-                                                                                <li class="nav-item"><a class="nav-link @if(Request::is('letter/*')) active @endif"
-                                                                                        href="{{ route('letter.dashboard') }}">Dashboard</a></li>
-                                                                            @endif
-                                                    -->
                         @if($letterMatch)
+                            <li class="nav-item"><a class="nav-link" href="{{ route('letter.dashboard') }}">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('inside.list') }}">Interno</a></li>
@@ -80,9 +72,9 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('informative.list') }}">Informativo</a>
                         </li>
                         <!--
-                                                                                <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
-                                                                                </li>
-                                                        -->
+                                                                                        <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
+                                                                                        </li>
+                                                                -->
                     </ul>
                 </div>
             </li>
