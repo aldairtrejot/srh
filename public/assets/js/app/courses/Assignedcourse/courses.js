@@ -1,4 +1,3 @@
-
 const URL_BASE = window.location.origin + "/srh/public"; 
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
@@ -45,38 +44,37 @@ $(document).ready(function () {
     });
 });
 
-
+// 🔹 Función para inicializar la búsqueda con paginación
 function searchInit() {
-    let idEmpleadoCursos = $('#id_empleado_cursos').val().trim(); 
-
-    if (!idEmpleadoCursos || isNaN(idEmpleadoCursos)) {
-        console.error("❌ ID no válido en JavaScript:", idEmpleadoCursos);
-        return;
-    }
-
-    console.log(`📩 Enviando solicitud con ID: ${idEmpleadoCursos}`);
-
+    const searchValue = $('#searchValue').val(); 
     $.ajax({
-        url: `${URL_BASE}/assignedcourse/courses/${idEmpleadoCursos}`, // ✅ Corrige la URL
-        type: 'GET', // 🔥 Debe ser GET según tu ruta en web.php
+        url: `${URL_BASE}/assignedcourse/table`,
+        type: 'POST',
+        data: {
+            searchValue: searchValue,
+            iterator: iterator,
+            _token: token
+        },
         success: function(response) {
-            console.log("✅ Respuesta del servidor:", response);
             const tbody = $('#template-table tbody');
             tbody.empty();
 
-            if (response.status && response.data.length > 0) {
-                response.data.forEach(function (object) {
-                    const urlConstancia = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_cursos}`;
-                    const rowHTML = `
+            if (response.data && response.data.length > 0) {
+                response.data.forEach(function (object, index) {
+                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
+                    const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
+
+                    const rowHTML =`
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
                                         <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${urlConstancia}">
+                                        
+                                        <a class="dropdown-item" href="${urlReport}">
                                             <span style="background:#1E90FF" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-file item-icon-menu"></i>
@@ -87,33 +85,58 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
+
+                        
                             <td>${object.programa_proyecto || '-'}</td>
                             <td>${object.tipo_curso || '-'}</td>
                             <td>${object.horas || '-'}</td>
-                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                            <td>${object.estatus || '-'}</td>
                             <td>${object.fecha_inicio || '-'}</td>
                             <td>${object.fecha_fin || '-'}</td>
+                          
+                            <td>
+                                <a href="${finalCourses}" class="btn btn-primary">Ver Cursos</a>
+                                <a href="${urlReport}" target="_blank" class="btn btn-danger">Generar Reporte</a>
+                            </td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
                 });
             } else {
-                console.warn("⚠️ No se encontraron cursos asignados.");
-                tbody.html('<tr><td colspan="7" class="text-center font-weight-bold text-danger">No se encontraron cursos asignados</td></tr>');
+                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
             }
         },
         error: function(xhr) {
-            console.error("❌ Error en la búsqueda:", xhr);
+            console.error("Error en la búsqueda:", xhr);
         }
     });
 }
 
-// ✅ Ejecutar `searchInit()` cuando el documento esté listo
-$(document).ready(function () {
-    console.log("🔹 Documento listo. Ejecutando `searchInit()`...");
-    searchInit();
-});
 
+// ✅ Función para eliminar un instructor
+function deleteInstructor(id) {
+    $.ajax({
+        url: `${URL_BASE}/assignedcourse/delete`,  
+        type: 'POST',
+        data: { 
+            id: id, 
+            _token: token 
+        },
+        success: function (response) {
+            if (response.success) {
+                notyfEM.success(response.message);
+                $('#modalBackdrop').fadeOut();
+                searchInit();
+            } else {
+                notyfEM.error(response.message);
+            }
+        },
+        error: function(xhr) {
+            console.error("Error al eliminar:", xhr);
+            notyfEM.error("Ocurrió un error inesperado.");
+        }
+    });
+}
 
 // 🔹 Funciones para manejar la paginación
 function paginatorMax1() {

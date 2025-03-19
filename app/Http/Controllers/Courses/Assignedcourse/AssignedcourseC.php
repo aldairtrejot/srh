@@ -186,43 +186,69 @@ public function create()
         return view('courses.assignedcourse.add', compact('item'));
     }
 
-    public function courses($idEmpleadoCursos)
+    
+    public function courses($idEmpleadoCursos = null)
     {
         try {
-            Log::info("🔎 Buscando cursos para ID: $idEmpleadoCursos");
+            Log::info("🔎 Buscando cursos para ID: " . ($idEmpleadoCursos ?? 'TODOS'));
     
             $assignedcourseM = new AssignedcourseM();
-            $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos);
     
-            if ($cursos->isEmpty()) {
-                Log::warning("⚠️ No se encontraron cursos para ID: $idEmpleadoCursos");
+            if ($idEmpleadoCursos) {
+                // Buscar los cursos de ese empleado
+                $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos);
+    
+                if ($cursos->isEmpty()) {
+                    Log::warning("⚠️ No se encontraron cursos para ID: $idEmpleadoCursos");
+    
+                    // Si la solicitud es AJAX o JSON, devolver JSON
+                    if (request()->ajax() || request()->wantsJson()) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'No se encontraron cursos asignados',
+                            'data' => [],
+                        ], 200);
+                    }
+    
+                    // Si la solicitud es desde el navegador (HTML), redirigir con mensaje de error
+                    return redirect()->route('assignedcourse.courses')->with('error', 'No se encontraron cursos asignados.');
+                }
+    
+                Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
+            } else {
+                // Obtener todos los cursos si no hay un ID
+                $cursos = $assignedcourseM->all();
+                Log::info("✅ Todos los cursos obtenidos.", ['cursos' => $cursos]);
+            }
+    
+            // Si la solicitud es AJAX o JSON, devolver JSON
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'No se encontraron cursos asignados',
-                    'data' => [],
+                    'status' => true,
+                    'message' => 'Cursos obtenidos correctamente',
+                    'data' => $cursos,
                 ], 200);
             }
     
-            Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
-    
-            return response()->json([
-                'status' => true,
-                'message' => 'Cursos obtenidos correctamente',
-                'data' => $cursos,
-            ], 200);
+            // Si la solicitud es desde el navegador, cargar la vista con los cursos
+            return view('courses.assignedcourse.courses', compact('cursos'));
     
         } catch (\Exception $e) {
             Log::error("🔥 Error en courses(): " . $e->getMessage());
-            return response()->json([
-                'status' => false,
-                'message' => 'Error en el servidor.',
-                'error' => $e->getMessage(),
-            ], 500);
+    
+            // Si la solicitud es AJAX o JSON, devolver JSON
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error en el servidor.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+    
+            // Si la solicitud es desde el navegador, redirigir con mensaje de error
+            return redirect()->route('assignedcourse.courses')->with('error', 'Error en el servidor.');
         }
     }
     
-    
-    
-
 }
 
