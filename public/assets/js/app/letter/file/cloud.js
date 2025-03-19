@@ -33,6 +33,10 @@ function getDataDocument() {
     let container_oficio_salida_vacio = $('#container_oficio_salida_vacio');
     let container_oficio_salida = $('#container_oficio_salida');
 
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+
+
     $.ajax({
         url: URL_DEFAULT.concat('/file/cloud/anexos'),
         type: 'POST',
@@ -47,15 +51,15 @@ function getDataDocument() {
             let oficosSalida = response.oficosSalida;
 
             //Habilita o desabilita los botones de agregar
-            response.resultOficioEntrada ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
-            response.resultOficioSalida ? disabledInput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida') : enableIput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida');
-            response.resultAnexosEntrada ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
-            response.resultAnexosSalida ? disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida') : enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
+            response.resultOficioEntrada  || !new_variable ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
+            response.resultOficioSalida   || !new_variable ? disabledInput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida') : enableIput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida');
+            response.resultAnexosEntrada  || !new_variable ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+            response.resultAnexosSalida   || !new_variable ? disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida') : enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
 
-            templateCloud(true, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(true, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
-            templateCloud(true, container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
-            templateCloud(true, container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
+            templateCloud(bool_user_role, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(bool_user_role, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(bool_user_role, container_anexo_salida, container_anexo_salida_vacio, anexoSalida);
+            templateCloud(bool_user_role, container_oficio_salida, container_oficio_salida_vacio, oficosSalida);
 
         },
     });

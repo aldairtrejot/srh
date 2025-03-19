@@ -36,6 +36,9 @@
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
                                 value="{{  config('custom_config.CLOUD_ALFRESCO_EXPEDIENTE') }}" />
 
+                            <x-template-form.template-form-input-hidden name="bool_user_role"
+                                value="{{  $letterAdminMatch }}" />
+
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />
                             <div class="contenedor">

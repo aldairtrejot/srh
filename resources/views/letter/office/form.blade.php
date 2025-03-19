@@ -7,10 +7,13 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Oficio" />
+                        <x-template-tittle.tittle-header tittle="Control de gestión" caption="Oficio" />
                     </div>
                 </div>
             </div>
+
+            <!-- MODAL ALERT -->
+            @include('letter.office.alert')
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -49,14 +52,15 @@
                                     value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
                                 <!-- itme-->
-                                <x-template-form.template-form-input-hidden name="area_format"
-                                    value="{{ $area }}" />
+                                <x-template-form.template-form-input-hidden name="area_format" value="{{ $area }}" />
 
-                                <x-template-form.template-form-input-hidden name="user_name"
-                                    value="{{ $user_name }}" />
+                                <x-template-form.template-form-input-hidden name="user_name" value="{{ $user_name }}" />
 
                                 <x-template-form.template-form-input-hidden name="user_enlace"
                                     value="{{ $user_enlace }}" />
+
+                                <!-- -->
+                                <input type="hidden" id="update_letter" name="update_letter" />
 
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de oficio" />
@@ -79,11 +83,11 @@
                                         <label id="_labArea" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">No. Oficio:</label>
+                                        <label class="etiqueta">Usuario:</label>
                                         <label id="_labUsuario" class="valor"></label>
                                     </div>
                                     <div class="item">
-                                        <label class="etiqueta">Estatus:</label>
+                                        <label class="etiqueta">Enlace:</label>
                                         <label id="_labEnlace" class="valor"></label>
                                     </div>
 
@@ -129,7 +133,7 @@
                                 </p>
 
                                 <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip"
-                                    name="idcheckboxTemplate" label="¿No tengo un No. de Correspondencia?" />
+                                    name="idcheckboxTemplate" label="¿No tengo un folio de gestión?" />
 
                                 <div id="mostrar_ocultar_no_area">
                                     <br>
@@ -172,3 +176,4 @@
 <script src="{{ asset('assets/js/app/letter/office/select.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/office/validate.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/office/modal.js') }}"></script>

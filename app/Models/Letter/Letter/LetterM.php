@@ -43,6 +43,16 @@ class LetterM extends Model
         'id_cat_entidad',
     ];
 
+    // La función retorna el id de correspondencia, esperando el folio unico de gestión
+    public function getIdFolGestion($folGestion)
+    {
+        return DB::table('correspondencia.tbl_correspondencia')
+            ->select('id_tbl_correspondencia as id')
+            ->whereRaw('TRIM(UPPER(folio_gestion)) = TRIM(UPPER(?))', [$folGestion])
+            ->first();
+    }
+
+
     public function edit(string $id)
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
@@ -53,6 +63,8 @@ class LetterM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+
+
 
     public function editFol(string $fol)
     {
@@ -99,26 +111,13 @@ class LetterM extends Model
         // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
 
-            $ZONA_SURESTE = 10;
-            $NO_CONCURRENTES = 15;
+            $query->where(function ($query) use ($idUser) {
+                $query->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                    ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+            });
 
-            //Changes
-            // Changes // Validacion para que el area de mtro Ramon puede ver dos areas
-            if ($idUser == $ZONA_SURESTE || $idUser == $NO_CONCURRENTES) {
-                $query->where(function ($query) use ($idUser, $ZONA_SURESTE, $NO_CONCURRENTES) {
-                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $ZONA_SURESTE)
-                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $NO_CONCURRENTES)
-                        ->orWhere('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $ZONA_SURESTE)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $NO_CONCURRENTES)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-                });
-            } else {
-                $query->where(function ($query) use ($idUser) {
-                    $query->where('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-                        ->orWhere('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-                });
-            }
+            $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
@@ -132,15 +131,28 @@ class LetterM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                    //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%']);
+                //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
+                //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
 
         // Aplicar la paginación (OFFSET y LIMIT)
-        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC')
-            ->offset($iterator) // OFFSET
+        if (!empty($idUser)) { // Ordenamiento por estatus
+            $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
+                                WHEN 1 THEN 1 -- TURNADO
+                                WHEN 2 THEN 2 -- CANCELADO
+                                WHEN 3 THEN 3 -- EN PROCESO
+                                WHEN 4 THEN 4 -- CONCLUIDO
+                                WHEN 5 THEN 5 -- VENCIDO
+                                WHEN 6 THEN 6 -- RECHAZADO
+                                ELSE 7 -- Para cualquier valor no esperado
+                            END ASC');
+        } else { // Ordenamiento para admin
+            $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
+        }
+
+        $query->offset($iterator) // OFFSET
             ->limit(5); // LIMIT
 
         // Ejecutar la consulta y retornar los resultados
@@ -345,8 +357,8 @@ class LetterM extends Model
             ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
             ->value('max_num_turno'); // Obtener solo el valor de la columna max_num_turno
 
-    /// FUNCIONES PARA DASHBOARD
-    // La función cuenta el todal de no de correspondencia
+        /// FUNCIONES PARA DASHBOARD
+        // La función cuenta el todal de no de correspondencia
         return $maxNumTurno;
     }
 

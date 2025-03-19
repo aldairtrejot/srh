@@ -33,6 +33,7 @@ function searchInit() {
                     // Generar el HTML con template literals
                     const rowHTML = `
                         <tr>
+                        <!--
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
@@ -86,10 +87,26 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.num_turno_sistema}</td>
-                            <td>${object.num_documento}</td>
+                            -->
+                            <td>
+                                <div class="button-container" style="display: flex; gap: 2px;">
+                                    <a href="${finalUrl}" style="background: #10312b; padding: 8px 12px;" class="custom-button custom-button-x" title="Modificar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="${finalCloud}" style="background: #8a6f19; padding: 8px 12px;" class="custom-button custom-button-x" title="Cloud">
+                                        <i style="color: white; font-size: 15px" class="fa fa-cloud"></i>
+                                    </a>
+                                    <a href="${urlReport}" style="background: #462c95; padding: 8px 12px;" class="custom-button custom-button-x" title="Reporte">
+                                        <i style="color: white; font-size: 15px" class="fa fa-file"></i>
+                                    </a>
+                                </div>
+                            </td>
                             <td>${object.anio}</td>
-                            <td>${object.asunto}</td>
+                            <!--
+                            <td>${object.num_turno_sistema}</td>
+                            -->
+                            <td>${object.num_documento}</td>
+                            <td style="font-size: 12px; width: 1300px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);

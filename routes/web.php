@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administration\ResultC;
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
@@ -7,8 +8,11 @@ use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
+use App\Http\Controllers\Letter\External\CloudExternalC;
+use App\Http\Controllers\Letter\External\ExternalC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
+use App\Http\Controllers\Letter\Inside\ReportInsideC;
 use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Cloud\AlfrescoC;
@@ -46,15 +50,23 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
-
-
+use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
+
+Route::get('captcha/{config?}', function ($config = 'default') {
+    return Captcha::create($config);
+})->name('captcha');
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
 Route::get('/recover', RecoverC::class)->name('recover');//ROUTE_RECOVER
 Route::post('/login', [LoginC::class, 'authenticate']);///ROUTE_AUTHENTICATE
+Route::get('/result', [ResultC::class, 'result'])->name('result');
+
+// Recover password
+Route::post('/password/result', [RecoverC::class, 'updatePassword'])->name('recover.password');
+
 
 ///IS_PROTECT
 Route::get('/dashboard', [DashboardC::class, 'dashboard'])->name('dashboard')->middleware('auth'); //ROUTE_DASH BOARD
@@ -118,7 +130,7 @@ Route::post('/inside/cloud/anexos', [CloudInsideC::class, 'cloudAnexos'])->name(
 Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->name('inside.cloud.oficios')->middleware('auth');
 Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
 Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
-Route::get('/inside/generate-pdf/{id}', [ReporteTemplateC::class, 'inside'])->middleware('auth');
+Route::get('/inside/generate-pdf/{id}', [ReportInsideC::class, 'report'])->middleware('auth');
 
 //ROUTE ROUND / CIRCULARES
 Route::get('/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
@@ -133,6 +145,19 @@ Route::post('/round/cloud/oficios', [CloudRoundC::class, 'cloudOficios'])->name(
 Route::post('/round/cloud/upload', [CloudRoundC::class, 'upload'])->name('round.cloud.upload')->middleware('auth');
 Route::post('/round/cloud/delete', [CloudRoundC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
 Route::get('/round/generate-pdf/{id}', [ReporteTemplateC::class, 'round'])->middleware('auth');
+
+//ROUTE EXTERNAK / CIRCULARES EXTERNAS
+Route::get('/external/list', [ExternalC::class, 'list'])->name('external.list')->middleware('auth');
+Route::post('/external/table', [ExternalC::class, 'table'])->name('external.table')->middleware('auth');
+Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
+Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
+Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.collection.area')->middleware('auth');
+Route::post('/external/unique', [ExternalC::class, 'unique'])->name('external.unique')->middleware('auth');
+Route::get('/external/edit/{id}', [ExternalC::class, 'edit'])->name('external.edit')->middleware('auth');
+Route::get('/external/cloud/{id}', [CloudExternalC::class, 'cloud'])->name('external.cloud')->middleware('auth');
+Route::post('/external/cloud/anexos', [CloudExternalC::class, 'list'])->name('external.cloud.anexos')->middleware('auth');
+Route::post('/external/cloud/upload', [CloudExternalC::class, 'upload'])->name('external.cloud.upload')->middleware('auth');
+Route::post('/external/cloud/delete', [CloudExternalC::class, 'delete'])->name('external.cloud.delete')->middleware('auth');
 
 //ROUTE file / EXPEDIENTES
 Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');
@@ -323,6 +348,8 @@ Route::post('/office/cloud/oficios', [CloudC::class, 'cloudOficios'])->name('off
 Route::post('/office/cloud/upload', [CloudC::class, 'upload'])->name('office.cloud.upload')->middleware('auth');
 Route::post('/office/cloud/delete', [CloudC::class, 'delete'])->name('office.cloud.delete')->middleware('auth');
 Route::get('/office/generate-pdf/{id}', [ReporteTemplateC::class, 'office'])->middleware('auth');
+Route::post('/office/validate/folGestion', [OfficeC::class, 'validateFol'])->name('office.validate.folGestion')->middleware('auth');
+
 //ROUTE_COUSER ---- >Alfresco
 Route::get('/alfresco/upload', [AlfrescoC::class, 'showUploadForm'])->name('alfresco.upload.form');// Ruta para mostrar el formulario de carga de archivo
 Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.upload.file');// Ruta para manejar la carga de archivo

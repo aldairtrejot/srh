@@ -50146,6 +50146,7 @@ select:disabled {
 #reporteBtn:hover {
     text-decoration: none;
     /* Clase para centrar el botón cuando solo hay uno */
+}
     .centered-button {
         display: block;
         margin: 0 auto;
@@ -50267,7 +50268,7 @@ select:disabled {
         margin-left: 10px;
         /* Espacio entre los botones */
     }
-}
+
 
 .circle-icon {
     display: flex;
@@ -50300,4 +50301,11 @@ select:disabled {
     width: 70px;
     height: 70px;
     font-size: 36px;
+}
+
+.custom-button-x:hover {
+    transform: scale(1.1);
+    /* Aumenta el tamaño en un 20% */
+    transition: transform 0.2s ease-in-out;
+    /* Suaviza la animación */
 }

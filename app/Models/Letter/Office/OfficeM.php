@@ -80,21 +80,9 @@ class OfficeM extends Model
         // Filtrar por área si se proporciona el id
         if (!empty($idUser)) {
 
-            $ZONA_SURESTE = 10;
-            $NO_CONCURRENTES = 15;
-
-            // Changes // Validacion para que el area de mtro Ramon puede ver dos areas
-            if ($idUser == $ZONA_SURESTE || $idUser == $NO_CONCURRENTES) {
-                $query->where(function ($query) use ($idUser, $ZONA_SURESTE, $NO_CONCURRENTES) {
-                    $query->where('correspondencia.tbl_oficio.id_cat_area', $ZONA_SURESTE)
-                        ->orWhere('correspondencia.tbl_oficio.id_cat_area', $NO_CONCURRENTES)
-                        ->orWhere('correspondencia.tbl_oficio.id_cat_area', $idUser);
-                });
-            } else {
-                $query->where(function ($query) use ($idUser) {
-                    $query->where('correspondencia.tbl_oficio.id_cat_area', $idUser);
-                });
-            }
+            $query->where(function ($query) use ($idUser) {
+                $query->whereIn('correspondencia.tbl_oficio.id_cat_area', $idUser);
+            });
         }
 
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
@@ -191,5 +179,24 @@ class OfficeM extends Model
             ->get();
 
         return $query->first();
+    }
+
+    //La función valida que el fol de gestión sea unico
+    public function uniqueFolGestion($id, $folGestion)
+    {
+        // Start the query using the Query Builder
+        $query = DB::table('correspondencia.tbl_oficio')
+            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_oficio.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->whereRaw('TRIM(UPPER(correspondencia.tbl_correspondencia.folio_gestion)) = ?', [trim(strtoupper($folGestion))]);
+
+        // If the ID is set, add the condition to exclude the specific ID
+        if (isset($id)) {
+            $query->where('correspondencia.tbl_oficio.id_tbl_oficio', '<>', $id);
+        }
+
+        // Execute the query and check if any result is returned
+        $result = $query->exists(); // Returns true if the query finds any results, false if not
+
+        return $result;
     }
 }

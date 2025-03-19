@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
 use Illuminate\Support\Facades\Log;
 use App\Models\Letter\Collection\CollectionRolAreaM;
+use Illuminate\Support\Facades\DB;
 
 class OfficeC extends Controller
 {
@@ -59,7 +60,7 @@ class OfficeC extends Controller
                 $value = $officeM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
+                $value = $officeM->list($iterator, $searchValue, $collectionRolAreaM->getListArea());
             }
 
             // Responder con los resultados
@@ -120,6 +121,10 @@ class OfficeC extends Controller
         $letterM = new LetterM();
 
         $other = $officeM->getDataFormat($id);
+        $area = $other->area;
+        $user_name = $other->user_name;
+        $user_enlace = $other->user_enlace;
+
 
         $item = $officeM->edit($id); // Obtener el elemento con el ID pasado
         $noLetter = $letterM->getTurno($item->id_tbl_correspondencia);
@@ -133,7 +138,7 @@ class OfficeC extends Controller
         $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        return view('letter/office/form', compact('other', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/office/form', compact('user_enlace', 'user_name', 'area', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
@@ -178,6 +183,17 @@ class OfficeC extends Controller
             if ($es_por_area == 1) {
                 if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $officeM->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
                     $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_oficio'));
+                }
+            } else { // Actualizar status de correspondencoa
+                if ($request->update_letter) {
+                    $data = [
+                        'id_cat_estatus' => 4,
+                        'observaciones' => DB::raw("CONCAT(observaciones, '  //  ' , '" . $request->observaciones . "')")
+                    ];
+
+                    $letterM::where('folio_gestion', $request->num_correspondencia)->update($data);
+                    $data['folio_gestion'] = $request->num_correspondencia;
+                    $logC->edit('correspondencia.tbl_correspondencia', $data);
                 }
             }
 
@@ -242,6 +258,19 @@ class OfficeC extends Controller
             return $messagesC->messageSuccessRedirect('office.list', 'Elemento modificado con éxito.');
         }
     }
+
+    //La función valida que el folio de gestión sea unico, para los oficios
+    public function validateFol(Request $request)
+    {
+        $officeM = new OfficeM();
+        $value = $officeM->uniqueFolGestion($request->id, $request->value);
+
+        return response()->json([
+            'value' => $value,
+            'status' => true,
+        ]);
+    }
+
 
     // la funcion elimina los espacios para obtener solo los numero de / ***(
     private function getMaxTurno($numTurno)

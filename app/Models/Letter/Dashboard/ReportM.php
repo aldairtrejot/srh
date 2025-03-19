@@ -30,7 +30,7 @@ class ReportM extends Model
                 'correspondencia.cat_unidad.descripcion AS unidad',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
-                DB::raw("CASE WHEN correspondencia.tbl_correspondencia.es_doc_fisico THEN 'FISICO' ELSE 'DIGITAL' END AS tipo_documento"),
+                DB::raw("CASE WHEN correspondencia.tbl_correspondencia.es_doc_fisico THEN 'FÍSICO' ELSE 'DIGITAL' END AS tipo_documento"),
                 'correspondencia.cat_entidad.descripcion AS entidad',
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_usuario_captura::timestamp, 'DD/MM/YYYY') AS fecha_captura"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_usuario_captura::timestamp, 'HH24:MI') AS hora_captura"),

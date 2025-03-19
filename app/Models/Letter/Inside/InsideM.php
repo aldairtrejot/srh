@@ -67,10 +67,11 @@ class InsideM extends Model
 
         // Filtrar por usuario si se proporciona el id
         if (!empty($idUser)) {
-            $query->where('correspondencia.tbl_interno.id_usuario_area', $idUser)
-                ->orWhere('correspondencia.tbl_interno.id_usuario_enlace', $idUser);
-        }
 
+            $query->where(function ($query) use ($idUser) {
+                $query->whereIn('correspondencia.tbl_interno.id_cat_area', $idUser);
+            });
+        }
         // Si se proporciona un valor de búsqueda, agregar condiciones de búsqueda
         if (!empty($searchValue)) {
             $searchValue = strtoupper(trim($searchValue));  // Limpiar y convertir a mayúsculas
@@ -138,5 +139,30 @@ class InsideM extends Model
             ->where('id_cat_area_documento', $idCatArea)
             ->where('id_cat_anio', $idAnio)
             ->first();  // Devuelve el primer (y único) resultado
+    }
+
+    // La función retorna el reporte generado para la papeleta de reporte
+    public function getReport($id)
+    {
+        $result = DB::table('correspondencia.tbl_interno')
+            ->select(
+                'correspondencia.tbl_interno.id_tbl_interno as id',
+                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_captura, 'DD/MM/YYYY') as fecha_captura"),
+                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_inicio, 'DD/MM/YYYY') as fecha_emision"),
+                DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_fin, 'DD/MM/YYYY') as fecha_aplicacion"),
+                DB::raw("UPPER(correspondencia.tbl_interno.num_turno_sistema) as num_turno_sistema"),
+                DB::raw("UPPER(correspondencia.tbl_interno.num_documento_area) as num_documento_area"),
+                'correspondencia.cat_anio.descripcion as anio',
+                DB::raw("UPPER(correspondencia.cat_area.descripcion) as area"),
+                DB::raw("UPPER(correspondencia.tbl_interno.asunto) as asunto"),
+                DB::raw("UPPER(correspondencia.tbl_interno.observaciones) as observaciones"),
+                DB::raw("UPPER(correspondencia.tbl_interno.destinatario) as destinatario")
+            )
+            ->join('correspondencia.cat_anio', 'correspondencia.tbl_interno.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+            ->join('correspondencia.cat_area', 'correspondencia.tbl_interno.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->where('correspondencia.tbl_interno.id_tbl_interno', '=', $id)
+            ->first(); // Usamos `first` porque esperamos un solo resultado
+
+        return $result;
     }
 }

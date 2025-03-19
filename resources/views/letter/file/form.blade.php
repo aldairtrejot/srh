@@ -118,8 +118,8 @@
                                         value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
-                                <x-template-button.button-form-footer routeBack="{{ route('file.list') }}" />
-
+                                <x-template-button.button-form-footer-boolean routeBack="{{ route('file.list') }}"
+                                    :status="$letterAdminMatch" />
                             </form>
                         </div>
                     </div>

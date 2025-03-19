@@ -88,12 +88,14 @@
                     <th>
                         Clave
                     </th>
+                    <!--
                     <th>
                         Usuario
                     </th>
                     <th>
                         Enlace
                     </th>
+-->
                 </tr>
             </thead>
             <tbody>

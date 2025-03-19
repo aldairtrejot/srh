@@ -107,6 +107,23 @@ class CollectionAreaM extends Model
         return $results;
     }
 
+
+    public function listEdit()
+    {
+        $query = DB::table('correspondencia.cat_area')
+            ->select([
+                'correspondencia.cat_area.id_cat_area AS id',
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+            ])
+            ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
+
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+
+        // Retornar los resultados (puedes pasarlo a tu vista o devolverlo como respuesta)
+        return $results;
+    }
+
     public function edit($id)
     {
         $query = DB::table('correspondencia.cat_area')

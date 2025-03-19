@@ -65,18 +65,17 @@ class ReporteTemplateC extends Controller
     //La funcion genera el reporte
     private function generatePdf($data)
     {
-        $pdfPath = public_path('assets/documents/template-pdf/templateCorrespondenciaDoc.pdf'); // Ruta del archivo PDF existenteF
+        $pdfPath = public_path('assets/documents/template-pdf/template_correspondencia_interno.pdf'); // Ruta del archivo PDF existenteF
         $pdf = new Fpdi(); // Instancia de FPDI (requiere TCPDF o FPDF)
         $pdf->setSourceFile($pdfPath); // Cargar la plantilla PDF existente
         $template = $pdf->importPage(1); // Importar la primera página del PDF existente
         $pdf->addPage(); // Agregar una página en blanco
         $pdf->useTemplate($template); // Usar la plantilla importada
 
-        $pdf->SetFont('arial', '', 8); // Usar DejaVuSans para soportar caracteres especiales
-
+        $pdf->SetFont('arial', '', 9); // Usar DejaVuSans para soportar caracteres especiales
 
         //DATA DATE ACTUAL
-        $pdf->SetXY(181, 42.5); // Posición X, Y en el PDF
+        $pdf->SetXY(175, 52.8); // Posición X, Y en el PDF
         $pdf->Write(0, $fechaActual = now()->format('d/m/Y'));
 
         // Configurar la fuente para el texto

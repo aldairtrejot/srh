@@ -49,13 +49,10 @@
                                         Menú
                                     </th>
                                     <th>
-                                        No. Turno
-                                    </th>
-                                    <th>
-                                        No. Turno Asoc.
-                                    </th>
-                                    <th>
                                         Año
+                                    </th>
+                                    <th>
+                                        No. Folio
                                     </th>
                                     <th>
                                         Asunto

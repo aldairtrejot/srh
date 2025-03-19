@@ -22,12 +22,14 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Lineamientos</h4>
-                                <p class="card-description">
-                                    ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
-                                        class="text-danger" style="margin-left: 10px;">
-                                        <i class="fa fa-arrow-up"></i> Agregar Registro
-                                    </a>
-                                </p>
+                                @if($letterAdminMatch)
+                                    <p class="card-description">
+                                        ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
+                                            class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Agregar Registro
+                                        </a>
+                                    </p>
+                                @endif
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
@@ -43,13 +45,13 @@
                                         Menú
                                     </th>
                                     <th>
+                                        Año
+                                    </th>
+                                    <th>
                                         No. Turno
                                     </th>
                                     <th>
                                         No. Turno Asoc.
-                                    </th>
-                                    <th>
-                                        Año
                                     </th>
                                     <th>
                                         Asunto

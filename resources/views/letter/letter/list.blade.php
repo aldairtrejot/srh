@@ -5,15 +5,37 @@
 
     <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
 
+
+    <style>
+        
+    </style>
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Corresponencia</h5>
                         </div>
+                    </div>
+                </div>
+            </div>-->
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">Control de gestión</h3>
+                            <h5 class="font-weight-normal mb-0">Corresponencia</h5>
+                        </div>
+                        @if($letterAdminMatch)
+                            <div class="col-12 col-xl-4 text-xl-right">
+                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
+                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -53,22 +75,19 @@
                                         Menú
                                     </th>
                                     <th>
+                                        Estatus
+                                    </th>
+                                    <th>
                                         Fólio de gestión
                                     </th>
                                     <th>
                                         No. Documento
                                     </th>
                                     <th>
-                                        Estatus
-                                    </th>
-                                    <th>
                                         Área
                                     </th>
                                     <th>
                                         Asunto
-                                    </th>
-                                    <th>
-                                        Fecha de fin
                                     </th>
                                 </tr>
                             </thead>

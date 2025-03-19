@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
+use App\Models\Letter\Collection\CollectionLetterLogM;
 use App\Models\Letter\Collection\CollectionRolAreaM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
@@ -128,14 +129,14 @@ class LetterC extends Controller
         $item = $letterM->edit($id); // Obtener el elemento con el ID pasado
 
         //Validacion de catalogo de estatus
-        $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
+        $selectStatus = $collectionStatusM->listEdit(); //Obtenemos el catalogo de estatus - muestra todos los estatus
         $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : [];//Catalogos debe estar vacio
         /*
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
             $selectStatus = $collectionStatusM->list(); //Obtenemos el catalogo de estatus - muestra todos los estatus
         }*/
 
-        $selectArea = $collectionAreaM->list();// Obtener todos los registros del catálogo de áreas
+        $selectArea = $collectionAreaM->listEdit();// Obtener todos los registros del catálogo de áreas
         $selectAreaEdit = isset($item->id_cat_area) ? $collectionAreaM->edit($item->id_cat_area) : []; //Validacion de id_en DB para definir si se poblan los catalogos o son vacios
 
         $selectUser = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
@@ -144,22 +145,22 @@ class LetterC extends Controller
         $selectEnlace = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = isset($item->id_cat_area) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        $selectUnidad = $collectionUnidadM->list();//Catalogo de unidad
+        $selectUnidad = $collectionUnidadM->listEdit();//Catalogo de unidad
         $selectUnidadEdit = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : [];
 
-        $selectCoordinacion = isset($item->id_cat_unidad) ? $collectionCoordinacionM->list($item->id_cat_unidad) : []; //Catalogos de coordinacion vacios
+        $selectCoordinacion = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : []; //Catalogos de coordinacion vacios
         $selectCoordinacionEdit = isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : [];//Catalogos de coordinacion vacios
 
-        $selectTramite = isset($item->id_cat_area) ? $collectionTramiteM->list($item->id_cat_area) : [];
+        $selectTramite = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
         $selectTramiteEdit = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionTramiteM->edit($item->id_cat_tramite) : [];
 
-        $selectClave = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionClaveM->list($item->id_cat_tramite) : [];
+        $selectClave = isset($item->id_cat_area) && isset($item->id_cat_tramite) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
         $selectClaveEdit = isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave) ? $collectionClaveM->edit($item->id_cat_clave) : [];
 
         $selectRemitente = $collectionRemitenteM->list();
         $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : [];
 
-        $selectEntidad = $collectionEntidadM->list();
+        $selectEntidad = $collectionEntidadM->listEdit();
         $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
 
         return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
@@ -187,7 +188,7 @@ class LetterC extends Controller
                 $value = $letterM->list($iterator, $searchValue, null);
             } else {
                 // Llamamos al método list() con los parámetros necesarios
-                $value = $letterM->list($iterator, $searchValue, $collectionRolAreaM->getIdArea());
+                $value = $letterM->list($iterator, $searchValue, $collectionRolAreaM->getListArea());
             }
 
             // Responder con los resultados
@@ -207,6 +208,7 @@ class LetterC extends Controller
 
     public function save(Request $request)
     {
+        // Class
         $logC = new LogC();
         $collectionRemitenteM = new CollectionRemitenteM();
         $letterM = new LetterM();
@@ -214,6 +216,7 @@ class LetterC extends Controller
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRolAreaM = new CollectionRolAreaM();
         $now = Carbon::now(); //Hora y fecha actual
+        $collectionLetterLogM = new CollectionLetterLogM();
         //USER_ROLE
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
@@ -301,6 +304,20 @@ class LetterC extends Controller
             $logC->add('correspondencia.tbl_correspondencia', $data);
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
 
+            // Se agrega log a correspondencia
+            $collectionLetterLogM::create([
+                'estatus' => 'AGREGAR',
+                'num_documento' => strtoupper($request->num_documento),
+                'folio_gestion' => strtoupper($request->folio_gestion),
+                'asunto' => strtoupper($request->asunto),
+                'observaciones' => strtoupper($request->observaciones),
+                'id_cat_area' => $request->id_cat_area,
+                'id_cat_estatus' => $request->id_cat_estatus,
+                'id_tbl_correspondencia' => $letterM->getIdFolGestion($request->folio_gestion)->id,
+                'fecha_usuario_captura' => $now,
+                'id_usuario_captura' => Auth::user()->id,
+            ]);
+
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
 
         } else { //modificar elemento 
@@ -346,49 +363,31 @@ class LetterC extends Controller
                 $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
 
+                // Se agrega log a correspondencia
+                $collectionLetterLogM::create([
+                    'estatus' => 'MODIFICAR',
+                    'num_documento' => strtoupper($request->num_documento),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
+                    'asunto' => strtoupper($request->asunto),
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                    'fecha_usuario_captura' => $now,
+                    'id_usuario_captura' => Auth::user()->id,
+                ]);
+
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             } else {
                 // Validación para que en el caso que el area no este relacionada con el usuario este no sea capaz de modificar
-
-                /*
-                $collectionRolAreaM->getIdArea() = 9
-                $request->id_cat_area
-                */
-
-                // Validacion de usuario para modificar una correspondencia
-                // Primer if, corresponden al area de Ramon
-                if ($collectionRolAreaM->getIdArea() == 10 || $collectionRolAreaM->getIdArea() == 15) {
-                    if ($request->id_cat_area != 10 && $request->id_cat_area != 15) {
-                        return redirect()->back()->with([
-                            'value' => 'error',
-                            'message' => 'No se han configurado permisos para este usuario.',
-                            'estatus' => 'true'
-                        ]);
-                    }
-                } else {
-                    if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
-                        return redirect()->back()->with([
-                            'value' => 'error',
-                            'message' => 'No se han configurado permisos para este usuario.',
-                            'estatus' => 'true'
-                        ]);
-                    }
-                }
-
-
-
-
-                /*
-                if ($collectionRolAreaM->getIdArea() != $request->id_cat_area) {
-                    Log::info('intro');
+                // Validacion de que el usuario tenga asociado esa area para modificarlo
+                if (!in_array($request->id_cat_area, $collectionRolAreaM->getListArea())) {
                     return redirect()->back()->with([
                         'value' => 'error',
                         'message' => 'No se han configurado permisos para este usuario.',
                         'estatus' => 'true'
                     ]);
                 }
-*/
-
 
                 $data = [
                     'observaciones' => strtoupper($request->observaciones),
@@ -403,6 +402,20 @@ class LetterC extends Controller
 
                 $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
                 $logC->edit('correspondencia.tbl_correspondencia', $data);
+
+                // Se agrega log a correspondencia
+                $collectionLetterLogM::create([
+                    'estatus' => 'MODIFICAR',
+                    'num_documento' => strtoupper($request->num_documento),
+                    'folio_gestion' => strtoupper($request->folio_gestion),
+                    'asunto' => strtoupper($request->asunto),
+                    'observaciones' => strtoupper($request->observaciones),
+                    'id_cat_area' => $request->id_cat_area,
+                    'id_cat_estatus' => $request->id_cat_estatus,
+                    'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                    'fecha_usuario_captura' => $now,
+                    'id_usuario_captura' => Auth::user()->id,
+                ]);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
             }

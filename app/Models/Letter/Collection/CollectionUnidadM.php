@@ -19,6 +19,17 @@ class CollectionUnidadM extends Model
         return $result;
     }
 
+    public function listEdit()
+    {
+        // Realizar la consulta usando el Query Builder de Laravel
+        $result = DB::table('correspondencia.cat_unidad')
+            ->select('id_cat_unidad as id', 'descripcion')
+            ->orderBy('descripcion', 'ASC')
+            ->get();
+
+        return $result;
+    }
+
     public function edit($id)
     {
         $query = DB::table('correspondencia.cat_unidad')

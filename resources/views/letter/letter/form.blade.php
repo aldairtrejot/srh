@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Gestión de control" caption="Correspondencia" />
+                        <x-template-tittle.tittle-header tittle="Control de gestión" caption="Correspondencia" />
                     </div>
                 </div>
             </div>
@@ -49,7 +49,6 @@
 
                                 <x-template-form.template-form-input-hidden name="son_mas_remitentes"
                                     value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
-
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">

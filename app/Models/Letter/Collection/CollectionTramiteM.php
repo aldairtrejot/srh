@@ -22,6 +22,20 @@ class CollectionTramiteM extends Model
         return $result;
     }
 
+    public function listEdit($idArea)
+    {
+        // Usamos el Query Builder de Laravel para construir la consulta
+        $result = DB::table('correspondencia.cat_tramite')
+            ->selectRaw('correspondencia.cat_tramite.id_cat_tramite AS id, UPPER(correspondencia.cat_tramite.descripcion) AS descripcion')
+            ->join('correspondencia.rel_area_tramite', 'correspondencia.cat_tramite.id_cat_tramite', '=', 'correspondencia.rel_area_tramite.id_cat_tramite')
+            ->where('correspondencia.rel_area_tramite.id_cat_area', $idArea)
+            ->orderBy('correspondencia.cat_tramite.descripcion', 'ASC')
+            ->get();
+
+        // Retornar el resultado
+        return $result;
+    }
+
     public function edit($id)
     {
         $query = DB::table('correspondencia.cat_tramite')

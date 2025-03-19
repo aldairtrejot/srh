@@ -25,12 +25,14 @@ function searchInitToCopy(idLetter) {
                                 <i style="color: white; font-size: 15px" class="fa fa-trash"></i>
                             </button>
                         </td>
-                        <td>${objectCy.area}</td>
-                        <td>${objectCy.tramite}</td>
-                        <td>${objectCy.clave}</td>
+                        <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${objectCy.area}</td>
+                        <td style="font-size: 12px; width: 600px; word-wrap: break-word; white-space: normal;">${objectCy.tramite}</td>
+                        <td style="font-size: 12px; word-wrap: break-word; white-space: normal;">${objectCy.clave}</td>
+                        <!--
                         <td>${objectCy.usuario}</td>
                         <td>${objectCy.enlace}</td>
-                    </tr>
+                        -->
+                        </tr>
                 `;
                     tbody.append(rowHTML);
                 });
