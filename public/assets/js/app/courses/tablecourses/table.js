@@ -131,6 +131,53 @@ function searchInit() {
         }
     });
 }
+$(document).ready(function () {
+    const instructorId = $('#instructorId').val();
+    if (instructorId) {
+        getCoursesByInstructor(instructorId);
+    }
+});
+
+function getCoursesByInstructor(idInstructor) {
+    $.ajax({
+        url: `${URL_DEFAULT}/tablecourses/list/${idInstructor}`,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                renderCourseTable(response.data);
+            } else {
+                console.error('Error:', response.message);
+                alert('No se pudieron cargar los cursos.');
+            }
+        },
+        error: function(xhr) {
+            console.error("Error en la solicitud:", xhr.responseText);
+            alert('Error al obtener los cursos.');
+        }
+    });
+}
+
+function renderCourseTable(courses) {
+    const tbody = $('#template-table tbody');
+    tbody.empty(); // Limpiar la tabla
+
+    if (courses.length > 0) {
+        courses.forEach(course => {
+            const rowHTML = `
+                <tr>
+                    <td>${course.id_tbl_cursos}</td>
+                    <td>${course.programa_proyecto}</td>
+                    <td>${course.fecha_inicio}</td>
+                    <td>${course.fecha_fin}</td>
+                    <td>${course.horas}</td>
+                </tr>
+            `;
+            tbody.append(rowHTML);
+        });
+    } else {
+        tbody.html('<tr><td colspan="5" class="text-center">No hay cursos asignados</td></tr>');
+    }
+}
 
 // Función para manejar la paginación y mostrar el número actual de la página
 function setValue() {
