@@ -6,108 +6,70 @@
     @include('letter.dashboard.modal')
 
     <style>
-        .select-dashboard {
+        .select-dashboard-custom {
             padding: 5px 10px;
-            /* Espaciado interno */
-            border: 2px solid green;
-            /* Contorno verde */
+            border: 2px solid gray;
             border-radius: 50px;
-            /* Contorno circular */
             font-size: 14px;
-            /* Tamaño de texto pequeño */
-            color: green;
-            /* Color de las letras verde */
+            color: gray;
             background-color: white;
-            /* Fondo blanco */
-            transition: background-color 0.3s ease;
-            /* Transición suave para el cambio de fondo */
+            transition: transform 0.2s ease;
             appearance: none;
-            /* Eliminar el estilo por defecto del select */
             -webkit-appearance: none;
-            /* Eliminar el estilo por defecto en WebKit (Chrome/Safari) */
             -moz-appearance: none;
-            /* Eliminar el estilo por defecto en Firefox */
         }
 
-        .select-dashboard:hover {
-            background-color: lightgray;
-            /* Fondo gris cuando pasas el cursor sobre el select */
+        .select-dashboard-custom:hover {
+            transform: scale(1.1);
         }
 
-        .select-dashboard:focus {
+        .select-dashboard-custom:focus {
             outline: none;
-            /* Eliminar el borde azul por defecto en foco */
         }
 
-        /* Estilo para las opciones del select */
-        .select-dashboard option {
+        .select-dashboard-custom option {
             background-color: white;
-            /* Fondo blanco por defecto */
-            color: green;
-            /* Color verde para las opciones */
-            border: none;
-            /* Eliminar cualquier borde de las opciones */
+            color: black;
         }
 
-        /* Eliminar el color azul que aparece al pasar el cursor sobre las opciones */
-        .select-dashboard option:hover {
-            background-color: white;
-            /* Fondo blanco cuando pasas el cursor por encima de las opciones */
-            color: green;
-            /* Mantener el color verde de las letras */
-        }
-
-        .select-label {
-            font-size: 12px;
-            /* Tamaño pequeño para la leyenda */
-            color: #555;
-            /* Color de la leyenda */
-            font-weight: normal;
-            /* Puede ser normal o light */
-            margin-bottom: 2px;
-            /* Ajusta este valor para que la leyenda esté más cerca del select */
-        }
-
-        /* Contenedor de los selects y el botón Informe */
-        .d-flex-custom {
-            display: flex;
-            align-items: center;
-            /* Alinea los elementos verticalmente al centro */
-            justify-content: flex-end;
-            /* Alinea todos los elementos a la derecha */
-            gap: 15px;
-            /* Espacio entre los selects y el botón */
-        }
-
-        /* Contenedor individual de cada select */
-        .select-container-custom {
-            margin-bottom: 0;
-            /* No queremos margen adicional debajo de cada select */
-        }
-
-        /* Estilos de la etiqueta de cada select */
         .select-label-custom {
             font-size: 12px;
             color: #555;
             font-weight: normal;
+            display: block;
             margin-bottom: 5px;
-            /* Espacio entre la etiqueta y el select */
         }
 
-        /* Estilos generales de los select */
-        .select-dashboard-custom {
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .d-flex-custom {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
         }
 
-        /* Estilo para el botón */
+        .select-container-custom {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         #reporteBtn {
             margin-left: 10px;
-            /* Espacio entre el último select y el botón */
+            border: 2px solid gray;
+            border-radius: 50px;
+            padding: 5px 15px;
+            font-size: 14px;
+            color: gray;
+            background-color: white;
+            transition: transform 0.2s ease;
+        }
+
+        #reporteBtn:hover {
+            transform: scale(1.1);
         }
     </style>
+
+
 
     <div class="main-panel">
         <div class="content-wrapper">
@@ -119,10 +81,9 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row align-items-center">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
+                            <h3 class="font-weight-bold">Gestión de Control</h3>
                             <h5 class="font-weight-normal mb-0">Dashboard</h5>
                         </div>
-
                         <!-- Contenedor para los selects y el botón Informe -->
                         <div class="col-12 col-xl-4 text-xl-right">
                             <div class="d-flex-custom align-items-center justify-content-end">
@@ -135,7 +96,6 @@
                                         <option value="opcion3">Opción 3</option>
                                     </select>
                                 </div>
-
                                 <!-- Select Mes -->
                                 <div class="select-container-custom mb-2">
                                     <label for="selectMes" class="select-label-custom">Mes</label>
@@ -145,7 +105,6 @@
                                         <option value="opcion3">Opción 3</option>
                                     </select>
                                 </div>
-
                                 <!-- Select Área -->
                                 <div class="select-container-custom mb-2">
                                     <label for="selectArea" class="select-label-custom">Área</label>
@@ -155,18 +114,19 @@
                                         <option value="opcion3">Opción 3</option>
                                     </select>
                                 </div>
-
                                 <!-- Botón Informe -->
-                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
-                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-                                    <i class="ti-layout" style="color: #10312b;"></i>
-                                </button>
+                                <div class="select-container-custom mb-2">
+                                    <label class="select-label-custom">Reporte</label>
+                                    <button onclick="openModal();" type="button"
+                                        class="btn btn-link btn-dashboard-custom" id="reporteBtn">
+                                        <span class="font-weight-bold">Informe</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
 
 
 
