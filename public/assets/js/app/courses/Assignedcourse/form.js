@@ -19,10 +19,10 @@ function llenarDatosAlumnos() {
         let curp = $('#curp').val()?.trim() || '';
 
         // Si los valores están vacíos, coloca un placeholder "_"
-        nombre = nombre || '_';
-        primer_apellido = primer_apellido || '_';
-        segundo_apellido = segundo_apellido || '_';
-        rfc = rfc || '_';
+        nombre = nombre || '';
+        primer_apellido = primer_apellido || '';
+        segundo_apellido = segundo_apellido || '';
+        rfc = rfc || '';
 
         // Insertar valores en la interfaz
         $('#label_nombre').text(nombre);
@@ -37,6 +37,7 @@ function llenarDatosAlumnos() {
 
 function limpiarValores() {
     $('#label_nombre, #label_primer_apellido, #label_segundo_apellido, #label_rfc').text('_');
+    $('#id_cursos').val(''); // 🔹 También limpiamos el curso seleccionado
 }
 
 function validarcurp() {
@@ -59,12 +60,12 @@ function validarcurp() {
                 $('#label_rfc').text(response.value.rfc || '_');
             } else {
                 alert("⚠️ No se encontraron datos para la CURP ingresada.");
-                limpiarValores();
+                limpiarValores(); // 🔹 Limpia valores cuando no hay datos
             }
         },
         error: function () {
             alert("❌ Error en la consulta de CURP.");
-            limpiarValores();
+            limpiarValores(); // 🔹 Limpia valores en caso de error
         }
     });
 }
@@ -79,6 +80,7 @@ $('#form-assignedcourse').on('submit', function (event) {
     let formData = $(this).serializeArray();
     let alumnoId = $('#id_usuarios').val();
     let isEditing = $('#is_editing').val() === "1";
+    let idCurso = $('#id_cursos').val(); // 🔹 Obtener el curso seleccionado
 
     if (alumnoId) {
         formData.push({ name: "id_usuarios", value: alumnoId });
@@ -87,6 +89,12 @@ $('#form-assignedcourse').on('submit', function (event) {
     let estatus = $('#estatus').is(':checked') ? "1" : "0";
     formData = formData.filter(item => item.name !== "estatus");
     formData.push({ name: "estatus", value: estatus });
+
+    // 🔹 Evitar enviar id_cursos si no se ha seleccionado
+    if (!idCurso || idCurso === "") {
+        console.log("⚠️ No se seleccionó ningún curso. No se enviará id_cursos.");
+        formData = formData.filter(item => item.name !== "id_cursos");
+    }
 
     console.log("📤 Datos enviados:", formData);
 

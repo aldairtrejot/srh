@@ -54,17 +54,17 @@ use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
 
 
 
-
-
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
 Route::get('/recover', RecoverC::class)->name('recover');//ROUTE_RECOVER
 Route::post('/login', [LoginC::class, 'authenticate']);///ROUTE_AUTHENTICATE
 
+
 ///IS_PROTECT
 Route::get('/dashboard', [DashboardC::class, 'dashboard'])->name('dashboard')->middleware('auth'); //ROUTE_DASH BOARD
 Route::get('/about', AboutC::class)->name('about')->middleware('auth'); //ROUTE_ABOUT
 Route::post('/logout', [LoginC::class, 'logout'])->name('logout')->middleware('auth');//ROUTE_LOGOUT
+
 
 //ROUTE_USER
 Route::get('/user', UserC::class)->name('user.list')->middleware('auth'); //ROUTE_USER
@@ -74,6 +74,7 @@ Route::post('/user/save', [UserC::class, 'save'])->name('user.save')->middleware
 Route::get('/user/edit/{id}', [UserC::class, 'edit'])->name('user.edit')->middleware('auth');
 Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name('user.validatePassword')->middleware('auth');
 Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('user.changePassword')->middleware('auth');
+
 
 //ROUTE_LETTER
 Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
@@ -105,6 +106,7 @@ Route::post('/letter/cloud/anexos', [CloudLetterC::class, 'cloudAnexos'])->name(
 Route::post('/letter/cloud/upload', [CloudLetterC::class, 'upload'])->name('letter.cloud.upload')->middleware('auth');
 Route::post('/letter/cloud/delete', [CloudLetterC::class, 'delete'])->name('letter.cloud.delete')->middleware('auth');
 
+
 //ROUTE INSIDE
 Route::get('/inside/list', [InsideC::class, 'list'])->name('inside.list')->middleware('auth');
 Route::post('/inside/table', [InsideC::class, 'table'])->name('inside.table')->middleware('auth');
@@ -118,6 +120,7 @@ Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->nam
 Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
 Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
 Route::get('/inside/generate-pdf/{id}', [ReporteTemplateC::class, 'inside'])->middleware('auth');
+
 
 //ROUTE ROUND / CIRCULARES
 Route::get('/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
@@ -133,6 +136,7 @@ Route::post('/round/cloud/upload', [CloudRoundC::class, 'upload'])->name('round.
 Route::post('/round/cloud/delete', [CloudRoundC::class, 'delete'])->name('round.cloud.delete')->middleware('auth');
 Route::get('/round/generate-pdf/{id}', [ReporteTemplateC::class, 'round'])->middleware('auth');
 
+
 //ROUTE file / EXPEDIENTES
 Route::get('/file/list', [FileC::class, 'list'])->name('file.list')->middleware('auth');
 Route::post('/file/table', [FileC::class, 'table'])->name('file.table')->middleware('auth');
@@ -147,6 +151,7 @@ Route::post('/file/cloud/upload', [CloudFileC::class, 'upload'])->name('file.clo
 Route::post('/file/cloud/delete', [CloudFileC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
 Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middleware('auth');
 
+
 //Communication
 Route::get('/communication/list', [CommunicationC::class, 'list'])->name('communication.list')->middleware('auth');
 Route::post('/communication/table', [CommunicationC::class, 'table'])->name('communication.table')->middleware('auth');
@@ -160,6 +165,7 @@ Route::post('/communication/updateAcuse', [CommunicationC::class, 'updateAcuse']
 Route::post('/communication/addOficio', [CommunicationC::class, 'addOficio'])->name('communication.addOficio')->middleware('auth');
 Route::post('/communication/addAcuse', [CommunicationC::class, 'addAcuse'])->name('communication.addAcuse')->middleware('auth');
 
+
 // REQUEST
 Route::get('/request/list', [RequestC::class, 'list'])->name('request.list')->middleware('auth');
 Route::post('/request/table', [RequestC::class, 'table'])->name('request.table')->middleware('auth');
@@ -169,6 +175,7 @@ Route::post('/request/save', [RequestC::class, 'save'])->name('request.save')->m
 Route::get('/request/edit/{id}', [RequestC::class, 'edit'])->name('request.edit')->middleware('auth');
 Route::post('/request/saveFile', [RequestC::class, 'saveFile'])->name('request.saveFile')->middleware('auth');
 Route::post('/request/deleteFile', [RequestC::class, 'deleteFile'])->name('request.deleteFile')->middleware('auth');
+
 
 // INFORMATIVE
 Route::get('/informative/list', [InformativeC::class, 'list'])->name('informative.list')->middleware('auth');
@@ -180,6 +187,7 @@ Route::get('/informative/edit/{id}', [InformativeC::class, 'edit'])->name('infor
 Route::post('/informative/saveFile', [InformativeC::class, 'saveFile'])->name('informative.saveFile')->middleware('auth');
 Route::post('/informative/deleteFile', [InformativeC::class, 'deleteFile'])->name('informative.deleteFile')->middleware('auth');
 
+
 // INFORMATIVE
 Route::get('/certification/list', [CertificationC::class, 'list'])->name('certification.list')->middleware('auth');
 Route::post('/certification/table', [CertificationC::class, 'table'])->name('certification.table')->middleware('auth');
@@ -190,6 +198,7 @@ Route::post('/certification/deleteFile', [CertificationC::class, 'deleteFile'])-
 /// GLOBAL DE CORRESPONDENCIA
 // SOLICTANTES -> AGREGAR UNO NUEVO
 Route::post('/solicitante/add', [CollectionSolicitanteC::class, 'addSolcitante'])->name('solicitante.add')->middleware('auth');
+
 
 //ALFRESCO -> Descargar archivo
 Route::post('/cloud/download', [AlfrescoC::class, 'download'])->name('cloud.download')->middleware('auth');
@@ -208,6 +217,7 @@ Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter']
 // TRAE INFORMACION COMO EL NO DE CORRESPONDENCIA QUE EXISTA ASI COMO USUAIRO
 Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth');
 
+
 //ROUTE_COUSER ---- > Beneficio
 Route::get('/courses/list', CoursesC::class)->name('courses.list')->middleware('auth');
 Route::get('/courses/create', [CoursesC::class, 'create'])->name('courses.create')->middleware('auth');
@@ -225,6 +235,7 @@ Route::post('/coursescategoria/table', [Courses2C::class, 'searchTable']);
 Route::get('/coursescategoria/edit/{id}', [Courses2C::class, 'edit'])->name('coursescategoria.edit')->middleware('auth');
 Route::delete('/coursescategoria/delete/{id}', [Courses2C::class, 'destroy']);
 
+
 //ROUTE_COUSER ---- > Coordinacion
 Route::get('/coursescoordinacion/list', Courses3C::class)->name('coursescoordinacion.list')->middleware('auth');
 Route::get('/coursescoordinacion/create', [Courses3C::class, 'create'])->name('coursescoordinacion.create')->middleware('auth');
@@ -232,6 +243,7 @@ Route::post('/coursescoordinacion/save', [Courses3C::class, 'save'])->name('cour
 Route::post('/coursescoordinacion/table', [Courses3C::class, 'searchTable']);
 Route::get('/coursescoordinacion/edit/{id}', [Courses3C::class, 'edit'])->name('coursescoordinacion.edit')->middleware('auth');
 Route::delete('/coursescoordinacion/delete/{id}', [Courses3C::class, 'destroy']);
+
 
 //ROUTE_COUSER ---- > Estatuto Orgánico
 Route::get('/coursesestatuto/list', Courses4C::class)->name('coursesestatuto.list')->middleware('auth');
@@ -241,6 +253,7 @@ Route::post('/coursesestatuto/table', [Courses4C::class, 'searchTable']);
 Route::get('/coursesestatuto/edit/{id}', [Courses4C::class, 'edit'])->name('coursesestatuto.edit')->middleware('auth');
 Route::delete('/coursesestatuto/delete/{id}', [Courses4C::class, 'destroy']);
 
+
 //ROUTE_COUSER ---- > Modalidad
 Route::get('/coursesmodalidad/list', Courses5C::class)->name('coursesmodalidad.list')->middleware('auth');
 Route::get('/coursesmodalidad/create', [Courses5C::class, 'create'])->name('coursesmodalidad.create')->middleware('auth');
@@ -248,6 +261,7 @@ Route::post('/coursesmodalidad/save', [Courses5C::class, 'save'])->name('courses
 Route::post('/coursesmodalidad/table', [Courses5C::class, 'searchTable']);
 Route::get('/coursesmodalidad/edit/{id}', [Courses5C::class, 'edit'])->name('coursesmodalidad.edit')->middleware('auth');
 Route::delete('/coursesmodalidad/delete/{id}', [Courses5C::class, 'destroy']);
+
 
 //ROUTE_COUSER ---- > Nombre Acción
 Route::get('/coursesnombreacc/list', Courses6C::class)->name('coursesnombreacc.list')->middleware('auth');
@@ -257,6 +271,7 @@ Route::post('/coursesnombreacc/table', [Courses6C::class, 'searchTable']);
 Route::get('/coursesnombreacc/edit/{id}', [Courses6C::class, 'edit'])->name('coursesnombreacc.edit')->middleware('auth');
 Route::delete('/coursesnombreacc/delete/{id}', [Courses6C::class, 'destroy']);
 
+
 //ROUTE_COUSER ---- > Organizacion
 Route::get('/coursesorganizacion/list', Courses7C::class)->name('coursesorganizacion.list')->middleware('auth');
 Route::get('/coursesorganizacion/create', [Courses7C::class, 'create'])->name('coursesorganizacion.create')->middleware('auth');
@@ -264,6 +279,7 @@ Route::post('/coursesorganizacion/save', [Courses7C::class, 'save'])->name('cour
 Route::post('/coursesorganizacion/table', [Courses7C::class, 'searchTable']);
 Route::get('/coursesorganizacion/edit/{id}', [Courses7C::class, 'edit'])->name('coursesorganizacion.edit')->middleware('auth');
 Route::delete('/coursesorganizacion/delete/{id}', [Courses7C::class, 'destroy']);
+
 
 //ROUTE_COUSER ---- > Programa
 Route::get('/coursesprograma/list', Courses8C::class)->name('coursesprograma.list')->middleware('auth');
@@ -273,6 +289,7 @@ Route::post('/coursesprograma/table', [Courses8C::class, 'searchTable']);
 Route::get('/coursesprograma/edit/{id}', [Courses8C::class, 'edit'])->name('coursesprograma.edit')->middleware('auth');
 Route::delete('/coursesprograma/delete/{id}', [Courses8C::class, 'destroy']);
 
+
 //ROUTE_COUSER ---- > Tipo de acción
 Route::get('/coursestipoac/list', Courses9C::class)->name('coursestipoac.list')->middleware('auth');
 Route::get('/coursestipoac/create', [Courses9C::class, 'create'])->name('coursestipoac.create')->middleware('auth');
@@ -280,6 +297,7 @@ Route::post('/coursestipoac/save', [Courses9C::class, 'save'])->name('coursestip
 Route::post('/coursestipoac/table', [Courses9C::class, 'searchTable']);
 Route::get('/coursestipoac/edit/{id}', [Courses9C::class, 'edit'])->name('coursestipoac.edit')->middleware('auth');
 Route::delete('/coursestipoac/delete/{id}', [Courses9C::class, 'destroy']);
+
 
 //ROUTE_COUSER ---- > Tipo Cursos
 Route::get('/coursestipocur/list', Courses10C::class)->name('coursestipocur.list')->middleware('auth');
@@ -289,6 +307,7 @@ Route::post('/coursestipocur/table', [Courses10C::class, 'searchTable']);
 Route::get('/coursestipocur/edit/{id}', [Courses10C::class, 'edit'])->name('coursestipocur.edit')->middleware('auth');
 Route::delete('/coursestipocur/delete/{id}', [Courses10C::class, 'destroy']);
 
+
 //ROUTE_COUSER ---- > Auditoria
 Route::get('/coursesauditoria/list', Courses11C::class)->name('coursesauditoria.list')->middleware('auth');
 Route::get('/coursesauditoria/create', [Courses11C::class, 'create'])->name('coursesauditoria.create')->middleware('auth');
@@ -296,6 +315,7 @@ Route::post('/coursesauditoria/save', action: [Courses11C::class, 'save'])->name
 Route::post('/coursesauditoria/table', [Courses11C::class, 'searchTable']);
 Route::get('/coursesauditoria/edit/{id}', [Courses11C::class, 'edit'])->name('coursesauditoria.edit')->middleware('auth');
 Route::delete('/coursesauditoria/delete/{id}', [Courses11C::class, 'destroy']);
+
 
 // 📌 ROUTE_COURSES ---- > Tabla instructores
 Route::get('/tableinstructor/list', InstructorsC::class)->name('tableinstructor.list')->middleware('auth');
@@ -306,12 +326,14 @@ Route::post('/tableinstructor/delete/', [InstructorsC::class, 'delete'])->name('
 Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('tableinstructor.edit')->middleware('auth');
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update')->middleware('auth');
 
+
 Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
 Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
 Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see')->middleware('auth');
 Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
 Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
 Route::get('/tableinstructor/generate-pdf/constancias/{id}', [ReporteConstanciaC::class, 'generatePdf'])->middleware('auth');
+
 
 // 📌 Rutas de Cloud Tabla instructores (Carga de documentos)
 Route::get('/tableinstructor/cloud/download/{uuid}', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
@@ -364,8 +386,6 @@ Route::post('/auditoria/check/exist-by-id', [TblAuditC::class, 'checkExistenceBy
 Route::post('/auditoria/check/id', [TblAuditC::class, 'checkId'])->name('auditoria.check.id')->middleware('auth');
 
 
-
-
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 
@@ -377,9 +397,10 @@ Route::get('/assignedcourse/list', [AssignedcourseC::class,'list'])->name('assig
 Route::get('/assignedcourse/create', [AssignedcourseC::class, 'create'])->name('assignedcourse.create')->middleware('auth');
 Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('assignedcourse.save')->middleware('auth');
 Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable')->middleware('auth');
-Route::post('/assignedcourse/delete/', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
+Route::post('/assignedcourse/delete', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
 Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name('assignedcourse.edit')->middleware('auth');
 Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->name('assignedcourse.dataCurp');
-Route::get('/assignedcourse/courses', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
+Route::get('/assignedcourse/add/{id}', [AssignedcourseC::class, 'add'])->name('assignedcourse.add')->middleware('auth'); 
+Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
 
 

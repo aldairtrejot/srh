@@ -45,97 +45,75 @@ $(document).ready(function () {
     });
 });
 
-// 🔹 Función para inicializar la búsqueda con paginación
+
 function searchInit() {
-    const searchValue = $('#searchValue').val(); 
+    let idEmpleadoCursos = $('#id_empleado_cursos').val().trim(); 
+
+    if (!idEmpleadoCursos || isNaN(idEmpleadoCursos)) {
+        console.error("❌ ID no válido en JavaScript:", idEmpleadoCursos);
+        return;
+    }
+
+    console.log(`📩 Enviando solicitud con ID: ${idEmpleadoCursos}`);
+
     $.ajax({
-        url: `${URL_BASE}/assignedcourse/table`,
-        type: 'POST',
-        data: {
-            iterator: iterator,
-            searchValue: searchValue,
-            _token: token
-        },
+        url: `${URL_BASE}/assignedcourse/courses/${idEmpleadoCursos}`, // ✅ Corrige la URL
+        type: 'GET', // 🔥 Debe ser GET según tu ruta en web.php
         success: function(response) {
+            console.log("✅ Respuesta del servidor:", response);
             const tbody = $('#template-table tbody');
             tbody.empty();
 
-            if (response.data && response.data.length > 0) {
+            if (response.status && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
-                    const urlAddCourse = `${URL_BASE}/assignedcourse/add/${object.id_empleado_cursos}`;
-                    const rowHTML =`
+                    const urlConstancia = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_cursos}`;
+                    const rowHTML = `
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-
-                                      <a class="dropdown-item" href="${urlAddCourse}">
-                                                <span style="background:#28A745" class="icon-container-template">
-                                                    <div style="text-align: center;">
-                                                        <i class="fa fa-plus item-icon-menu"></i>
-                                                    </div>
-                                                </span>
-                                                Agregar Curso
-                                            </a>
-
-                                         <a class="dropdown-item" href="${finalCourses}">
-                                            <span style="background:#FF8C00" class="icon-container-template">
+                                        <a class="dropdown-item" href="${urlConstancia}">
+                                            <span style="background:#1E90FF" class="icon-container-template">
                                                 <div style="text-align: center;">
-                                                    <i class="fa fa-book item-icon-menu"></i>
+                                                    <i class="fa fa-file item-icon-menu"></i>
                                                 </div>
                                             </span>
-                                            Mis Cursos
+                                            Constancia
                                         </a>
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.curp}</td>
-                            <td>${object.primer_apellido}</td>
-                            <td>${object.segundo_apellido}</td>
-                            <td>${object.nombre}</td>
+                            <td>${object.programa_proyecto || '-'}</td>
+                            <td>${object.tipo_curso || '-'}</td>
+                            <td>${object.horas || '-'}</td>
+                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                            <td>${object.fecha_inicio || '-'}</td>
+                            <td>${object.fecha_fin || '-'}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
                 });
             } else {
-                tbody.html('<tr><td colspan="5" class="text-center">No se encontraron resultados</td></tr>');
+                console.warn("⚠️ No se encontraron cursos asignados.");
+                tbody.html('<tr><td colspan="7" class="text-center font-weight-bold text-danger">No se encontraron cursos asignados</td></tr>');
             }
         },
         error: function(xhr) {
-            console.error("Error en la búsqueda:", xhr);
+            console.error("❌ Error en la búsqueda:", xhr);
         }
     });
 }
 
-// ✅ Función para eliminar un instructor
-function deleteInstructor(id) {
-    $.ajax({
-        url: `${URL_BASE}/assignedcourse/delete`,  
-        type: 'POST',
-        data: { 
-            id: id, 
-            _token: token 
-        },
-        success: function (response) {
-            if (response.success) {
-                notyfEM.success(response.message);
-                $('#modalBackdrop').fadeOut();
-                searchInit();
-            } else {
-                notyfEM.error(response.message);
-            }
-        },
-        error: function(xhr) {
-            console.error("Error al eliminar:", xhr);
-            notyfEM.error("Ocurrió un error inesperado.");
-        }
-    });
-}
+// ✅ Ejecutar `searchInit()` cuando el documento esté listo
+$(document).ready(function () {
+    console.log("🔹 Documento listo. Ejecutando `searchInit()`...");
+    searchInit();
+});
+
 
 // 🔹 Funciones para manejar la paginación
 function paginatorMax1() {

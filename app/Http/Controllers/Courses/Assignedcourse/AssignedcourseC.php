@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Courses\Assignedcourse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Courses\Courses\Assignedcourse\AssignedcourseM;
@@ -23,47 +24,62 @@ class AssignedcourseC extends Controller
     public function save(Request $request)
     {
         Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
+        Log::info("📌 Datos recibidos en save():", $request->all());
+    
         $messagesC = new MessagesC();
-
+    
         try {
+            // 🔹 Removemos la asignación automática de id_cursos
+            // 🔹 Ahora será obligatorio en la validación
+    
             $request->validate([
                 'curp' => 'required|string|size:18',
             ]);
-
+    
             if ($request->is_editing == 1) {
                 return $this->update($request, $request->id);
             }
-
+    
             $assignedcourseM = new AssignedcourseM();
-            $idAlumno = $assignedcourseM->obtenerOcrearUsuarioPorCurp($request->curp);
-
-
+            $idAlumno = $assignedcourseM->obtenerAlumno($request->curp, 1, $request->id_cursos);
+    
             if (!$idAlumno) {
                 return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error al registrar alumno.');
             }
-
+    
             return $messagesC->messageSuccessRedirect('assignedcourse.list', 'Alumno registrado correctamente.');
         } catch (\Exception $e) {
             Log::error('🔥 Error en save(): ' . $e->getMessage());
             return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error en el servidor.');
         }
     }
+    
 
-    public function searchTable(Request $request)
+
+public function searchTable(Request $request)
 {
     try {
         $iterator = $request->input('iterator', 1);
-        $searchValue = $request->input('searchValue',''); // 🔹 Acepta nulos
+        $searchValue = $request->input('searchValue', '');
 
-        // 🔹 Validación mejorada
         $request->validate([
             'iterator' => 'required|integer|min:1',
             'searchValue' => 'nullable|string|max:255',
-        ]);
+        ]); 
 
-        // Obtener resultados paginados
         $assignedcourseM = new AssignedcourseM();
         $courses = $assignedcourseM->list($iterator, $searchValue);
+
+        // 🔹 Llamar a la nueva función para obtener detalles del curso
+        foreach ($courses as $course) {
+            $detallesCurso = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($course->id_empleado_cursos);
+            $course->programa_proyecto = $detallesCurso->isNotEmpty() ? $detallesCurso->first()->programa_proyecto : '-';
+            $course->fecha_inicio = $detallesCurso->isNotEmpty() ? $detallesCurso->first()->fecha_inicio : '-';
+            $course->fecha_fin = $detallesCurso->isNotEmpty() ? $detallesCurso->first()->fecha_fin : '-';
+            $course->horas = $detallesCurso->isNotEmpty() ? $detallesCurso->first()->horas : '-';
+            $course->tipo_curso = $detallesCurso->isNotEmpty() ? $detallesCurso->first()->tipo_curso : '-';
+            $course->estatus = $detallesCurso->isNotEmpty() ? ($detallesCurso->first()->estatus ? 'ACTIVO' : 'INACTIVO') : '-';
+        }
 
         return response()->json([
             'status' => true,
@@ -85,6 +101,7 @@ class AssignedcourseC extends Controller
         ], 500);
     }
 }
+
 
 
 
@@ -119,43 +136,20 @@ public function dataCurp(Request $request)
 }
 
 
-    public function create()
-    {
-        return view('courses.assignedcourse.form', [
-            'item' => new AssignedcourseM(),
-            'curp' => '',
-            'nombre' => '_',
-            'primer_apellido' => '_',
-            'segundo_apellido' => '_',
-            'rfc' => '_'
-        ]);
-    }
+public function create()
+{
+    $cursos = DB::table('capacitacion.tbl_cursos')->get(); // 🔹 Se obtienen los cursos
 
-    public function edit($id)
-    {
-        try {
-            $assignedcourseM = new AssignedcourseM();
-            $item = $assignedcourseM->editAssignedCourse($id);
-
-            if (!$item) {
-                return redirect()->route('assignedcourse.list')->with('error', 'Alumno no encontrado.');
-            }
-
-            Log::info("✅ Datos enviados a la vista: ", (array) $item);
-
-            return view('courses.assignedcourse.form', [
-                'item' => $item,
-                'curp' => $item->curp ?? '',
-                'nombre' => $item->nombre ?? '_',
-                'primer_apellido' => $item->primer_apellido ?? '_',
-                'segundo_apellido' => $item->segundo_apellido ?? '_',
-                'rfc' => $item->rfc ?? '_'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('❌ Error en edit(): ' . $e->getMessage());
-            return redirect()->route('assignedcourse.list')->with('error', 'Error en el servidor.');
-        }
-    }
+    return view('courses.assignedcourse.form', [
+        'item' => new AssignedcourseM(),
+        'curp' => '',
+        'nombre' => '_',
+        'primer_apellido' => '_',
+        'segundo_apellido' => '_',
+        'rfc' => '_',
+        'cursos' => $cursos, // 🔹 Enviamos cursos a la vista
+    ]);
+}
 
     public function update(Request $request, $id)
     {
@@ -183,30 +177,52 @@ public function dataCurp(Request $request)
             return redirect()->route('assignedcourse.list')->with('error', 'Error en el servidor.');
         }
     }
-
-    public function cloud($id)
+    
+    public function add($id = null)
     {
-        Log::info("📌 ID recibido en AssignedcourseC@cloud():", ['id' => $id]);
+        // Buscar el curso si el ID existe, si no, definir $item como null
+        $item = $id ? AssignedcourseM::find($id) : null;
 
-        return view('courses.assignedcourse.cloud', [
-            'idAlumno' => $id
-        ]);
+        return view('courses.assignedcourse.add', compact('item'));
     }
 
-    public function delete(Request $request)
+    public function courses($idEmpleadoCursos)
     {
         try {
-            $id = $request->id;
+            Log::info("🔎 Buscando cursos para ID: $idEmpleadoCursos");
+    
             $assignedcourseM = new AssignedcourseM();
-            $response = $assignedcourseM->deleteAssignedCourseById($id);
-
-            return response()->json($response);
-        } catch (\Exception $e) {
-            Log::error('🔥 Error en delete(): ' . $e->getMessage());
+            $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos);
+    
+            if ($cursos->isEmpty()) {
+                Log::warning("⚠️ No se encontraron cursos para ID: $idEmpleadoCursos");
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se encontraron cursos asignados',
+                    'data' => [],
+                ], 200);
+            }
+    
+            Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
+    
             return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar alumno: ' . $e->getMessage()
+                'status' => true,
+                'message' => 'Cursos obtenidos correctamente',
+                'data' => $cursos,
+            ], 200);
+    
+        } catch (\Exception $e) {
+            Log::error("🔥 Error en courses(): " . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Error en el servidor.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+    
+    
+    
+
 }
+

@@ -56,6 +56,10 @@
                             <!-- 🔹 Campos ocultos para ID e identificación de edición -->
                             <input type="hidden" name="id_usuarios" id="id_usuarios" value="{{ $item->id_usuarios ?? '' }}">
                             <input type="hidden" name="is_editing" id="is_editing" value="{{ isset($item->id_usuarios) ? '1' : '0' }}">
+                            <!-- Agregar este campo oculto en el formulario -->
+                            <input type="hidden" name="id_cursos" id="id_cursos" value="">
+
+
 
                             <!-- Campos ocultos para asegurar que los valores se llenan al editar -->
                             <input type="hidden" id="nombre" value="{{ $item->nombre ?? '' }}">
