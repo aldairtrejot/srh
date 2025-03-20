@@ -40,12 +40,20 @@ class LoginC extends Controller
             ]);
         }
 
-        //  Intentar autenticar al usuario (sin incluir el CAPTCHA)
         $credentials = $request->only('email', 'password'); //  Excluir 'captcha'
+        $user = \App\Models\User::where('email', $credentials['email'])->where('estatus', 1)->first(); // Validación de status activo
+
+        if (!$user) { // Validación de que el usuario este activo
+            return back()->with([
+                'value' => 'error', // VALUE_IS(error, warning, success)
+                'message' => 'La cuenta ha sido inactivada. Intente ingresar de nuevo más tarde.',
+                'estatus' => 'true'
+            ]);
+        }
 
         if (Auth::attempt($credentials)) {
             // Si la autenticación es exitosa, regeneramos la sesión y redirigimos al dashboard
-            Log::info('LOG_LOGIN_RECORD: ', [
+            Log::info('LOGIN_RECORD: ', [
                 'id_user' => Auth::id(),
                 'ip_user' => $request->ip(),
                 'time_user' => now(),
