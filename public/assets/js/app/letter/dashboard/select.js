@@ -10,6 +10,14 @@ function initSelect() {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
+            let item = response;
+
+            if (item.isAdmin) { // Validación por usuario admin
+                console.log('is admin');
+                allTextForeachSelect(item.collectionArea, '#id_result_cat_area_dash');
+            } else { // Validación por usuario x
+                console.log('is user');
+            }
 
             console.log(response);
             /*

@@ -38,7 +38,7 @@
                     <!-- Select Área -->
                     <div class="select-container-custom mb-2">
                         <label for="selectArea" class="select-label-custom">Área</label>
-                        <select id="selectArea" class="select-dashboard-custom">
+                        <select id="id_result_cat_area_dash" class="select-dashboard-custom">
                         </select>
                     </div>
                     <!-- Botón Informe -->
