@@ -56,8 +56,6 @@
                                     <th>Total horas</th>
                                     <th>Nombre instructor</th>
                                     <th>Estatus</th>
-
-
                                 </tr>
                             </thead>
                            
@@ -69,10 +67,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-                <!-- Modal de confirmación -->
+    <!-- Modal de confirmación -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>

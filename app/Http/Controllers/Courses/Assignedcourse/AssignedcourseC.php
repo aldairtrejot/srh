@@ -54,8 +54,6 @@ class AssignedcourseC extends Controller
         }
     }
     
-
-
 public function searchTable(Request $request)
 {
     try {
@@ -102,9 +100,6 @@ public function searchTable(Request $request)
     }
 }
 
-
-
-
 public function dataCurp(Request $request)
 {
     try {
@@ -134,7 +129,6 @@ public function dataCurp(Request $request)
         ], 500);
     }
 }
-
 
 public function create()
 {
@@ -186,7 +180,6 @@ public function create()
         return view('courses.assignedcourse.add', compact('item'));
     }
 
-    
     public function courses($idEmpleadoCursos)
     {
         try {
@@ -232,8 +225,6 @@ public function create()
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-    
-    
+    }  
 }
 
