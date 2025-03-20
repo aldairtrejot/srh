@@ -27415,7 +27415,7 @@ code {
 }
 
 .data-icon-card-primary .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27434,7 +27434,7 @@ code {
 }
 
 .data-icon-card-secondary .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27453,7 +27453,7 @@ code {
 }
 
 .data-icon-card-success .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27472,7 +27472,7 @@ code {
 }
 
 .data-icon-card-info .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27491,7 +27491,7 @@ code {
 }
 
 .data-icon-card-warning .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27510,7 +27510,7 @@ code {
 }
 
 .data-icon-card-danger .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27529,7 +27529,7 @@ code {
 }
 
 .data-icon-card-light .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 
@@ -27548,7 +27548,7 @@ code {
 }
 
 .data-icon-card-dark .background-icon::before {
-    content: url("../../images/dashboard/shape-4.svg");
+    /*content: url("../../images/dashboard/shape-4.svg");*/
     position: absolute;
 }
 

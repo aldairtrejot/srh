@@ -18,6 +18,44 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class DashboardLetterC extends Controller
 {
+    // La funcion retorna los catalogos iniciales de dashboard, dependiendo de los ROLES y PERFILES
+    public function getSelect()
+    {
+        // Class
+        $collectionAreaM = new CollectionAreaM();
+
+
+        // Se establecen ROLES para catalogos
+        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
+        $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo al sistema
+        $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
+
+        // Verificar si el usuario tiene acceso completo
+        if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+            // Si tiene acceso completo, no hay necesidad de filtrar por área o enlace
+            $isAdmin = true; // Variable para identificar si es administrador o no
+            $collectionArea = $collectionAreaM->list(); //Catalogo de area
+        } else {
+            // Se establecen areas por usuario
+            $isAdmin = false; // Variable para identificar si es administrador o no
+            $collectionArea = []; //Catalogo de area
+
+
+
+
+
+
+        }
+
+
+        return response()->json([
+            'isAdmin' => $isAdmin,
+            'collectionArea' => $collectionArea,
+            'status' => true,
+        ]);
+    }
+
+
     // La función trae los catalogos iniciales para poblar los catlagos de informe
     public function getCollection()
     {

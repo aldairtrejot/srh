@@ -108,6 +108,8 @@ Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('let
 // Letter Dashboard
 Route::post('/letter/dashboard/getCollection', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
 Route::post('/letter/dashboard/generate', [DashboardLetterC::class, 'generate'])->name('letter.dashboard.generate')->middleware('auth');
+Route::post('/letter/dashboard/getSelect', [DashboardLetterC::class, 'getSelect'])->name('letter.dashboard.getSelect')->middleware('auth');
+
 
 ////Cloud
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');

@@ -5,6 +5,9 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
 // Carga de formulario inicial
 $(document).ready(function () {
+    // Inicio de datos 
+    initSelect();
+
     // Refresh add solicitante
     $(window).click(function (event) {
         if ($(event.target).is('#modalReport')) {
