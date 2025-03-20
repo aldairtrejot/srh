@@ -14,8 +14,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Agregar el input oculto con el id_instructor -->
-            <input type="hidden" id="instructorId" value="{{ request()->route('id_instructor') }}">
             <!-- View->modal -->
             @include('courses.tablecourses.modal')
 

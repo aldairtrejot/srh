@@ -26,11 +26,18 @@ class TblCoursesC extends Controller
 {
 <<<<<<< HEAD
     public function __invoke(Request $request)
-{
-
-    return view('courses.tablecourses.list');
-}
-
+    {
+        $instructorId = $request->query('instructor_id'); // Capturar el ID del instructor desde la URL
+        $coursesModel = new TblcoursesM();
+    
+        if ($instructorId) {
+            $courses = $coursesModel->getCoursesByInstructor($instructorId); // ✅ Ahora trae todos los cursos sin paginación
+        } else {
+            $courses = TblcoursesM::all(); // ✅ Obtener todos los cursos si no hay instructor seleccionado
+        }
+    
+        return view('courses.tablecourses.list', compact('courses'));
+    }
     
 =======
     public function __invoke()
@@ -272,25 +279,6 @@ class TblCoursesC extends Controller
     'selectCoordinacion', 'selectCoordinacionEdit', 'selectNomaccion', 'selectNomaccionEdit', 'selectPrograma', 'selectProgramaEdit', 'selectEstatuto', 'selectEstatutoEdit', 'selectOrganizacion', 'selecOrganizacionEdit',
     'selectModalidad', 'selectModalidadEdit', 'selectCategoria', 'selectCategoriaEdit', 'selectInstructor', 'selectInstructorEdit'));
 }
-public function listByInstructor($id_instructor)
-{
-    try {
-        $courses = (new TblcoursesM())->getCoursesByInstructor($id_instructor);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cursos obtenidos correctamente',
-            'data' => $courses
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al obtener los cursos',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
-
 
       
 }
