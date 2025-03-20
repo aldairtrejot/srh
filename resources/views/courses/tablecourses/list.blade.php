@@ -61,7 +61,6 @@
 
                                 </tr>
                             </thead>
-                            
                            
                         </x-template-table.template-table>
 

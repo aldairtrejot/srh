@@ -106,6 +106,7 @@ class TblcoursesM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+<<<<<<< HEAD
     public function getCoursesByInstructor($id_instructor)
     {
         return DB::table('capacitacion.tbl_cursos AS c')
@@ -117,5 +118,7 @@ class TblcoursesM extends Model
     
 
     
+=======
+>>>>>>> parent of f04587a (guardar)
 }
 

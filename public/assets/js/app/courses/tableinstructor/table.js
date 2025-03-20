@@ -64,7 +64,10 @@ function searchInit() {
                     const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
                     const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
                     const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
+<<<<<<< HEAD
                     const urlCourseList = `${URL_DEFAULT}/tablecourses/list/${object.id_tbl_instructores}`;
+=======
+>>>>>>> parent of f04587a (guardar)
                     const rowHTML = `
                         <tr>
                             <td>
@@ -99,6 +102,7 @@ function searchInit() {
                                             </span>
                                             Constancia
                                         </a>
+<<<<<<< HEAD
                                           <!-- Nuevo Botón Curso -->
                                         <a class="dropdown-item" href="${urlCourseList}">
                                             <span style="background:#550000" class="icon-container-template">
@@ -116,6 +120,8 @@ function searchInit() {
                                             Curso
                                         </a>
 
+=======
+>>>>>>> parent of f04587a (guardar)
                                         <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
@@ -134,15 +140,12 @@ function searchInit() {
                     `;
                     tbody.append(rowHTML);
                 });
-                emptyContent = false;
             } else {
                 tbody.html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
             }
         },
         error: function(xhr) {
             console.error("Error en la búsqueda:", xhr);
-            emptyContent = true;
-            setValue();
         }
     });
 }

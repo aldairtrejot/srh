@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 
 class TblCoursesC extends Controller
 {
+<<<<<<< HEAD
     public function __invoke(Request $request)
 {
 
@@ -31,6 +32,13 @@ class TblCoursesC extends Controller
 }
 
     
+=======
+    public function __invoke()
+    {
+        return view('courses/tablecourses/list');
+    }
+
+>>>>>>> parent of f04587a (guardar)
     public function searchTable(Request $request)
     {
         try {
