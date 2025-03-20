@@ -106,30 +106,5 @@ class TblcoursesM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-    public function getCoursesByInstructor($id_instructor)
-    {
-        return DB::table('capacitacion.tbl_cursos AS c')
-            ->select('c.*')
-            ->join('capacitacion.rel_cursos_instructor AS r', 'c.id_tbl_cursos', '=', 'r.id_tbl_cursos')
-            ->where('r.id_tbl_instructores', $id_instructor)
-            ->get();
-    }
-    
-
-    
-=======
->>>>>>> parent of f04587a (guardar)
-=======
-    public function getCoursesByInstructor($instructorId)
-{
-    return $this->select('capacitacion.tbl_cursos.*')
-        ->join('capacitacion.rel_cursos_instructor', 'capacitacion.tbl_cursos.id_tbl_cursos', '=', 'capacitacion.rel_cursos_instructor.id_tbl_cursos')
-        ->join('capacitacion.tbl_instructores', 'capacitacion.rel_cursos_instructor.id_tbl_instructores', '=', 'capacitacion.tbl_instructores.id_tbl_instructores')
-        ->where('capacitacion.tbl_instructores.id_tbl_instructores', $instructorId)
-        ->get(); // ✅ Cambiamos paginate(10) por get() para traer todos los resultados
-}
->>>>>>> parent of 9aa3ea5 (guardar cambios)
 }
 

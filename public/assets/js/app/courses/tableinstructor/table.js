@@ -64,14 +64,8 @@ function searchInit() {
                     const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
                     const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
                     const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    const urlCourseList = `${URL_DEFAULT}/tablecourses/list/${object.id_tbl_instructores}`;
-=======
->>>>>>> parent of f04587a (guardar)
-=======
-                    const urlCourseList = URL_DEFAULT.concat(`/tablecourses/list?instructor_id=${object.id_tbl_instructores}`);
->>>>>>> parent of 9aa3ea5 (guardar cambios)
+                    const urlCourseList = `${URL_DEFAULT}/tablecourses/list/`;
+                
                     const rowHTML = `
                         <tr>
                             <td>
@@ -106,7 +100,6 @@ function searchInit() {
                                             </span>
                                             Constancia
                                         </a>
-<<<<<<< HEAD
                                           <!-- Nuevo Botón Curso -->
                                         <a class="dropdown-item" href="${urlCourseList}">
                                             <span style="background:#550000" class="icon-container-template">
@@ -116,12 +109,7 @@ function searchInit() {
                                             </span>
                                             Curso
                                         </a>
-<<<<<<< HEAD
 
-=======
->>>>>>> parent of f04587a (guardar)
-=======
->>>>>>> parent of 9aa3ea5 (guardar cambios)
                                         <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_tbl_instructores})">
                                             <span style="background:#6A1B3D" class="icon-container-template">
                                                 <div style="text-align: center;">
