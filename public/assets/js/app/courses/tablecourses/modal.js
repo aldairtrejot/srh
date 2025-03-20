@@ -388,3 +388,15 @@ function searchInitaudit(id_tbl_cursos) {
         }
     });
 }
+
+   
+
+
+
+
+  
+
+
+
+
+
