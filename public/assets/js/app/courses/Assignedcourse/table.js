@@ -62,7 +62,7 @@ function searchInit() {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
+                    const finalCourses = `${URL_BASE}/tablecourses/list/${object.id_empleado_cursos}`;
                     const urlAddCourse = `${URL_BASE}/assignedcourse/add/${object.id_empleado_cursos}`;
                     const rowHTML =`
                         <tr>

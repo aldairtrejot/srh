@@ -1,4 +1,5 @@
 const URL_BASE = window.location.origin + "/srh/public"; 
+
 // Obtener el token CSRF desde la metaetiqueta
 const token = $('meta[name="csrf-token"]').attr('content');
 $.ajaxSetup({
@@ -10,7 +11,6 @@ $.ajaxSetup({
 // Variables globales
 var iterator = 1;
 var emptyContent = false; // Controla si hay contenido en la tabla
-var instructorIdToDelete = null; 
 
 // ✅ Función para abrir el modal de confirmación
 function confirmDelete(id) {
@@ -45,7 +45,7 @@ $(document).ready(function () {
 });
 
 // 🔹 Función para inicializar la búsqueda con paginación
-function searchInit() {
+function searchInit(idEmpleadoCursos) {
     const searchValue = $('#searchValue').val(); 
     $.ajax({
         url: `${URL_BASE}/assignedcourse/table`,
@@ -61,9 +61,7 @@ function searchInit() {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object, index) {
-                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
                     const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
-
                     const rowHTML =`
                         <tr>
                             <td>
@@ -85,19 +83,13 @@ function searchInit() {
                                     </div>
                                 </div>
                             </td>
-
-                        
                             <td>${object.programa_proyecto || '-'}</td>
                             <td>${object.tipo_curso || '-'}</td>
                             <td>${object.horas || '-'}</td>
                             <td>${object.estatus || '-'}</td>
                             <td>${object.fecha_inicio || '-'}</td>
                             <td>${object.fecha_fin || '-'}</td>
-                          
-                            <td>
-                                <a href="${finalCourses}" class="btn btn-primary">Ver Cursos</a>
-                                <a href="${urlReport}" target="_blank" class="btn btn-danger">Generar Reporte</a>
-                            </td>
+                            
                         </tr>
                     `;
                     tbody.append(rowHTML);
@@ -112,31 +104,6 @@ function searchInit() {
     });
 }
 
-
-// ✅ Función para eliminar un instructor
-function deleteInstructor(id) {
-    $.ajax({
-        url: `${URL_BASE}/assignedcourse/delete`,  
-        type: 'POST',
-        data: { 
-            id: id, 
-            _token: token 
-        },
-        success: function (response) {
-            if (response.success) {
-                notyfEM.success(response.message);
-                $('#modalBackdrop').fadeOut();
-                searchInit();
-            } else {
-                notyfEM.error(response.message);
-            }
-        },
-        error: function(xhr) {
-            console.error("Error al eliminar:", xhr);
-            notyfEM.error("Ocurrió un error inesperado.");
-        }
-    });
-}
 
 // 🔹 Funciones para manejar la paginación
 function paginatorMax1() {

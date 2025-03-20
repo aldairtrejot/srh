@@ -18,15 +18,16 @@ use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use App\Models\Courses\Courses\Cursoinstructor\CourseinstructorM;
 use App\Models\Courses\Courses\Relcurso\RelcoursesM;
 use App\Http\Controllers\Admin\MessagesC;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class TblCoursesC extends Controller
 {
-    public function __invoke()
+    public function listtable($idAlumno)
     {
-        return view('courses/tablecourses/list');
+        return view('courses.tablecourses.list', compact('idAlumno'));
     }
 
     public function searchTable(Request $request)
@@ -34,7 +35,11 @@ class TblCoursesC extends Controller
         try {
             $iterator = $request->input('iterator', 1); // Página actual
             $searchValue = $request->input('searchValue', ''); // Valor de búsqueda
-
+            if (empty($request->idAlumno)) {
+                Log::info("La variable está vacía o no existe.");
+            } else {
+                Log::info("contyenido");
+            }
             // Validar entrada
             $request->validate([
                 'iterator' => 'required|integer|min:1',
