@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administration;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -18,12 +19,23 @@ class RecoverC extends Controller
 
     public function updatePassword(Request $request)
     {
+        // Data
         $existsEmail = false;
+        $key = 'login-attempts:' . $request->ip();
 
         $request->validate([
             'email' => 'required|email',
-            'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
+            'captcha' => 'required|captcha' 
         ]);
+
+        // Validación intento de recover, max 3 por minuto
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            return back()->with([
+                'value' => 'error', // VALUE_IS(error, warning, success)
+                'message' => 'Demasiados intentos. Intenta en 1 minuto.',
+                'estatus' => 'true'
+            ]);
+        }
 
         $exists = User::where('email', $request->email)->exists();
 
@@ -36,6 +48,7 @@ class RecoverC extends Controller
             $existsEmail = true;
         }
 
+        RateLimiter::hit($key, 60); // Expira en 60 segundos
         return redirect()->route('result')
             ->with([
                 'isUpdatePassword' => true,
