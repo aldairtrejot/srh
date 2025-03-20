@@ -31,7 +31,7 @@ class LoginC extends Controller
             //'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
         ]);
 
-        // Validación de inicio de sesion para max 10 por minuto
+        // Validación de inicio de sesion para max 10 por minuto, poner a 3 intentos con captcha
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return back()->with([
                 'value' => 'error', // VALUE_IS(error, warning, success)
