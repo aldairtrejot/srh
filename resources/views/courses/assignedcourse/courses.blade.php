@@ -12,33 +12,34 @@
                             <h5 class="font-weight-normal mb-0">Alumnos</h5>
                         </div>
                     </div>
+                    <x-template-tittle.tittle-caption
+                     tittle="{{ isset($item->id_tbl_cursos) ? 'Modificar' : '' }} "
+                     route="{{ route('assignedcourse.list') }}"
+                        />
                 </div>
+                
             </div>
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
-
+                
                     <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="card-title">Grupo Alumnos</h4>
                                     @if($coursesMatch)
-                                        <p class="card-description">
-                                            ¿Deseas agregar un registro? 
-                                            <a href="{{ route('assignedcourse.create') }}" class="text-danger" style="margin-left: 10px;">
-                                                <i class="fa fa-arrow-up"></i> Agregar Alumno
-                                            </a>
-                                        </p>
                                     @endif
                                 </div>
                                 
                                 <div class="input-group" style="max-width: 300px;">
 
-
+                          
                                 <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
+                    
                             </div>
                         </div>
-
+                     <!-- Alumno id -->
+                     <input type="hidden" id="idEmpleadoCursos" value="{{ $idEmpleadoCursos }}">
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>

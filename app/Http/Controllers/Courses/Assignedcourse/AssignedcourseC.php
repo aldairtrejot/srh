@@ -178,9 +178,9 @@ public function create()
         $item = $id ? AssignedcourseM::find($id) : null;
 
         return view('courses.assignedcourse.add', compact('item'));
+        
     }
-
-    public function courses($idEmpleadoCursos)
+    public function courses(Request $request, $idEmpleadoCursos)
     {
         try {
             Log::info("🔎 Buscando cursos para el ID: " . ($idEmpleadoCursos ?? 'No definido'));
@@ -210,11 +210,17 @@ public function create()
     
             Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
     
-            return response()->json([
-                'status' => true,
-                'message' => 'Cursos obtenidos correctamente',
-                'data' => $cursos
-            ], 200);
+            // Si la solicitud es AJAX, devolver JSON; de lo contrario, devolver la vista
+            if (request()->ajax()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Cursos obtenidos correctamente',
+                    'data' => $cursos
+                ], 200);
+            }
+    
+            // Retornar vista si no es una petición AJAX
+            return view('courses.assignedcourse.courses', compact('idEmpleadoCursos', 'cursos'));
     
         } catch (\Exception $e) {
             Log::error("🔥 Error en courses(): " . $e->getMessage());
@@ -225,6 +231,7 @@ public function create()
                 'error' => $e->getMessage()
             ], 500);
         }
-    }  
+    }
+    
 }
 

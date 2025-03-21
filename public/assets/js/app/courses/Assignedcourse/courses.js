@@ -45,14 +45,17 @@ $(document).ready(function () {
 });
 
 // 🔹 Función para inicializar la búsqueda con paginación
-function searchInit(idEmpleadoCursos) {
+function searchInit() {
     const searchValue = $('#searchValue').val(); 
+    const idEmpleadoCursos = window.location.pathname.split('/').pop(); // Extrae el ID desde la URL
+
     $.ajax({
         url: `${URL_BASE}/assignedcourse/table`,
         type: 'POST',
         data: {
             searchValue: searchValue,
             iterator: iterator,
+            idEmpleadoCursos: idEmpleadoCursos, // ✅ Ahora se envía el ID correcto
             _token: token
         },
         success: function(response) {
@@ -61,38 +64,40 @@ function searchInit(idEmpleadoCursos) {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object, index) {
-                    const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
-                    const rowHTML =`
-                        <tr>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <h6 class="dropdown-header">Acciones</h6>
-                                        
-                                        <a class="dropdown-item" href="${urlReport}">
-                                            <span style="background:#1E90FF" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-file item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Constancia
-                                        </a>
+                    if (object.id_empleado_cursos == idEmpleadoCursos) { // ✅ Filtra solo por el empleado seleccionado
+                        const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
+                        const rowHTML =`
+                            <tr>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
+                                            <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <h6 class="dropdown-header">Acciones</h6>
+                                            
+                                            <a class="dropdown-item" href="${urlReport}">
+                                                <span style="background:#1E90FF" class="icon-container-template">
+                                                    <div style="text-align: center;">
+                                                        <i class="fa fa-file item-icon-menu"></i>
+                                                    </div>
+                                                </span>
+                                                Constancia
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>${object.programa_proyecto || '-'}</td>
-                            <td>${object.tipo_curso || '-'}</td>
-                            <td>${object.horas || '-'}</td>
-                            <td>${object.estatus || '-'}</td>
-                            <td>${object.fecha_inicio || '-'}</td>
-                            <td>${object.fecha_fin || '-'}</td>
-                            
-                        </tr>
-                    `;
-                    tbody.append(rowHTML);
+                                </td>
+                                <td>${object.programa_proyecto || '-'}</td>
+                                <td>${object.tipo_curso || '-'}</td>
+                                <td>${object.horas || '-'}</td>
+                                <td>${object.estatus || '-'}</td>
+                                <td>${object.fecha_inicio || '-'}</td>
+                                <td>${object.fecha_fin || '-'}</td>
+                                <td>${object.fecha_fin || '-'}</td>
+                            </tr>
+                        `;
+                        tbody.append(rowHTML);
+                    }
                 });
             } else {
                 tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');

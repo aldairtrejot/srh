@@ -16,6 +16,7 @@
             </div>
             <!-- View->modal -->
             @include('courses.tablecourses.modal')
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -55,9 +56,13 @@
                                     <th>Total horas</th>
                                     <th>Nombre instructor</th>
                                     <th>Estatus</th>
+
+
                                 </tr>
                             </thead>
+                           
                         </x-template-table.template-table>
+
                         <!-- TEMPLATE PAGINATOR-->
                         <x-template-table.template-paginator />
 
@@ -76,7 +81,10 @@
         <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
     </div>
 </div>
+
+
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/tablecourses/table.js') }}"></script>
     <script src="{{ asset('assets/js/app/courses/tablecourses/modal.js') }}"></script>
+
 </x-template-app.app-layout>

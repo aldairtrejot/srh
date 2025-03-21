@@ -48,12 +48,14 @@ $(document).ready(function () {
 // 🔹 Función para inicializar la búsqueda con paginación
 function searchInit() {
     const searchValue = $('#searchValue').val(); 
+    const courses = $('#courses').val();
     $.ajax({
         url: `${URL_BASE}/assignedcourse/table`,
         type: 'POST',
         data: {
             iterator: iterator,
             searchValue: searchValue,
+            courses: courses,
             _token: token
         },
         success: function(response) {
@@ -62,7 +64,7 @@ function searchInit() {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalCourses = `${URL_BASE}/tablecourses/list/${object.id_empleado_cursos}`;
+                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
                     const urlAddCourse = `${URL_BASE}/assignedcourse/add/${object.id_empleado_cursos}`;
                     const rowHTML =`
                         <tr>

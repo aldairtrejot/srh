@@ -315,8 +315,11 @@ class AssignedcourseM extends Model
 
 public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
 {
+    Log::info("🔎 Buscando cursos para el ID de empleado: " . ($idEmpleadoCursos ?? 'No definido'));
+
     $cursos = DB::table('capacitacion.tbl_empleado_cursos as ec')
         ->select([
+            'ec.id_empleado_cursos',
             'ec.id_cursos',
             'c.programa_proyecto',
             'c.fecha_inicio',
@@ -326,20 +329,21 @@ public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
             DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
             'c.estatus'
         ])
-        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
+        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos') // ✅ Relación corregida
         ->join('capacitacion.cat_tipo_cursos as ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
         ->where('ec.id_empleado_cursos', '=', $idEmpleadoCursos)
-        ->whereNotNull('ec.id_cursos') // 🔹 Evita cursos sin asignar
+        ->whereNotNull('ec.id_cursos') // Evita registros sin curso asignado
         ->get();
 
     if ($cursos->isEmpty()) {
-        Log::warning("⚠️ No se encontraron cursos para ID: $idEmpleadoCursos");
+        Log::warning("⚠️ No se encontraron cursos para el ID de empleado: $idEmpleadoCursos");
     } else {
-        Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos - " . json_encode($cursos));
+        Log::info("✅ Cursos obtenidos para el ID de empleado: $idEmpleadoCursos - " . json_encode($cursos));
     }
 
     return $cursos;
 }
+
 
  }
 
