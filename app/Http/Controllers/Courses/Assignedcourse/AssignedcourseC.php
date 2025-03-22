@@ -185,7 +185,6 @@ public function create()
         try {
             Log::info("🔎 Buscando cursos para el ID: " . ($idEmpleadoCursos ?? 'No definido'));
     
-            // Verificar si el ID no está definido
             if (!$idEmpleadoCursos) {
                 Log::warning("⚠️ No se proporcionó un ID de empleado para buscar cursos.");
                 return response()->json([
@@ -198,28 +197,23 @@ public function create()
             $assignedcourseM = new AssignedcourseM();
             $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos);
     
+            // Si no hay cursos, enviamos un array vacío para que la vista pueda mostrar el mensaje
             if ($cursos->isEmpty()) {
                 Log::warning("⚠️ No se encontraron cursos para el ID: $idEmpleadoCursos");
-    
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No se encontraron cursos asignados',
-                    'data' => []
-                ], 200);
+                $cursos = []; // Convertimos a un array vacío para evitar errores en la vista
             }
     
             Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
     
             // Si la solicitud es AJAX, devolver JSON; de lo contrario, devolver la vista
-            if (request()->ajax()) {
+            if ($request->ajax()) {
                 return response()->json([
                     'status' => true,
-                    'message' => 'Cursos obtenidos correctamente',
+                    'message' => count($cursos) > 0 ? 'Cursos obtenidos correctamente' : 'No se encontraron cursos asignados',
                     'data' => $cursos
                 ], 200);
             }
     
-            // Retornar vista si no es una petición AJAX
             return view('courses.assignedcourse.courses', compact('idEmpleadoCursos', 'cursos'));
     
         } catch (\Exception $e) {

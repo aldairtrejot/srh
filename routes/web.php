@@ -51,6 +51,8 @@ use App\Http\Controllers\Courses\Tableinstructor\CloudTableC;
 use App\Http\Controllers\Courses\Tableinstructor\ReporteConstanciaC;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
+use App\Http\Controllers\Courses\Assignedcourse\ConstanciaAlumnoC;
+
 
 
 
@@ -402,5 +404,6 @@ Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name(
 Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->name('assignedcourse.dataCurp');
 Route::get('/assignedcourse/add/{id}', [AssignedcourseC::class, 'add'])->name('assignedcourse.add')->middleware('auth'); 
 Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
+Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
 
 

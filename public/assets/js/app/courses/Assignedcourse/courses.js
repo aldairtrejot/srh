@@ -46,9 +46,10 @@ $(document).ready(function () {
 
 // 🔹 Función para inicializar la búsqueda con paginación
 function searchInit() {
-    const searchValue = $('#searchValue').val(); 
+    const searchValue = document.getElementById('searchValue').value.trim();
     const idEmpleadoCursos = window.location.pathname.split('/').pop(); // Extrae el ID desde la URL
-
+    const iteradorAux = (iterator * 5) - 5;
+    
     $.ajax({
         url: `${URL_BASE}/assignedcourse/table`,
         type: 'POST',
@@ -61,10 +62,10 @@ function searchInit() {
         success: function(response) {
             const tbody = $('#template-table tbody');
             tbody.empty();
-
+        
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object, index) {
-                    if (object.id_empleado_cursos == idEmpleadoCursos) { // ✅ Filtra solo por el empleado seleccionado
+                    if (object.id_empleado_cursos == idEmpleadoCursos) { 
                         const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
                         const rowHTML =`
                             <tr>
@@ -87,21 +88,24 @@ function searchInit() {
                                         </div>
                                     </div>
                                 </td>
-                                <td>${object.programa_proyecto || '-'}</td>
-                                <td>${object.tipo_curso || '-'}</td>
-                                <td>${object.horas || '-'}</td>
-                                <td>${object.estatus || '-'}</td>
-                                <td>${object.fecha_inicio || '-'}</td>
-                                <td>${object.fecha_fin || '-'}</td>
-                                <td>${object.fecha_fin || '-'}</td>
+                                <td>${object.programa_proyecto}</td>
+                                <td>${object.tipo_curso}</td>
+                                <td>${object.horas}</td>
+                                <td>${object.estatus}</td>
+                                <td>${object.fecha_inicio}</td>
+                                <td>${object.fecha_fin}</td>
+                                <td>${object.fecha_fin}</td>
                             </tr>
                         `;
                         tbody.append(rowHTML);
                     }
                 });
+                emptyContent = false;
             } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                tbody.html('<tr><td colspan="8" class="text-center"><strong>No se encontraron mas cursos asignados</strong></td></tr>');
+                emptyContent = true;
             }
+     
         },
         error: function(xhr) {
             console.error("Error en la búsqueda:", xhr);

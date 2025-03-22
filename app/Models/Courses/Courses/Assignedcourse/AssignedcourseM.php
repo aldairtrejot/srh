@@ -344,6 +344,71 @@ public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
     return $cursos;
 }
 
+public function getDataReport($id)
+{
+    Log::info("🔍 Buscando información del curso para el ID: " . $id);
+
+    $query = DB::table('capacitacion.tbl_empleado_cursos AS ec')
+        ->join('capacitacion.tbl_cursos AS c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
+        ->join('administration.users AS u', 'ec.id_usuarios', '=', 'u.id')
+        ->leftJoin('central.tbl_empleados_hraes AS central', 'u.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
+        ->leftJoin('transferidos.tbl_empleados AS transferidos', 'u.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
+        ->leftJoin('public.tbl_empleados_hraes AS public', 'u.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes')
+        ->select([
+            'ec.id_empleado_cursos',
+            'ec.id_cursos',
+            'c.programa_proyecto AS curso',
+            'c.fecha_inicio',
+            'c.fecha_fin',
+            'c.horas',
+            'c.id_cat_tipo_cursos',
+            DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
+            'ec.estatus',
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.curp)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.curp)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.curp)
+                END AS curp
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.nombre)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.nombre)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.nombre)
+                END AS nombre
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.primer_apellido)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.primer_apellido)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.primer_apellido)
+                END AS primer_apellido
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.segundo_apellido)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.segundo_apellido)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.segundo_apellido)
+                END AS segundo_apellido
+            "),
+            'u.email'
+        ])
+        ->join('capacitacion.cat_tipo_cursos AS ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
+        ->where('ec.id_empleado_cursos', '=', $id);
+
+    Log::info("📝 SQL Query Generado: " . $query->toSql());
+    
+    $data = $query->first();
+
+    if (!$data) {
+        Log::warning("⚠️ No se encontró información del curso para ID: $id");
+    } else {
+        Log::info("✅ Información encontrada para ID: $id -> " . json_encode($data));
+    }
+
+    return $data;
+}
 
  }
 
