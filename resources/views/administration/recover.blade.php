@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/login/style.css" />
     <link rel="shortcut icon" href="assets/images/imss/favicon.png" />
     <link rel="stylesheet" href="assets/icons/fontawesome-free-6.6/css/all.min.css">
+    @vite(['resources/js/test.js'])
 </head>
 
 <body>
@@ -24,11 +25,14 @@
                             <h4>Sistema Integral para Recursos Humanos</h4>
                             <h6 class="font-weight-light">Restablecer contraseña</h6>
 
+                            <test-component></test-component>
+
                             <form class="pt-3" method="POST" action="{{ route('recover.password') }}">
                                 @csrf
                                 <div class="form-group">
                                     <input type="text" name="email" class="form-control form-control-lg"
-                                        placeholder="Correo electrónico" value="{{ old('email') }}" autocomplete="username" />
+                                        placeholder="Correo electrónico" value="{{ old('email') }}"
+                                        autocomplete="username" />
                                     @error('email')
                                         <x-template-message-required>
                                             {{ $message }}

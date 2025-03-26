@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="assets/icons/fontawesome-free-6.6/css/all.min.css">
     <link rel="shortcut icon" href="assets/images/imss/favicon.png" />
     <link rel="stylesheet" href="assets/messages/notyf/notyf.min.css">
+    @vite(['resources/js/test.js'])
 </head>
 
 <body>
@@ -24,6 +25,8 @@
                             </div>
                             <h4>Sistema Integral para Recursos Humanos</h4>
                             <h6 class="font-weight-light">Iniciar sesión</h6>
+
+                            <test-component></test-component>
 
                             <form class="pt-3" method="POST" action="{{ route('login') }}">
                                 @csrf
@@ -93,7 +96,6 @@
     </div>
 
     <script src="assets/messages/notyf/notyf.min.js"></script>
-
 
     @if (session('estatus'))
         <x-template-message :message="session('message')" :value="session('value')" />
