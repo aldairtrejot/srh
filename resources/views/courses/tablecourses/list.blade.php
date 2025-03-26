@@ -38,8 +38,6 @@
                                 <x-template-table.template-search />
                             </div>
                         </div>
-                        <!-- Alumno id -->
-                        <input type="hidden" id="idAlumno" value="{{ $idAlumno }}">
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>

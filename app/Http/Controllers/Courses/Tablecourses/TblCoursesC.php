@@ -25,9 +25,12 @@ use Illuminate\Http\Request;
 
 class TblCoursesC extends Controller
 {
-    public function listtable($idAlumno)
+
+
+    public function list()
     {
-        return view('courses.tablecourses.list', compact('idAlumno'));
+        $tblcourses = TblcoursesM::all();
+        return view('courses.tablecourses.list', compact('tblcourses'));
     }
 
     public function searchTable(Request $request)

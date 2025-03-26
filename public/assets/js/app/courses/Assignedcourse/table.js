@@ -65,7 +65,6 @@ function searchInit() {
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
                     const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
-                    const urlAddCourse = `${URL_BASE}/assignedcourse/add/${object.id_empleado_cursos}`;
                     const rowHTML =`
                         <tr>
                             <td>
@@ -75,16 +74,6 @@ function searchInit() {
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-
-                                      <a class="dropdown-item" href="${urlAddCourse}">
-                                                <span style="background:#28A745" class="icon-container-template">
-                                                    <div style="text-align: center;">
-                                                        <i class="fa fa-plus item-icon-menu"></i>
-                                                    </div>
-                                                </span>
-                                                Agregar Curso
-                                            </a>
-
                                          <a class="dropdown-item" href="${finalCourses}">
                                             <span style="background:#FF8C00" class="icon-container-template">
                                                 <div style="text-align: center;">

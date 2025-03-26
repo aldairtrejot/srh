@@ -368,7 +368,7 @@ Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.up
 
 
 //ROUTE_COUSER ---- >Tabla Cursos
-Route::get('/tablecourses/list/{id?}',[ TblCoursesC::class,'listtable'])->name('tablecourses.list')->middleware('auth');
+Route::get('/tablecourses/list', [TblCoursesC::class, 'list'])->name('tablecourses.list')->middleware('auth');
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 Route::post('/tablecourses/save', [TblCoursesC::class, 'save'])->name('tablecourses.save')->middleware('auth');
@@ -405,5 +405,3 @@ Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->n
 Route::get('/assignedcourse/add/{id}', [AssignedcourseC::class, 'add'])->name('assignedcourse.add')->middleware('auth'); 
 Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
 Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
-
-
