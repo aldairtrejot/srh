@@ -20,13 +20,7 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="card-title">Usuarios</h4>
-                                <p class="card-description">
-                                    ¿Deseas agregar un usuario nuevo? <a href="{{ route('user.create') }}"
-                                        class="text-danger" style="margin-left: 10px;">
-                                        <i class="fa fa-arrow-up"></i> Agregar Usuario
-                                    </a>
-                                </p>
+                                <h4 class="card-title">Roles</h4>
                             </div>
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
