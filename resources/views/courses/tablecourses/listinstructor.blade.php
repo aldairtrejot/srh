@@ -1,6 +1,7 @@
-<!-- TEMPLATE APP -->
+<!-- TEMPLATE APP-->
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
+    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
