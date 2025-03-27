@@ -18,6 +18,30 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
+                                  <!-- Contenedor de Resultados -->
+                                  <div class="contenedor">
+                                    <div class="item">
+                        <label class="etiqueta">Nombre:</label>
+                        <label id="label_nombre" class="valor"></label>
+                    </div>
+                    <div class="item">
+                        <label class="etiqueta">Primer Apellido:</label>
+                        <label id="label_primer_apellido" class="valor"></label>
+                    </div>
+                    <div class="item">
+                        <label class="etiqueta">Segundo Apellido:</label>
+                        <label id="label_segundo_apellido" class="valor"></label>
+                    </div>
+                    <div class="item">
+                        <label class="etiqueta">RFC:</label>
+                        <label id="label_rfc" class="valor"></label>
+                    </div>
+                    <div class="item">
+                        <label class="etiqueta">CURP:</label>
+                        <label id="label_curo" class="valor"></label>
+                    </div>
+                </div>
+                <br>
                         <h4 class="card-title">Cursos Asignados</h4>
 
                         <div class="table-responsive">
@@ -62,9 +86,9 @@
                         </div>
 
                         <div class="mt-3">
-                            <a href="{{ route('tableinstructor.list') }}" class="btn btn-secondary">
+                            <a href="{{ route('tableinstructor.list') }}" class="btn" style="background-color: #1D5B3B; color: white;">
                                 <i class="fa fa-arrow-left"></i> Volver al listado de instructores
-                            </a>
+                            </a>                                                      
                         </div>
 
                     </div>
