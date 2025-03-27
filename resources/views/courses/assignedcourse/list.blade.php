@@ -28,6 +28,12 @@
                                             <a href="{{ route('assignedcourse.create') }}" class="text-danger" style="margin-left: 10px;">
                                                 <i class="fa fa-arrow-up"></i> Agregar Alumno
                                             </a>
+                                            <br>
+                                            <br>
+                                            </p>
+                                            <a href="{{ route('courses.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <i class="fa fa-arrow-up"></i> Cargar Datos De Forma Masiva
+                                        </a>
                                         </p>
                                     @endif
                                 </div>
