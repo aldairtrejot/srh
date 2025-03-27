@@ -345,6 +345,7 @@ Route::post('/upload-file', [AlfrescoC::class, 'uploadFile'])->name('alfresco.up
 
 //ROUTE_COUSER ---- >Tabla Cursos
 Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')->middleware('auth');
+Route::get('/tablecourses/courses/{id_tbl_instructores}', [TblCoursesC::class, 'listByInstructor'])->name('tablecourses.byinstructor')->middleware('auth');
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 Route::post('/tablecourses/save', [TblCoursesC::class, 'save'])->name('tablecourses.save')->middleware('auth');

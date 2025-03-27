@@ -64,7 +64,7 @@ function searchInit() {
                     const estatus = object.estatus_instructor && object.estatus_instructor.trim().toUpperCase() === "ACTIVO" ? "ACTIVO" : "INACTIVO";
                     const finalCloud = URL_DEFAULT.concat(`/tableinstructor/cloud/${object.id_tbl_instructores}`);
                     const urlReport = URL_DEFAULT.concat(`/tableinstructor/generate-pdf/constancias/${object.id_tbl_instructores}`);
-                    const urlCourseList = `${URL_DEFAULT}/tablecourses/list/`;
+                    const urlCourseList = `${URL_DEFAULT}/tablecourses/courses/${object.id_tbl_instructores}`;
                 
                     const rowHTML = `
                         <tr>
