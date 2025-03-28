@@ -31,9 +31,9 @@
                                             <br>
                                             <br>
                                             </p>
-                                            <a href="{{ route('courses.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <a href="{{ route('assignedcourse.modal') }}" id="openMassUploadModal" class="text-danger" style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Cargar Datos De Forma Masiva
-                                        </a>
+                                            </a>
                                         </p>
                                     @endif
                                 </div>

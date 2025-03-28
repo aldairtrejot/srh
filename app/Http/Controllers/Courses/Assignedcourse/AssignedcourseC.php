@@ -227,5 +227,11 @@ public function create()
         }
     }
     
+    public function modalCarga()
+    {
+        // Pasar los cursos a la vista
+        return view('courses.assignedcourse.modal');
+    }
+
 }
 
