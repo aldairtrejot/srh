@@ -106,7 +106,7 @@ class TblcoursesM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
-    public function getCursosPorInstructor($idInstructor)
+    public function getCursosPorInstructor($idInstructor)//AQUI MANDAMOS A LLAMAR TODOS LOS CURSOS DEL INSTRUCTOR
 {
     return DB::table('capacitacion.tbl_cursos AS cursos')
         ->select([
@@ -143,7 +143,7 @@ class TblcoursesM extends Model
         ->where('instr.id_tbl_instructores', $idInstructor)
         ->get();
 }
-public function getInstructorById($idInstructor)
+public function getInstructorById($idInstructor)//AQUI MANDAMOS A LLAMAR LOS DATOS DEL INSTRUCTOR PARA 
 {
     return DB::table('capacitacion.tbl_instructores AS instr')
         ->select([
