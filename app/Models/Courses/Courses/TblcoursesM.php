@@ -143,6 +143,49 @@ class TblcoursesM extends Model
         ->where('instr.id_tbl_instructores', $idInstructor)
         ->get();
 }
+public function getInstructorById($idInstructor)
+{
+    return DB::table('capacitacion.tbl_instructores AS instr')
+        ->select([
+            'instr.id_tbl_instructores',
+            DB::raw("CASE
+                WHEN usr.id_cat_tipo_schema = 1 THEN UPPER(central.curp)
+                WHEN usr.id_cat_tipo_schema = 2 THEN UPPER(public.curp)
+                WHEN usr.id_cat_tipo_schema = 3 THEN UPPER(transferidos.curp)
+            END AS curp"),
+            DB::raw("CASE
+                WHEN usr.id_cat_tipo_schema = 1 THEN UPPER(central.nombre)
+                WHEN usr.id_cat_tipo_schema = 2 THEN UPPER(public.nombre)
+                WHEN usr.id_cat_tipo_schema = 3 THEN UPPER(transferidos.nombre)
+            END AS nombre"),
+            DB::raw("CASE
+                WHEN usr.id_cat_tipo_schema = 1 THEN UPPER(central.primer_apellido)
+                WHEN usr.id_cat_tipo_schema = 2 THEN UPPER(public.primer_apellido)
+                WHEN usr.id_cat_tipo_schema = 3 THEN UPPER(transferidos.primer_apellido)
+            END AS primer_apellido"),
+            DB::raw("CASE
+                WHEN usr.id_cat_tipo_schema = 1 THEN UPPER(central.segundo_apellido)
+                WHEN usr.id_cat_tipo_schema = 2 THEN UPPER(public.segundo_apellido)
+                WHEN usr.id_cat_tipo_schema = 3 THEN UPPER(transferidos.segundo_apellido)
+            END AS segundo_apellido"),
+            DB::raw("CASE
+                WHEN usr.id_cat_tipo_schema = 1 THEN UPPER(central.rfc)
+                WHEN usr.id_cat_tipo_schema = 2 THEN UPPER(public.rfc)
+                WHEN usr.id_cat_tipo_schema = 3 THEN UPPER(transferidos.rfc)
+            END AS rfc"),
+            DB::raw("CASE
+                WHEN CAST(instr.estatus AS BOOLEAN) = TRUE THEN 'ACTIVO'
+                ELSE 'INACTIVO'
+            END AS estatus_instructor")
+        ])
+        ->join('administration.users AS usr', 'instr.id_usuario_empleado', '=', 'usr.id')
+        ->leftJoin('central.tbl_empleados_hraes AS central', 'usr.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
+        ->leftJoin('transferidos.tbl_empleados AS transferidos', 'usr.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
+        ->leftJoin('public.tbl_empleados_hraes AS public', 'usr.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes')
+        ->where('instr.id_tbl_instructores', $idInstructor)
+        ->first();
+}
+
 
 }
 

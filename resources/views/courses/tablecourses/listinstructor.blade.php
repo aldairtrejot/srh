@@ -21,26 +21,27 @@
                                   <!-- Contenedor de Resultados -->
                                   <div class="contenedor">
                                     <div class="item">
-                        <label class="etiqueta">Nombre:</label>
-                        <label id="label_nombre" class="valor"></label>
-                    </div>
-                    <div class="item">
-                        <label class="etiqueta">Primer Apellido:</label>
-                        <label id="label_primer_apellido" class="valor"></label>
-                    </div>
-                    <div class="item">
-                        <label class="etiqueta">Segundo Apellido:</label>
-                        <label id="label_segundo_apellido" class="valor"></label>
-                    </div>
-                    <div class="item">
-                        <label class="etiqueta">RFC:</label>
-                        <label id="label_rfc" class="valor"></label>
-                    </div>
-                    <div class="item">
-                        <label class="etiqueta">CURP:</label>
-                        <label id="label_curo" class="valor"></label>
-                    </div>
-                </div>
+                                        <label class="etiqueta">Nombre:</label>
+                                        <label class="valor">{{ $instructor->nombre ?? '' }}</label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Primer Apellido:</label>
+                                        <label class="valor">{{ $instructor->primer_apellido ?? '' }}</label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Segundo Apellido:</label>
+                                        <label class="valor">{{ $instructor->segundo_apellido ?? '' }}</label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">RFC:</label>
+                                        <label class="valor">{{ $instructor->rfc ?? '' }}</label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">CURP:</label>
+                                        <label class="valor">{{ $instructor->curp ?? '' }}</label>
+                                    </div>
+                                </div>
+                                
                 <br>
                         <h4 class="card-title">Cursos Asignados</h4>
 

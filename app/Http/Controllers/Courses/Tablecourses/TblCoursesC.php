@@ -263,12 +263,14 @@ class TblCoursesC extends Controller
     'selectCoordinacion', 'selectCoordinacionEdit', 'selectNomaccion', 'selectNomaccionEdit', 'selectPrograma', 'selectProgramaEdit', 'selectEstatuto', 'selectEstatutoEdit', 'selectOrganizacion', 'selecOrganizacionEdit',
     'selectModalidad', 'selectModalidadEdit', 'selectCategoria', 'selectCategoriaEdit', 'selectInstructor', 'selectInstructorEdit'));
 }
-public function listByInstructor($id_tbl_instructores)
+public function listByInstructor($idInstructor)
 {
     $tblcoursesM = new TblcoursesM();
-    $cursos = $tblcoursesM->getCursosPorInstructor($id_tbl_instructores);
 
-    return view('courses.tablecourses.listinstructor', compact('cursos')); 
+    $cursos = $tblcoursesM->getCursosPorInstructor($idInstructor);
+    $instructor = $tblcoursesM->getInstructorById($idInstructor); // Usamos $idInstructor aquí también
+
+    return view('courses.tablecourses.listinstructor', compact('cursos', 'instructor'));
 }
 
 
