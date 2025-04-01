@@ -7,7 +7,7 @@
 
 
     <style>
-        
+
     </style>
     <div class="main-panel">
         <div class="content-wrapper">
@@ -77,6 +77,9 @@
                                     </th>
                                     <th>
                                         Estatus
+                                    </th>
+                                    <th>
+                                        Fecha de captura
                                     </th>
                                     <th>
                                         Fólio de gestión

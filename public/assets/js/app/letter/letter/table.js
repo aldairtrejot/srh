@@ -92,6 +92,7 @@ function searchInit() {
                             </div>
                         </td>
                         <td><label style="background:${estatusColor}; color:white" class="badge">${object.estatus}</label></td>
+                        <td>${object.fecha_captura}</td>
                         <td>${object.folio_gestion}</td>
                         <td>${object.num_documento}</td>
                         <td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">${object.area}</td>

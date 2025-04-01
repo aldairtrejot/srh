@@ -90,7 +90,7 @@ class LetterM extends Model
                 DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
                 DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
-                //DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento::date, 'DD/MM/YYYY') AS fecha_documento"),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura::date, 'DD/MM/YYYY') AS fecha_captura"),
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin")
             ])
             ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
@@ -105,6 +105,7 @@ class LetterM extends Model
                 'correspondencia.cat_tramite.descripcion',
                 'correspondencia.cat_area.descripcion',
                 'correspondencia.tbl_correspondencia.asunto',
+                'correspondencia.tbl_correspondencia.fecha_captura',
                 'correspondencia.tbl_correspondencia.fecha_fin'
             );
 
@@ -131,8 +132,8 @@ class LetterM extends Model
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%']);
-                //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_documento, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.cat_area.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
                 //->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
             });
         }
