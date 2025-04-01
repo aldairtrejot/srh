@@ -1,54 +1,75 @@
-<!-- MODAL-->
-<x-template-modal.modal-small tittle="¿Desea continuar con la Auditoria?" idModal="modalBackdrop" idCancel="cancelBtn"
-    idConfirm="confirmBtn" functionConfirm="confirmRefreshOficio();" valueInput="" idInput="" />
+<!-- TEMPLATE APP -->
+<?php include(resource_path('views/config.php')); ?>
+<x-template-app.app-layout>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h3 class="font-weight-bold text-primary">Carga Masiva de Alumnos</h3>
+                    <p class="text-muted">Sube un archivo Excel o CSV para registrar múltiples alumnos en el sistema.</p>
+                </div>
+            </div>
 
-<!-- MODAL AUDITORIA-->
-<x-template-modal.modal-template tittle="Auditoria curso" idModal="modalSolicitante"
-idCancel="cancelBtn_solicitante" idConfirm="confir_sol" functionConfirm="confirmSolicitante();" width="1000px"
-height="700px">
+            <x-template-tittle.tittle-caption
+                tittle="{{ isset($item->id_tbl_cursos) ? 'Modificar' : '' }} "
+                route="{{ route('assignedcourse.list') }}"
+            />
 
-<input type="hidden" id="idtbl_cursos_audit">
-<input type="hidden" id="id_tbl_auditoria_cursos">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-sm border-0 rounded-lg">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4"><i class="fa fa-upload text-primary"></i> Subir archivo</h4>
 
-<div class="table-responsive pt-3">
-    <table id="template-tableaudit" class="table table-bordered custom-table">
-        <thead>
-            <tr>
-                <th>Requisito</th>
-                <th style="width: 2%;">Aplica</th>
-                <th style="width: 2%;">Cargar Constancia</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
- <!-- item with add -->
- <input type="file" class="file-input-oficio" style="display: none;" />
- <input type="text" id="id_oficio" style="display: none;" />
+                            <form id="massUploadForm" method="POST" enctype="multipart/form-data" action="{{ route('assignedcourse.list') }}">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Selecciona un archivo Excel o CSV</label>
+                                    <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                                </div>
 
-</x-template-modal.modal-template>
+                                <div class="text-center mt-4">
+                                    <button type="submit" id="btnSubirArchivo" style="background-color: #10312B; border: none; color: white; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer;">
+                                        <i class="fa fa-upload" style="margin-right: 8px;"></i> Subir archivo
+                                    </button>
+                                </div>
+                            </form>
 
-<div id="massUploadModal" class="modal-template">
-    <!-- Contenido del modal, e.g. formulario de carga masiva -->
-    <h5>Carga Masiva de Datos</h5>
-    <!-- ... campos del formulario ... -->
-    <button class="close-modal">Cerrar</button>
-</div>
+                            <div id="loadingIndicator" class="mt-4 text-center" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden"></span>
+                                </div>
+                                <p class="mt-2">Procesando archivo...</p>
+                            </div>
 
-<x-template-form.template-form-delete tittleModal="modalDelete" cancelModal="cancelBtn"
-                            confirmButton="confirmBtn" />
+                            <hr class="mt-5">
 
-<!-- Modal de Confirmación -->
-<div id="modalDelete" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <p>¿Estás seguro de que deseas eliminar este Archivo? Esta acción no se puede deshacer.</p>
-        <button id="confirmBtn">Eliminar</button>
-        <button id="cancelBtn">Cancelar</button>
+                            <div id="massUploadResults" style="display: none;">
+                                <h5 class="mb-3 text-secondary"><i class="fa fa-list-alt"></i> Resultado de la carga</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>CURP</th>
+                                                <th>RFC</th>
+                                                <th>Nombre</th>
+                                                <th>Observación</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="resultBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
-
-
-
+ <script src="{{ asset('assets/js/app/courses/assignedcourse/modal.js') }}"></script>
+</x-template-app.app-layout>
