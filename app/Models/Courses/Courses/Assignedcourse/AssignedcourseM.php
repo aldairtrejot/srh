@@ -3,9 +3,11 @@
 namespace App\Models\Courses\Courses\Assignedcourse;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 class AssignedcourseM extends Model
 {
     protected $table = 'capacitacion.tbl_empleado_cursos';
@@ -410,6 +412,55 @@ public function getDataReport($id)
     return $data;
 }
 
- }
+// NUEVA FUNCIÓN PARA CARGA MASIVA CON FastExcel
+public function guardarTemporalUsuariosDesdeFastExcel($rows)
+{
+    $insert = [];
+    $responseData = [];
 
-    
+    foreach ($rows as $row) {
+        $rfc = strtoupper(trim($row['RFC'] ?? ''));
+        $curp = strtoupper(trim($row['CURP'] ?? ''));
+
+        if (!$rfc || !$curp) continue;
+
+        // 🔍 Buscar en las tres tablas
+        $enCentral = DB::table('central.tbl_empleados_hraes')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->exists();
+
+        $enPublic = DB::table('public.tbl_empleados_hraes')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->exists();
+
+        $enTransferidos = DB::table('transferidos.tbl_empleados')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->exists();
+
+        if ($enCentral || $enPublic || $enTransferidos) {
+            $insert[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'coordinacion' => null,
+                'observaciones' => null,
+                'estatus' => null,
+                'created_at' => Carbon::now()
+            ];
+        } else {
+            // ⚠️ Se detectó que no existe en ninguna tabla
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'CURP y RFC no encontrados en ninguna base de datos'
+            ];
+        }
+    }
+
+    if (!empty($insert)) {
+        DB::table('capacitacion.temporal_usuarios')->insert($insert);
+    }
+
+    return $responseData;
+}
+
+}

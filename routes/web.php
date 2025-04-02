@@ -395,7 +395,7 @@ Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth')
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');
 
 // 📌 ASSIGNED_COURSES ---- > Curso Asignado
-Route::get('/assignedcourse/list', [AssignedcourseC::class,'list'])->name('assignedcourse.list')->middleware('auth');
+Route::get('/assignedcourse/list', [AssignedcourseC::class, 'list'])->name('assignedcourse.list')->middleware('auth');
 Route::get('/assignedcourse/create', [AssignedcourseC::class, 'create'])->name('assignedcourse.create')->middleware('auth');
 Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('assignedcourse.save')->middleware('auth');
 Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable')->middleware('auth');
@@ -406,3 +406,5 @@ Route::get('/assignedcourse/add/{id}', [AssignedcourseC::class, 'add'])->name('a
 Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
 Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
 Route::get('/assignedcourse/modalCarga', [AssignedcourseC::class, 'modalCarga'])->name('assignedcourse.modal')->middleware('auth');
+Route::post('/assignedcourse/upload', [AssignedcourseC::class, 'handleMassiveUpload'])->name('assignedcourse.upload')->middleware('auth');
+

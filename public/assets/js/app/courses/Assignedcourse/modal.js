@@ -28,7 +28,6 @@ $(document).on('submit', '#massUploadForm', function (e) {
                                 <td>${index + 1}</td>
                                 <td>${row.curp || ''}</td>
                                 <td>${row.rfc || ''}</td>
-                                <td>${row.nombre || ''}</td>
                                 <td>${row.observacion || ''}</td>
                             </tr>
                         `);

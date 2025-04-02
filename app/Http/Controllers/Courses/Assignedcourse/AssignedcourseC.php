@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Courses\Assignedcourse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Admin\MessagesC;
+use Maatwebsite\Excel\Facades\Excel;
+use Rap2hpoutre\FastExcel\FastExcel;
 use App\Models\Courses\Courses\Assignedcourse\AssignedcourseM;
 
 class AssignedcourseC extends Controller
@@ -233,5 +236,39 @@ public function create()
         return view('courses.assignedcourse.modal');
     }
 
+
+
+
+public function handleMassiveUpload(Request $request)
+{
+    try {
+        $file = $request->file('file');
+
+        if (!$file) {
+            return response()->json(['message' => 'No se envió ningún archivo.'], 400);
+        }
+
+        $rows = (new FastExcel)->import($file); // <-- esto ya funciona con FastExcel
+
+        $assignedcourseM = new AssignedcourseM();
+        $responseData = $assignedcourseM->guardarTemporalUsuariosDesdeFastExcel($rows); // <-- aquí
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Carga temporal completada.',
+            'data' => $responseData
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('🔥 Error en handleMassiveUpload(): ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Ocurrió un error al procesar el archivo.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
+
+
+}    
 

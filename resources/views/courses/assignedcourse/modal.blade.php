@@ -23,7 +23,8 @@
                         <div class="card-body">
                             <h4 class="card-title mb-4"><i class="fa fa-upload text-primary"></i> Subir archivo</h4>
 
-                            <form id="massUploadForm" method="POST" enctype="multipart/form-data" action="{{ route('assignedcourse.list') }}">
+                            <!-- ✅ CAMBIO AQUÍ: Acción corregida -->
+                            <form id="massUploadForm" method="POST" enctype="multipart/form-data" action="{{ route('assignedcourse.upload') }}">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="file" class="form-label">Selecciona un archivo Excel o CSV</label>
@@ -37,6 +38,7 @@
                                 </div>
                             </form>
 
+                            <!-- Loader -->
                             <div id="loadingIndicator" class="mt-4 text-center" style="display: none;">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden"></span>
@@ -46,6 +48,7 @@
 
                             <hr class="mt-5">
 
+                            <!-- Resultados -->
                             <div id="massUploadResults" style="display: none;">
                                 <h5 class="mb-3 text-secondary"><i class="fa fa-list-alt"></i> Resultado de la carga</h5>
                                 <div class="table-responsive">
@@ -55,7 +58,6 @@
                                                 <th>#</th>
                                                 <th>CURP</th>
                                                 <th>RFC</th>
-                                                <th>Nombre</th>
                                                 <th>Observación</th>
                                             </tr>
                                         </thead>
@@ -71,5 +73,7 @@
 
         </div>
     </div>
- <script src="{{ asset('assets/js/app/courses/assignedcourse/modal.js') }}"></script>
+
+    <script src="{{ asset('assets/js/app/courses/assignedcourse/modal.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </x-template-app.app-layout>
