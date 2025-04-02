@@ -15,7 +15,7 @@
                                             <h4 class="card-title">Catálogo Área</h4>
                                             
                                             <div class="card-image">
-                                                <a href="#" class="text-decoration-none" title="Ir a Catálogo Área" style="color: #1D5B3B;">
+                                                <a href="{{ route('administration.list') }}" class="text-decoration-none" title="Ir a Catálogo Área" style="color: #1D5B3B;">
                                                     <i class="fa fa-area-chart fa-5x"></i>
                                                 </a>
                                             </div>
@@ -24,11 +24,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            
-                            
-                                  
+                            </div>       
                         </div>
                     </div>
                 </div>

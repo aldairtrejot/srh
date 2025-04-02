@@ -51,6 +51,7 @@ use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
+use App\Http\Controllers\Letter\Area\AreaC;
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -105,6 +106,7 @@ Route::post('/letter/delete/copy', [LetterC::class, 'deleteCopy'])->name('letter
 Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name('letter.collectionArea')->middleware('auth');
 Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
+
 
 // Letter Dashboard
 Route::post('/letter/dashboard/getCollection', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
@@ -361,11 +363,13 @@ Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 
 //ROUTE ADMINISTRACION
-Route::get('/administration/administrationC/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
-
-
-
-
+Route::get('/administration', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
+Route::get('/area/list', AreaC::class)->name('administration.list')->middleware('auth');
+Route::get('/area/create', [AreaC::class, 'create'])->name('administration.create')->middleware('auth');
+Route::post('/area/save', [AreaC::class, 'save'])->name('administration.save')->middleware('auth');
+Route::post('/area/table', [AreaC::class, 'searchTable']);
+Route::get('/area/edit/{id}', [AreaC::class, 'edit'])->name('administration.edit')->middleware('auth');
+Route::delete('/area/delete/{id}', [AreaC::class, 'destroy']);
 
 
 
