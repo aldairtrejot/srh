@@ -10,7 +10,8 @@ class AdministrationC extends Controller
 {
     public function __invoke()
     {
-        return view('administration.dashboard');
+        return view('administration.administrationC.dashboard');
     }
+    
 }
 
