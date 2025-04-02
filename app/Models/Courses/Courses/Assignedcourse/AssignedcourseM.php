@@ -424,30 +424,118 @@ public function guardarTemporalUsuariosDesdeFastExcel($rows)
 
         if (!$rfc || !$curp) continue;
 
-        // 🔍 Buscar en las tres tablas
-        $enCentral = DB::table('central.tbl_empleados_hraes')
+        // Validación: ya está en temporal
+        $yaExisteEnTemporal = DB::table('capacitacion.temporal_usuarios')
             ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
             ->exists();
 
-        $enPublic = DB::table('public.tbl_empleados_hraes')
-            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+        if ($yaExisteEnTemporal) {
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'Ya existe en la carga temporal'
+            ];
+            continue;
+        }
+
+        // Validación: ya existe en users
+        $usuarioDuplicado = DB::table('administration.users as u')
+            ->leftJoin('central.tbl_empleados_hraes as c', 'u.id_tbl_empleados_central', '=', 'c.id_tbl_empleados_hraes')
+            ->leftJoin('public.tbl_empleados_hraes as p', 'u.id_tbl_empleados_hraes', '=', 'p.id_tbl_empleados_hraes')
+            ->leftJoin('transferidos.tbl_empleados as t', 'u.id_tbl_empleados_transferidos', '=', 't.id_tbl_empleados')
+            ->whereRaw("UPPER(c.curp) = ? OR UPPER(p.curp) = ? OR UPPER(t.curp) = ?", [$curp, $curp, $curp])
+            ->orWhereRaw("UPPER(c.rfc) = ? OR UPPER(p.rfc) = ? OR UPPER(t.rfc) = ?", [$rfc, $rfc, $rfc])
             ->exists();
 
-        $enTransferidos = DB::table('transferidos.tbl_empleados')
-            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
-            ->exists();
+        if ($usuarioDuplicado) {
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'Ya existe en administration.users'
+            ];
+            continue;
+        }
 
-        if ($enCentral || $enPublic || $enTransferidos) {
+        // Buscar en esquemas
+        $registro = null;
+        $schema = null;
+
+        $central = DB::table('central.tbl_empleados_hraes')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->first();
+
+        if ($central) {
+            $registro = $central;
+            $schema = 'CENTRAL';
+        } else {
+            $public = DB::table('public.tbl_empleados_hraes')
+                ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+                ->first();
+
+            if ($public) {
+                $registro = $public;
+                $schema = 'PUBLIC';
+            } else {
+                $transferidos = DB::table('transferidos.tbl_empleados')
+                    ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+                    ->first();
+
+                if ($transferidos) {
+                    $registro = $transferidos;
+                    $schema = 'TRANSFERIDOS';
+                }
+            }
+        }
+
+        if ($registro) {
+            // Crear correo único
+            $emailBase = strtolower(str_replace(' ', '', $registro->nombre)) . '.correo@example.com';
+            $email = $emailBase;
+            $contador = 1;
+            while (DB::table('administration.users')->where('email', $email)->exists()) {
+                $email = strtolower(str_replace(' ', '', $registro->nombre)) . $contador . '.correo@example.com';
+                $contador++;
+            }
+
+            $dataInsert = [
+                'name' => $registro->nombre . ' ' . $registro->primer_apellido . ' ' . $registro->segundo_apellido,
+                'email' => $email,
+                'password' => bcrypt('Alumno2025!'),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'estatus' => true,
+                'id_usuario' => Auth::id(),
+                'fecha_usuario' => now(),
+                'es_por_nomina' => false,
+            ];
+
+            switch ($schema) {
+                case 'CENTRAL':
+                    $dataInsert['id_tbl_empleados_central'] = $registro->id_tbl_empleados_hraes;
+                    $dataInsert['id_cat_tipo_schema'] = 1;
+                    break;
+                case 'PUBLIC':
+                    $dataInsert['id_tbl_empleados_hraes'] = $registro->id_tbl_empleados_hraes;
+                    $dataInsert['id_cat_tipo_schema'] = 2;
+                    break;
+                case 'TRANSFERIDOS':
+                    $dataInsert['id_tbl_empleados_transferidos'] = $registro->id_tbl_empleados;
+                    $dataInsert['id_cat_tipo_schema'] = 3;
+                    break;
+            }
+
+            $idUsuarioNuevo = DB::table('administration.users')->insertGetId($dataInsert);
+            $this->insertarEnEmpleadoCursosSiNoExiste($idUsuarioNuevo);
+
             $insert[] = [
                 'curp' => $curp,
                 'rfc' => $rfc,
                 'coordinacion' => null,
                 'observaciones' => null,
                 'estatus' => null,
-                'created_at' => Carbon::now()
+                'created_at' => now()
             ];
         } else {
-            // ⚠️ Se detectó que no existe en ninguna tabla
             $responseData[] = [
                 'curp' => $curp,
                 'rfc' => $rfc,
@@ -461,6 +549,30 @@ public function guardarTemporalUsuariosDesdeFastExcel($rows)
     }
 
     return $responseData;
+}
+
+public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
+{
+    $existe = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_usuarios', $idUsuario)
+        ->exists();
+
+    if ($existe) {
+        Log::info("⚠️ Ya existe en tbl_empleado_cursos el usuario ID: $idUsuario");
+        return false;
+    }
+
+    DB::table('capacitacion.tbl_empleado_cursos')->insert([
+        'id_usuarios' => $idUsuario,
+        'id_cursos' => null,
+        'id_calificacion' => null,
+        'estatus' => true,
+        'id_usuario_sistema' => Auth::id(),
+        'fecha_usuario' => now(),
+    ]);
+
+    Log::info("✅ Insertado en tbl_empleado_cursos el usuario ID: $idUsuario");
+    return true;
 }
 
 }

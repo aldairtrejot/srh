@@ -15,9 +15,9 @@
                     <x-template-tittle.tittle-caption
                      tittle="{{ isset($item->id_tbl_cursos) ? 'Modificar' : '' }} "
                      route="{{ route('assignedcourse.list') }}"
-                        />
+                        />                 
                 </div>
-                
+                        
             </div>
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -27,6 +27,12 @@
                                 <div>
                                     <h4 class="card-title">Grupo Alumnos</h4>
                                     @if($coursesMatch)
+                                    <p class="card-description">
+                                            ¿Deseas agregar un curso? 
+                                            <a href="{{ route('assignedcourse.create') }}" class="text-danger" style="margin-left: 10px;">
+                                                <i class="fa fa-arrow-up"></i> Agregar Curso
+                                            </a>
+                                            </p>
                                     @endif
                                 </div>
                                 
