@@ -50,6 +50,7 @@ use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
 use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
+use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -359,7 +360,8 @@ Route::get('/tablecourses/list', TblCoursesC::class)->name('tablecourses.list')-
 Route::post('/tablecourses/table', [TblCoursesC::class, 'searchTable']);
 Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablecourses.create')->middleware('auth');
 
-
+//ROUTE ADMINISTRACION
+Route::get('/administration/administrationC/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
 
 
 
