@@ -52,6 +52,7 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
+use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -364,12 +365,21 @@ Route::get('/tablecourses/create', [TblCoursesC::class, 'create'])->name('tablec
 
 //ROUTE ADMINISTRACION
 Route::get('/administration', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
+
+//ROUTE CATALOGO AREA
 Route::get('/area/list', AreaC::class)->name('administration.list')->middleware('auth');
 Route::get('/area/create', [AreaC::class, 'create'])->name('administration.create')->middleware('auth');
 Route::post('/area/save', [AreaC::class, 'save'])->name('administration.save')->middleware('auth');
 Route::post('/area/table', [AreaC::class, 'searchTable']);
 Route::get('/area/edit/{id}', [AreaC::class, 'edit'])->name('administration.edit')->middleware('auth');
-Route::delete('/area/delete/{id}', [AreaC::class, 'destroy']);
+
+//ROUTE CATALOGO DEPENDENCIA
+Route::get('/dependencia/list', DependenciaC::class)->name('dependencia.list')->middleware('auth');
+Route::get('/dependencia/create', [DependenciaC::class, 'create'])->name('dependencia.create')->middleware('auth');
+Route::post('/dependencia/save', [DependenciaC::class, 'save'])->name('dependencia.save')->middleware('auth');
+Route::post('/dependencia/table', [DependenciaC::class, 'searchTable']);
+Route::get('/dependencia/edit/{id}', [DependenciaC::class, 'edit'])->name('dependencia.edit')->middleware('auth');
+
 
 
 

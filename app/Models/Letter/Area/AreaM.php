@@ -65,20 +65,5 @@ class AreaM extends Model
         $result = $query->first();
         return $result;
     }
-
-    public function listbeneficio()
-    {
-        $query = DB::table('correspondencia.cat_area')
-            ->select([
-                'correspondencia.cat_area.id_cat_area AS id',
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion'),
-                DB::raw('UPPER(correspondencia.cat_area.clave) AS clave')
-            ])
-            ->where('estatus', '=', true)
-            ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
-
-        $results = $query->get();
-        return $results;
-    }
 }
 
