@@ -13,22 +13,51 @@
                                     <div class="card">
                                         <div class="card-body text-center">
                                             <h4 class="card-title">Catálogo Área</h4>
-                                            
-                                            <div class="card-image">
-                                                <a href="{{ route('administration.list') }}" class="text-decoration-none" title="Ir a Catálogo Área" style="color: #1D5B3B;">
-                                                    <i class="fa fa-area-chart fa-5x"></i>
-                                                </a>
-                                            </div>
-                                            
+                                
+                                            <a href="{{ route('administration.list') }}" 
+                                               class="btn-icon" 
+                                               title="Ir a Catálogo Área">
+                                                <i class="fa fa-area-chart fa-3x"></i>
+                                            </a>
+                                
                                             <p class="card-text mt-2">Correspondencia</p>
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <style>
+                                    .btn-icon {
+                                        display: inline-block;
+                                        padding: 20px;
+                                        border-radius: 50%;
+                                        background-color: #f4f4f4;
+                                        color: #1D5B3B;
+                                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                                        text-decoration: none;
+                                        transition: all 0.3s ease-in-out;
+                                        transform: scale(1);
+                                    }
+                                
+                                    .btn-icon:hover {
+                                        background-color: #e1f3ea;
+                                        color: #0f3e2a;
+                                        box-shadow: 0 0 15px rgba(29, 91, 59, 0.5);
+                                        transform: scale(1.2);
+                                    }
+                                
+                                    .btn-icon:active {
+                                        transform: scale(0.95);
+                                    }
+                                
+                                    .btn-icon i {
+                                        transition: transform 0.3s ease-in-out;
+                                    }
+                                
+                                    .btn-icon:hover i {
+                                        transform: rotate(5deg);
+                                    }
+                                </style>
+                                
                             </div>       
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </x-template-app.app-layout>
