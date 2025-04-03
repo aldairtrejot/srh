@@ -43,6 +43,11 @@ function searchInit() {
     const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
+    const estatusColors = {
+        "INACTIVO": "#660000", // Rojo
+        "ACTIVO": "#26874A",   // Verde
+    };
+
     $.ajax({
         url: `${URL_DEFAULT}/area/table`,
         type: 'POST',
@@ -58,38 +63,25 @@ function searchInit() {
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
                     const finalUrl = `${URL_DEFAULT}/area/edit/${object.id_cat_area}`;
+                    const estatusTexto = object.estatus ? 'ACTIVO' : 'INACTIVO';
+                    const estatusColor = estatusColors[estatusTexto] || '#999';
 
                     const rowHTML = `
                         <tr>
                             <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" title="Menu">
-                                        <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${finalUrl}">
-                                            <span style="background:#1D5B3B" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-pencil item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Modificar
-                                        </a>
-                                        <a class="dropdown-item" href="#" onclick="confirmDelete(${object.id_cat_area})">
-                                            <span style="background:#6A1B3D" class="icon-container-template">
-                                                <div style="text-align: center;">
-                                                    <i class="fa fa-trash item-icon-menu"></i>
-                                                </div>
-                                            </span>
-                                            Eliminar
-                                        </a>
-                                    </div>
+                                <div class="button-container" style="display: flex; gap: 2px;">
+                                    <a href="${finalUrl}" style="background: #10312b; padding: 8px 12px;" class="custom-button custom-button-x" title="Modificar">
+                                        <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
+                                    </a>
                                 </div>
                             </td>
                             <td>${object.descripcion}</td>
                             <td>${object.clave}</td>
-                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                            <td>
+                                <label style="background:${estatusColor}; color:white; padding: 4px 8px; border-radius: 6px;" class="badge">
+                                    ${estatusTexto}
+                                </label>
+                            </td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
@@ -164,4 +156,5 @@ function deleteCourse(id) {
         }
     });
 }
+
 
