@@ -18,12 +18,9 @@ class ConstanciaAlumnoC extends Controller
     $data = $AssignedcourseM->getDataReport($id);
 
     if (!$data) {
-        Log::error("❌ Error: No se encontró información del curso para ID: $id");
         return response()->json(['status' => false, 'message' => 'No se encontró información del curso.'], 404);
     }
-
-    Log::info("✅ Datos obtenidos para la constancia: " . json_encode($data));
-
+    
     $fechaActual = Carbon::now()->locale('es')->isoFormat('LL'); 
     $textoFecha = "Ciudad de México a " . $fechaActual;
 

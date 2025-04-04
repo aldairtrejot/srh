@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Courses\Assignedcourse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Admin\MessagesC;
-use Maatwebsite\Excel\Facades\Excel;
 use Rap2hpoutre\FastExcel\FastExcel;
 use App\Models\Courses\Courses\Assignedcourse\AssignedcourseM;
 
@@ -19,43 +16,59 @@ class AssignedcourseC extends Controller
             $assignedCourses = AssignedcourseM::all();
             return view('courses.assignedcourse.list', compact('assignedCourses'));
         } catch (\Exception $e) {
-            Log::error('❌ Error al obtener la lista de cursos asignados: ' . $e->getMessage());
+            
+            
             return redirect()->route('dashboard')->with('error', 'No se pudo obtener la lista de cursos.');
         }
     }
 
     public function save(Request $request)
-    {
-        Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
-        Log::info("📌 Datos recibidos en save():", $request->all());
-    
-        $messagesC = new MessagesC();
-    
-        try {
-            // 🔹 Removemos la asignación automática de id_cursos
-            // 🔹 Ahora será obligatorio en la validación
-    
-            $request->validate([
-                'curp' => 'required|string|size:18',
-            ]);
-    
-            if ($request->is_editing == 1) {
-                return $this->update($request, $request->id);
-            }
-    
-            $assignedcourseM = new AssignedcourseM();
-            $idAlumno = $assignedcourseM->obtenerAlumno($request->curp, 1, $request->id_cursos);
-    
-            if (!$idAlumno) {
-                return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error al registrar alumno.');
-            }
-    
-            return $messagesC->messageSuccessRedirect('assignedcourse.list', 'Alumno registrado correctamente.');
-        } catch (\Exception $e) {
-            Log::error('🔥 Error en save(): ' . $e->getMessage());
-            return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error en el servidor.');
+{
+    $messagesC = new MessagesC();
+
+    try {
+        $request->validate([
+            'curp' => 'required|string|size:18',
+        ]);
+
+        if ($request->is_editing == 1) {
+            return $this->update($request, $request->id);
         }
+
+        $assignedcourseM = new AssignedcourseM();
+        $idAlumno = $assignedcourseM->obtenerAlumno($request->curp, 1, $request->id_cursos);
+
+        if (!$idAlumno) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error al registrar alumno.'
+                ], 400);
+            }
+            return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error al registrar alumno.');
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Alumno registrado correctamente.'
+            ]);
+        }
+
+        return $messagesC->messageSuccessRedirect('assignedcourse.list', 'Alumno registrado correctamente.');
+
+    } catch (\Exception $e) {
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error en el servidor.'
+            ], 500);
+        }
+
+        return $messagesC->messageErrorRedirect('assignedcourse.list', 'Error en el servidor.');
     }
+}
+
     
 public function searchTable(Request $request)
 {
@@ -94,7 +107,6 @@ public function searchTable(Request $request)
             ],
         ], 200);
     } catch (\Exception $e) {
-        Log::error('❌ Error en searchTable(): ' . $e->getMessage());
         return response()->json([
             'status' => false,
             'message' => 'Error en el servidor.',
@@ -110,7 +122,6 @@ public function dataCurp(Request $request)
             'curp' => 'required|string|size:18',
         ]);
 
-        Log::info("🔎 CURP recibida: " . $request->curp);
         $assignedcourseM = new AssignedcourseM();
 
         $centralCurp = $assignedcourseM->centralCurp($request->curp);
@@ -124,7 +135,6 @@ public function dataCurp(Request $request)
             'value' => $resultado ?? (object) [], // 🔹 Evita errores en el frontend
         ], 200);
     } catch (\Exception $e) {
-        Log::error('❌ Error en dataCurp(): ' . $e->getMessage());
         return response()->json([
             'status' => false,
             'message' => 'Error en el servidor.',
@@ -151,8 +161,6 @@ public function create()
     public function update(Request $request, $id)
     {
         try {
-            Log::info('🔄 Datos recibidos en update():', $request->all());
-
             $request->validate([
                 'curp' => 'required|string|size:18',
                 'estatus' => 'required|in:0,1',
@@ -170,7 +178,6 @@ public function create()
 
             return redirect()->route('assignedcourse.list')->with('success', 'Alumno actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('🔥 Error en update(): ' . $e->getMessage());
             return redirect()->route('assignedcourse.list')->with('error', 'Error en el servidor.');
         }
     }
@@ -186,10 +193,7 @@ public function create()
     public function courses(Request $request, $idEmpleadoCursos)
     {
         try {
-            Log::info("🔎 Buscando cursos para el ID: " . ($idEmpleadoCursos ?? 'No definido'));
-    
             if (!$idEmpleadoCursos) {
-                Log::warning("⚠️ No se proporcionó un ID de empleado para buscar cursos.");
                 return response()->json([
                     'status' => false,
                     'message' => 'No se encontró el ID del empleado.',
@@ -202,12 +206,9 @@ public function create()
     
             // Si no hay cursos, enviamos un array vacío para que la vista pueda mostrar el mensaje
             if ($cursos->isEmpty()) {
-                Log::warning("⚠️ No se encontraron cursos para el ID: $idEmpleadoCursos");
                 $cursos = []; // Convertimos a un array vacío para evitar errores en la vista
             }
-    
-            Log::info("✅ Cursos obtenidos para ID: $idEmpleadoCursos", ['cursos' => $cursos]);
-    
+
             // Si la solicitud es AJAX, devolver JSON; de lo contrario, devolver la vista
             if ($request->ajax()) {
                 return response()->json([
@@ -220,8 +221,6 @@ public function create()
             return view('courses.assignedcourse.courses', compact('idEmpleadoCursos', 'cursos'));
     
         } catch (\Exception $e) {
-            Log::error("🔥 Error en courses(): " . $e->getMessage());
-    
             return response()->json([
                 'status' => false,
                 'message' => 'Error en el servidor.',
@@ -235,9 +234,6 @@ public function create()
         // Pasar los cursos a la vista
         return view('courses.assignedcourse.modal');
     }
-
-
-
 
 public function handleMassiveUpload(Request $request)
 {
@@ -259,8 +255,6 @@ public function handleMassiveUpload(Request $request)
             'data' => $responseData
         ]);
     } catch (\Exception $e) {
-        \Log::error('🔥 Error en handleMassiveUpload(): ' . $e->getMessage());
-
         return response()->json([
             'status' => false,
             'message' => 'Ocurrió un error al procesar el archivo.',

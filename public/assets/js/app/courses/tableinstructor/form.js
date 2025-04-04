@@ -102,12 +102,10 @@ $('#form-instructor').on('submit', function (event) {
         type: requestType,
         data: requestData,
         success: function () {
-            let message = isEditing ? "✅ Instructor actualizado correctamente." : "✅ Instructor agregado correctamente.";
             alert(message);
             window.location.href = URL_DEFAULT.concat('/tableinstructor/list');
         },
         error: function () {
-            let errorMessage = isEditing ? "❌ Error al actualizar el instructor." : "❌ Error al agregar el instructor.";
             alert(errorMessage);
         }
     });

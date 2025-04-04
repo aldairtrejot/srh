@@ -3,11 +3,9 @@
 namespace App\Models\Courses\Courses\Assignedcourse;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
+
 class AssignedcourseM extends Model
 {
     protected $table = 'capacitacion.tbl_empleado_cursos';
@@ -140,20 +138,14 @@ class AssignedcourseM extends Model
  
  public function obtenerOcrearUsuarioPorCurp($curp, $idCursos)
 {
-    Log::info('🔎 Buscando usuario con CURP: ' . $curp);
-
     // Buscar el usuario en las diferentes bases de datos
     $persona = $this->centralCurp($curp) ?? 
                $this->buscarEmpleadoHRAES($curp) ?? 
                $this->buscarEmpleadoTransferidos($curp);
 
     if (!$persona) {
-        Log::error('❌ No se encontró información para CURP: ' . $curp);
         return null;
     }
-
-    Log::info('✅ Persona encontrada: ' . json_encode($persona));
-
     // Verificar si el usuario ya existe en `administration.users`
     $usuario = DB::table('administration.users')
         ->where('id_tbl_empleados_central', $persona->id)
@@ -162,14 +154,11 @@ class AssignedcourseM extends Model
         ->first();
 
     if ($usuario) {
-        Log::info('✅ Usuario EXISTE en administration.users con ID: ' . $usuario->id);
         return $this->guardarEnTblEmpleadoCursos($usuario->id, $idCursos); // 🔹 Ahora se pasa id_cursos
     }
 
-    // Si no existe, crear usuario
-    Log::info('🆕 Usuario NO existe. Creando nuevo usuario.');
-
     // Generar email único
+
     $baseEmail = strtolower(str_replace(' ', '', $persona->nombre)) . ".correo@example.com";
     $email = $baseEmail;
     $contador = 1;
@@ -198,31 +187,25 @@ class AssignedcourseM extends Model
         ]);
 
         DB::commit();
-        Log::info('✅ Usuario creado con ID: ' . $idUsuario);
-
         return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos); // 🔹 Se pasa id_cursos
     } catch (\Exception $e) {
         DB::rollBack();
-        Log::error('🔥 Error al insertar usuario en administration.users: ' . $e->getMessage());
         return null;
     }
 }
 
      public function guardarEnTblEmpleadoCursos($idUsuario, $idCursos = null)
      {
-         Log::info("💾 Intentando insertar usuario con ID: $idUsuario en tbl_empleado_cursos con ID de curso: " . ($idCursos ?? 'Ninguno'));
-     
+      
          // 🔹 Si no hay curso, verifica si el usuario ya está en la tabla SIN curso
          if (!$idCursos) {
-             Log::info("🛑 No se asignará un curso a este usuario en este módulo.");
-     
+
              $existeRegistroSinCurso = DB::table('capacitacion.tbl_empleado_cursos')
                  ->where('id_usuarios', $idUsuario)
                  ->whereNull('id_cursos') // 🔹 Verificamos registros sin curso
                  ->exists();
      
              if ($existeRegistroSinCurso) {
-                 Log::info("⚠️ El usuario YA ESTÁ REGISTRADO en tbl_empleado_cursos SIN curso. No se duplica.");
                  return $idUsuario;
              }
      
@@ -239,11 +222,10 @@ class AssignedcourseM extends Model
                  ]);
      
                  DB::commit();
-                 Log::info("✅ Usuario insertado correctamente en tbl_empleado_cursos SIN curso.");
+  
                  return $idUsuario;
              } catch (\Exception $e) {
                  DB::rollBack();
-                 Log::error("🔥 Error al insertar usuario en tbl_empleado_cursos sin curso: " . $e->getMessage());
                  return null;
              }
          }
@@ -255,7 +237,6 @@ class AssignedcourseM extends Model
              ->exists();
      
          if ($existe) {
-             Log::info("✅ El usuario ya está registrado en tbl_empleado_cursos con este curso.");
              return $idUsuario;
          }
      
@@ -272,11 +253,9 @@ class AssignedcourseM extends Model
              ]);
      
              DB::commit();
-             Log::info("✅ Usuario insertado correctamente en tbl_empleado_cursos con curso.");
              return $idUsuario;
          } catch (\Exception $e) {
              DB::rollBack();
-             Log::error("🔥 Error al insertar usuario en tbl_empleado_cursos con curso: " . $e->getMessage());
              return null;
          }
      }
@@ -284,19 +263,17 @@ class AssignedcourseM extends Model
      
      public function obtenerAlumno($curp, $estatus, $idCursos = null)
 {
-    Log::info("🔎 Iniciando búsqueda y creación de Alumno con CURP: " . $curp);
-
     // 🔹 Llamar a `obtenerOcrearUsuarioPorCurp()` con ambos argumentos
     $idUsuario = $this->obtenerOcrearUsuarioPorCurp($curp, $idCursos ?? null);
 
     if (!$idUsuario) {
-        Log::error("❌ No se encontró usuario válido para CURP: " . $curp);
+
         return null;
     }
 
     // 🔹 Si `id_cursos` es `null`, no se asigna curso
     if (!$idCursos) {
-        Log::info("⚠️ Usuario registrado sin curso.");
+
         return $idUsuario;
     }
 
@@ -307,17 +284,17 @@ class AssignedcourseM extends Model
         ->first();
 
     if ($alumno) {
-        Log::info("✅ Alumno YA existe con ID: " . $alumno->id_empleado_cursos);
+
         return $alumno->id_empleado_cursos;
     }
 
-    Log::info("🆕 Alumno NO existe. Procediendo a registrarlo.");
+
     return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos);
 }
 
 public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
 {
-    Log::info("🔎 Buscando cursos para el ID de empleado: " . ($idEmpleadoCursos ?? 'No definido'));
+
 
     $cursos = DB::table('capacitacion.tbl_empleado_cursos as ec')
         ->select([
@@ -338,9 +315,9 @@ public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
         ->get();
 
     if ($cursos->isEmpty()) {
-        Log::warning("⚠️ No se encontraron cursos para el ID de empleado: $idEmpleadoCursos");
+
     } else {
-        Log::info("✅ Cursos obtenidos para el ID de empleado: $idEmpleadoCursos - " . json_encode($cursos));
+
     }
 
     return $cursos;
@@ -348,7 +325,7 @@ public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
 
 public function getDataReport($id)
 {
-    Log::info("🔍 Buscando información del curso para el ID: " . $id);
+
 
     $query = DB::table('capacitacion.tbl_empleado_cursos AS ec')
         ->join('capacitacion.tbl_cursos AS c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
@@ -399,14 +376,14 @@ public function getDataReport($id)
         ->join('capacitacion.cat_tipo_cursos AS ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
         ->where('ec.id_empleado_cursos', '=', $id);
 
-    Log::info("📝 SQL Query Generado: " . $query->toSql());
+
     
     $data = $query->first();
 
     if (!$data) {
-        Log::warning("⚠️ No se encontró información del curso para ID: $id");
+     
     } else {
-        Log::info("✅ Información encontrada para ID: $id -> " . json_encode($data));
+   
     }
 
     return $data;
@@ -558,7 +535,7 @@ public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
         ->exists();
 
     if ($existe) {
-        Log::info("⚠️ Ya existe en tbl_empleado_cursos el usuario ID: $idUsuario");
+     
         return false;
     }
 
@@ -571,7 +548,6 @@ public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
         'fecha_usuario' => now(),
     ]);
 
-    Log::info("✅ Insertado en tbl_empleado_cursos el usuario ID: $idUsuario");
     return true;
 }
 

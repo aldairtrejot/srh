@@ -407,4 +407,3 @@ Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])-
 Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
 Route::get('/assignedcourse/modalCarga', [AssignedcourseC::class, 'modalCarga'])->name('assignedcourse.modal')->middleware('auth');
 Route::post('/assignedcourse/upload', [AssignedcourseC::class, 'handleMassiveUpload'])->name('assignedcourse.upload')->middleware('auth');
-

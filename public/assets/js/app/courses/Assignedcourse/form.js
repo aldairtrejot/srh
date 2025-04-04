@@ -109,13 +109,11 @@ $('#form-assignedcourse').on('submit', function (event) {
         url: $(this).attr('action'),
         type: requestType,
         data: requestData,
-        success: function () {
-            let message = isEditing ? "✅ Alumno actualizado correctamente." : "✅ Alumno agregado correctamente.";
-            alert(message);
+        success: function (response) {
+            alert(response.message); // ✅ obtenemos el mensaje del backend
             window.location.href = URL_DEFAULT.concat('/assignedcourse/list');
         },
         error: function () {
-            let errorMessage = isEditing ? "❌ Error al actualizar el Alumno." : "❌ Error al agregar el alumno.";
             alert(errorMessage);
         }
     });
