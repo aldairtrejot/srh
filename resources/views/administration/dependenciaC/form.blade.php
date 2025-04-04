@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row">
-                        <x-template-tittle.tittle-header tittle="Catálogo de áreas" caption="Área" />
+                        <x-template-tittle.tittle-header tittle="Catálogo de dependencia" caption="Dependencia" />
                     </div>
                 </div>
             </div>
@@ -15,7 +15,7 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_cat_dependencia) ? 'Modificar' : 'Agregar' }} Área"
+                            tittle="{{ isset($item->id_cat_dependencia) ? 'Modificar' : 'Agregar' }} Dependencia"
                             route="{{ route('dependencia.list') }}" />
                         
                         <br>

@@ -62,7 +62,7 @@ function searchInit() {
 
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/dependencia/edit/${object.id_cat_area}`;
+                    const finalUrl = `${URL_DEFAULT}/dependencia/edit/${object.id}`;
                     const estatusTexto = object.estatus ? 'ACTIVO' : 'INACTIVO';
                     const estatusColor = estatusColors[estatusTexto] || '#999';
 
