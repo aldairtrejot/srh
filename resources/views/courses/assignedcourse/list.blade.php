@@ -14,11 +14,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-12 grid-margin stretch-card">
                     <div class="card custom-card">
                         <div class="card-body">
-
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="card-title">Grupo Alumnos</h4>
@@ -36,14 +34,12 @@
                                             </a>
                                         </p>
                                     @endif
-                                </div>
-                                
+                                </div>                       
                                 <div class="input-group" style="max-width: 300px;">
                                     <!-- TEMPLATE SEARCH-->
                                     <x-template-table.template-search />
                                 </div>
                             </div>
-
                             <!-- TEMPLATE TABLE -->
                             <x-template-table.template-table>
                                 <thead>
@@ -59,7 +55,6 @@
                         <!-- modal delete -->
                         <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
                                 confirmButton="confirmBtn" />
-
                         <!-- Modal de Confirmación -->
                         <div id="modalBackdrop" class="modal" style="display:none;">
                         <div class="modal-content">
@@ -69,18 +64,13 @@
                             <button id="cancelBtn">Cancelar</button>
                         </div>
                         </div>
-
-
                             <!-- TEMPLATE PAGINATOR-->
                             <x-template-table.template-paginator />
-
                         </div>
                     </div>
                 </div>
-
             </div>
-        </div>
-    
+        </div>    
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/courses/assignedcourse/table.js') }}"></script>
     </x-template-app.app-layout>

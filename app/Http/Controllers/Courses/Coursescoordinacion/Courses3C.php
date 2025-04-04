@@ -57,22 +57,7 @@ class Courses3C extends Controller
 
         return view('courses.coursescoordinacion.form', compact('item'));
     }
-    public function searchTable(Request $request)
-    {
-        $searchValue = $request->get('searchValue');  // Término de búsqueda
-        $iterator = $request->get('iterator', 0);  // Si no se pasa iterador, por defecto será 0 (primera página)
-
-        // Filtrar los cursos que coincidan con la búsqueda
-        $courses = CoursescoordinacionM::where('descripcion', 'like', '%' . $searchValue . '%')
-            ->offset($iterator)
-            ->limit(5)  // Límite de resultados por página
-            ->get();
-
-        return response()->json([
-            'value' => $courses,
-            'status' => true,
-        ]);
-    }
+    
 
     public function destroy($id)
     {   
@@ -93,6 +78,25 @@ class Courses3C extends Controller
 
         return view('courses.coursescoordinacion.form', compact('item'));
        
+    }
+    public function searchTable(Request $request)
+    {
+        $searchValue = strtoupper(trim($request->get('searchValue', '')));
+        $iterator = intval($request->get('iterator', 0));
+    
+        $courses = CoursescoordinacionM::select([
+                                'id_cat_coordinacion AS id',
+                                'descripcion',
+                                'estatus'
+                            ])
+                            ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                            ->offset($iterator)
+                            ->limit(5)
+                            ->get();
+    
+        return response()->json([
+            'value' => $courses
+        ]);
     }
 
 }

@@ -16,32 +16,26 @@
                      tittle="{{ isset($item->id_tbl_cursos) ? 'Modificar' : '' }} "
                      route="{{ route('assignedcourse.list') }}"
                         />                 
-                </div>
-                        
+                </div>           
             </div>
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
-                
                     <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="card-title">Grupo Alumnos</h4>
                                     @if($coursesMatch)
                                     <p class="card-description">
                                             ¿Deseas agregar un curso? 
-                                            <a href="{{ route('assignedcourse.create') }}" class="text-danger" style="margin-left: 10px;">
+                                            <a href="{{ route('tablecourses.list') }}" class="text-danger" style="margin-left: 10px;">
                                                 <i class="fa fa-arrow-up"></i> Agregar Curso
                                             </a>
                                             </p>
                                     @endif
                                 </div>
-                                
                                 <div class="input-group" style="max-width: 300px;">
-
-                          
                                 <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
-                    
                             </div>
                         </div>
                      <!-- Alumno id -->
@@ -61,21 +55,15 @@
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
-
                         <!-- TEMPLATE PAGINATOR-->
                         <x-template-table.template-paginator />
-
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
- 
  <!-- CODE SCRIPT-->
-  
   <script src="{{ asset('assets/js/app/courses/assignedcourse/courses.js') }}"></script>
-
 </x-template-app.app-layout>
 
    

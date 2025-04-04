@@ -88,7 +88,6 @@ function searchInit() {
                             </td>
                             <td>${object.descripcion}</td>
                             <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
-                              <td>${object.nombre}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);

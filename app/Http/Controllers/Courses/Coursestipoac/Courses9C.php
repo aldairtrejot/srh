@@ -59,14 +59,18 @@ class Courses9C extends Controller
     }
     public function searchTable(Request $request)
     {
-        $searchValue = $request->get('searchValue');  // Término de búsqueda
-        $iterator = $request->get('iterator', 0);  // Si no se pasa iterador, por defecto será 0 (primera página)
+        $searchValue = strtoupper(trim($request->get('searchValue', '')));
+        $iterator = intval($request->get('iterator', 0));
     
-        // Filtrar los cursos que coincidan con la búsqueda
-        $courses = CoursestipoacM::where('descripcion', 'like', '%' . $searchValue . '%')
-                           ->offset($iterator)
-                           ->limit(5)  // Límite de resultados por página
-                           ->get();
+        $courses = CoursestipoacM::select([
+                                'id_cat_tipo_accion AS id',
+                                'descripcion',
+                                'estatus'
+                            ])
+                            ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                            ->offset($iterator)
+                            ->limit(5)
+                            ->get();
     
         return response()->json([
             'value' => $courses

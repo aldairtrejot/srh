@@ -387,7 +387,6 @@ Route::post('/auditoria/update/estatus', [TblAuditC::class, 'updateEstatus'])->n
 Route::post('/auditoria/check/exist-by-id', [TblAuditC::class, 'checkExistenceById'])->name('auditoria.check.existence')->middleware('auth');
 Route::post('/auditoria/check/id', [TblAuditC::class, 'checkId'])->name('auditoria.check.id')->middleware('auth');
 
-
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
 
