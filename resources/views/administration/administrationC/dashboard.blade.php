@@ -5,16 +5,16 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Sistema de control </h3>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
                             <h6 class="font-weight-normal mb-0">Catálogos</h6>
                             <br>
                             <br>
-                            <h6 class="font-weight-bold mb-0">Control de Gestión</h6>
+                            <h6 class="font-weight-bold mb-0">Circulares Externas</h6>
                             <div class="row">
                                 <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
                                     <div class="card">
                                         <div class="card-body text-center">
-                                            <h4 class="card-title">Catálogo Dependencia</h4>
+                                            <h4 class="card-title">Dependencia General</h4>
                                             <a href="{{ route('dependencia.list') }}" class="btn-icon" title="Ir a Catálogo Dependencia">
                                                 <i class="fa fa-connectdevelop fa-3x"></i>
                                             </a>
@@ -25,7 +25,7 @@
                             <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
                                 <div class="card">
                                     <div class="card-body text-center">
-                                        <h4 class="card-title">Catálogo Dependencia Área</h4>
+                                        <h4 class="card-title">Dependencia Específica</h4>
                                         <a href="{{ route('dependenciarea.list') }}" class="btn-icon" title="Ir a Catálogo Dependencia Área">
                                             <i class="fa fa-braille fa-3x"></i>
                                         </a>
