@@ -37,7 +37,7 @@
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h4 class="card-title">Dependencias por Área</h4>
-                                        <a href="" class="btn-icon" title="Ir a Catálogo Dependencia Área">
+                                        <a href="{{ route('reldependenciarea.list') }}" class="btn-icon" title="Ir a Catálogo Dependencia Área">
                                             <i class="fa fa-area-chart fa-3x"></i>
                                         </a>
                                         <p class="card-text mt-2">Correspondencia</p>

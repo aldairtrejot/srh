@@ -54,6 +54,7 @@ use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
+use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -387,6 +388,14 @@ Route::get('/dependenciarea/create', [DependenciareaC::class, 'create'])->name('
 Route::post('/dependenciarea/save', [DependenciareaC::class, 'save'])->name('dependenciarea.save')->middleware('auth');
 Route::post('/dependenciarea/table', [DependenciareaC::class, 'searchTable']);
 Route::get('/dependenciarea/edit/{id}', [DependenciareaC::class, 'edit'])->name('dependenciarea.edit')->middleware('auth');
+
+//ROUTE CATALOGO REL_DEPENDENCIA_AREA
+Route::get('rel/dependenciarea/list', ReldependenciaC::class)->name('reldependenciarea.list')->middleware('auth');
+Route::get('rel/dependenciarea/create', [ReldependenciaC::class, 'create'])->name('reldependenciarea.create')->middleware('auth');
+Route::post('rel/dependenciarea/save', [ReldependenciaC::class, 'save'])->name('reldependenciarea.save')->middleware('auth');
+Route::post('rel/dependenciarea/table', [ReldependenciaC::class, 'searchTable']);
+Route::get('rel/dependenciarea/edit/{id}', [ReldependenciaC::class, 'edit'])->name('reldependenciarea.edit')->middleware('auth');
+
 
 
 
