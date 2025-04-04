@@ -59,13 +59,13 @@ function searchInit() {
         success: function (response) {
             const tbody = $('#template-table tbody');
             tbody.empty();
-
+    
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/dependencia/edit/${object.id_cat_dependencia}`;
+                    const finalUrl = `${URL_DEFAULT}/dependencia/edit/${object.id}`;
                     const estatusTexto = object.estatus ? 'ACTIVO' : 'INACTIVO';
-                    const estatusColor = estatusColors[estatusTexto] || '#999';
-
+                    const estatusColor = estatusTexto === 'ACTIVO' ? '#26874A' : '#660000';
+    
                     const rowHTML = `
                         <tr>
                             <td>
@@ -92,6 +92,7 @@ function searchInit() {
             }
         }
     });
+    
 }
 
 function paginatorMax1() {

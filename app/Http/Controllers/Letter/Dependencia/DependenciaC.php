@@ -52,19 +52,25 @@ class DependenciaC extends Controller
     }
 
     public function searchTable(Request $request)
-    {
-        $searchValue = $request->get('searchValue');
-        $iterator = $request->get('iterator', 0);
+{
+    $searchValue = strtoupper(trim($request->get('searchValue', '')));
+    $iterator = intval($request->get('iterator', 0));
 
-        $dependencia = DependenciaM::where('descripcion', 'like', '%' . $searchValue . '%')
-                      ->offset($iterator)
-                      ->limit(5)
-                      ->get();
+    $dependencia = DependenciaM::select([
+                            'id_cat_dependencia AS id',
+                            'descripcion',
+                            'estatus'
+                        ])
+                        ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                        ->offset($iterator)
+                        ->limit(5)
+                        ->get();
 
-        return response()->json([
-            'value' => $dependencia
-        ]);
-    }
+    return response()->json([
+        'value' => $dependencia
+    ]);
+}
+
 
     public function destroy($id)
     {

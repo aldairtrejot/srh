@@ -51,17 +51,24 @@ class AreaC extends Controller
         return view('administration.administrationC.form', compact('item'));
     }
 
+   
     public function searchTable(Request $request)
     {
-        $searchValue = $request->get('searchValue');
-        $iterator = $request->get('iterator', 0);
-
-        $areas = AreaM::where('descripcion', 'like', '%' . $searchValue . '%')
-                      ->orWhere('clave', 'like', '%' . $searchValue . '%')
-                      ->offset($iterator)
-                      ->limit(5)
-                      ->get();
-
+        $searchValue = strtoupper(trim($request->get('searchValue', '')));
+        $iterator = intval($request->get('iterator', 0));
+    
+        $areas = AreaM::select([
+                                'id_cat_area AS id',
+                                'descripcion',
+                                'clave',
+                                'estatus'
+                            ])
+                            ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                            ->orwhereRaw("UPPER(TRIM(clave)) LIKE ?", ["%$searchValue%"])
+                            ->offset($iterator)
+                            ->limit(5)
+                            ->get();
+    
         return response()->json([
             'value' => $areas
         ]);
