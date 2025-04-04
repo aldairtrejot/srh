@@ -16,7 +16,6 @@
                         <x-template-tittle.tittle-caption
                             tittle="{{ isset($item->id_usuarios) ? 'Modificar' : 'Agregar' }} Alumnos"
                             route="{{ route('assignedcourse.list') }}" />
-
                         <x-template-tittle.tittle-caption-secon tittle="Información del Trabajador" />
 
                         <!-- Contenedor de Resultados -->
