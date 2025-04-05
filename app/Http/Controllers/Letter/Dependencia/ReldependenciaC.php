@@ -12,30 +12,24 @@ use App\Models\Letter\Dependencia\ReldependenciaM;
 
 class ReldependenciaC extends Controller
 {
-    public function __invoke()
+    public function searchTable(Request $request)
     {
-        $courses = ReldependenciaM::all();
-        return view('administration.reldependenciaC.list', compact('courses'));
+        $iterator = $request->input('iterator', 0);
+        $searchValue = $request->input('searchValue', '');
+
+        $model = new ReldependenciaM();
+        $data = $model->list($iterator, $searchValue);
+
+        return response()->json([
+            'value' => $data
+        ]);
     }
 
-    public function searchTable(Request $request)
-{
-    $searchValue = strtoupper(trim($request->get('searchValue', '')));
-    $iterator = intval($request->get('iterator', 0));
-
-    $reldependencia = ReldependenciaM::select([
-                            'id_cat_dependencia AS dependencia',
-                            'id_cat_dependencia_area AS area'
-                        ])
-                        ->whereRaw("UPPER(TRIM(id_cat_dependencia)) LIKE ?", ["%$searchValue%"])
-                        ->orwhereRaw("UPPER(TRIM(id_cat_dependencia_area)) LIKE ?", ["%$searchValue%"])
-                        ->offset($iterator)
-                        ->limit(5)
-                        ->get();
-
-    return response()->json([
-        'value' => $reldependencia
-    ]);
-}
+    // Si también estás usando esta vista como index
+    public function __invoke()
+    {
+        return view('administration.reldependenciaC.list');
+    }
+    
 
 }

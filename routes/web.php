@@ -372,28 +372,28 @@ Route::get('/administration', AdministrationC::class)->name('administration.dash
 Route::get('/area/list', AreaC::class)->name('administration.list')->middleware('auth');
 Route::get('/area/create', [AreaC::class, 'create'])->name('administration.create')->middleware('auth');
 Route::post('/area/save', [AreaC::class, 'save'])->name('administration.save')->middleware('auth');
-Route::post('/area/table', [AreaC::class, 'searchTable']);
+Route::post('/area/table', [AreaC::class, 'searchTable'])->middleware('auth');
 Route::get('/area/edit/{id}', [AreaC::class, 'edit'])->name('administration.edit')->middleware('auth');
 
 //ROUTE CATALOGO DEPENDENCIA
 Route::get('/dependencia/list', DependenciaC::class)->name('dependencia.list')->middleware('auth');
 Route::get('/dependencia/create', [DependenciaC::class, 'create'])->name('dependencia.create')->middleware('auth');
 Route::post('/dependencia/save', [DependenciaC::class, 'save'])->name('dependencia.save')->middleware('auth');
-Route::post('/dependencia/table', [DependenciaC::class, 'searchTable']);
+Route::post('/dependencia/table', [DependenciaC::class, 'searchTable'])->middleware('auth');
 Route::get('/dependencia/edit/{id}', [DependenciaC::class, 'edit'])->name('dependencia.edit')->middleware('auth');
 
 //ROUTE CATALOGO DEPENDENCIA_AREA
 Route::get('/dependenciarea/list', DependenciareaC::class)->name('dependenciarea.list')->middleware('auth');
 Route::get('/dependenciarea/create', [DependenciareaC::class, 'create'])->name('dependenciarea.create')->middleware('auth');
 Route::post('/dependenciarea/save', [DependenciareaC::class, 'save'])->name('dependenciarea.save')->middleware('auth');
-Route::post('/dependenciarea/table', [DependenciareaC::class, 'searchTable']);
+Route::post('/dependenciarea/table', [DependenciareaC::class, 'searchTable'])->middleware('auth');
 Route::get('/dependenciarea/edit/{id}', [DependenciareaC::class, 'edit'])->name('dependenciarea.edit')->middleware('auth');
 
 //ROUTE CATALOGO REL_DEPENDENCIA_AREA
 Route::get('rel/dependenciarea/list', ReldependenciaC::class)->name('reldependenciarea.list')->middleware('auth');
 Route::get('rel/dependenciarea/create', [ReldependenciaC::class, 'create'])->name('reldependenciarea.create')->middleware('auth');
 Route::post('rel/dependenciarea/save', [ReldependenciaC::class, 'save'])->name('reldependenciarea.save')->middleware('auth');
-Route::post('rel/dependenciarea/table', [ReldependenciaC::class, 'searchTable']);
+Route::post('rel/dependenciarea/table', [ReldependenciaC::class, 'searchTable'])->middleware('auth');
 Route::get('rel/dependenciarea/edit/{id}', [ReldependenciaC::class, 'edit'])->name('reldependenciarea.edit')->middleware('auth');
 
 
