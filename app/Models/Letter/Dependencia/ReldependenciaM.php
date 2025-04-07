@@ -42,7 +42,16 @@ class ReldependenciaM extends Model
     
         return $query->get();
     }
-  
+    public function edit(string $id)
+    {
+        // Realizamos la consulta utilizando el Query Builder de Laravel
+        $query = DB::table('correspondencia.rel_dependencia_area')
+            ->where('id_rel_dependencia_area', $id)
+            ->first(); // Usamos first() para obtener un único registro
+
+        // Retornamos el usuario o null si no se encuentra
+        return $query ?? null;
+    }
 
     
 
