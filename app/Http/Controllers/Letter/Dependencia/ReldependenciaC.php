@@ -76,5 +76,25 @@ class ReldependenciaC extends Controller
 
     return $messagesC->messageSuccessRedirect('reldependenciarea.list', 'Registro guardado exitosamente.');
 }
+public function edit(string $id)
+{
+    $reldependenciaM = new ReldependenciaM();
+        $dependenciaM = new DependenciaM();
+        $dependenciareaM = new DependenciareaM();
+
+    $item = $reldependenciaM->edit($id); // Obtener el curso que se está editando
+
+    $selectDependencia = $dependenciaM->listdependencia(); //Catalogo de beneficio
+    $selectDependenciaEdit = isset($item->id_cat_dependencia) ? $dependenciaM->editreldepencia($item->id_cat_dependencia) : [];
+
+    $selectDependenciarea = $dependenciareaM->listdependenciarea(); //Catalogo de beneficio
+    $selectDependenciareaEdit = isset($item->id_cat_dependencia_area) ? $dependenciareaM->editreldepencia($item->id_cat_dependencia_area) : [];
+
+
+
+    // Devolver la vista con el costo total calculado
+    return view('administration.reldependenciaC.form', compact('item', 'selectDependencia','selectDependenciaEdit','selectDependenciarea','selectDependenciareaEdit'));
+}
+
 
 }
