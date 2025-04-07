@@ -57,7 +57,10 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
                         @endif
-                        <li class="nav-item"><a class="nav-link" href="{{ route('administration.dashboard') }}">Catálogos</a></li>
+                        @if ($letterAdminMatch)
+                            <li class="nav-item"><a class="nav-link" href="{{ route('administration.dashboard') }}">Catálogos</a></li>
+                        @endif
+                        
                     </ul>
                 </div>
             </li>
