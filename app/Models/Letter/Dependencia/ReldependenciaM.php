@@ -42,6 +42,8 @@ class ReldependenciaM extends Model
     
         return $query->get();
     }
+  
+
     
 
 }

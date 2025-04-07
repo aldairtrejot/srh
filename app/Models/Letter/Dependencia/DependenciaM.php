@@ -61,5 +61,21 @@ class DependenciaM extends Model
         $result = $query->first();
         return $result;
     }
+    public function listdependencia()
+    {
+        $query = DB::table('correspondencia.cat_dependencia')
+            ->select([
+                'correspondencia.cat_dependencia.id_cat_dependencia AS id',
+                DB::raw('UPPER(correspondencia.cat_dependencia.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('correspondencia.cat_dependencia.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 
 }

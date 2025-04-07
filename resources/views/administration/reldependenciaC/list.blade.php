@@ -25,7 +25,7 @@
                                 @if($coursesMatch ?? true) {{-- para evitar error si no existe --}}
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
-                                        <a href="" class="text-danger" style="margin-left: 10px;">
+                                        <a href="{{ route('reldependenciarea.create') }}" class="text-danger" style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Agregar Registro
                                         </a>
                                     </p>

@@ -61,5 +61,21 @@ class DependenciareaM extends Model
         $result = $query->first();
         return $result;
     }
+    public function listdependenciarea()
+    {
+        $query = DB::table('correspondencia.cat_dependencia_area')
+            ->select([
+                'correspondencia.cat_dependencia_area.id_cat_dependencia_area AS id',
+                DB::raw('UPPER(correspondencia.cat_dependencia_area.descripcion) AS descripcion')
+            ])
+            ->where('estatus', '=', true)
+            ->orderBy('correspondencia.cat_dependencia_area.descripcion', 'ASC');
+    
+        // Ejecutar la consulta y obtener los resultados
+        $results = $query->get();
+    
+        // Retornar los resultados
+        return $results;
+    }
 
 }
