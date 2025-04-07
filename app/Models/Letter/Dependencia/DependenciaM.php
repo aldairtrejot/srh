@@ -77,5 +77,12 @@ class DependenciaM extends Model
         // Retornar los resultados
         return $results;
     }
+    public function editreldepencia(string $id)
+{
+    return DB::table('correspondencia.cat_dependencia')
+        ->where('id_cat_dependencia', $id)
+        ->first();
+}
+
 
 }
