@@ -78,11 +78,19 @@ class DependenciareaM extends Model
         return $results;
     }
     public function editreldepencia(string $id)
-{
-    return DB::table('correspondencia.cat_dependencia_area')
-        ->where('id_cat_dependencia_area', $id)
-        ->first();
-}
+    {
+        $query = DB::table('correspondencia.cat_dependencia_area')
+            ->select([
+                'correspondencia.cat_dependencia_area.id_cat_dependencia_area AS id',
+                DB::raw('UPPER(correspondencia.cat_dependencia_area.descripcion) AS descripcion')
+            ])
+            ->where('id_cat_dependencia_area', '=', $id);
+    
+        $result = $query->first();
+    
+        return $result;
+    }
+    
 
 
 }
