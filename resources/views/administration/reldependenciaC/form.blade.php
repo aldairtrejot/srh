@@ -54,6 +54,7 @@
                 /* Scroll horizontal si el contenido es más ancho */
             }
         </style>
-
+<!-- CODE SCRIPT-->
+<script src="/srh/public/assets/js/app/letter/reldependencia/validate.js"></script>
 
      </x-template-app.app-layout>
