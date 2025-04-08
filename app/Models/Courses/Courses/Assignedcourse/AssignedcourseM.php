@@ -300,37 +300,6 @@ class AssignedcourseM extends Model
     return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos);
 }
 
-
-
-
-
-
-
-public function obtenerCursosConDetallesPorEmpleado($idUsuario)
-{
-    return DB::table('capacitacion.tbl_empleado_cursos as ec')
-        ->select([
-            'ec.id_empleado_cursos',
-            'ec.id_usuarios',
-            'ec.id_cursos',
-            'ec.id_calificacion',
-            'ec.fecha_usuario',
-            'c.programa_proyecto',
-            'c.fecha_inicio',
-            'c.fecha_fin',
-            'c.horas',
-            'c.id_cat_tipo_cursos',
-            DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
-            'c.estatus'
-        ])
-        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
-        ->join('capacitacion.cat_tipo_cursos as ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
-        ->where('ec.id_usuarios', '=', $idUsuario)
-        ->whereNotNull('ec.id_cursos')
-        ->orderByDesc('ec.fecha_usuario')
-        ->get();
-}
-
 public function getDataReport($id)
 {
 
@@ -559,26 +528,6 @@ public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
     return true;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public function getCursosActivos($iterator, $search = '')
 {
     $query = DB::table('capacitacion.tbl_cursos AS cursos')
@@ -594,8 +543,9 @@ public function getCursosActivos($iterator, $search = '')
         $query->where(DB::raw("UPPER(cursos.programa_proyecto)"), 'LIKE', '%' . strtoupper($search) . '%');
     }
 
-    return $query->offset(($iterator - 1) * 5)->limit(5)->get();
+    return $query->paginate(5, ['*'], 'page', $iterator); // ✅
 }
+
 public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
 {
     $registro = DB::table('capacitacion.tbl_empleado_cursos')
@@ -621,5 +571,46 @@ public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
             'fecha_usuario' => now()
         ]);
 }
+
+
+public function obtenerCursosConDetallesPorEmpleado($idUsuario, $iterator = 1, $searchValue = '')
+{
+    $query = DB::table('capacitacion.tbl_empleado_cursos as ec')
+        ->select([
+            'ec.id_empleado_cursos',
+            'ec.id_usuarios',
+            'ec.id_cursos',
+            'ec.id_calificacion',
+            'ec.fecha_usuario',
+            'c.programa_proyecto',
+            'c.fecha_inicio',
+            'c.fecha_fin',
+            'c.horas',
+            'c.id_cat_tipo_cursos',
+            DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
+            'c.estatus'
+        ])
+        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
+        ->join('capacitacion.cat_tipo_cursos as ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
+        ->where('ec.id_usuarios', '=', $idUsuario)
+        ->whereNotNull('ec.id_cursos');
+
+    // 🔍 Búsqueda en múltiples campos
+    if (!empty($searchValue)) {
+        $query->where(function ($subquery) use ($searchValue) {
+            $subquery->where(DB::raw("UPPER(c.programa_proyecto)"), 'LIKE', '%' . strtoupper($searchValue) . '%')
+                ->orWhere(DB::raw("UPPER(ct.descripcion)"), 'LIKE', '%' . strtoupper($searchValue) . '%')
+                ->orWhere(DB::raw("CAST(c.horas AS TEXT)"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("TO_CHAR(c.fecha_inicio, 'YYYY-MM-DD')"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("TO_CHAR(c.fecha_fin, 'YYYY-MM-DD')"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("CAST(ec.id_calificacion AS TEXT)"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhereRaw("CASE WHEN c.estatus THEN 'ACTIVO' ELSE 'INACTIVO' END ILIKE ?", ['%' . $searchValue . '%']);
+        });
+    }
+
+    return $query->orderByDesc('ec.fecha_usuario')
+                 ->paginate(5, ['*'], 'page', $iterator);
+}
+
 
 }

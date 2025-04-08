@@ -54,7 +54,7 @@ function searchInit() {
         type: 'POST',
         data: {
             iterator: iterator,
-            searchValue: searchValue,
+            searchValue: searchValue, // 👈 este valor es clave
             idUsuario: idUsuario,
             _token: token
         },
@@ -64,13 +64,12 @@ function searchInit() {
 
             if (response.status && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_usuarios ?? idUsuario}`;
-
+                    const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
                     const rowHTML = `
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
                                     </button>
                                     <div class="dropdown-menu">
@@ -97,8 +96,10 @@ function searchInit() {
                     `;
                     tbody.append(rowHTML);
                 });
+
+                setValue(response.pagination);
             } else {
-                tbody.html('<tr><td colspan="5" class="text-center"><strong>No se encontraron cursos asignados</td></tr>');
+                tbody.html('<tr><td colspan="8" class="text-center"><strong>No se encontraron cursos asignados</strong></td></tr>');
             }
         },
         error: function(xhr) {
@@ -106,6 +107,8 @@ function searchInit() {
         }
     });
 }
+
+
 
 
 // 🔹 Funciones para manejar la paginación
@@ -147,3 +150,5 @@ function setValue() {
     document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
     document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 1;
 }
+
+

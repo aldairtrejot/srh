@@ -258,51 +258,43 @@ public function courses(Request $request, $idUsuario)
     }
 }
 
-
 public function searchCoursesByUser(Request $request)
 {
     try {
         $idUsuario = $request->input('idUsuario');
+        $iterator = $request->input('iterator', 1);
+        $searchValue = $request->input('searchValue', '');
 
         $request->validate([
             'idUsuario' => 'required|integer',
+            'iterator' => 'required|integer|min:1',
         ]);
 
         $assignedcourseM = new AssignedcourseM();
-        $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idUsuario);
+        $cursos = $assignedcourseM->obtenerCursosConDetallesPorEmpleado($idUsuario, $iterator, $searchValue);
 
         return response()->json([
             'status' => true,
-            'message' => 'Cursos obtenidos correctamente',
-            'data' => $cursos,
+            'data' => $cursos->items(),
+            'pagination' => [
+                'current_page' => $cursos->currentPage(),
+                'last_page' => $cursos->lastPage(),
+                'per_page' => $cursos->perPage(),
+                'total' => $cursos->total(),
+            ]
         ], 200);
     } catch (\Exception $e) {
         return response()->json([
             'status' => false,
             'message' => 'Error en el servidor.',
-            'error' => $e->getMessage(),
+            'error' => $e->getMessage()
         ], 500);
     }
-}    
+}
+
+  
 
 // funciones de asignacion de cursos 
-public function getCursosActivos($iterator, $search = '')
-{
-    $query = DB::table('capacitacion.tbl_cursos AS cursos')
-        ->select([
-            'cursos.id_tbl_cursos AS id',
-            DB::raw("UPPER(cursos.programa_proyecto) AS nombre"),
-            DB::raw("TO_CHAR(cursos.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
-            DB::raw("TO_CHAR(cursos.fecha_fin, 'DD/MM/YYYY') AS fecha_fin")
-        ])
-        ->where('cursos.estatus', true);
-
-    if (!empty($search)) {
-        $query->where(DB::raw("UPPER(cursos.programa_proyecto)"), 'LIKE', '%' . strtoupper($search) . '%');
-    }
-
-    return $query->offset(($iterator - 1) * 5)->limit(5)->get();
-}
 
 public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
 {
@@ -375,10 +367,19 @@ public function getCursosActivosAjax(Request $request)
     $model = new AssignedcourseM();
     $iterator = $request->input('iterator', 1);
     $search = $request->input('search', '');
+
     $cursos = $model->getCursosActivos($iterator, $search);
 
-    return response()->json(['data' => $cursos]);
+    return response()->json([
+        'data' => $cursos->items(),
+        'pagination' => [
+            'current_page' => $cursos->currentPage(),
+            'last_page' => $cursos->lastPage(),
+            'total' => $cursos->total()
+        ]
+    ]);
 }
+
 
 public function enroll(Request $request)
 {

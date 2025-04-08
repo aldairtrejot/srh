@@ -3,7 +3,7 @@ const URL_BASE = window.location.origin + "/srh/public";
 let iterator = 1;
 let currentSearch = '';
 
-// Configurar token CSRF para todas las peticiones AJAX
+// Configurar token CSRF
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': token
@@ -14,22 +14,31 @@ $(document).ready(function () {
     cargarCursosActivos();
 
     // Buscar cursos al presionar Enter
-    $('#searchCurso, input[name="search"]').on('keypress', function (e) {
+    $('#searchValue').on('keypress', function (e) {
         if (e.which === 13) {
             e.preventDefault();
-            buscarCursos();
+            searchValue();
         }
     });
 
-    // Eventos de paginación si usas botones personalizados
-    $('#btnPaginatorMin').on('click', paginatorMin);
-    $('#btnPaginatorMax').on('click', paginatorMax);
+    // Botones de paginación personalizados
+    $('#btnPaginatorMin1').on('click', paginatorMin1);
+    $('#btnPaginatorMin5').on('click', paginatorMin5);
+    $('#btnPaginatorMax1').on('click', paginatorMax1);
+    $('#btnPaginatorMax5').on('click', paginatorMax5);
 });
 
-// 🔹 Cargar cursos activos vía AJAX
+// Buscar cursos
+function searchValue() {
+    currentSearch = $('#searchValue').val();
+    iterator = 1;
+    cargarCursosActivos();
+}
+
+// Cargar cursos activos con AJAX
 function cargarCursosActivos() {
     $.ajax({
-        url: routeCursosActivos, // Definida en el blade
+        url: routeCursosActivos,
         type: 'POST',
         data: {
             iterator: iterator,
@@ -54,14 +63,15 @@ function cargarCursosActivos() {
                     `;
                     tbody.append(row);
                 });
+
+                setValue(response.pagination);
             } else {
                 tbody.html(`
                     <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            No hay cursos disponibles.
-                        </td>
+                        <td colspan="4" class="text-center text-muted">No hay cursos disponibles.</td>
                     </tr>
                 `);
+                setValue({ current_page: 1, last_page: 1 });
             }
         },
         error: function (xhr) {
@@ -77,22 +87,32 @@ function cargarCursosActivos() {
     });
 }
 
-// 🔹 Buscar cursos
-function buscarCursos() {
-    currentSearch = $('#searchCurso').val() || $('input[name="search"]').val();
-    iterator = 1;
+// Actualizar paginador visual
+function setValue(pagination) {
+    iterator = pagination.current_page;
+
+    $('#is_iterator').text(iterator);
+    $('#is_iteratorMin').text(Math.max(1, iterator - 1));
+    $('#is_iteratorMax').text(Math.min(pagination.last_page, iterator + 1));
+}
+
+// Botones personalizados
+function paginatorMax1() {
+    iterator += 1;
     cargarCursosActivos();
 }
 
-// 🔹 Paginación
-function paginatorMin() {
-    if (iterator > 1) {
-        iterator--;
-        cargarCursosActivos();
-    }
+function paginatorMax5() {
+    iterator += 5;
+    cargarCursosActivos();
 }
 
-function paginatorMax() {
-    iterator++;
+function paginatorMin1() {
+    iterator = Math.max(1, iterator - 1);
+    cargarCursosActivos();
+}
+
+function paginatorMin5() {
+    iterator = Math.max(1, iterator - 5);
     cargarCursosActivos();
 }
