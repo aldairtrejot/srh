@@ -43,21 +43,35 @@
                                         <p class="card-text mt-2">Correspondencia</p>
                                     </div>
                                 </div>
-                            </div>
-                            <!--<div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
-                                <div class="card">
-                                    <div class="card-body text-center">
-                                        <h4 class="card-title">Catálogo Área</h4>
-                                        <a href="{{ route('administration.list') }}" class="btn-icon" title="Ir a Catálogo Área">
-                                            <i class="fa fa-area-chart fa-3x"></i>
-                                        </a>
-                                        <p class="card-text mt-2">Correspondencia</p>
-                                    </div>
-                                </div>
-                            </div>-->
+                            </div>  
                         </div>
-                            
-                            
+                        <br>
+                        <br>
+                        <h6 class="font-weight-bold mb-0">Catálogo General</h6>
+                        <div class="row">
+                        <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Área</h4>
+                                    <a href="{{ route('administration.list') }}" class="btn-icon" title="Ir a Catálogo Área">
+                                        <i class="fa fa-industry fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Año</h4>
+                                    <a href="{{ route('año.list') }}" class="btn-icon" title="Ir a Catálogo Área">
+                                        <i class="fa fa-history fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                                 
                                 <style>
                                     .btn-icon {

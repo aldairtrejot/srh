@@ -52,6 +52,7 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
+use App\Http\Controllers\Letter\Año\AnioC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -374,6 +375,13 @@ Route::get('/area/create', [AreaC::class, 'create'])->name('administration.creat
 Route::post('/area/save', [AreaC::class, 'save'])->name('administration.save')->middleware('auth');
 Route::post('/area/table', [AreaC::class, 'searchTable'])->middleware('auth');
 Route::get('/area/edit/{id}', [AreaC::class, 'edit'])->name('administration.edit')->middleware('auth');
+
+//ROUTE CATALOGO AÑO
+Route::get('/año/list', AnioC::class)->name('año.list')->middleware('auth');
+Route::get('/año/create', [AnioC::class, 'create'])->name('año.create')->middleware('auth');
+Route::post('/año/save', [AnioC::class, 'save'])->name('año.save')->middleware('auth');
+Route::post('/año/table', [AnioC::class, 'searchTable'])->middleware('auth');
+Route::get('/año/edit/{id}', [AnioC::class, 'edit'])->name('año.edit')->middleware('auth');
 
 //ROUTE CATALOGO DEPENDENCIA
 Route::get('/dependencia/list', DependenciaC::class)->name('dependencia.list')->middleware('auth');
