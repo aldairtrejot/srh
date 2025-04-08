@@ -395,9 +395,10 @@ Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])-
 
 // 📌 ASSIGNED_COURSES ---- > Curso Asignado
 Route::get('/assignedcourse/list', [AssignedcourseC::class, 'list'])->name('assignedcourse.list')->middleware('auth');
+Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable'); // alumnos
+Route::post('/assignedcourse/user-courses', [AssignedcourseC::class, 'searchCoursesByUser'])->name('assignedcourse.userCourses'); // cursos de un alumno
 Route::get('/assignedcourse/create', [AssignedcourseC::class, 'create'])->name('assignedcourse.create')->middleware('auth');
 Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('assignedcourse.save')->middleware('auth');
-Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable')->middleware('auth');
 Route::post('/assignedcourse/delete', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
 Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name('assignedcourse.edit')->middleware('auth');
 Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->name('assignedcourse.dataCurp');
@@ -406,3 +407,8 @@ Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])-
 Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
 Route::get('/assignedcourse/modalCarga', [AssignedcourseC::class, 'modalCarga'])->name('assignedcourse.modal')->middleware('auth');
 Route::post('/assignedcourse/upload', [AssignedcourseC::class, 'handleMassiveUpload'])->name('assignedcourse.upload')->middleware('auth');
+Route::post('/assignedcourse/cursos-activos', [AssignedcourseC::class, 'getCursosActivosAjax'])->name('assignedcourse.cursos.activos')->middleware('auth');
+Route::post('/assignedcourse/enroll', [AssignedcourseC::class, 'enroll'])->name('assignedcourse.enroll')->middleware('auth');
+Route::get('/assignedcourse/assigned/{id}', [AssignedcourseC::class, 'assigned'])->name('assignedcourse.assigned')->middleware('auth');
+
+

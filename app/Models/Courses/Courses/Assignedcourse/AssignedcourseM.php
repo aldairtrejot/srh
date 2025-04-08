@@ -29,11 +29,11 @@ class AssignedcourseM extends Model
             ->leftJoin('transferidos.tbl_empleados AS t', 'u.id_tbl_empleados_transferidos', '=', 't.id_tbl_empleados')
             ->leftJoin('public.tbl_empleados_hraes AS p', 'u.id_tbl_empleados_hraes', '=', 'p.id_tbl_empleados_hraes')
             ->selectRaw("
-                e.id_empleado_cursos,
-                e.id_cursos,
-                e.id_calificacion,
-                e.uuid_constancia,
-                e.fecha_usuario,
+                e.id_usuarios,
+                MAX(e.id_cursos) AS id_cursos,
+                MAX(e.id_calificacion) AS id_calificacion,
+                MAX(e.uuid_constancia) AS uuid_constancia,
+                MAX(e.fecha_usuario) AS fecha_usuario,
                 CASE
                     WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.curp)
                     WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.curp)
@@ -55,32 +55,40 @@ class AssignedcourseM extends Model
                     WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.segundo_apellido)
                 END AS segundo_apellido,
                 CASE 
-                    WHEN e.estatus = TRUE THEN 'ACTIVO' 
-                    ELSE 'INACTIVO' 
+                    WHEN MAX(CASE WHEN e.estatus = TRUE THEN 1 ELSE 0 END) = 1 THEN 'ACTIVO'
+                    ELSE 'INACTIVO'
                 END AS estatus_curso
+            ")
+            ->groupByRaw("
+                e.id_usuarios, 
+                u.id_cat_tipo_schema, 
+                c.curp, p.curp, t.curp, 
+                c.nombre, p.nombre, t.nombre,
+                c.primer_apellido, p.primer_apellido, t.primer_apellido,
+                c.segundo_apellido, p.segundo_apellido, t.segundo_apellido
             ")
             ->when(!empty($searchValue), function ($q) use ($searchValue) {
                 $searchValue = strtoupper(trim($searchValue));
-                $q->whereRaw("UPPER(c.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.segundo_apellido) LIKE ?", ['%' . $searchValue . '%']);
-
+                $q->where(function ($q2) use ($searchValue) {
+                    $q2->whereRaw("UPPER(c.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.segundo_apellido) LIKE ?", ['%' . $searchValue . '%']);
+                });
             });
 
         return $query->paginate(5, ['*'], 'page', $iterator);
     }
+
+    
 
      // BUSQUEDA DE CURP 
      public function centralCurp($curp)
@@ -292,14 +300,21 @@ class AssignedcourseM extends Model
     return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos);
 }
 
-public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
+
+
+
+
+
+
+public function obtenerCursosConDetallesPorEmpleado($idUsuario)
 {
-
-
-    $cursos = DB::table('capacitacion.tbl_empleado_cursos as ec')
+    return DB::table('capacitacion.tbl_empleado_cursos as ec')
         ->select([
             'ec.id_empleado_cursos',
+            'ec.id_usuarios',
             'ec.id_cursos',
+            'ec.id_calificacion',
+            'ec.fecha_usuario',
             'c.programa_proyecto',
             'c.fecha_inicio',
             'c.fecha_fin',
@@ -308,19 +323,12 @@ public function obtenerCursosConDetallesPorEmpleado($idEmpleadoCursos)
             DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
             'c.estatus'
         ])
-        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos') // ✅ Relación corregida
+        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
         ->join('capacitacion.cat_tipo_cursos as ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
-        ->where('ec.id_empleado_cursos', '=', $idEmpleadoCursos)
-        ->whereNotNull('ec.id_cursos') // Evita registros sin curso asignado
+        ->where('ec.id_usuarios', '=', $idUsuario)
+        ->whereNotNull('ec.id_cursos')
+        ->orderByDesc('ec.fecha_usuario')
         ->get();
-
-    if ($cursos->isEmpty()) {
-
-    } else {
-
-    }
-
-    return $cursos;
 }
 
 public function getDataReport($id)
@@ -549,6 +557,69 @@ public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
     ]);
 
     return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public function getCursosActivos($iterator, $search = '')
+{
+    $query = DB::table('capacitacion.tbl_cursos AS cursos')
+        ->select([
+            'cursos.id_tbl_cursos AS id',
+            DB::raw("UPPER(cursos.programa_proyecto) AS nombre"),
+            DB::raw("TO_CHAR(cursos.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
+            DB::raw("TO_CHAR(cursos.fecha_fin, 'DD/MM/YYYY') AS fecha_fin")
+        ])
+        ->where('cursos.estatus', true);
+
+    if (!empty($search)) {
+        $query->where(DB::raw("UPPER(cursos.programa_proyecto)"), 'LIKE', '%' . strtoupper($search) . '%');
+    }
+
+    return $query->offset(($iterator - 1) * 5)->limit(5)->get();
+}
+public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
+{
+    $registro = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_empleado_cursos', $idEmpleadoCurso)
+        ->first();
+
+    if (!$registro) return false;
+
+    $idUsuario = $registro->id_usuarios;
+
+    $yaInscrito = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_usuarios', $idUsuario)
+        ->where('id_cursos', $idCurso)
+        ->exists();
+
+    if ($yaInscrito) return 'duplicado';
+
+    return DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_empleado_cursos', $idEmpleadoCurso)
+        ->update([
+            'id_cursos' => $idCurso,
+            'id_usuario_sistema' => Auth::id(),
+            'fecha_usuario' => now()
+        ]);
 }
 
 }

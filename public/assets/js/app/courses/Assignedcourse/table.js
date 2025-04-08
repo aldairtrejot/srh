@@ -49,6 +49,7 @@ $(document).ready(function () {
 function searchInit() {
     const searchValue = $('#searchValue').val(); 
     const courses = $('#courses').val();
+
     $.ajax({
         url: `${URL_BASE}/assignedcourse/table`,
         type: 'POST',
@@ -64,8 +65,10 @@ function searchInit() {
 
             if (response.data && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_empleado_cursos}`;
-                    const rowHTML =`
+                    // ✅ Usamos ahora object.id_usuarios para el enlace
+                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_usuarios}`;
+
+                    const rowHTML = `
                         <tr>
                             <td>
                                 <div class="dropdown">
@@ -74,7 +77,7 @@ function searchInit() {
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-                                         <a class="dropdown-item" href="${finalCourses}">
+                                        <a class="dropdown-item" href="${finalCourses}">
                                             <span style="background:#FF8C00" class="icon-container-template">
                                                 <div style="text-align: center;">
                                                     <i class="fa fa-book item-icon-menu"></i>
@@ -103,30 +106,6 @@ function searchInit() {
     });
 }
 
-// ✅ Función para eliminar un instructor
-function deleteInstructor(id) {
-    $.ajax({
-        url: `${URL_BASE}/assignedcourse/delete`,  
-        type: 'POST',
-        data: { 
-            id: id, 
-            _token: token 
-        },
-        success: function (response) {
-            if (response.success) {
-                notyfEM.success(response.message);
-                $('#modalBackdrop').fadeOut();
-                searchInit();
-            } else {
-                notyfEM.error(response.message);
-            }
-        },
-        error: function(xhr) {
-            console.error("Error al eliminar:", xhr);
-            notyfEM.error("Ocurrió un error inesperado.");
-        }
-    });
-}
 
 // 🔹 Funciones para manejar la paginación
 function paginatorMax1() {
