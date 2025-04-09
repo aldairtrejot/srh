@@ -24,25 +24,40 @@ class AnioC extends Controller
         $messagesC = new MessagesC();
         $logC = new LogC();
         $now = Carbon::now();
+    
+        $descripcion = strtoupper(trim($request->descripcion));
+    
+        // Validar si ya existe (evitar duplicados al crear)
+        $existe = AnioM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
+                    ->when($request->id_cat_anio, function ($q) use ($request) {
+                        return $q->where('id_cat_anio', '<>', $request->id_cat_anio); // Ignorar el mismo si es edición
+                    })
+                    ->exists();
+    
+        if ($existe) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['descripcion' => 'La descripción ya existe.']);
+        }
+    
         $data = [
-            'descripcion' => $request->descripcion,
+            'descripcion' => $descripcion,
             'estatus' => $request->estatus ?? false,
         ];
+    
         if (!$request->id_cat_anio) {
             $anioM::create($data);
             $logC->add('correspondencia.cat_anio', $data);
-            
         } else {
-           
-
             $anioM::where('id_cat_anio', $request->id_cat_anio)->update($data);
             $data['id_cat_anio'] = $request->id_cat_anio;
             $logC->edit('correspondencia.cat_anio', $data);
         }
-        
-
-        return $messagesC->messageSuccessRedirect('año.list', 'Registro guardadao exitosamente.');
+    
+        return $messagesC->messageSuccessRedirect('año.list', 'Registro guardado exitosamente.');
     }
+    
 
     public function create()
     {
@@ -89,4 +104,5 @@ class AnioC extends Controller
 
         return view('administration.anioC.form', compact('item'));
     }
+
 }

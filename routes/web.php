@@ -382,6 +382,8 @@ Route::get('/año/create', [AnioC::class, 'create'])->name('año.create')->middl
 Route::post('/año/save', [AnioC::class, 'save'])->name('año.save')->middleware('auth');
 Route::post('/año/table', [AnioC::class, 'searchTable'])->middleware('auth');
 Route::get('/año/edit/{id}', [AnioC::class, 'edit'])->name('año.edit')->middleware('auth');
+Route::post('/anio/validar-descripcion', [AnioC::class, 'validarDescripcion'])->name('anio.validar.descripcion')->middleware('auth');
+
 
 //ROUTE CATALOGO DEPENDENCIA
 Route::get('/dependencia/list', DependenciaC::class)->name('dependencia.list')->middleware('auth');
