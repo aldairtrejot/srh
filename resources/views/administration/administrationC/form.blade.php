@@ -38,8 +38,7 @@
 
                             <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                                 <label for="estatus">Estatus</label>
-                                <input type="checkbox" id="estatus" name="estatus" class="toggle-switch"
-                                    {{ optional($item)->estatus ? 'checked' : '' }}>
+                                <input type="checkbox" id="estatus" name="estatus" class="toggle-switch" checked>
                             </div>
 
                             <x-template-button.button-form-footer routeBack="{{ route('administration.list') }}" />
