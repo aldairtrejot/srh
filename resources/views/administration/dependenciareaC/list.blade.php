@@ -11,6 +11,14 @@
                             <h3 class="font-weight-bold">Catálogo</h3>
                             <h5 class="font-weight-normal mb-0">Dependencia Área</h5>
                         </div>
+                        <!-- Botón Regresar alineado a la derecha -->
+                        <div class="col-12 col-xl-4 d-flex justify-content-end align-items-start">
+                            <a href="{{ route('administration.dashboard') }}" class="btn btn-hover-enlarge"
+                               style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none;"
+                               data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

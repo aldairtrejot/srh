@@ -11,6 +11,15 @@
                             <h3 class="font-weight-bold">Catálogo</h3>
                             <h5 class="font-weight-normal mb-0">Año</h5>
                         </div>
+
+                        <!-- Botón Regresar alineado a la derecha -->
+                        <div class="col-12 col-xl-4 d-flex justify-content-end align-items-start">
+                            <a href="{{ route('administration.dashboard') }}" class="btn btn-hover-enlarge"
+                               style="font-size: 1.1rem; padding: 10px; background-color: #10312B; color: white; border-radius: 50%; border: none;"
+                               data-bs-toggle="tooltip" data-bs-placement="top" title="Regresar">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -19,10 +28,11 @@
                 <div class="card custom-card">
                     <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-center">
+                        <!-- Encabezado con buscador -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <h4 class="card-title">Año</h4>
-                                @if($coursesMatch ?? true) {{-- para evitar error si no existe --}}
+                                @if($coursesMatch ?? true)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
                                         <a href="{{ route('año.create') }}" class="text-danger" style="margin-left: 10px;">
@@ -31,8 +41,9 @@
                                     </p>
                                 @endif
                             </div>
+
                             <div class="input-group" style="max-width: 300px;">
-                                <!-- TEMPLATE SEARCH-->
+                                <!-- TEMPLATE SEARCH -->
                                 <x-template-table.template-search />
                             </div>
                         </div>
@@ -48,7 +59,7 @@
                             </thead>
                         </x-template-table.template-table>
 
-                        <!-- TEMPLATE PAGINATOR-->
+                        <!-- TEMPLATE PAGINATOR -->
                         <x-template-table.template-paginator />
 
                     </div>
@@ -58,17 +69,17 @@
         </div>
     </div>
 
-<!-- Modal de confirmación -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Estás seguro de que deseas eliminar esta área?</p>
-        <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
-        <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
+    <!-- Modal de confirmación -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar esta área?</p>
+            <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+            <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
+        </div>
     </div>
-</div>
 
-<!-- CODE SCRIPT-->
-<script src="/srh/public/assets/js/app/letter/año/table.js"></script>
+    <!-- CODE SCRIPT -->
+    <script src="/srh/public/assets/js/app/letter/año/table.js"></script>
 </x-template-app.app-layout>

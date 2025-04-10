@@ -21,29 +21,41 @@ class DependenciareaC extends Controller
 
     public function save(Request $request)
     {
-        $dependenciareaM = new DependenciareaM();
         $messagesC = new MessagesC();
         $logC = new LogC();
-        $now = Carbon::now();
+    
+        $descripcion = strtoupper(trim($request->descripcion));
+    
+        // Validar si ya existe (evitar duplicados)
+        $existe = DependenciareaM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
+                    ->when($request->id_cat_dependencia_area, function ($q) use ($request) {
+                        return $q->where('id_cat_dependencia_area', '<>', $request->id_cat_dependencia_area);
+                    })
+                    ->exists();
+    
+        if ($existe) {
+            return redirect()->back()->withInput()->withErrors([
+                'descripcion' => 'La descripción ya existe.',
+            ]);
+        }
+    
         $data = [
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false,
+            'descripcion' => $descripcion,
+            'estatus' => (bool) $request->estatus,
         ];
+    
         if (!$request->id_cat_dependencia_area) {
-            $dependenciareaM::create($data);
+            DependenciareaM::create($data);
             $logC->add('correspondencia.cat_dependencia_area', $data);
-            
         } else {
-           
-
-            $dependenciareaM::where('id_cat_dependencia_area', $request->id_cat_dependencia_area)->update($data);
+            DependenciareaM::where('id_cat_dependencia_area', $request->id_cat_dependencia_area)->update($data);
             $data['id_cat_dependencia_area'] = $request->id_cat_dependencia_area;
             $logC->edit('correspondencia.cat_dependencia_area', $data);
         }
-        
-
+    
         return $messagesC->messageSuccessRedirect('dependenciarea.list', 'Dependencia guardada exitosamente.');
     }
+    
 
     public function create()
     {

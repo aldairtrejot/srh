@@ -19,31 +19,57 @@ class AreaC extends Controller
     }
 
     public function save(Request $request)
-    {
-        $areaM = new AreaM();
-        $messagesC = new MessagesC();
-        $logC = new LogC();
-        $now = Carbon::now();
-        $data = [
-            'descripcion' => $request->descripcion,
-            'clave' => $request->clave,
-            'estatus' => $request->estatus ?? false,
-        ];
-        if (!$request->id_cat_area) {
-            $areaM::create($data);
-            $logC->add('correspondencia.cat_area', $data);
-            
-        } else {
-           
+{
+    $messagesC = new MessagesC();
+    $logC = new LogC();
 
-            $areaM::where('id_cat_area', $request->id_cat_area)->update($data);
-            $data['id_cat_area'] = $request->id_cat_area;
-            $logC->edit('correspondencia.cat_area', $data);
-        }
-        
+    $descripcion = strtoupper(trim($request->descripcion));
+    $clave = strtoupper(trim($request->clave));
 
-        return $messagesC->messageSuccessRedirect('administration.list', 'Área guardada exitosamente.');
+    // Validar duplicados por descripción
+    $existeDescripcion = AreaM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
+        ->when($request->id_cat_area, function ($q) use ($request) {
+            return $q->where('id_cat_area', '<>', $request->id_cat_area);
+        })
+        ->exists();
+
+    if ($existeDescripcion) {
+        return redirect()->back()->withInput()->withErrors([
+            'descripcion' => 'La descripción ya existe.',
+        ]);
     }
+
+    // Validar duplicados por clave
+    $existeClave = AreaM::whereRaw("UPPER(TRIM(clave)) = ?", [$clave])
+        ->when($request->id_cat_area, function ($q) use ($request) {
+            return $q->where('id_cat_area', '<>', $request->id_cat_area);
+        })
+        ->exists();
+
+    if ($existeClave) {
+        return redirect()->back()->withInput()->withErrors([
+            'clave' => 'La clave ya existe.',
+        ]);
+    }
+
+    $data = [
+        'descripcion' => $descripcion,
+        'clave' => $clave,
+        'estatus' => (bool) $request->estatus,
+    ];
+
+    if (!$request->id_cat_area) {
+        AreaM::create($data);
+        $logC->add('correspondencia.cat_area', $data);
+    } else {
+        AreaM::where('id_cat_area', $request->id_cat_area)->update($data);
+        $data['id_cat_area'] = $request->id_cat_area;
+        $logC->edit('correspondencia.cat_area', $data);
+    }
+
+    return $messagesC->messageSuccessRedirect('administration.list', 'Área guardada exitosamente.');
+}
+
 
     public function create()
     {
