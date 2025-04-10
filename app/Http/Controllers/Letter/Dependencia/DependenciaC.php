@@ -21,29 +21,41 @@ class DependenciaC extends Controller
 
     public function save(Request $request)
     {
-        $dependenciaM = new DependenciaM();
         $messagesC = new MessagesC();
         $logC = new LogC();
-        $now = Carbon::now();
+    
+        $descripcion = strtoupper(trim($request->descripcion));
+    
+        // Validar si ya existe (evitar duplicados)
+        $existe = DependenciaM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
+                    ->when($request->id_cat_dependencia, function ($q) use ($request) {
+                        return $q->where('id_cat_dependencia', '<>', $request->id_cat_dependencia);
+                    })
+                    ->exists();
+    
+        if ($existe) {
+            return redirect()->back()->withInput()->withErrors([
+                'descripcion' => 'La descripción ya existe.',
+            ]);
+        }
+    
         $data = [
-            'descripcion' => $request->descripcion,
-            'estatus' => $request->estatus ?? false,
+            'descripcion' => $descripcion,
+            'estatus' => (bool) $request->estatus,
         ];
+    
         if (!$request->id_cat_dependencia) {
-            $dependenciaM::create($data);
+            DependenciaM::create($data);
             $logC->add('correspondencia.cat_dependencia', $data);
-            
         } else {
-           
-
-            $dependenciaM::where('id_cat_dependencia', $request->id_cat_dependencia)->update($data);
+            DependenciaM::where('id_cat_dependencia', $request->id_cat_dependencia)->update($data);
             $data['id_cat_dependencia'] = $request->id_cat_dependencia;
             $logC->edit('correspondencia.cat_dependencia', $data);
         }
-        
-
-        return $messagesC->messageSuccessRedirect('dependencia.list', 'Dependencia guardada exitosamente.');
+    
+        return $messagesC->messageSuccessRedirect('dependencia.list', 'Registro guardada exitosamente.');
     }
+    
 
     public function create()
     {
