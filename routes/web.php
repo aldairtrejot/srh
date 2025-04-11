@@ -56,6 +56,7 @@ use App\Http\Controllers\Letter\Año\AnioC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
+use App\Http\Controllers\Letter\Cloud\ConfigcloudC;
 use Mews\Captcha\Facades\Captcha;
 
 use Illuminate\Support\Facades\Route;
@@ -405,6 +406,13 @@ Route::get('rel/dependenciarea/create', [ReldependenciaC::class, 'create'])->nam
 Route::post('rel/dependenciarea/save', [ReldependenciaC::class, 'save'])->name('reldependenciarea.save')->middleware('auth');
 Route::post('rel/dependenciarea/table', [ReldependenciaC::class, 'searchTable'])->middleware('auth');
 Route::get('rel/dependenciarea/edit/{id}', [ReldependenciaC::class, 'edit'])->name('reldependenciarea.edit')->middleware('auth');
+
+//ROUTE CATALOGO CONFIG_CLOUD
+Route::get('config/cloud/list', ConfigcloudC::class)->name('configcloud.list')->middleware('auth');
+Route::get('config/cloud/create', [ConfigcloudC::class, 'create'])->name('configcloud.create')->middleware('auth');
+Route::post('config/cloud/save', [ConfigcloudC::class, 'save'])->name('configcloud.save')->middleware('auth');
+Route::post('config/cloud/table', [ConfigcloudC::class, 'searchTable'])->middleware('auth');
+Route::get('config/cloud/edit/{id}', [ConfigcloudC::class, 'edit'])->name('configcloud.edit')->middleware('auth');
 
 
 
