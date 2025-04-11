@@ -107,7 +107,7 @@ class ExternalC extends Controller
                 'num_turno_sistema' => $collectionConsecutivoM->noDocumento($collectionDateM->idYear(), config('custom_config.CP_TABLE_CIRCULARES_EXT')),
                 'no_documento' => strtoupper($request->no_documento),
                 'fecha_captura' => now()->format('y-m-d'),
-                'fecha_documento' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
+                'fecha_documento' => $request->fecha_documento, 
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_dependencia' => $request->id_cat_dependencia,
@@ -132,7 +132,7 @@ class ExternalC extends Controller
 
             $data = [
                 'no_documento' => strtoupper($request->no_documento),
-                'fecha_documento' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
+                'fecha_documento' => $request->fecha_documento,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
                 'id_cat_dependencia' => $request->id_cat_dependencia,
