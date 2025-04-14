@@ -50,7 +50,6 @@ public function save(Request $request)
     return $messagesC->messageSuccessRedirect('courses.list', 'Curso guardado exitosamente.');
 }
 
-
     public function create()
     {
         $item = new CoursesM();
@@ -78,13 +77,8 @@ public function save(Request $request)
         'value' => $courses
     ]);
 }
-    
-
-    
- 
 
     // Otros métodos del controlador...
-
     public function destroy($id)
     {   
            try {
@@ -92,11 +86,10 @@ public function save(Request $request)
                 $course->delete();
                 return response()->json(['success' => true, 'message' => 'Eliminado exitosamente.']); 
             } catch (\Exception $e) {
-                return response()->json(['error' => 'Error al eliminar el curso'], 500);
-                
-            }
-            
+                return response()->json(['error' => 'Error al eliminar el curso'], 500);    
+            }    
     }
+
     public function edit(string $id)
     {
         $coursesM = new CoursesM();
@@ -105,8 +98,6 @@ public function save(Request $request)
         return view('courses.courses.form', compact('item'));
        
     }
-   
-
 }
 
 
