@@ -11,7 +11,6 @@ use App\Models\Courses\Courses\Assignedcourse\AssignedcourseM;
 
 class AssignedcourseC extends Controller
 {
-
     // se encarga de la vista del list
     public function list()
     {
@@ -117,7 +116,6 @@ class AssignedcourseC extends Controller
     }
 }
 
-
 public function dataCurp(Request $request)
 {
     try {
@@ -130,7 +128,6 @@ public function dataCurp(Request $request)
         $centralCurp = $assignedcourseM->centralCurp($request->curp);
         $empleadoHRAES = $assignedcourseM->buscarEmpleadoHRAES($request->curp);
         $empleadoTransferidos = $assignedcourseM->buscarEmpleadoTransferidos($request->curp);
-
         $resultado = $centralCurp ?? $empleadoHRAES ?? $empleadoTransferidos;
 
         return response()->json([
@@ -194,10 +191,6 @@ public function create()
         
     }
 
-
-
-
-
     // este se encarga de las cargas masivas 
     public function modalCarga()
     {
@@ -232,8 +225,6 @@ public function handleMassiveUpload(Request $request)
         ], 500);
     }
 }
-
-
 
 public function courses(Request $request, $idUsuario)
 {
@@ -292,10 +283,8 @@ public function searchCoursesByUser(Request $request)
     }
 }
 
-  
 
 // funciones de asignacion de cursos 
-
 public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
 {
     $registro = DB::table('capacitacion.tbl_empleado_cursos')
@@ -434,7 +423,5 @@ public function enroll(Request $request)
 
     return redirect()->route('assignedcourse.list')->with('success', 'Curso asignado exitosamente.');
 }
-
-
 
 }
