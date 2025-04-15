@@ -87,6 +87,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">Catálogo Config Cloud</h4>
+                                        <a href="" class="btn-icon" title="Ir a Catálogo Área">
+                                            <i class="fa fa-cubes fa-3x"></i>
+                                        </a>
+                                        <p class="card-text mt-2">Correspondencia</p>
+                                    </div>
+                                </div>
+                            </div>
                                 
                                 <style>
                                     .btn-icon {
