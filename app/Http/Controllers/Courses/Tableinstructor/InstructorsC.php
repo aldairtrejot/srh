@@ -50,7 +50,6 @@ class InstructorsC extends Controller
         }
     }
     
-
  
     public function searchTable(Request $request)
     {
