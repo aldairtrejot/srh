@@ -1,81 +1,58 @@
-<!-- TEMPLATE APP-->
-<?php include(resource_path('views/config.php')); ?>
+<?php
 
-<x-template-app.app-layout>
-    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- Token CSRF -->
+namespace App\Http\Controllers\Courses\Assignedcourse;
+
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\QR\QrCodeController;
+use App\Models\Courses\Courses\Assignedcourse\AssignedcourseM;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use setasign\Fpdi\Fpdi;
+
+
+class ConstanciaAlumnoC extends Controller
+{
+    public function generatePdf($id)
+{
+    $AssignedcourseM = new AssignedcourseM();  
+    $data = $AssignedcourseM->getDataReport($id);
+
+    if (!$data) {
+        return response()->json(['status' => false, 'message' => 'No se encontró información del curso.'], 404);
+    }
     
-    <!-- Metaetiquetas para rutas de JavaScript -->
-    <meta name="route-cloud-data" content="{{ route('tableinstructor.cloud.data') }}">
-    <meta name="route-cloud-upload" content="{{ route('tableinstructor.cloud.upload') }}">
-    <meta name="route-cloud-delete" content="{{ route('tableinstructor.cloud.delete') }}">
-    <meta name="route-cloud-see" content="{{ route('tableinstructor.cloud.see') }}">
-    <meta name="route-cloud-download" content="{{ route('tableinstructor.cloud.download', ['uuid' => '__UUID__']) }}">
+    $fechaActual = Carbon::now()->locale('es')->isoFormat('LL'); 
+    $textoFecha = "Ciudad de México a " . $fechaActual;
 
-    <div class="main-panel">
-        <div class="content-wrapper">
-            <div class="row">
-                <div class="col-md-12 grid-margin">
-                    <h3 class="font-weight-bold">Gestión de control</h3>
-                    <h5 class="font-weight-normal mb-0">Carga de Documentos</h5>
-                </div>
-            </div>
-
-            <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card custom-card">
-                    <div class="card-body">
-                        <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('tableinstructor.list') }}" />
-
-                        <x-template-form.template-form-input-hidden name="id_tbl_cv" value="{{ $idInstructor ?? '' }}" />
-
-                        <!-- Contenedor principal con flexbox -->
-                        <div class="main-container">
-                            <!-- Lado izquierdo (Documentos de Entrada) -->
-                            <div class="left-side">
-                                <br>
-                                <p class="card-description" style="font-size: 1rem; font-weight: bold; color: #BC955C; font-style: italic;">
-                                    Documentos del Instructor
-                                </p>
-
-                                <!-- Cargar CV -->
-                                <div>
-                                <x-template-tittle.tittle-caption-secon tittle="CV (Máx 1)" />
-                                <label for="file_cv_entrada" id="label_cv_entrada" class="upload-label"
-                                style="color: red !important; font-weight: normal; font-size: 1rem; 
-                                padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-        
-                                <i class="fa fa-arrow-up" id="icon_cv_entrada"></i> 
-                                <span style="color: red !important;">Cargar</span>
-                                </label>
-
-                                <input type="file" id="file_cv_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
-                                <div id="container_cv_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                <div id="container_cv_entrada"></div>
-                                </div>
-
-
-                                <!-- Cargar Constancias -->
-                                <div>
-                                <x-template-tittle.tittle-caption-secon tittle="Constancias (Máx 1)" />
-                                <label for="file_constancia_entrada" id="label_constancia_entrada" 
-                                style="background-color: white; color: red !important; font-weight: normal; font-size: 1rem; 
-                                padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+    $pdfPath = public_path('assets/documents/template-pdf/templateConstanciaCurso.pdf'); 
     
-                                <i class="fa fa-arrow-up" id="icon_constancia_entrada"></i> 
-                                <span style="color: red !important;">Cargar</span>
-                                </label>
+    $pdf = new Fpdi();
+    $pdf->SetAutoPageBreak(false);
+    $pdf->SetMargins(0, 0, 0);
+    $pdf->setSourceFile($pdfPath);
+    $template = $pdf->importPage(1);
+    $pdf->addPage();
+    $pdf->useTemplate($template, 0, 0, 210, 297);
 
-                                <input type="file" id="file_constancia_entrada" style="display: none;" accept=".pdf,.docx,.jpg,.png">
-                                <div id="container_constancia_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                <div id="container_constancia_entrada"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    $pdf->SetFont('Arial', 'B', 30);
+    $pdf->SetTextColor(181, 139, 91);
+    $pdf->SetXY(0, 115);
+    $pdf->Cell(170, 15, utf8_decode($data->nombre), 0, 1, 'C');
+    $pdf->SetXY(0, 129);
+    $pdf->Cell(170, 15, utf8_decode($data->primer_apellido . ' ' . $data->segundo_apellido), 0, 1, 'C');
 
-    <!-- Código JavaScript -->
-    <script defer src="{{ asset('assets/js/app/courses/tableinstructor/cloud.js') }}"></script>
-</x-template-app.app-layout>
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetXY(20, 282);
+    $pdf->Cell(210, 10, utf8_decode($textoFecha), 0, 0, 'C'); 
+
+    return response()->stream(function () use ($pdf) {
+        $pdf->Output('I', 'Constancia.pdf');
+    }, 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="Constancia.pdf"'
+    ]);
+}
+
+    
+}

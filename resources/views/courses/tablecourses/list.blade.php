@@ -38,7 +38,6 @@
                                 <x-template-table.template-search />
                             </div>
                         </div>
-
                         <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>
@@ -68,10 +67,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-                <!-- Modal de confirmación -->
+    <!-- Modal de confirmación -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>

@@ -56,23 +56,7 @@ public function save(Request $request)
 
         return view('courses.coursescategoria.form', compact('item'));
     }
-    public function searchTable(Request $request)
-    {
-        $searchValue = $request->get('searchValue');  // Término de búsqueda
-        $iterator = $request->get('iterator', 0);  // Si no se pasa iterador, por defecto será 0 (primera página)
-
-        // Filtrar los cursos que coincidan con la búsqueda
-        $courses = CoursescategoriaM::where('descripcion', 'like', '%' . $searchValue . '%')
-            ->offset($iterator)
-            ->limit(5)  // Límite de resultados por página
-            ->get();
-
-        return response()->json([
-            'value' => $courses,
-            'status' => true,
-        ]);
-    }
-    public function destroy($id)
+      public function destroy($id)
     {   
            try {
             $course = CoursescategoriaM::findOrFail($id);
@@ -92,4 +76,25 @@ public function save(Request $request)
         return view('courses.coursescategoria.form', compact('item'));
        
     }
+
+    public function searchTable(Request $request)
+{
+    $searchValue = strtoupper(trim($request->get('searchValue', '')));
+    $iterator = intval($request->get('iterator', 0));
+
+    $courses = CoursescategoriaM::select([
+                            'id_cat_categoria AS id',
+                            'descripcion',
+                            'estatus'
+                        ])
+                        ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                        ->offset($iterator)
+                        ->limit(5)
+                        ->get();
+
+    return response()->json([
+        'value' => $courses
+    ]);
+}
+
 }

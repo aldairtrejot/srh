@@ -12,17 +12,11 @@ function llenarDatosInstructor() {
         console.log("🔄 Modo Edición: Cargando datos del instructor...");
 
         // Obtener los valores desde los inputs ocultos
-        let nombre = $('#nombre').val()?.trim() || '';
-        let primer_apellido = $('#primer_apellido').val()?.trim() || '';
-        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '';
-        let rfc = $('#rfc').val()?.trim() || '';
+        let nombre = $('#nombre').val()?.trim() || '_';
+        let primer_apellido = $('#primer_apellido').val()?.trim() || '_';
+        let segundo_apellido = $('#segundo_apellido').val()?.trim() || '_';
+        let rfc = $('#rfc').val()?.trim() || '_';
         let curp = $('#curp').val()?.trim() || '';
-
-        // Si los valores están vacíos, coloca un placeholder "_"
-        nombre = nombre || '_';
-        primer_apellido = primer_apellido || '_';
-        segundo_apellido = segundo_apellido || '_';
-        rfc = rfc || '_';
 
         // Insertar valores en la interfaz
         $('#label_nombre').text(nombre);
@@ -51,6 +45,9 @@ function validarcurp() {
         url: URL_DEFAULT.concat('/tableinstructor/table/dataCurp'),
         type: 'POST',
         data: { curp: curp },
+        headers: {
+            'X-CSRF-TOKEN': token
+        },
         success: function (response) {
             if (response.status && response.value) {
                 $('#label_nombre').text(response.value.nombre || '_');
@@ -68,47 +65,3 @@ function validarcurp() {
         }
     });
 }
-
-$.ajaxSetup({
-    headers: { 'X-CSRF-TOKEN': token }
-});
-
-$('#form-instructor').on('submit', function (event) {
-    event.preventDefault();
-
-    let formData = $(this).serializeArray();
-    let instructorId = $('#id_tbl_instructores').val();
-    let isEditing = $('#is_editing').val() === "1";
-
-    if (instructorId) {
-        formData.push({ name: "id_tbl_instructores", value: instructorId });
-    }
-
-    let estatus = $('#estatus').is(':checked') ? "1" : "0";
-    formData = formData.filter(item => item.name !== "estatus");
-    formData.push({ name: "estatus", value: estatus });
-
-    console.log("📤 Datos enviados:", formData);
-
-    let requestType = isEditing ? 'POST' : 'POST';
-    let requestData = $.param(formData);
-
-    if (isEditing) {
-        requestData += '&_method=PUT';
-    }
-
-    $.ajax({
-        url: $(this).attr('action'),
-        type: requestType,
-        data: requestData,
-        success: function () {
-            let message = isEditing ? "✅ Instructor actualizado correctamente." : "✅ Instructor agregado correctamente.";
-            alert(message);
-            window.location.href = URL_DEFAULT.concat('/tableinstructor/list');
-        },
-        error: function () {
-            let errorMessage = isEditing ? "❌ Error al actualizar el instructor." : "❌ Error al agregar el instructor.";
-            alert(errorMessage);
-        }
-    });
-});

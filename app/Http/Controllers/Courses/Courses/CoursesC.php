@@ -50,31 +50,35 @@ public function save(Request $request)
     return $messagesC->messageSuccessRedirect('courses.list', 'Curso guardado exitosamente.');
 }
 
-
     public function create()
     {
         $item = new CoursesM();
         
         return view('courses.courses.form', compact('item'));
+        
     }
-    public function searchTable(Request $request)
-    {
-        $searchValue = $request->get('searchValue');  // Término de búsqueda
-        $iterator = $request->get('iterator', 0);  // Si no se pasa iterador, por defecto será 0 (primera página)
-    
-        // Filtrar los cursos que coincidan con la búsqueda
-        $courses = CoursesM::where('descripcion', 'like', '%' . $searchValue . '%')
-                           ->offset($iterator)
-                           ->limit(5)  // Límite de resultados por página
-                           ->get();
-    
-        return response()->json([
-            'value' => $courses
-        ]);
-    }
-    
-    // Otros métodos del controlador...
 
+    public function searchTable(Request $request)
+{
+    $searchValue = strtoupper(trim($request->get('searchValue', '')));
+    $iterator = intval($request->get('iterator', 0));
+
+    $courses = CoursesM::select([
+                            'id_cat_beneficio AS id',
+                            'descripcion',
+                            'estatus'
+                        ])
+                        ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
+                        ->offset($iterator)
+                        ->limit(5)
+                        ->get();
+
+    return response()->json([
+        'value' => $courses
+    ]);
+}
+
+    // Otros métodos del controlador...
     public function destroy($id)
     {   
            try {
@@ -82,11 +86,10 @@ public function save(Request $request)
                 $course->delete();
                 return response()->json(['success' => true, 'message' => 'Eliminado exitosamente.']); 
             } catch (\Exception $e) {
-                return response()->json(['error' => 'Error al eliminar el curso'], 500);
-                
-            }
-            
+                return response()->json(['error' => 'Error al eliminar el curso'], 500);    
+            }    
     }
+
     public function edit(string $id)
     {
         $coursesM = new CoursesM();

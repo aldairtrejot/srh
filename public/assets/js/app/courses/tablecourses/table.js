@@ -47,15 +47,17 @@ $(document).ready(function () {
 
 // Función para inicializar la búsqueda y cargar datos
 function searchInit() {
+    console.log('hola');
     const searchValue = $('#searchValue').val(); // Usar jQuery para obtener el valor
     const iteradorAux = (iterator - 1) * 5; // Se puede simplificar
-
+    console.log($('#idAlumno').val());
     $.ajax({
         url: '/srh/public/tablecourses/table',
         type: 'POST',
         data: {
             iterator: iterator,
             searchValue: searchValue,
+            idAlumno: $('#idAlumno').val(), 
             _token: token,
         },
         success: function(response) {

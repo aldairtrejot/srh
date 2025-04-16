@@ -1,3 +1,14 @@
+
+@props([
+    'label',
+    'type' => 'text',
+    'name',
+    'value' => '',
+    'placeholder' => '', // ✅ Agrega un valor por defecto
+    'autocomplete' => 'off', // ✅ Agrega un valor por defecto
+    'grid' => 'col-12'
+])
+
 <div class="{{ $grid }}">
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" style="font-size: 1rem; color: #333;">{{ $label }}</label>

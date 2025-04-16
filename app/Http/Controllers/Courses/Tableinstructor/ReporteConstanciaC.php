@@ -1,13 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Courses\Tableinstructor;
-
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\QR\QrCodeController;
 use App\Models\Courses\Courses\Instructores\Instructores\InstructorM;
 use Carbon\Carbon;
 use setasign\Fpdi\Fpdi;
-
 
 class ReporteConstanciaC extends Controller
 {
@@ -49,7 +47,6 @@ class ReporteConstanciaC extends Controller
         $pdf->SetY(270); // Mueve el cursor al final del documento
         $pdf->Cell(0, 0, '', 0, 0, 'C'); // Esto empuja la firma hacia arriba
 
-
         $pdf->SetFont('Arial', '', 12); // Fuente normal
         $pdf->SetTextColor(0, 0, 0); // Color negro
 
@@ -66,7 +63,6 @@ class ReporteConstanciaC extends Controller
 
         // 📌 **Insertar QR en el PDF**
         $pdf->Image($qrPath, 140, 5, 25, 25); // Ajusta X, Y, Ancho y Alto
-
 
         // Enviar el PDF generado al navegador
         return response($pdf->Output('I'), 200)

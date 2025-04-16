@@ -5,7 +5,7 @@ namespace App\Models\Courses\Courses\Assignedcourse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+
 class AssignedcourseM extends Model
 {
     protected $table = 'capacitacion.tbl_empleado_cursos';
@@ -29,11 +29,11 @@ class AssignedcourseM extends Model
             ->leftJoin('transferidos.tbl_empleados AS t', 'u.id_tbl_empleados_transferidos', '=', 't.id_tbl_empleados')
             ->leftJoin('public.tbl_empleados_hraes AS p', 'u.id_tbl_empleados_hraes', '=', 'p.id_tbl_empleados_hraes')
             ->selectRaw("
-                e.id_empleado_cursos,
-                e.id_cursos,
-                e.id_calificacion,
-                e.uuid_constancia,
-                e.fecha_usuario,
+                e.id_usuarios,
+                MAX(e.id_cursos) AS id_cursos,
+                MAX(e.id_calificacion) AS id_calificacion,
+                MAX(e.uuid_constancia) AS uuid_constancia,
+                MAX(e.fecha_usuario) AS fecha_usuario,
                 CASE
                     WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.curp)
                     WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.curp)
@@ -55,32 +55,40 @@ class AssignedcourseM extends Model
                     WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.segundo_apellido)
                 END AS segundo_apellido,
                 CASE 
-                    WHEN e.estatus = TRUE THEN 'ACTIVO' 
-                    ELSE 'INACTIVO' 
+                    WHEN MAX(CASE WHEN e.estatus = TRUE THEN 1 ELSE 0 END) = 1 THEN 'ACTIVO'
+                    ELSE 'INACTIVO'
                 END AS estatus_curso
+            ")
+            ->groupByRaw("
+                e.id_usuarios, 
+                u.id_cat_tipo_schema, 
+                c.curp, p.curp, t.curp, 
+                c.nombre, p.nombre, t.nombre,
+                c.primer_apellido, p.primer_apellido, t.primer_apellido,
+                c.segundo_apellido, p.segundo_apellido, t.segundo_apellido
             ")
             ->when(!empty($searchValue), function ($q) use ($searchValue) {
                 $searchValue = strtoupper(trim($searchValue));
-                $q->whereRaw("UPPER(c.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.curp) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(e.uuid_constancia) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.nombre) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(c.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(p.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(t.segundo_apellido) LIKE ?", ['%' . $searchValue . '%']);
-
+                $q->where(function ($q2) use ($searchValue) {
+                    $q2->whereRaw("UPPER(c.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.curp) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.nombre) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.primer_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(c.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(p.segundo_apellido) LIKE ?", ['%' . $searchValue . '%'])
+                        ->orWhereRaw("UPPER(t.segundo_apellido) LIKE ?", ['%' . $searchValue . '%']);
+                });
             });
 
         return $query->paginate(5, ['*'], 'page', $iterator);
     }
+
+    
 
      // BUSQUEDA DE CURP 
      public function centralCurp($curp)
@@ -136,217 +144,473 @@ class AssignedcourseM extends Model
  }
  
  
- public function obtenerOcrearUsuarioPorCurp($curp)
- {
-     Log::info('🔎 Buscando usuario con CURP: ' . $curp);
- 
-     // Buscar el usuario en las diferentes bases de datos
-     $persona = $this->centralCurp($curp) ?? 
-                $this->buscarEmpleadoHRAES($curp) ?? 
-                $this->buscarEmpleadoTransferidos($curp);
- 
-     if (!$persona) {
-         Log::error('❌ No se encontró información para CURP: ' . $curp);
-         return null;
-     }
- 
-     Log::info('✅ Persona encontrada: ' . json_encode($persona));
- 
-     // Verificar si el usuario ya existe en `administration.users`
-     $usuario = DB::table('administration.users')
-         ->where('id_tbl_empleados_central', $persona->id)
-         ->orWhere('id_tbl_empleados_hraes', $persona->id)
-         ->orWhere('id_tbl_empleados_transferidos', $persona->id)
-         ->first();
- 
-     if ($usuario) {
-         Log::info('✅ Usuario EXISTE en administration.users con ID: ' . $usuario->id);
-         return $this->guardarEnTblEmpleadoCursos($usuario->id);
-     }
- 
-     // Si no existe, crear usuario
-     Log::info('🆕 Usuario NO existe. Creando nuevo usuario.');
- 
-     // Generar email único
-     $baseEmail = strtolower(str_replace(' ', '', $persona->nombre)) . ".correo@example.com";
-     $email = $baseEmail;
-     $contador = 1;
- 
-     while (DB::table('administration.users')->where('email', $email)->exists()) {
-         $email = strtolower(str_replace(' ', '', $persona->nombre)) . $contador . ".correo@example.com";
-         $contador++;
-     }
- 
-     DB::beginTransaction();
-     try {
-         $idUsuario = DB::table('administration.users')->insertGetId([
-             'name' => "{$persona->nombre} {$persona->primer_apellido} {$persona->segundo_apellido}",
-             'email' => $email,
-             'password' => bcrypt('Alumno2025!'),
-             'created_at' => now(),
-             'updated_at' => now(),
-             'id_tbl_empleados_central' => ($persona->id_schema == 1) ? $persona->id : null,
-             'id_tbl_empleados_hraes' => ($persona->id_schema == 2) ? $persona->id : null,
-             'id_tbl_empleados_transferidos' => ($persona->id_schema == 3) ? $persona->id : null,
-             'es_por_nomina' => false,  // 🔹 Se añade para evitar errores de `NOT NULL`
-             'estatus' => true,
-             'id_usuario' => Auth::id(),
-             'fecha_usuario' => now(),
-             'id_cat_tipo_schema' => $persona->id_schema
-         ]);
- 
-         DB::commit();
-         Log::info('✅ Usuario creado con ID: ' . $idUsuario);
- 
-         return $this->guardarEnTblEmpleadoCursos($idUsuario);
-     } catch (\Exception $e) {
-         DB::rollBack();
-         Log::error('🔥 Error al insertar usuario en administration.users: ' . $e->getMessage());
-         return null;
-     }
- }
- 
-
-
-     
- public function obtenerAlumno($curp, $estatus)
- {
-     Log::info("🔎 Iniciando búsqueda y creación de Alumno con CURP: " . $curp);
- 
-     // Obtener usuario registrado en `administration.users`
-     $idUsuario = $this->obtenerOcrearUsuarioPorCurp($curp);
- 
-     if (!$idUsuario) {
-         Log::error("❌ No se encontró usuario válido para CURP: " . $curp);
-         return null;
-     }
- 
-     // Buscar si el Alumno ya está registrado en `capacitacion.tbl_empleado_cursos`
-     $alumno = DB::table('capacitacion.tbl_empleado_cursos')
-         ->where('id_usuarios', $idUsuario)
-         ->first();
- 
-     if ($alumno) {
-         Log::info("✅ Alumno YA existe con ID: " . $alumno->id_empleado_cursos);
- 
-         // Si el estatus es diferente, lo actualiza
-         if ($alumno->estatus != $estatus) {
-             DB::table('capacitacion.tbl_empleado_cursos')
-                 ->where('id_empleado_cursos', $alumno->id_empleado_cursos)
-                 ->update(['estatus' => ($estatus == 1)]);
- 
-             Log::info("🔄 Estatus actualizado a: " . (($estatus == 1) ? 'Activo' : 'Inactivo'));
-         }
- 
-         return $alumno->id_empleado_cursos;
-     }
- 
-     Log::info("🆕 Alumno NO existe. Procediendo a registrarlo.");
- 
-     // Insertar Alumno en `capacitacion.tbl_empleado_cursos`
-     DB::beginTransaction();
-     try {
-         $AlumnoId = DB::table('capacitacion.tbl_empleado_cursos')->insertGetId([
-             'id_usuarios' => $idUsuario,
-             'estatus' => ($estatus == 1), // Convertimos 1 en TRUE y 0 en FALSE
-             'id_usuario_sistema' => Auth::id(),
-             'fecha_usuario' => now(),
-         ]);
- 
-         DB::commit();
-         Log::info("✅ Alumno creado con ID: " . $AlumnoId);
-         return $AlumnoId;
-     } catch (\Exception $e) {
-         DB::rollBack();
-         Log::error("🔥 Error al insertar Alumno en capacitacion.tbl_empleado_cursos: " . $e->getMessage());
-         return null;
-     }
- }
- 
- 
-     public function getDataReport($id)
-     {
-         return DB::table('capacitacion.tbl_empleado_cursos AS e')
-             ->select([
-                 'e.id_empleado_cursos',
-                 DB::raw("
-                     CASE
-                         WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.curp)
-                         WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.curp)
-                         WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.curp)
-                     END AS curp
-                 "),
-                 DB::raw("
-                     CASE
-                         WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.nombre)
-                         WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.nombre)
-                         WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.nombre)
-                     END AS nombre
-                 "),
-                 DB::raw("
-                     CASE
-                         WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.primer_apellido)
-                         WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.primer_apellido)
-                         WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.primer_apellido)
-                     END AS primer_apellido
-                 "),
-                 DB::raw("
-                     CASE
-                         WHEN u.id_cat_tipo_schema = 1 THEN UPPER(c.segundo_apellido)
-                         WHEN u.id_cat_tipo_schema = 2 THEN UPPER(p.segundo_apellido)
-                         WHEN u.id_cat_tipo_schema = 3 THEN UPPER(t.segundo_apellido)
-                     END AS segundo_apellido
-                 "),
-                 DB::raw("
-                     CASE
-                         WHEN e.estatus = TRUE THEN 'ACTIVO'
-                         ELSE 'INACTIVO'
-                     END AS estatus_curso
-                 "),
-                 'u.email',
-                 'u.name AS usuario_sistema',
-                 'e.fecha_usuario'
-             ])
-             ->join('administration.users AS u', 'e.id_usuarios', '=', 'u.id')
-             ->leftJoin('central.tbl_empleados_hraes AS c', 'u.id_tbl_empleados_central', '=', 'c.id_tbl_empleados_hraes')
-             ->leftJoin('transferidos.tbl_empleados AS t', 'u.id_tbl_empleados_transferidos', '=', 't.id_tbl_empleados')
-             ->leftJoin('public.tbl_empleados_hraes AS p', 'u.id_tbl_empleados_hraes', '=', 'p.id_tbl_empleados_hraes')
-             ->where('e.id_empleado_cursos', '=', $id)
-             ->first();
-     }
-
-     private function guardarEnTblEmpleadoCursos($idUsuario)
+ public function obtenerOcrearUsuarioPorCurp($curp, $idCursos)
 {
-    Log::info("💾 Insertando usuario con ID: $idUsuario en tbl_empleado_cursos");
+    // Buscar el usuario en las diferentes bases de datos
+    $persona = $this->centralCurp($curp) ?? 
+               $this->buscarEmpleadoHRAES($curp) ?? 
+               $this->buscarEmpleadoTransferidos($curp);
 
-    // Verificar si ya existe
+    if (!$persona) {
+        return null;
+    }
+    // Verificar si el usuario ya existe en `administration.users`
+    $usuario = DB::table('administration.users')
+        ->where('id_tbl_empleados_central', $persona->id)
+        ->orWhere('id_tbl_empleados_hraes', $persona->id)
+        ->orWhere('id_tbl_empleados_transferidos', $persona->id)
+        ->first();
+
+    if ($usuario) {
+        return $this->guardarEnTblEmpleadoCursos($usuario->id, $idCursos); // 🔹 Ahora se pasa id_cursos
+    }
+
+    // Generar email único
+
+    $baseEmail = strtolower(str_replace(' ', '', $persona->nombre)) . ".correo@example.com";
+    $email = $baseEmail;
+    $contador = 1;
+
+    while (DB::table('administration.users')->where('email', $email)->exists()) {
+        $email = strtolower(str_replace(' ', '', $persona->nombre)) . $contador . ".correo@example.com";
+        $contador++;
+    }
+
+    DB::beginTransaction();
+    try {
+        $idUsuario = DB::table('administration.users')->insertGetId([
+            'name' => "{$persona->nombre} {$persona->primer_apellido} {$persona->segundo_apellido}",
+            'email' => $email,
+            'password' => bcrypt('Alumno2025!'),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'id_tbl_empleados_central' => ($persona->id_schema == 1) ? $persona->id : null,
+            'id_tbl_empleados_hraes' => ($persona->id_schema == 2) ? $persona->id : null,
+            'id_tbl_empleados_transferidos' => ($persona->id_schema == 3) ? $persona->id : null,
+            'es_por_nomina' => false,
+            'estatus' => true,
+            'id_usuario' => Auth::id(),
+            'fecha_usuario' => now(),
+            'id_cat_tipo_schema' => $persona->id_schema
+        ]);
+
+        DB::commit();
+        return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos); // 🔹 Se pasa id_cursos
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return null;
+    }
+}
+
+     public function guardarEnTblEmpleadoCursos($idUsuario, $idCursos = null)
+     {
+      
+         // 🔹 Si no hay curso, verifica si el usuario ya está en la tabla SIN curso
+         if (!$idCursos) {
+
+             $existeRegistroSinCurso = DB::table('capacitacion.tbl_empleado_cursos')
+                 ->where('id_usuarios', $idUsuario)
+                 ->whereNull('id_cursos') // 🔹 Verificamos registros sin curso
+                 ->exists();
+     
+             if ($existeRegistroSinCurso) {
+                 return $idUsuario;
+             }
+     
+             // Si no existe, insertamos el usuario sin curso
+             DB::beginTransaction();
+             try {
+                 DB::table('capacitacion.tbl_empleado_cursos')->insert([
+                     'id_usuarios' => $idUsuario,
+                     'id_cursos' => null, // Se guarda NULL en id_cursos
+                     'id_calificacion' => null,
+                     'estatus' => true,
+                     'id_usuario_sistema' => Auth::id(),
+                     'fecha_usuario' => now()
+                 ]);
+     
+                 DB::commit();
+  
+                 return $idUsuario;
+             } catch (\Exception $e) {
+                 DB::rollBack();
+                 return null;
+             }
+         }
+     
+         // 🔹 Si hay curso, verifica si ya está registrado antes de insertarlo
+         $existe = DB::table('capacitacion.tbl_empleado_cursos')
+             ->where('id_usuarios', $idUsuario)
+             ->where('id_cursos', $idCursos)
+             ->exists();
+     
+         if ($existe) {
+             return $idUsuario;
+         }
+     
+         // Si no está registrado con el curso, se inserta
+         DB::beginTransaction();
+         try {
+             DB::table('capacitacion.tbl_empleado_cursos')->insert([
+                 'id_usuarios' => $idUsuario,
+                 'id_cursos' => $idCursos,
+                 'id_calificacion' => null,
+                 'estatus' => true,
+                 'id_usuario_sistema' => Auth::id(),
+                 'fecha_usuario' => now()
+             ]);
+     
+             DB::commit();
+             return $idUsuario;
+         } catch (\Exception $e) {
+             DB::rollBack();
+             return null;
+         }
+     }
+     
+     
+     public function obtenerAlumno($curp, $estatus, $idCursos = null)
+{
+    // 🔹 Llamar a `obtenerOcrearUsuarioPorCurp()` con ambos argumentos
+    $idUsuario = $this->obtenerOcrearUsuarioPorCurp($curp, $idCursos ?? null);
+
+    if (!$idUsuario) {
+
+        return null;
+    }
+
+    // 🔹 Si `id_cursos` es `null`, no se asigna curso
+    if (!$idCursos) {
+
+        return $idUsuario;
+    }
+
+    // Si hay curso, verifica si ya existe antes de guardarlo
+    $alumno = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_usuarios', $idUsuario)
+        ->where('id_cursos', $idCursos)
+        ->first();
+
+    if ($alumno) {
+
+        return $alumno->id_empleado_cursos;
+    }
+
+
+    return $this->guardarEnTblEmpleadoCursos($idUsuario, $idCursos);
+}
+
+public function getDataReport($id)
+{
+
+
+    $query = DB::table('capacitacion.tbl_empleado_cursos AS ec')
+        ->join('capacitacion.tbl_cursos AS c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
+        ->join('administration.users AS u', 'ec.id_usuarios', '=', 'u.id')
+        ->leftJoin('central.tbl_empleados_hraes AS central', 'u.id_tbl_empleados_central', '=', 'central.id_tbl_empleados_hraes')
+        ->leftJoin('transferidos.tbl_empleados AS transferidos', 'u.id_tbl_empleados_transferidos', '=', 'transferidos.id_tbl_empleados')
+        ->leftJoin('public.tbl_empleados_hraes AS public', 'u.id_tbl_empleados_hraes', '=', 'public.id_tbl_empleados_hraes')
+        ->select([
+            'ec.id_empleado_cursos',
+            'ec.id_cursos',
+            'c.programa_proyecto AS curso',
+            'c.fecha_inicio',
+            'c.fecha_fin',
+            'c.horas',
+            'c.id_cat_tipo_cursos',
+            DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
+            'ec.estatus',
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.curp)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.curp)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.curp)
+                END AS curp
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.nombre)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.nombre)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.nombre)
+                END AS nombre
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.primer_apellido)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.primer_apellido)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.primer_apellido)
+                END AS primer_apellido
+            "),
+            DB::raw("
+                CASE
+                    WHEN u.id_cat_tipo_schema = 1 THEN UPPER(central.segundo_apellido)
+                    WHEN u.id_cat_tipo_schema = 2 THEN UPPER(public.segundo_apellido)
+                    WHEN u.id_cat_tipo_schema = 3 THEN UPPER(transferidos.segundo_apellido)
+                END AS segundo_apellido
+            "),
+            'u.email'
+        ])
+        ->join('capacitacion.cat_tipo_cursos AS ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
+        ->where('ec.id_empleado_cursos', '=', $id);
+
+
+    
+    $data = $query->first();
+
+    if (!$data) {
+     
+    } else {
+   
+    }
+
+    return $data;
+}
+
+// NUEVA FUNCIÓN PARA CARGA MASIVA CON FastExcel
+public function guardarTemporalUsuariosDesdeFastExcel($rows)
+{
+    $insert = [];
+    $responseData = [];
+
+    foreach ($rows as $row) {
+        $rfc = strtoupper(trim($row['RFC'] ?? ''));
+        $curp = strtoupper(trim($row['CURP'] ?? ''));
+
+        if (!$rfc || !$curp) continue;
+
+        // Validación: ya está en temporal
+        $yaExisteEnTemporal = DB::table('capacitacion.temporal_usuarios')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->exists();
+
+        if ($yaExisteEnTemporal) {
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'Ya existe en la carga temporal'
+            ];
+            continue;
+        }
+
+        // Validación: ya existe en users
+        $usuarioDuplicado = DB::table('administration.users as u')
+            ->leftJoin('central.tbl_empleados_hraes as c', 'u.id_tbl_empleados_central', '=', 'c.id_tbl_empleados_hraes')
+            ->leftJoin('public.tbl_empleados_hraes as p', 'u.id_tbl_empleados_hraes', '=', 'p.id_tbl_empleados_hraes')
+            ->leftJoin('transferidos.tbl_empleados as t', 'u.id_tbl_empleados_transferidos', '=', 't.id_tbl_empleados')
+            ->whereRaw("UPPER(c.curp) = ? OR UPPER(p.curp) = ? OR UPPER(t.curp) = ?", [$curp, $curp, $curp])
+            ->orWhereRaw("UPPER(c.rfc) = ? OR UPPER(p.rfc) = ? OR UPPER(t.rfc) = ?", [$rfc, $rfc, $rfc])
+            ->exists();
+
+        if ($usuarioDuplicado) {
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'Ya existe en administration.users'
+            ];
+            continue;
+        }
+
+        // Buscar en esquemas
+        $registro = null;
+        $schema = null;
+
+        $central = DB::table('central.tbl_empleados_hraes')
+            ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+            ->first();
+
+        if ($central) {
+            $registro = $central;
+            $schema = 'CENTRAL';
+        } else {
+            $public = DB::table('public.tbl_empleados_hraes')
+                ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+                ->first();
+
+            if ($public) {
+                $registro = $public;
+                $schema = 'PUBLIC';
+            } else {
+                $transferidos = DB::table('transferidos.tbl_empleados')
+                    ->whereRaw("UPPER(rfc) = ? AND UPPER(curp) = ?", [$rfc, $curp])
+                    ->first();
+
+                if ($transferidos) {
+                    $registro = $transferidos;
+                    $schema = 'TRANSFERIDOS';
+                }
+            }
+        }
+
+        if ($registro) {
+            // Crear correo único
+            $emailBase = strtolower(str_replace(' ', '', $registro->nombre)) . '.correo@example.com';
+            $email = $emailBase;
+            $contador = 1;
+            while (DB::table('administration.users')->where('email', $email)->exists()) {
+                $email = strtolower(str_replace(' ', '', $registro->nombre)) . $contador . '.correo@example.com';
+                $contador++;
+            }
+
+            $dataInsert = [
+                'name' => $registro->nombre . ' ' . $registro->primer_apellido . ' ' . $registro->segundo_apellido,
+                'email' => $email,
+                'password' => bcrypt('Alumno2025!'),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'estatus' => true,
+                'id_usuario' => Auth::id(),
+                'fecha_usuario' => now(),
+                'es_por_nomina' => false,
+            ];
+
+            switch ($schema) {
+                case 'CENTRAL':
+                    $dataInsert['id_tbl_empleados_central'] = $registro->id_tbl_empleados_hraes;
+                    $dataInsert['id_cat_tipo_schema'] = 1;
+                    break;
+                case 'PUBLIC':
+                    $dataInsert['id_tbl_empleados_hraes'] = $registro->id_tbl_empleados_hraes;
+                    $dataInsert['id_cat_tipo_schema'] = 2;
+                    break;
+                case 'TRANSFERIDOS':
+                    $dataInsert['id_tbl_empleados_transferidos'] = $registro->id_tbl_empleados;
+                    $dataInsert['id_cat_tipo_schema'] = 3;
+                    break;
+            }
+
+            $idUsuarioNuevo = DB::table('administration.users')->insertGetId($dataInsert);
+            $this->insertarEnEmpleadoCursosSiNoExiste($idUsuarioNuevo);
+
+            $insert[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'coordinacion' => null,
+                'observaciones' => null,
+                'estatus' => null,
+                'created_at' => now()
+            ];
+        } else {
+            $responseData[] = [
+                'curp' => $curp,
+                'rfc' => $rfc,
+                'observacion' => 'CURP y RFC no encontrados en ninguna base de datos'
+            ];
+        }
+    }
+
+    if (!empty($insert)) {
+        DB::table('capacitacion.temporal_usuarios')->insert($insert);
+    }
+
+    return $responseData;
+}
+
+public function insertarEnEmpleadoCursosSiNoExiste($idUsuario)
+{
     $existe = DB::table('capacitacion.tbl_empleado_cursos')
         ->where('id_usuarios', $idUsuario)
         ->exists();
 
     if ($existe) {
-        Log::info("✅ El usuario ya está registrado en tbl_empleado_cursos.");
-        return $idUsuario;
+     
+        return false;
     }
 
-    // Insertar el usuario en la tabla
-    DB::beginTransaction();
-    try {
-        DB::table('capacitacion.tbl_empleado_cursos')->insert([
-            'id_usuarios' => $idUsuario,
-            'estatus' => true,
+    DB::table('capacitacion.tbl_empleado_cursos')->insert([
+        'id_usuarios' => $idUsuario,
+        'id_cursos' => null,
+        'id_calificacion' => null,
+        'estatus' => true,
+        'id_usuario_sistema' => Auth::id(),
+        'fecha_usuario' => now(),
+    ]);
+
+    return true;
+}
+
+public function getCursosActivos($iterator, $search = '')
+{
+    $query = DB::table('capacitacion.tbl_cursos AS cursos')
+        ->select([
+            'cursos.id_tbl_cursos AS id',
+            DB::raw("UPPER(cursos.programa_proyecto) AS nombre"),
+            DB::raw("TO_CHAR(cursos.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
+            DB::raw("TO_CHAR(cursos.fecha_fin, 'DD/MM/YYYY') AS fecha_fin")
+        ])
+        ->where('cursos.estatus', true);
+
+    if (!empty($search)) {
+        $query->where(DB::raw("UPPER(cursos.programa_proyecto)"), 'LIKE', '%' . strtoupper($search) . '%');
+    }
+
+    return $query->paginate(5, ['*'], 'page', $iterator); // ✅
+}
+
+public function actualizarCursoSeleccionado($idEmpleadoCurso, $idCurso)
+{
+    $registro = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_empleado_cursos', $idEmpleadoCurso)
+        ->first();
+
+    if (!$registro) return false;
+
+    $idUsuario = $registro->id_usuarios;
+
+    $yaInscrito = DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_usuarios', $idUsuario)
+        ->where('id_cursos', $idCurso)
+        ->exists();
+
+    if ($yaInscrito) return 'duplicado';
+
+    return DB::table('capacitacion.tbl_empleado_cursos')
+        ->where('id_empleado_cursos', $idEmpleadoCurso)
+        ->update([
+            'id_cursos' => $idCurso,
             'id_usuario_sistema' => Auth::id(),
             'fecha_usuario' => now()
         ]);
-
-        DB::commit();
-        Log::info("✅ Usuario insertado correctamente en tbl_empleado_cursos con ID: $idUsuario");
-        return $idUsuario;
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error("🔥 Error al insertar en tbl_empleado_cursos: " . $e->getMessage());
-        return null;
-    }
 }
 
+
+public function obtenerCursosConDetallesPorEmpleado($idUsuario, $iterator = 1, $searchValue = '')
+{
+    $query = DB::table('capacitacion.tbl_empleado_cursos as ec')
+        ->select([
+            'ec.id_empleado_cursos',
+            'ec.id_usuarios',
+            'ec.id_cursos',
+            'ec.id_calificacion',
+            'ec.fecha_usuario',
+            'c.programa_proyecto',
+            'c.fecha_inicio',
+            'c.fecha_fin',
+            'c.horas',
+            'c.id_cat_tipo_cursos',
+            DB::raw('UPPER(ct.descripcion) AS tipo_curso'),
+            'c.estatus'
+        ])
+        ->join('capacitacion.tbl_cursos as c', 'ec.id_cursos', '=', 'c.id_tbl_cursos')
+        ->join('capacitacion.cat_tipo_cursos as ct', 'c.id_cat_tipo_cursos', '=', 'ct.id_cat_tipo_cursos')
+        ->where('ec.id_usuarios', '=', $idUsuario)
+        ->whereNotNull('ec.id_cursos');
+
+    // 🔍 Búsqueda en múltiples campos
+    if (!empty($searchValue)) {
+        $query->where(function ($subquery) use ($searchValue) {
+            $subquery->where(DB::raw("UPPER(c.programa_proyecto)"), 'LIKE', '%' . strtoupper($searchValue) . '%')
+                ->orWhere(DB::raw("UPPER(ct.descripcion)"), 'LIKE', '%' . strtoupper($searchValue) . '%')
+                ->orWhere(DB::raw("CAST(c.horas AS TEXT)"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("TO_CHAR(c.fecha_inicio, 'YYYY-MM-DD')"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("TO_CHAR(c.fecha_fin, 'YYYY-MM-DD')"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhere(DB::raw("CAST(ec.id_calificacion AS TEXT)"), 'LIKE', '%' . $searchValue . '%')
+                ->orWhereRaw("CASE WHEN c.estatus THEN 'ACTIVO' ELSE 'INACTIVO' END ILIKE ?", ['%' . $searchValue . '%']);
+        });
     }
+
+    return $query->orderByDesc('ec.fecha_usuario')
+                 ->paginate(5, ['*'], 'page', $iterator);
+}
+
+
+}

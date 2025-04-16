@@ -20,34 +20,36 @@ class InstructorsC extends Controller
         $tableInstructors = InstructorM::all();
         return view('courses.tableinstructor.list', compact('tableInstructors'));
     }
-
+    
     public function save(Request $request)
     {
         Log::info('🚀 Entrando en save() con CURP: ' . $request->curp);
         $messagesC = new MessagesC();
-
+    
         try {
             $request->validate([
                 'curp' => 'required|string|size:18',
             ]);
-
-            if ($request->is_editing == 1) {
-                return $this->update($request);
+    
+            // Si es edición, llama a update con el ID
+            if ($request->is_editing == 1 && $request->id_tbl_instructores) {
+                return $this->update($request, $request->id_tbl_instructores);
             }
-
+    
             $instructorM = new InstructorM();
             $idInstructor = $instructorM->obtenerOcrearInstructor($request->curp, $request->estatus);
-
+    
             if (!$idInstructor) {
                 return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error al registrar instructor.');
             }
-
+    
             return $messagesC->messageSuccessRedirect('tableinstructor.list', 'Instructor registrado correctamente.');
         } catch (\Exception $e) {
+            Log::error('❌ Error en save(): ' . $e->getMessage());
             return $messagesC->messageErrorRedirect('tableinstructor.list', 'Error: ' . $e->getMessage());
         }
     }
-
+    
  
     public function searchTable(Request $request)
     {

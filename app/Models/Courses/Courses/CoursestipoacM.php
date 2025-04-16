@@ -67,6 +67,7 @@ class CoursestipoacM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+    
     public function listtipoaccion()
     {
         $query = DB::table('capacitacion.cat_tipo_accion')

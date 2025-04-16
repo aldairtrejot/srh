@@ -6,6 +6,19 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <x-template-tittle.tittle-header tittle="Instructor" caption="Instructor" />
+                        @if(session('success'))
+    <div class="alert alert-success d-flex align-items-center mt-3" role="alert">
+        <i class="fa-solid fa-circle-check me-2" style="color: green;"></i>
+        <div>{{ session('success') }}</div>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2" style="color: red;"></i>
+        <div>{{ session('error') }}</div>
+    </div>
+@endif
                     </div>
                 </div>
             </div>

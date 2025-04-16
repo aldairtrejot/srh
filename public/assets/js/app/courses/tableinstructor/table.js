@@ -202,3 +202,4 @@ function setValue() {
     document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
     document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 1;
 }
+

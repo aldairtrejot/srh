@@ -45,6 +45,7 @@ class CoursesauditoriaM extends Model
         // Ejecutar la consulta y retornar los resultados
         return $query->get();
     }
+
     public function edit(string $id)
     {
         // Realizamos la consulta utilizando el Query Builder de Laravel
@@ -55,6 +56,7 @@ class CoursesauditoriaM extends Model
         // Retornamos el usuario o null si no se encuentra
         return $query ?? null;
     }
+    
     public function edittblcourses($id)
     {
         $query = DB::table('capacitacion.cat_auditoria')

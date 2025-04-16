@@ -45,66 +45,70 @@ $(document).ready(function () {
     });
 });
 
-// 🔹 Función para inicializar la búsqueda con paginación
 function searchInit() {
-    const searchValue = $('#searchValue').val(); 
-    const courses = $('#courses').val();
+    const searchValue = document.getElementById('searchValue').value.trim();
+    const idUsuario = document.getElementById('idUsuario').value;
 
     $.ajax({
-        url: `${URL_BASE}/assignedcourse/table`,
+        url: `${URL_BASE}/assignedcourse/user-courses`,
         type: 'POST',
         data: {
             iterator: iterator,
-            searchValue: searchValue,
-            courses: courses,
+            searchValue: searchValue, // 👈 este valor es clave
+            idUsuario: idUsuario,
             _token: token
         },
         success: function(response) {
             const tbody = $('#template-table tbody');
             tbody.empty();
 
-            if (response.data && response.data.length > 0) {
+            if (response.status && response.data.length > 0) {
                 response.data.forEach(function (object) {
-                    // ✅ Usamos ahora object.id_usuarios para el enlace
-                    const finalCourses = `${URL_BASE}/assignedcourse/courses/${object.id_usuarios}`;
-
+                    const urlReport = `${URL_BASE}/assignedcourse/generate-pdf/constancias/${object.id_empleado_cursos}`;
                     const rowHTML = `
                         <tr>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" title="Menú">
+                                    <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <h6 class="dropdown-header">Acciones</h6>
-                                        <a class="dropdown-item" href="${finalCourses}">
-                                            <span style="background:#FF8C00" class="icon-container-template">
+                                        <a class="dropdown-item" href="${urlReport}">
+                                            <span style="background:#1E90FF" class="icon-container-template">
                                                 <div style="text-align: center;">
-                                                    <i class="fa fa-book item-icon-menu"></i>
+                                                    <i class="fa fa-file item-icon-menu"></i>
                                                 </div>
                                             </span>
-                                            Mis Cursos
+                                            Constancia
                                         </a>
                                     </div>
                                 </div>
                             </td>
-                            <td>${object.curp}</td>
-                            <td>${object.primer_apellido}</td>
-                            <td>${object.segundo_apellido}</td>
-                            <td>${object.nombre}</td>
+                            <td>${object.programa_proyecto ?? '-'}</td>
+                            <td>${object.tipo_curso ?? '-'}</td>
+                            <td>${object.horas ?? '-'}</td>
+                            <td>${object.estatus ? 'ACTIVO' : 'INACTIVO'}</td>
+                            <td>${object.fecha_inicio ?? '-'}</td>
+                            <td>${object.fecha_fin ?? '-'}</td>
+                            <td>${object.id_calificacion ?? '-'}</td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
                 });
+
+                setValue(response.pagination);
             } else {
-                tbody.html('<tr><td colspan="5" class="text-center">No se encontraron resultados</td></tr>');
+                tbody.html('<tr><td colspan="8" class="text-center"><strong>No se encontraron cursos asignados</strong></td></tr>');
             }
         },
         error: function(xhr) {
-            console.error("Error en la búsqueda:", xhr);
+            console.error("Error al obtener cursos:", xhr);
         }
     });
 }
+
+
 
 
 // 🔹 Funciones para manejar la paginación
@@ -146,3 +150,5 @@ function setValue() {
     document.getElementById("is_iteratorMin").innerHTML = iteratorAux - 1;
     document.getElementById("is_iteratorMax").innerHTML = iteratorAux + 1;
 }
+
+
