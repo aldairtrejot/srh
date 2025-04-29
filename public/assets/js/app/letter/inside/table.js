@@ -102,10 +102,8 @@ function searchInit() {
                                 </div>
                             </td>
                             <td>${object.anio}</td>
-                            <!--
                             <td>${object.num_turno_sistema}</td>
-                            -->
-                            <td>${object.num_documento}</td>
+                            <td>${object.foio_gestion}</td>
                             <td style="font-size: 12px; width: 1300px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                         </tr>
                     `;

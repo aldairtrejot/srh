@@ -49,14 +49,12 @@ class InsideM extends Model
             ->select([
                 'correspondencia.tbl_interno.id_tbl_interno AS id',
                 DB::raw('correspondencia.tbl_interno.num_turno_sistema AS num_turno_sistema'),
-                DB::raw('
-                CASE 
-                    WHEN correspondencia.tbl_interno.es_por_area THEN 
-                        correspondencia.tbl_interno.num_documento_area 
-                    ELSE 
-                        correspondencia.tbl_correspondencia.num_turno_sistema 
-                END AS num_documento
-            '),
+                DB::raw("CASE 
+                            WHEN TRIM(correspondencia.tbl_correspondencia.folio_gestion) <> '' 
+                                AND correspondencia.tbl_correspondencia.folio_gestion IS NOT NULL
+                            THEN correspondencia.tbl_correspondencia.folio_gestion
+                            ELSE ''
+                        END AS foio_gestion"),
                 DB::raw("UPPER(correspondencia.tbl_interno.asunto) AS asunto"),
                 DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_inicio::date, 'DD/MM/YYYY') AS fecha_inicio"),
                 DB::raw("TO_CHAR(correspondencia.tbl_interno.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
@@ -79,7 +77,7 @@ class InsideM extends Model
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
                 $query->whereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
-                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
+                    ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_interno.asunto)) LIKE ?", ['%' . $searchValue . '%']);
@@ -162,6 +160,25 @@ class InsideM extends Model
             ->join('correspondencia.cat_area', 'correspondencia.tbl_interno.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->where('correspondencia.tbl_interno.id_tbl_interno', '=', $id)
             ->first(); // Usamos `first` porque esperamos un solo resultado
+
+        return $result;
+    }
+
+    //La función valida que el fol de gestión sea unico
+    public function uniqueFolGestion($id, $folGestion)
+    {
+        // Start the query using the Query Builder
+        $query = DB::table('correspondencia.tbl_interno')
+            ->join('correspondencia.tbl_correspondencia', 'correspondencia.tbl_interno.id_tbl_correspondencia', '=', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia')
+            ->whereRaw('TRIM(UPPER(correspondencia.tbl_correspondencia.folio_gestion)) = ?', [trim(strtoupper($folGestion))]);
+
+        // If the ID is set, add the condition to exclude the specific ID
+        if (isset($id)) {
+            $query->where('correspondencia.tbl_interno.id_tbl_interno', '<>', $id);
+        }
+
+        // Execute the query and check if any result is returned
+        $result = $query->exists(); // Returns true if the query finds any results, false if not
 
         return $result;
     }

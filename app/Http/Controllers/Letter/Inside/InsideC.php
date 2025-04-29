@@ -89,6 +89,7 @@ class InsideC extends Controller
         $item->es_por_area = true; //Iniciamos la variable en falso para asociar con el nuevo no de documento
 
         $noLetter = "";//No de oficio se inicializa en vacio
+        $noCorrespondencia = "";
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = []; //catalogo de area null
@@ -99,7 +100,7 @@ class InsideC extends Controller
         $selectEnlace = [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
-        return view('letter/inside/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/inside/form', compact('noCorrespondencia', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function edit(string $id)
@@ -112,7 +113,8 @@ class InsideC extends Controller
         $letterM = new LetterM();
 
         $item = $object->edit($id); // Obtener el elemento con el ID pasado
-        $noLetter = $letterM->getTurno($item->id_tbl_correspondencia);
+        $noLetter = "";
+        $noCorrespondencia = $letterM->getTurno($item->id_tbl_correspondencia);
 
         $selectAreaAux = $collectionAreaM->list(); //Catalogo de area
         $selectAreaEditAux = isset($item->id_cat_area_documento) ? $collectionAreaM->edit($item->id_cat_area_documento) : []; //catalogo de area null
@@ -132,7 +134,7 @@ class InsideC extends Controller
         $selectEnlaceEdit = isset($item->id_cat_area_documento) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 */
 
-        return view('letter/inside/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
+        return view('letter/inside/form', compact('noCorrespondencia', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
     public function save(Request $request)
@@ -143,11 +145,12 @@ class InsideC extends Controller
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionAreaM = new CollectionAreaM();
         $consecutivoC = new ConsecutivoC();
+        $letterM = new LetterM();
 
         $now = Carbon::now(); //Hora y fecha actual
         //Validacion de documento unico
         $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
-
+        $id_tbl_correspondencia = $letterM->validateNoTurno($request->num_correspondencia);
 
         if (!isset($request->id_tbl_interno)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
             //Agregar elementos
@@ -173,7 +176,7 @@ class InsideC extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $id_tbl_correspondencia,
                 'id_cat_anio' => $request->id_cat_anio,
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => strtoupper($noDocumentoAreaAux),
@@ -205,7 +208,7 @@ class InsideC extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'asunto' => strtoupper($request->asunto),
                 'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+                'id_tbl_correspondencia' => $id_tbl_correspondencia,
                 'es_por_area' => $es_por_area,
                 'num_documento_area' => $request->num_documento_area,
                 'id_cat_area_documento' => $request->id_cat_area_documento,
@@ -250,5 +253,17 @@ class InsideC extends Controller
 
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
+    }
+
+    //La función valida que el folio de gestión sea unico, para los oficios
+    public function validateFol(Request $request)
+    {
+        $insideM = new InsideM();
+        $value = $insideM->uniqueFolGestion($request->id, $request->value);
+
+        return response()->json([
+            'value' => $value,
+            'status' => true,
+        ]);
     }
 }

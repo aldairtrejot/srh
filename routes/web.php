@@ -137,6 +137,7 @@ Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->nam
 Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
 Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
 Route::get('/inside/generate-pdf/{id}', [ReportInsideC::class, 'report'])->middleware('auth');
+Route::post('/inside/validate/folGestion', [InsideC::class, 'validateFol'])->name('inside.validate.folGestion')->middleware('auth');
 
 //ROUTE ROUND / CIRCULARES
 Route::get('/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');

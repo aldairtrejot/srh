@@ -103,6 +103,14 @@
 
                                 <div class="row">
 
+                                    <x-template-form.template-form-input-required label="Fol. Asoc" type="text"
+                                        name="num_correspondencia" placeholder="Folio gestión"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6" autocomplete=""
+                                        value="{{ $noCorrespondencia }}" />
+                                </div>
+
+                                <div class="row">
+
                                     <x-template-form.template-form-input-text-area
                                         grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto"
                                         name="asunto" placeholder="ASUNTO"

@@ -55,6 +55,9 @@
                                         No. Folio
                                     </th>
                                     <th>
+                                        Folio de gestión
+                                    </th>
+                                    <th>
                                         Asunto
                                     </th>
                                 </tr>
