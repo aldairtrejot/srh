@@ -48,7 +48,7 @@ class InsideM extends Model
         $query = DB::table('correspondencia.tbl_interno')
             ->select([
                 'correspondencia.tbl_interno.id_tbl_interno AS id',
-                DB::raw('correspondencia.tbl_interno.num_turno_sistema AS num_turno_sistema'),
+                DB::raw('correspondencia.tbl_interno.num_documento_area AS num_turno_sistema'),
                 DB::raw("CASE 
                             WHEN TRIM(correspondencia.tbl_correspondencia.folio_gestion) <> '' 
                                 AND correspondencia.tbl_correspondencia.folio_gestion IS NOT NULL
@@ -76,7 +76,7 @@ class InsideM extends Model
 
             // Condiciones de búsqueda centralizadas en una sola cláusula
             $query->where(function ($query) use ($searchValue) {
-                $query->whereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_turno_sistema)) LIKE ?", ['%' . $searchValue . '%'])
+                $query->whereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.cat_anio.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
                     ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_interno.num_documento_area)) LIKE ?", ['%' . $searchValue . '%'])

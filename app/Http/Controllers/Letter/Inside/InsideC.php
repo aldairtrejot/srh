@@ -126,13 +126,12 @@ class InsideC extends Controller
         $selectEnlaceEdit = isset($item->id_cat_area_documento) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
 
 
-        /*
         $selectUser = isset($item->id_cat_area_documento) ? $collectionRelUsuarioM->idUsuarioByArea($item->id_cat_area_documento) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
         $selectUserEdit = isset($item->id_cat_area_documento) && isset($item->id_usuario_area) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vacios
 
         $selectEnlace = isset($item->id_cat_area_documento) ? $collectionRelEnlaceM->idUsuarioByArea($item->id_cat_area_documento) : [];//Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
         $selectEnlaceEdit = isset($item->id_cat_area_documento) && isset($item->id_usuario_enlace) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];////Validacion de id_en DB para definir si se poblan los catalogos o son vaciosvacios
-*/
+
 
         return view('letter/inside/form', compact('noCorrespondencia', 'selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
