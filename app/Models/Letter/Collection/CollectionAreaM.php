@@ -165,4 +165,15 @@ class CollectionAreaM extends Model
         // Verificar si se encontró un resultado
         return $result ? $result->nombre : null;
     }
+
+    public function getDataCopia($id)
+    {
+        $result = DB::table('correspondencia.ctrl_transcribir_correspondencia')
+            ->join('correspondencia.cat_area', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->where('correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia', $id)
+            ->select(DB::raw("string_agg(correspondencia.cat_area.descripcion, ', ') as area"))
+            ->first();
+
+        return $result->area ?? '';
+    }
 }
