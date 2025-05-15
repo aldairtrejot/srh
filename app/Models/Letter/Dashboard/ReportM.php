@@ -28,6 +28,7 @@ class ReportM extends Model
                 'correspondencia.cat_tramite.descripcion AS tramite',
                 'correspondencia.cat_clave.descripcion AS clave',
                 'correspondencia.cat_unidad.descripcion AS unidad',
+                'area_cc.descripcion AS area_cc',
                 'correspondencia.cat_coordinacion.descripcion AS coordinacion',
                 'correspondencia.tbl_correspondencia.horas_respuesta AS horas_respuesta',
                 DB::raw("CASE WHEN correspondencia.tbl_correspondencia.es_doc_fisico THEN 'FÍSICO' ELSE 'DIGITAL' END AS tipo_documento"),
@@ -49,7 +50,9 @@ class ReportM extends Model
             ->join('correspondencia.cat_coordinacion', 'correspondencia.tbl_correspondencia.id_cat_coordinacion', '=', 'correspondencia.cat_coordinacion.id_cat_coordinacion')
             ->join('correspondencia.cat_entidad', 'correspondencia.tbl_correspondencia.id_cat_entidad', '=', 'correspondencia.cat_entidad.id_cat_entidad')
             ->leftJoin('administration.users AS user_add', 'correspondencia.tbl_correspondencia.id_usuario_captura', '=', 'user_add.id')
-            ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente');
+            ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.cat_area AS area_cc', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', 'area_cc.id_cat_area');
 
         // Aplicar los filtros opcionales usando el método `when()`
         $query->when(!empty($idArea), function ($query) use ($idArea) {
