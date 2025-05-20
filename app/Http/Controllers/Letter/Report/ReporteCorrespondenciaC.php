@@ -26,29 +26,7 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->useTemplate($template); // Usar la plantilla importada
         $fechaActual = Carbon::now(); //Fecha actual para el reporte
 
-<<<<<<< HEAD
-        $areasPosiciones = [
-            'CAPACITACIÓN' => [45, 91],
-            'COORDINACIÓN DE RECURSOS HUMANOS' => [45, 94.6],
-            'COORDINACIÓN TÉCNICA DE ESTRUCTURA, ORGANIZACIÓN Y PRESUPUESTO DE SERVICIOS PERSONALES' => [45, 97.8],
-            'COORDNACIÓN TÉCNICA DE NOMINA' => [45, 104],
-            'DIVISIÓN DE GESTIÓN DE PERSONAL' => [45, 107.7],
-            'DIVISIÓN DE RELACIONES LABORALES' => [45, 110.7],
-            'DIVISIÓN DE SISTEMAS DE INFORMACIÓN DE PERSONAL' => [45, 113.7],
-            'HRAES' => [45, 116.9],
-            'NO CONCURRENTES' => [45, 120.7],
-            'OFICINA CENTRAL' => [45, 123.7],
-            'RECLUTAMIENTO' => [45, 126.7],
-            'UNIDAD DE TRANSPARENCIA' => [45, 129.9],
-            'ZONA CENTRO' => [45, 133.5],
-            'ZONA NORESTE' => [45, 136.5],
-            'ZONA NOROESTE' => [45, 140.1],
-            'ZONA SURESTE' => [45, 143.1],
-            'ZONA SUROESTE' => [45, 146.1],
-        ];
-=======
         $pdf->SetFont('arial', '', 9); // Usar DejaVuSans para soportar caracteres especiales
->>>>>>> parent of e35126d (cambios finales en doc)
 
 
         //DATA DATE ACTUAL
