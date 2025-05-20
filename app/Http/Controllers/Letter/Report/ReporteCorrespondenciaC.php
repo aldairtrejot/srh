@@ -24,8 +24,9 @@ class ReporteCorrespondenciaC extends Controller
         $template = $pdf->importPage(1); // Importar la primera página del PDF existente
         $pdf->addPage(); // Agregar una página en blanco
         $pdf->useTemplate($template); // Usar la plantilla importada
-        $fechaActual = Carbon::now(); //Fecha actual para el reporte   
+        $fechaActual = Carbon::now(); //Fecha actual para el reporte
 
+<<<<<<< HEAD
         $areasPosiciones = [
             'CAPACITACIÓN' => [45, 91],
             'COORDINACIÓN DE RECURSOS HUMANOS' => [45, 94.6],
@@ -45,98 +46,96 @@ class ReporteCorrespondenciaC extends Controller
             'ZONA SURESTE' => [45, 143.1],
             'ZONA SUROESTE' => [45, 146.1],
         ];
+=======
+        $pdf->SetFont('arial', '', 9); // Usar DejaVuSans para soportar caracteres especiales
+>>>>>>> parent of e35126d (cambios finales en doc)
 
-        $pdf->SetFont('ZapfDingbats', '', 9); // Fuente para caracteres especiales como la palomita
-
-        foreach ($areasPosiciones as $area => [$x, $y]) {
-            if (in_array($area, $copy)) {
-                $pdf->SetTextColor(0, 128, 0); // Verde
-                $pdf->SetXY($x, $y);
-                $pdf->Write(0, '4'); // Palomita en ZapfDingbats (código 4)
-            }
-        }
-
-
-        $pdf->SetFont('Helvetica', '', 9); // Fuente Arial normal
-        $pdf->SetTextColor(0, 0, 0);   // Color negro
 
         //DATA DATE ACTUAL
-        $pdf->SetXY(174.5, 38.2); // Posición X, Y en el PDF
+        $pdf->SetXY(163, 48); // Posición X, Y en el PDF
         $pdf->Write(0, $fechaActual = now()->format('d/m/Y'));
 
+        // Configurar la fuente para el texto
+        $pdf->SetFont('arial', '', 9);
+
+        //AÑO 
+        $pdf->SetXY(163, 54.2); // Posición X, Y en el PDF
+        $pdf->Write(0, $data->anio);
+
         //DATA NUM TURNO
-        $pdf->SetXY(46, 51); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 69.2); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_turno_sistema);
 
         //DATA NUM DOCUMENTO
-        $pdf->SetXY(46, 57); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 75.3); // Posición X, Y en el PDF
         $pdf->Write(0, $data->num_documento);
 
 
         //DATA FOLIO DE GESTION
-        $pdf->SetXY(46, 63.5); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 81.4); // Posición X, Y en el PDF
         $pdf->Write(0, $data->folio_gestion);
 
         //FECHA DE INICIO
-        $pdf->SetXY(176, 51); // Posición X, Y en el PDF
+        $pdf->SetXY(177, 69.8); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_inicio);
 
         //FECHA DE FIN 
-        $pdf->SetXY(176, 57); // Posición X, Y en el PDF
+        $pdf->SetXY(177, 75); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_fin);
 
         //FECHA DE DOCUMENTO
-        $pdf->SetXY(176, 63.5); // Posición X, Y en el PDF
+        $pdf->SetXY(177, 81.8); // Posición X, Y en el PDF
         $pdf->Write(0, $data->fecha_documento);
 
-
         //DATA UNIDAD
-        $pdf->SetXY(46, 67.8); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 91.5); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->unidad));
 
         //DATA COORDINACION
-        $pdf->SetXY(46, 79.5); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 103.8); // Posición X, Y en el PDF
         $pdf->Write(0, utf8_decode($data->coordinacion));
 
         //DATA AREA
-        $pdf->SetFont('Helvetica', '', 8); // Fuente Arial normal
-        $pdf->SetXY(46, 86); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 110.5); // Posición X, Y en el PDF
         $pdf->Write(0, utf8_decode($data->area));
 
         //DATA TRAMITE
-        $pdf->SetFont('Helvetica', '', 9); // Fuente Arial normal
-        $pdf->SetXY(46, 151.5); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 117.4); // Posición X, Y en el PDF
         $pdf->Write(0, utf8_decode($data->tramite));
 
         //DATA CODIGO
-        $pdf->SetXY(46, 158.4); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 123.9); // Posición X, Y en el PDF
         $pdf->Write(0, $data->codigo);
 
         //DATA REMITENTE
-        $pdf->SetXY(46, 163.2); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 129); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
 
         //DATA PUESTO REMITENTE
-        $pdf->SetXY(46, 168.8); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 134.8); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->puesto_remitente));
 
 
         //DATA ASUNTO
-        $pdf->SetXY(46, 178); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 144.5); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
 
         //DATA LUGAR
-        $pdf->SetXY(46, 201); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 167); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->entidad));
 
-        //DATA OBSERVACIONES
-        $pdf->SetXY(46, 208); // Posición X, Y en el PDF
+        //DATA LUGAR
+        $pdf->SetXY(57, 175); // Posición X, Y en el PDF
         $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
         //DATA USUARIO
-        $pdf->SetXY(46, 228); // Posición X, Y en el PDF
+        $pdf->SetXY(57, 194.8); // Posición X, Y en el PDF
         $pdf->Write(0, utf8_decode($data->user_area));
 
+        // DATA COPIA
+        $pdf->SetFont('arial', '', 6); // Usar DejaVuSans para soportar caracteres especiales
+        $pdf->SetXY(57, 199.0); // Posición X, Y en el PDF
+        $pdf->MultiCell(0, 4, utf8_decode($copy));
 
         // Enviar el PDF generado al navegador
         return response($pdf->Output('I'), 200)
