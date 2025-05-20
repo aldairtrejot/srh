@@ -82,14 +82,13 @@ class DashboardLetterC extends Controller
         $this->addStyleValue($sheet, 'G1', 'Asunto', '10312B');
         $this->addStyleValue($sheet, 'H1', 'Clave', '10312B');
         $this->addStyleValue($sheet, 'I1', 'Área', '10312B');
-        $this->addStyleValue($sheet, 'J1', 'Copia a', '10312B');
-        $this->addStyleValue($sheet, 'K1', 'Tipo de Documento', '10312B');
+        $this->addStyleValue($sheet, 'J1', 'Tipo de Documento', '10312B');
 
 
         if ($request->inlcuir_usuario_capturo) { //  validacion para incluir datos de captura
-            $this->addStyleValue($sheet, 'L1', 'Fecha de Captura', '10312B');
-            $this->addStyleValue($sheet, 'M1', 'Hora de Captura', '10312B');
-            $this->addStyleValue($sheet, 'N1', 'Usuario que Captura', '10312B');
+            $this->addStyleValue($sheet, 'K1', 'Fecha de Captura', '10312B');
+            $this->addStyleValue($sheet, 'L1', 'Hora de Captura', '10312B');
+            $this->addStyleValue($sheet, 'M1', 'Usuario que Captura', '10312B');
         }
 
 
@@ -107,13 +106,12 @@ class DashboardLetterC extends Controller
             $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('J' . $row, $data->area_cc, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('K' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->tipo_documento, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValueExplicit('L' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('M' . $row, $data->hora_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('N' . $row, $data->usuario_add, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('K' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('L' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('M' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
 
 
