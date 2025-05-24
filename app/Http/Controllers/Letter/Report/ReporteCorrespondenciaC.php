@@ -61,7 +61,7 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->SetTextColor(0, 0, 0);   // Color negro
 
         //DATA DATE ACTUAL
-        $pdf->SetXY(174.5, 38.2); // Posición X, Y en el PDF
+        $pdf->SetXY(174.5, 40.4); // Posición X, Y en el PDF
         $pdf->Write(0, $fechaActual = now()->format('d/m/Y'));
 
         //DATA NUM TURNO
