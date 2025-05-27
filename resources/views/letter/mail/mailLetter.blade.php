@@ -93,32 +93,43 @@
                     <p>¡Hola, {{ $nameUser }}!</p>
                     <p>Con el fin de dar seguimiento a la correspondencia, se te ha asignado un nuevo número de turno.
                         A continuación, se detallan algunos puntos:</p>
+
                     <ul style="padding-left: 20px;">
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Asunto:</strong> {{ $mailBody->asunto }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">No. Turno:</strong> {{ $mailBody->num_turno_sistema }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">No. Documento:</strong> {{ $mailBody->num_documento }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Fecha Inicio:</strong> {{ $mailBody->fecha_inicio }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Fecha Fin:</strong> {{ $mailBody->fecha_fin }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Turnado a:</strong> {{ $mailBody->area_descripcion }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Usuario:</strong> {{ $mailBody->usuario_area }}
                         </li>
+
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">Enlace:</strong> {{ $mailBody->usuario_enlace }}
                         </li>
+                        
                     </ul>
+                    
                     <p>Saludos cordiales,</p>
                 </td>
             </tr>

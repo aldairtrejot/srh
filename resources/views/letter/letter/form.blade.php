@@ -17,7 +17,7 @@
                 <div class="card custom-card">
                     <div class="card-body">
                         <x-template-tittle.tittle-caption
-                            tittle="{{ isset($item->id_tbl_correspondencia ) ? 'Modificar' : 'Agregar ' }} Correspondencia"
+                            tittle="{{ isset($item->id_tbl_correspondencia) ? 'Modificar' : 'Agregar ' }} Correspondencia"
                             route="{{ route('letter.list') }}" />
                         <div>
                             <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample">

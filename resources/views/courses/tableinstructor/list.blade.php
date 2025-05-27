@@ -1,4 +1,5 @@
 <!-- TEMPLATE APP-->
+
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
@@ -8,8 +9,10 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+
                             <h3 class="font-weight-bold">Gestión de control</h3>
                             <h5 class="font-weight-normal mb-0">INSTRUCTORES</h5>
+
                         </div>
                     </div>
                 </div>
@@ -21,7 +24,9 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
+                                
                                 <h4 class="card-title">Instructores</h4>
+
                                 @if($coursesMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? 
@@ -31,6 +36,7 @@
                                     </p>
                                 @endif
                             </div>
+
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
@@ -48,9 +54,10 @@
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
+
 <!-- modal delete -->
 <x-template-form.template-form-delete tittleModal="modalBackdrop" cancelModal="cancelBtn"
-                            confirmButton="confirmBtn" />
+confirmButton="confirmBtn" />
 
 <!-- Modal de Confirmación -->
 <div id="modalBackdrop" class="modal" style="display:none;">
@@ -61,7 +68,6 @@
         <button id="cancelBtn">Cancelar</button>
     </div>
 </div>
-
 
                         <!-- TEMPLATE PAGINATOR-->
                         <x-template-table.template-paginator />

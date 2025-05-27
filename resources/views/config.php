@@ -1,8 +1,10 @@
 <?php
+
 //ARRAY DE ROLES DE USUARIO
 $userRole = session('SESSION_ROLE_USER', []);
 
 //ARRAY DE ROLES SEGUN NECESIDAD
+
 //ARRAY DE ADMINISTRACION
 $adminRole = [
     config('custom_config.ADM_TOTAL'),
@@ -27,11 +29,12 @@ $letterRole = [
     config('custom_config.COR_USUARIO'),
     config('custom_config.COR_ENLACE')
 ];
+
+//ARRAY GENERAL DE CAPACITACION DE ROLES
 $coursesRole = [
-    config('custom_config.ADM_TOTAL'),
-    config('custom_config.COR_TOTAL'),
-    config('custom_config.COR_USUARIO'),
-    config('custom_config.COR_ENLACE')
+    config('custom_config.CAP_TOTAL'), 
+    config('custom_config.CAP_USUARIO'),
+    config('custom_config.CAP_INSTRUCTOR'),
 ];
 
 //VALORES RESULTANTES

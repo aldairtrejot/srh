@@ -1,5 +1,3 @@
-
-
 var iterator = 1; //Se comienza el iterador en 1
 var emptyContent = false;
 
