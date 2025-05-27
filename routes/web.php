@@ -52,6 +52,7 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
+use App\Http\Controllers\Letter\Area\AreainternoC;
 use App\Http\Controllers\Letter\Año\AnioC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
@@ -376,6 +377,13 @@ Route::get('/area/create', [AreaC::class, 'create'])->name('administration.creat
 Route::post('/area/save', [AreaC::class, 'save'])->name('administration.save')->middleware('auth');
 Route::post('/area/table', [AreaC::class, 'searchTable'])->middleware('auth');
 Route::get('/area/edit/{id}', [AreaC::class, 'edit'])->name('administration.edit')->middleware('auth');
+
+//ROUTE CATALOGO AREA INTERNO
+Route::get('/areainterno/list', AreainternoC::class)->name('areainterno.list')->middleware('auth');
+Route::get('/areainterno/create', [AreainternoC::class, 'create'])->name('areainterno.create')->middleware('auth');
+Route::post('/areainterno/save', [AreainternoC::class, 'save'])->name('areainterno.save')->middleware('auth');
+Route::post('/areainterno/table', [AreainternoC::class, 'searchTable'])->middleware('auth');
+Route::get('/areainterno/edit/{id}', [AreainternoC::class, 'edit'])->name('areainterno.edit')->middleware('auth');
 
 //ROUTE CATALOGO AÑO
 Route::get('/año/list', AnioC::class)->name('año.list')->middleware('auth');
