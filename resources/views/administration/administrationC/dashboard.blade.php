@@ -83,6 +83,17 @@
                                 </div>
                             </div>
                         </div>
+                    <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Clave</h4>
+                                    <a href="{{ route('clave.list') }}" class="btn-icon" title="Ir a Catálogo Clave">
+                                        <i class="fa fa-crosshairs fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <br>
@@ -111,6 +122,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                                 
                                 <style>
                                     .btn-icon {

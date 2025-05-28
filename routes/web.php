@@ -54,6 +54,7 @@ use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
 use App\Http\Controllers\Letter\Area\AreainternoC;
 use App\Http\Controllers\Letter\Año\AnioC;
+use App\Http\Controllers\Letter\Clave\ClaveC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -392,6 +393,13 @@ Route::post('/año/save', [AnioC::class, 'save'])->name('año.save')->middleware
 Route::post('/año/table', [AnioC::class, 'searchTable'])->middleware('auth');
 Route::get('/año/edit/{id}', [AnioC::class, 'edit'])->name('año.edit')->middleware('auth');
 Route::post('/anio/validar-descripcion', [AnioC::class, 'validarDescripcion'])->name('anio.validar.descripcion')->middleware('auth');
+
+//ROUTE CATALOGO CLAVE
+Route::get('/clave/list', ClaveC::class)->name('clave.list')->middleware('auth');
+Route::get('/clave/create', [ClaveC::class, 'create'])->name('clave.create')->middleware('auth');
+Route::post('/clave/save', [ClaveC::class, 'save'])->name('clave.save')->middleware('auth');
+Route::post('/clave/table', [ClaveC::class, 'searchTable'])->middleware('auth');
+Route::get('/clave/edit/{id}', [ClaveC::class, 'edit'])->name('clave.edit')->middleware('auth');
 
 
 //ROUTE CATALOGO DEPENDENCIA
