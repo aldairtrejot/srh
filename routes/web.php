@@ -55,6 +55,7 @@ use App\Http\Controllers\Letter\Area\AreaC;
 use App\Http\Controllers\Letter\Area\AreainternoC;
 use App\Http\Controllers\Letter\Año\AnioC;
 use App\Http\Controllers\Letter\Clave\ClaveC;
+use App\Http\Controllers\Letter\Coordinacion\CoordinacionC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -400,6 +401,13 @@ Route::get('/clave/create', [ClaveC::class, 'create'])->name('clave.create')->mi
 Route::post('/clave/save', [ClaveC::class, 'save'])->name('clave.save')->middleware('auth');
 Route::post('/clave/table', [ClaveC::class, 'searchTable'])->middleware('auth');
 Route::get('/clave/edit/{id}', [ClaveC::class, 'edit'])->name('clave.edit')->middleware('auth');
+
+//ROUTE CATALOGO COORDINACION
+Route::get('/coordinacion/list', CoordinacionC::class)->name('coordinacion.list')->middleware('auth');
+Route::get('/coordinacion/create', [CoordinacionC::class, 'create'])->name('coordinacion.create')->middleware('auth');
+Route::post('/coordinacion/save', [CoordinacionC::class, 'save'])->name('coordinacion.save')->middleware('auth');
+Route::post('/coordinacion/table', [CoordinacionC::class, 'searchTable'])->middleware('auth');
+Route::get('/coordinacion/edit/{id}', [CoordinacionC::class, 'edit'])->name('coordinacion.edit')->middleware('auth');
 
 
 //ROUTE CATALOGO DEPENDENCIA
