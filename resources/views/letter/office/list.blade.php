@@ -11,19 +11,27 @@
                             <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Oficios</h5>
                         </div>
+                          <div class="col-12 col-xl-4 text-xl-right">
+                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
+                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
                     </div>
                 </div>
             </div>
-
             <style>
                 .custom-button[disabled] {
                     cursor: not-allowed;
                 }
             </style>
 
+
             <div class="col-lg-12 grid-margin stretch-card">
+            
                 <div class="card custom-card">
                     <div class="card-body">
+                     
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
