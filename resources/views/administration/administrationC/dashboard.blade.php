@@ -98,14 +98,25 @@
                             <div class="card">
                                 <div class="card-body text-center">
                                     <h4 class="card-title">Catálogo Coordinacion</h4>
-                                    <a href="{{ route('coordinacion.list') }}" class="btn-icon" title="Ir a Catálogo Clave">
+                                    <a href="{{ route('coordinacion.list') }}" class="btn-icon" title="Ir a Catálogo Coordinacion">
                                         <i class="fa fa-copyright fa-3x"></i>
                                     </a>
                                     <p class="card-text mt-2">Correspondencia</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Entidad</h4>
+                                    <a href="{{ route('entidad.list') }}" class="btn-icon" title="Ir a Catálogo Entidad">
+                                        <i class="fa-solid fa-flag fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
 
                     <br>
                         <br>
