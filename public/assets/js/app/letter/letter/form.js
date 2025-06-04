@@ -14,7 +14,18 @@ $(document).ready(function () {
     tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico'); // Tooltip
     tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado'); // Tooltip
     tooltip('#mas_remitentes', 'Añadir dos o más remitentes'); // Tooltip
+
+
+    // eliminacion de select conocimiento
+    validateSelect();
 });
+
+function validateSelect() {
+    if ($('#id_cat_area').val() != 3) {
+        $('#id_cat_estatus option[value="7"]').hide(); // oculta la opción con valor "2"
+        $('#id_cat_estatus').selectpicker('refresh'); // actualiza el selectpicker
+    }
+}
 
 //La funcion activa o desactiva el valor de un checkbox de area
 function setCheckboxArea() {
