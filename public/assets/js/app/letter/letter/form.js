@@ -16,16 +16,7 @@ $(document).ready(function () {
     tooltip('#mas_remitentes', 'Añadir dos o más remitentes'); // Tooltip
 
 
-    // eliminacion de select conocimiento
-    validateSelect();
 });
-
-function validateSelect() {
-    if ($('#id_cat_area').val() != 3) {
-        $('#id_cat_estatus option[value="7"]').hide(); // oculta la opción con valor "2"
-        $('#id_cat_estatus').selectpicker('refresh'); // actualiza el selectpicker
-    }
-}
 
 //La funcion activa o desactiva el valor de un checkbox de area
 function setCheckboxArea() {
@@ -156,7 +147,7 @@ function getRole() {
 //valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
 function validateEstatus() {
     // Se eliminan las opciones
-    if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5) {
+    if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5 || $('#id_cat_estatus').val() == 7) {
         $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
         $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
     } else {

@@ -33,15 +33,6 @@ $('#id_cat_area').on('change', function () {
         clearClaveData(); //Limpieza de encabezado
         setClaveInNuSystem('-'); // modificación de no de correspondencia
     }
-
-    // cambio de estatus para area
-    if (idValue == 3) {
-        $('#id_cat_estatus').val('7');
-        $('#id_cat_estatus').selectpicker('refresh');
-    } else {
-        $('#id_cat_estatus').val('1');
-        $('#id_cat_estatus').selectpicker('refresh');
-    }
 });
 
 
