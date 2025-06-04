@@ -57,6 +57,7 @@ use App\Http\Controllers\Letter\Año\AnioC;
 use App\Http\Controllers\Letter\Clave\ClaveC;
 use App\Http\Controllers\Letter\Coordinacion\CoordinacionC;
 use App\Http\Controllers\Letter\Entidad\EntidadC;
+use App\Http\Controllers\Letter\Estatus\EstatusC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -416,6 +417,13 @@ Route::get('/entidad/create', [EntidadC::class, 'create'])->name('entidad.create
 Route::post('/entidad/save', [EntidadC::class, 'save'])->name('entidad.save')->middleware('auth');
 Route::post('/entidad/table', [EntidadC::class, 'searchTable'])->middleware('auth');
 Route::get('/entidad/edit/{id}', [EntidadC::class, 'edit'])->name('entidad.edit')->middleware('auth');
+
+//ROUTE CATALOGO ESTATUS
+Route::get('/estatus/list', EstatusC::class)->name('estatus.list')->middleware('auth');
+Route::get('/estatus/create', [EstatusC::class, 'create'])->name('estatus.create')->middleware('auth');
+Route::post('/estatus/save', [EstatusC::class, 'save'])->name('estatus.save')->middleware('auth');
+Route::post('/estatus/table', [EstatusC::class, 'searchTable'])->middleware('auth');
+Route::get('/estatus/edit/{id}', [EstatusC::class, 'edit'])->name('estatus.edit')->middleware('auth');
 
 
 //ROUTE CATALOGO DEPENDENCIA

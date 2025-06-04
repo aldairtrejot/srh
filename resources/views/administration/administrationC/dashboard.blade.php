@@ -116,6 +116,28 @@
                                 </div>
                             </div>
                         </div>
+                    <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Estatus</h4>
+                                    <a href="{{ route('estatus.list') }}" class="btn-icon" title="Ir a Catálogo Estatus">
+                                        <i class="fa-brands fa-openid fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
+                     <div class="col-lg-4 col-sm-4 col-md-4 col-xl-4 col-xs-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title">Catálogo Nombre Oficio</h4>
+                                    <a href="" class="btn-icon" title="Ir a Catálogo Nombre Oficio">
+                                        <i class=" fa fa-sticky-note fa-3x"></i>
+                                    </a>
+                                    <p class="card-text mt-2">Correspondencia</p>
+                                </div>
+                            </div>
+                        </div>
                     </div> 
 
                     <br>
