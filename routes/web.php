@@ -58,6 +58,7 @@ use App\Http\Controllers\Letter\Clave\ClaveC;
 use App\Http\Controllers\Letter\Coordinacion\CoordinacionC;
 use App\Http\Controllers\Letter\Entidad\EntidadC;
 use App\Http\Controllers\Letter\Estatus\EstatusC;
+use App\Http\Controllers\Letter\Nomoficio\NomoficioC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -424,6 +425,13 @@ Route::get('/estatus/create', [EstatusC::class, 'create'])->name('estatus.create
 Route::post('/estatus/save', [EstatusC::class, 'save'])->name('estatus.save')->middleware('auth');
 Route::post('/estatus/table', [EstatusC::class, 'searchTable'])->middleware('auth');
 Route::get('/estatus/edit/{id}', [EstatusC::class, 'edit'])->name('estatus.edit')->middleware('auth');
+
+//ROUTE CATALOGO NOMBRE OFICIO
+Route::get('/nomoficio/list', NomoficioC::class)->name('nomoficio.list')->middleware('auth');
+Route::get('/nomoficio/create', [NomoficioC::class, 'create'])->name('nomoficio.create')->middleware('auth');
+Route::post('/nomoficio/save', [NomoficioC::class, 'save'])->name('nomoficio.save')->middleware('auth');
+Route::post('/nomoficio/table', [NomoficioC::class, 'searchTable'])->middleware('auth');
+Route::get('/nomoficio/edit/{id}', [NomoficioC::class, 'edit'])->name('nomoficio.edit')->middleware('auth');
 
 
 //ROUTE CATALOGO DEPENDENCIA

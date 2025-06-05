@@ -131,7 +131,7 @@
                             <div class="card">
                                 <div class="card-body text-center">
                                     <h4 class="card-title">Catálogo Nombre Oficio</h4>
-                                    <a href="" class="btn-icon" title="Ir a Catálogo Nombre Oficio">
+                                    <a href="{{ route('nomoficio.list') }}" class="btn-icon" title="Ir a Catálogo Nombre Oficio">
                                         <i class=" fa fa-sticky-note fa-3x"></i>
                                     </a>
                                     <p class="card-text mt-2">Correspondencia</p>
