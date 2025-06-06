@@ -18,7 +18,11 @@ class DependenciareaC extends Controller
         $courses = DependenciareaM::all();
         return view('administration.dependenciareaC.list', compact('courses'));
     }
-
+public function list()
+{
+    $courses = DependenciareaM::all();
+    return view('administration.dependenciareaC.list', compact('courses'));
+}
     public function save(Request $request)
     {
         $dependenciareaM = new DependenciareaM();

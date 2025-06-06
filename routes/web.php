@@ -56,12 +56,9 @@ use App\Http\Controllers\Letter\Dashboard\DashboardOfficeC;
 use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
 use App\Http\Controllers\Letter\External\ExternalC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
-
-
-
-
-
-
+use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
+use App\Http\Controllers\Letter\Dependencia\DependenciaC;
+use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
 
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
@@ -426,9 +423,16 @@ Route::get('/oficios/reporte-encabezados', [DashboardOfficeC::class, 'generate']
 
 Route::get('/letter/dashboard', [DashboardLetterC::class, 'generate'])->name('letter.dashboard');
 
-
 Route::get('/external/list', [ExternalC::class, 'list'])->name('external.list')->middleware('auth');
 
 Route::get('/administration/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
 
+Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
 
+Route::get('/dependenciarea/list', [DependenciareaC::class, 'list'])->name('dependenciarea.list')->middleware('auth');
+
+Route::get('/dependencia/list', [DependenciaC::class, 'list'])->name('dependencia.list')->middleware('auth');
+
+Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('reldependenciarea.list')->middleware('auth');
+
+Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');

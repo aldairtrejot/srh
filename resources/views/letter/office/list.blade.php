@@ -19,7 +19,7 @@
         <span class="font-weight-bold" style="color: #10312b;">Informe</span>
         <i class="ti-layout" style="color: #10312b;"></i>
     </a>
-</div>
+</div> 
             <style>
                 .custom-button[disabled] {
                     cursor: not-allowed;
