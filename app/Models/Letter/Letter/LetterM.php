@@ -245,8 +245,7 @@ class LetterM extends Model
     {
         // Usamos whereRaw con binding para evitar problemas de inyección SQL
         $turno = DB::table('correspondencia.tbl_correspondencia')
-            ->whereRaw('UPPER(TRIM(num_turno_sistema)) = UPPER(TRIM(?))', [$noTurno])
-            ->orWhereRaw('UPPER(TRIM(folio_gestion)) = UPPER(TRIM(?))', [$noTurno])
+            ->whereRaw('UPPER(TRIM(folio_gestion)) = UPPER(TRIM(?))', [$noTurno])
             ->value('id_tbl_correspondencia'); // Recuperamos el valor de id_tbl_correspondencia
 
         // Retornamos el valor, si no se encuentra, será null
@@ -319,8 +318,7 @@ class LetterM extends Model
             ->join('administration.users AS user_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'user_enlace.id')
             ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
             ->where(function ($query) use ($value) {
-                $query->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.num_turno_sistema)) = UPPER(TRIM(?))', [$value])
-                    ->orWhereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) = UPPER(TRIM(?))', [$value]);
+                $query->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) = UPPER(TRIM(?))', [$value]);
             })
             ->get();
     }
