@@ -179,10 +179,10 @@ class LetterC extends Controller
             $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
             $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
             $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-            $COR_USUARIO = config('custom_config.COR_USUARIO'); // Acceso por área
+            $COR_VISTA = config('custom_config.COR_VISTA'); // Acceso por área
 
             // Verificar si el usuario tiene acceso completo
-            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+            if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray) || in_array($COR_VISTA, $roleUserArray)) {
                 // Si tiene acceso completo, no hay necesidad de filtrar por área o enlace
                 // Procesar la tabla con acceso completo si es necesario
                 $value = $letterM->list($iterator, $searchValue, null);
@@ -221,7 +221,7 @@ class LetterC extends Controller
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray(); // Array con roles de usuario
         $ADM_TOTAL = config('custom_config.ADM_TOTAL'); // Acceso completo
         $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
-        $COR_USUARIO = config('custom_config.COR_USUARIO'); // Acceso por área
+        $COR_VISTA = config('custom_config.COR_VISTA'); // Acceso por área
         $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0; //Se condiciona el valor del check
         $es_doc_fisico = isset($request->es_doc_fisico) ? 1 : 0; //Se condiciona el valor del check
         $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0; //Se condiciona el valor del check
