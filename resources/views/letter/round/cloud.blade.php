@@ -43,11 +43,11 @@
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />
                             <div class="contenedor">
                                 <div class="item">
-                                    <label class="etiqueta">No. Turno:</label>
+                                    <label class="etiqueta">No. Cricular:</label>
                                     <label id="_noOficio" class="valor"></label>
                                 </div>
                                 <div class="item">
-                                    <label class="etiqueta">No. Turno Asoc.:</label>
+                                    <label class="etiqueta">No. Turno int.:</label>
                                     <label id="_noCorrespondencia" class="valor"></label>
                                 </div>
                                 <div class="item">

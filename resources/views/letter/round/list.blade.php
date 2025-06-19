@@ -1,5 +1,5 @@
 <!-- TEMPLATE APP-->
-<?php include(resource_path('views/config.php')); ?>
+<?php include resource_path('views/config.php'); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="main-panel">
@@ -22,7 +22,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Circulares Internas</h4>
-                                @if($letterAdminMatch)
+                                @if ($letterAdminMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro? <a href="{{ route('round.create') }}"
                                             class="text-danger" style="margin-left: 10px;">
@@ -48,11 +48,13 @@
                                         Año
                                     </th>
                                     <th>
-                                        No. Turno
+                                        No. Circular
                                     </th>
+                                    <!--
                                     <th>
                                         No. Asoc.
                                     </th>
+                                -->
                                     <th>
                                         Asunto
                                     </th>

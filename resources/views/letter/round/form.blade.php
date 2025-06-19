@@ -51,7 +51,7 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información de documento" />
                                 <div class="contenedor">
                                     <div class="item">
-                                        <label class="etiqueta">No. Turno:</label>
+                                        <label class="etiqueta">No. Cricular:</label>
                                         <label id="_labNoCorrespondencia" class="valor"></label>
                                     </div>
                                     <div class="item">
@@ -72,7 +72,7 @@
                                         :selectEdit="$selectAreaEditAux" name="id_cat_area_documento" tittle="Área"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" />
 
-                                    <x-template-form.template-form-input-required label="No. Doc" type="text"
+                                    <x-template-form.template-form-input-required label="No. Turno int." type="text"
                                         name="num_documento_area" placeholder="NO. DOCUMENTO"
                                         grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete=""
                                         value="{{optional($item)->num_documento_area ?? '' }}" />
