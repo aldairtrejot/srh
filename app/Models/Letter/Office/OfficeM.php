@@ -199,4 +199,25 @@ class OfficeM extends Model
 
         return $result;
     }
+
+
+public function getReporteOficios()
+{
+    return DB::table('correspondencia.tbl_oficio AS o')
+        ->leftJoin('correspondencia.tbl_correspondencia AS c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
+        ->join('correspondencia.cat_anio AS a', 'o.id_cat_anio', '=', 'a.id_cat_anio')
+        ->select([
+            'o.num_turno_sistema',
+            DB::raw("CASE WHEN o.es_por_area THEN o.num_documento_area ELSE c.folio_gestion END AS documento"),
+            'o.asunto',
+            'o.observaciones',
+            DB::raw("TO_CHAR(o.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
+            DB::raw("TO_CHAR(o.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
+            'a.descripcion AS anio'
+        ])
+        ->orderByDesc('o.id_tbl_oficio')
+        ->get();
+}
+
+
 }

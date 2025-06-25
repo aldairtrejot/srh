@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Letter\Collection\CollectionRolAreaM;
 use Illuminate\Support\Facades\DB;
 
+
 class OfficeC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -297,4 +298,6 @@ class OfficeC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
+
+ 
 }

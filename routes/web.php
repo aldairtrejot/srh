@@ -61,6 +61,7 @@ use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
 
 
+
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
 Route::get('/recover', RecoverC::class)->name('recover');//ROUTE_RECOVER
@@ -436,3 +437,6 @@ Route::get('/dependencia/list', [DependenciaC::class, 'list'])->name('dependenci
 Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('reldependenciarea.list')->middleware('auth');
 
 Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');
+
+Route::get('/letter/dashboard/reporte', [DashboardOfficeC::class, 'generate'])->name('oficios.reporte.encabezados');
+

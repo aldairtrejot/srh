@@ -18,9 +18,10 @@
         "league/flysystem": "*",
         "maatwebsite/excel": "^3.1",
         "mews/captcha": "^3.4",
-        "phpoffice/phpspreadsheet": "^1.18",
+        "phpoffice/phpspreadsheet": "^1.29",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
+        "symfony/http-foundation": "^7.3",
         "yajra/laravel-datatables-oracle": "^11.1"
     },
     "require-dev": {

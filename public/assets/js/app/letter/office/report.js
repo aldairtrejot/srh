@@ -14,47 +14,35 @@ $(document).ready(function () {
 
 
 function generateReport() {
+    $('#modalReport').fadeOut();
+    showSpinner();
 
-    $('#modalReport').fadeOut(); // Ocultar la ventana modal
-    showSpinner();// Inicio de spinner
     $.ajax({
-        url: URL_DEFAULT.concat('/letter/dashboard/generate'),
-        type: 'POST',
-        data: {
-            id_cat_area: $('#id_cat_area_informe').val(),
-            id_cat_status: $('#id_cat_status_informe').val(),
-            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
-            fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
-            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
-            fecha_inicio_informe: $('#fecha_inicio_informe').val(),
-            fecha_fin_informe: $('#fecha_fin_informe').val(),
-            id_cat_date_informe: $('#id_cat_date_informe').val(),
-            inicio: getFormattedHourValue('#inicio'),
-            fin: getFormattedHourValue('#fin'),
-            _token: token
-        },
+        url: '/letter/dashboard/reporte', // ⚠️ Asegúrate que esta es la ruta correcta
+        type: 'GET',
         xhrFields: {
-            responseType: 'blob' // Para manejar archivos binarios
+            responseType: 'blob'
         },
         success: function (response, status, xhr) {
-            let filename = "DATA_GC_SIRH.xlsx";
-            let blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
-
-            let link = document.createElement('a');
+            const filename = "informe_oficios.xlsx";
+            const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+            const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             notyfEM.success("Documento generado correctamente.");
-            hideSpinner(); // Se oculta el spinner
+            hideSpinner();
         },
-        error: function (xhr, status, error) {
-            notyfEM.error('Error al generar el archivo:', error);
-            hideSpinner(); // Se oculta el spinner
+        error: function () {
+            notyfEM.error('Error al generar el archivo.');
+            hideSpinner();
         }
     });
 }
+
+
 
 function getFormattedHourValue(inputId) {
     var value = $(inputId).val();  // Obtiene el valor del input range
