@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Letter\Nomoficio\NomoficioM;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Letter\Log\LogC;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\MessagesC;
 
 class NomoficioC extends Controller
@@ -19,57 +17,54 @@ class NomoficioC extends Controller
     }
 
     public function save(Request $request)
-{
-    $messagesC = new MessagesC();
-    $logC = new LogC();
+    {
+        $messagesC = new MessagesC();
+        $logC = new LogC();
 
-    $descripcion = strtoupper(trim($request->descripcion));
-    $clave = strtoupper(trim($request->clave));
+        $descripcion = strtoupper(trim($request->descripcion));
+        $nombre = strtoupper(trim($request->nombre));
 
-    // Validar duplicados por descripción
-    $existeDescripcion = NomoficioM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
-        ->when($request->id_cat_nombre_oficio, function ($q) use ($request) {
-            return $q->where('id_cat_nombre_oficio', '<>', $request->id_cat_nombre_oficio);
-        })
-        ->exists();
+        $existeDescripcion = NomoficioM::whereRaw("UPPER(TRIM(descripcion)) = ?", [$descripcion])
+            ->when($request->id_cat_nombre_oficio, function ($q) use ($request) {
+                return $q->where('id_cat_nombre_oficio', '<>', $request->id_cat_nombre_oficio);
+            })
+            ->exists();
 
-    if ($existeDescripcion) {
-        return redirect()->back()->withInput()->withErrors([
-            'descripcion' => 'La descripción ya existe.',
-        ]);
+        if ($existeDescripcion) {
+            return redirect()->back()->withInput()->withErrors([
+                'descripcion' => 'La descripción ya existe.',
+            ]);
+        }
+
+        $existeNombre = NomoficioM::whereRaw("UPPER(TRIM(nombre)) = ?", [$nombre])
+            ->when($request->id_cat_nombre_oficio, function ($q) use ($request) {
+                return $q->where('id_cat_nombre_oficio', '<>', $request->id_cat_nombre_oficio);
+            })
+            ->exists();
+
+        if ($existeNombre) {
+            return redirect()->back()->withInput()->withErrors([
+                'nombre' => 'El nombre ya existe.',
+            ]);
+        }
+
+        $data = [
+            'descripcion' => $descripcion,
+            'nombre' => $nombre,
+            'estatus' => (bool) $request->estatus,
+        ];
+
+        if (!$request->id_cat_nombre_oficio) {
+            NomoficioM::create($data);
+            $logC->add('correspondencia.cat_nombre_oficio', $data);
+        } else {
+            NomoficioM::where('id_cat_nombre_oficio', $request->id_cat_nombre_oficio)->update($data);
+            $data['id_cat_nombre_oficio'] = $request->id_cat_nombre_oficio;
+            $logC->edit('correspondencia.cat_nombre_oficio', $data);
+        }
+
+        return $messagesC->messageSuccessRedirect('nomoficio.list', 'Registro guardado exitosamente.');
     }
-
-    // Validar duplicados por clave
-    $existeClave = NomoficioM::whereRaw("UPPER(TRIM(clave)) = ?", [$clave])
-        ->when($request->id_cat_nombre_oficio, function ($q) use ($request) {
-            return $q->where('id_cat_nombre_oficio', '<>', $request->id_cat_nombre_oficio);
-        })
-        ->exists();
-
-    if ($existeClave) {
-        return redirect()->back()->withInput()->withErrors([
-            'clave' => 'El nombre ya existe.',
-        ]);
-    }
-
-    $data = [
-        'descripcion' => $descripcion,
-        'clave' => $clave,
-        'estatus' => (bool) $request->estatus,
-    ];
-
-    if (!$request->id_cat_nombre_oficio) {
-        NomoficioM::create($data);
-        $logC->add('correspondencia.cat_nombre_oficio', $data);
-    } else {
-        NomoficioM::where('id_cat_nombre_oficio', $request->id_cat_nombre_oficio)->update($data);
-        $data['id_cat_nombre_oficio'] = $request->id_cat_nombre_oficio;
-        $logC->edit('correspondencia.cat_nombre_oficio', $data);
-    }
-
-    return $messagesC->messageSuccessRedirect('nomoficio.list', 'Registro guardado exitosamente.');
-}
-
 
     public function create()
     {
@@ -77,24 +72,25 @@ class NomoficioC extends Controller
         return view('administration.nomoficioC.form', compact('item'));
     }
 
-   
     public function searchTable(Request $request)
     {
         $searchValue = strtoupper(trim($request->get('searchValue', '')));
         $iterator = intval($request->get('iterator', 0));
-    
+
         $areas = NomoficioM::select([
-                                'id_cat_nombre_oficio AS id',
-                                'descripcion',
-                                'clave',
-                                'estatus'
-                            ])
-                            ->whereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"])
-                            ->orwhereRaw("UPPER(TRIM(clave)) LIKE ?", ["%$searchValue%"])
-                            ->offset($iterator)
-                            ->limit(5)
-                            ->get();
-    
+            'id_cat_nombre_oficio AS id',
+            'nombre',
+            'descripcion',
+            'estatus'
+        ])
+        ->where(function ($query) use ($searchValue) {
+            $query->whereRaw("UPPER(TRIM(nombre)) LIKE ?", ["%$searchValue%"])
+                  ->orWhereRaw("UPPER(TRIM(descripcion)) LIKE ?", ["%$searchValue%"]);
+        })
+        ->offset($iterator)
+        ->limit(5)
+        ->get();
+
         return response()->json([
             'value' => $areas
         ]);
@@ -113,9 +109,7 @@ class NomoficioC extends Controller
 
     public function edit(string $id)
     {
-        $areaM = new NomoficioM();
-        $item = $areaM->edit($id);
-
+        $item = NomoficioM::findOrFail($id);
         return view('administration.nomoficioC.form', compact('item'));
     }
 }

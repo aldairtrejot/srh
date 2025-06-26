@@ -26,10 +26,10 @@
                             <x-template-form.template-form-input-hidden name="id_cat_nombre_oficio"
                                 value="{{ optional($item)->id_cat_nombre_oficio ?? '' }}" />
 
-                            <x-template-form.template-form-input-required label="Clave" type="text"
-                                name="clave" placeholder="Clave"
+                            <x-template-form.template-form-input-required label="Nombre" type="text"
+                                name="nombre" placeholder="Nombre"
                                 grid="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" autocomplete=""
-                                value="{{ optional($item)->clave ?? '' }}" />
+                                value="{{ optional($item)->nombre ?? '' }}" />
 
                             <x-template-form.template-form-input-required label="Descripción" type="text"
                                 name="descripcion" placeholder="Descripción"
