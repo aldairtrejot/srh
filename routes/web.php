@@ -335,23 +335,6 @@ Route::get('/tableinstructor/edit/{id}', [InstructorsC::class, 'edit'])->name('t
 Route::put('/tableinstructor/update/{id}', [InstructorsC::class, 'update'])->name('tableinstructor.update')->middleware('auth');
 
 
-Route::get('/tableinstructor/cloud/{id}', [CloudTableC::class, 'cloud'])->name('tableinstructor.cloud')->middleware('auth');
-Route::post('/tableinstructor/table/dataCurp', [InstructorsC::class, 'dataCurp'])->name('tableinstructor.dataCurp')->middleware('auth');
-Route::post('/tableinstructor/cloud/see', [CloudTableC::class, 'see'])->name('tableinstructor.cloud.see')->middleware('auth');
-Route::post('/tableinstructor/cloud/download', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
-Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
-Route::get('/tableinstructor/generate-pdf/constancias/{id}', [ReporteConstanciaC::class, 'generatePdf'])->middleware('auth');
-
-
-// 📌 Rutas de Cloud Tabla instructores (Carga de documentos)
-Route::get('/tableinstructor/cloud/download/{uuid}', [CloudTableC::class, 'download'])->name('tableinstructor.cloud.download')->middleware('auth');
-Route::post('/tableinstructor/cloud/upload', [CloudTableC::class, 'upload'])->name('tableinstructor.cloud.upload')->middleware('auth');
-Route::post('/tableinstructor/cloud/data', [CloudTableC::class, 'cloudData'])->name('tableinstructor.cloud.data')->middleware('auth');
-Route::post('/tableinstructor/cloud/cv', [CloudTableC::class, 'cloudCv'])->name('tableinstructor.cloud.cv')->middleware('auth');
-Route::post('/tableinstructor/cloud/cons', [CloudTableC::class, 'cloudCons'])->name('tableinstructor.cloud.cons')->middleware('auth');
-Route::post('/tableinstructor/cloud/delete', [CloudTableC::class, 'delete'])->name('tableinstructor.cloud.delete')->middleware('auth');
-Route::post('/tableinstructor/cloud/constancias', [CloudTableC::class, 'cloudConstancias'])->name('tableinstructor.cloud.constancias')->middleware('auth'); // Ruta agregada para constancias
-
 
 //ROUTE OFICIOS
 Route::get('/office/list', [OfficeC::class, 'list'])->name('office.list')->middleware('auth');
@@ -383,17 +366,7 @@ Route::post('/tablecourses/save', [TblCoursesC::class, 'save'])->name('tablecour
 Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('tablecourses.edit')->middleware('auth');
 
 
-// Ruta para registrar la auditoría
-Route::post('/auditoria/add/courses', [TblAuditC::class, 'storeAudit'])->name('auditoria.add.courses')->middleware('auth');
-Route::post('/auditoria/list/courses', [TblAuditC::class, 'getAuditList'])->name('auditoria.list.courses')->middleware('auth');
-Route::post('/auditoria/upload', [TblAuditC::class, 'saveFile'])->name('auditoria.upload.courses')->middleware('auth');
-Route::post('/auditoria/addOficio', [CommunicationC::class, 'addOficio'])->name('auditoria.addOficio')->middleware('auth');
-Route::post('/auditoria/see', [AlfrescoC::class, 'see'])->name('auditoria.see')->middleware('auth');
-Route::post('/auditoria/download', [AlfrescoC::class, 'download'])->name('auditoria.download')->middleware('auth');
-Route::post('/auditoria/delete', [TblAuditC::class, 'deleteDocument'])->name('auditoria.delete')->middleware('auth');
-Route::post('/auditoria/update/estatus', [TblAuditC::class, 'updateEstatus'])->name('auditoria.update.estatus')->middleware('auth');
-Route::post('/auditoria/check/exist-by-id', [TblAuditC::class, 'checkExistenceById'])->name('auditoria.check.existence')->middleware('auth');
-Route::post('/auditoria/check/id', [TblAuditC::class, 'checkId'])->name('auditoria.check.id')->middleware('auth');
+
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
@@ -401,26 +374,9 @@ Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth')
 // CONSULTA DE USUARIO, ENLACE Y AREA
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');
 
-// 📌 ASSIGNED_COURSES ---- > Curso Asignado
-Route::get('/assignedcourse/list', [AssignedcourseC::class, 'list'])->name('assignedcourse.list')->middleware('auth');
-Route::post('/assignedcourse/table', [AssignedcourseC::class, 'searchTable'])->name('assignedcourse.searchTable'); // alumnos
-Route::post('/assignedcourse/user-courses', [AssignedcourseC::class, 'searchCoursesByUser'])->name('assignedcourse.userCourses'); // cursos de un alumno
-Route::get('/assignedcourse/create', [AssignedcourseC::class, 'create'])->name('assignedcourse.create')->middleware('auth');
-Route::post('/assignedcourse/save', [AssignedcourseC::class, 'save'])->name('assignedcourse.save')->middleware('auth');
-Route::post('/assignedcourse/delete', [AssignedcourseC::class, 'delete'])->name('assignedcourse.delete')->middleware('auth');
-Route::get('/assignedcourse/edit/{id}', [AssignedcourseC::class, 'edit'])->name('assignedcourse.edit')->middleware('auth');
-Route::post('/assignedcourse/dataCurp', [AssignedcourseC::class, 'dataCurp'])->name('assignedcourse.dataCurp');
-Route::get('/assignedcourse/add/{id}', [AssignedcourseC::class, 'add'])->name('assignedcourse.add')->middleware('auth'); 
-Route::get('/assignedcourse/courses/{id}', [AssignedcourseC::class, 'courses'])->name('assignedcourse.courses')->middleware('auth');
-Route::get('/assignedcourse/generate-pdf/constancias/{id}', [ConstanciaAlumnoC::class, 'generatePdf'])->name('assignedcourse.constancia.pdf')->middleware('auth');
-Route::get('/assignedcourse/modalCarga', [AssignedcourseC::class, 'modalCarga'])->name('assignedcourse.modal')->middleware('auth');
-Route::post('/assignedcourse/upload', [AssignedcourseC::class, 'handleMassiveUpload'])->name('assignedcourse.upload')->middleware('auth');
-Route::post('/assignedcourse/cursos-activos', [AssignedcourseC::class, 'getCursosActivosAjax'])->name('assignedcourse.cursos.activos')->middleware('auth');
-Route::post('/assignedcourse/enroll', [AssignedcourseC::class, 'enroll'])->name('assignedcourse.enroll')->middleware('auth');
-Route::get('/assignedcourse/assigned/{id}', [AssignedcourseC::class, 'assigned'])->name('assignedcourse.assigned')->middleware('auth');
 
 //descargas de doc
-Route::get('/oficios/reporte-encabezados', [DashboardOfficeC::class, 'generate'])->name('oficios.reporte.encabezados');
+
 
 Route::get('/letter/dashboard', [DashboardLetterC::class, 'generate'])->name('letter.dashboard');
 
@@ -438,5 +394,7 @@ Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('r
 
 Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');
 
-Route::get('/letter/dashboard/reporte', [DashboardOfficeC::class, 'generate'])->name('oficios.reporte.encabezados');
+Route::get('dashboard/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
+
+
 

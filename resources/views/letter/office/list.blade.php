@@ -14,13 +14,15 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end mb-3">
-<a href="{{ route('oficios.reporte.encabezados') }}" class="btn btn-link" id="reporteBtn">
-    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-    <i class="ti-layout" style="color: #10312b;"></i>
-</a>
+<div class="d-flex justify-content-end mb-3">
+<button class="btn btn-link" onclick="generateReport()" style="color: #10312b;">
+    <span class="font-weight-bold">Informe</span>
+    <i class="ti-layout"></i>
+</button>
 
-</div> 
+
+</div>
+
             <style>
                 .custom-button[disabled] {
                     cursor: not-allowed;
@@ -85,6 +87,11 @@
 
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    const reporteURL = "{{ route('dashboardoffice.generate') }}";
+</script>
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/letter/office/table.js') }}"></script>

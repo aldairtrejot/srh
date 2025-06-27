@@ -204,20 +204,39 @@ class OfficeM extends Model
 public function getReporteOficios()
 {
     return DB::table('correspondencia.tbl_oficio AS o')
-        ->leftJoin('correspondencia.tbl_correspondencia AS c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
-        ->join('correspondencia.cat_anio AS a', 'o.id_cat_anio', '=', 'a.id_cat_anio')
+        ->join('correspondencia.tbl_correspondencia AS c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
+        ->leftJoin('correspondencia.cat_anio AS anio', 'o.id_cat_anio', '=', 'anio.id_cat_anio')
+        ->leftJoin('correspondencia.cat_estatus AS est', 'c.id_cat_estatus', '=', 'est.id_cat_estatus')
+        ->leftJoin('correspondencia.cat_tramite AS t', 'c.id_cat_tramite', '=', 't.id_cat_tramite')
+        ->leftJoin('correspondencia.cat_area AS a', 'c.id_cat_area', '=', 'a.id_cat_area')
+        ->leftJoin('correspondencia.cat_unidad AS u', 'c.id_cat_unidad', '=', 'u.id_cat_unidad')
+        ->leftJoin('correspondencia.cat_coordinacion AS co', 'c.id_cat_coordinacion', '=', 'co.id_cat_coordinacion')
+        ->leftJoin('administration.users AS ua', 'o.id_usuario_area', '=', 'ua.id')
+        ->leftJoin('administration.users AS ue', 'o.id_usuario_enlace', '=', 'ue.id')
+        ->leftJoin('administration.users AS uc', 'o.id_usuario_captura', '=', 'uc.id')
         ->select([
             'o.num_turno_sistema',
-            DB::raw("CASE WHEN o.es_por_area THEN o.num_documento_area ELSE c.folio_gestion END AS documento"),
-            'o.asunto',
-            'o.observaciones',
-            DB::raw("TO_CHAR(o.fecha_inicio, 'DD/MM/YYYY') AS fecha_inicio"),
-            DB::raw("TO_CHAR(o.fecha_fin, 'DD/MM/YYYY') AS fecha_fin"),
-            'a.descripcion AS anio'
+            'o.asunto AS asunto_oficio',
+            'o.observaciones AS observaciones_oficio',
+            'c.num_documento',
+            'c.folio_gestion',
+            'c.fecha_captura',
+            'c.fecha_inicio',
+            'c.fecha_fin',
+            'anio.descripcion AS anio',
+            'est.descripcion AS estatus',
+            't.descripcion AS tramite',
+            'a.descripcion AS area_responsable',
+            'u.descripcion AS unidad_responsable',
+            'co.descripcion AS coordinacion_responsable',
+            'ua.name AS responsable_area',
+            'ue.name AS enlace_responsable',
+            'uc.name AS capturado_por',
+            'c.fecha_usuario_captura'
         ])
-        ->orderByDesc('o.id_tbl_oficio')
         ->get();
 }
+
 
 
 }
