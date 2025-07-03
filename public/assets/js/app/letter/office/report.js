@@ -1,22 +1,88 @@
 var token = $('meta[name="csrf-token"]').attr('content');
 
+window.openModal = function() {
+    console.log("openModal se llamó!");
+    $('#modalReport').fadeIn();
+    loadCatalogs();
+};
+
 $(document).ready(function () {
     $(window).click(function (event) {
         if ($(event.target).is('#modalReport')) {
             $('#modalReport').fadeOut();
         }
     });
+    $('#cancel_copy').click(function () {
+        $('#modalReport').fadeOut();
+    });
 });
 
-function generateReport() {
+function loadCatalogs() {
+    console.log("Intentando cargar catálogos...");
+
+    $.ajax({
+        url: catalogosURL,
+        type: "GET",
+        success: function(response) {
+            console.log("Datos recibidos:", response);
+
+            // Destruir pickers ANTES de cambiar opciones
+            $('#id_cat_area_informe').selectpicker('destroy');
+            $('#id_cat_status_informe').selectpicker('destroy');
+            $('#id_cat_date_informe').selectpicker('destroy');
+
+            // Área
+            const areaOptions = response.areas.map(item =>
+                `<option value="${item.id_cat_area}">${item.descripcion}</option>`
+            );
+            $("#id_cat_area_informe").html('<option value="">-- Todas las áreas --</option>' + areaOptions.join(''));
+
+            // Estatus
+            const statusOptions = response.estatus.map(item =>
+                `<option value="${item.id_cat_estatus}">${item.descripcion}</option>`
+            );
+            $("#id_cat_status_informe").html('<option value="">-- Todos los estatus --</option>' + statusOptions.join(''));
+
+            // Año
+            const yearOptions = response.anios.map(item =>
+                `<option value="${item.id_cat_anio}">${item.descripcion}</option>`
+            );
+            $("#id_cat_date_informe").html('<option value="">-- Todos los años --</option>' + yearOptions.join(''));
+
+            // Volver a inicializar pickers
+            $('.selectpicker').selectpicker();
+
+            console.log("Selects reinicializados correctamente.");
+        },
+        error: function(xhr) {
+            console.error("Error al cargar catálogos:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los catálogos.'
+            });
+        }
+    });
+}
+
+
+function validateDate() {
+    const area = $('#id_cat_area_informe').val();
+    const status = $('#id_cat_status_informe').val();
+    const year = $('#id_cat_date_informe').val();
+
+    $('#modalReport').fadeOut();
+    generateReport(area, status, year);
+}
+
+function generateReport(area, status, year) {
     showSpinner();
 
     $.ajax({
         url: reporteURL,
         type: 'GET',
-        xhrFields: {
-            responseType: 'blob'
-        },
+        data: { area, status, year },
+        xhrFields: { responseType: 'blob' },
         success: function (response, status, xhr) {
             const filename = "reporte_oficios.xlsx";
             const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
@@ -26,31 +92,19 @@ function generateReport() {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
             hideSpinner();
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: 'El archivo se descargó correctamente.',
-                confirmButtonText: 'OK',
-    confirmButtonColor: '#10312b' // Verde
-            });
+            Swal.fire({ icon: 'success', title: '¡Éxito!', text: 'El archivo se descargó correctamente.' });
         },
         error: function () {
             hideSpinner();
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo generar el archivo.'
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo generar el archivo.' });
         }
     });
 }
 
-function openModal() {
-    $('#modalReport').fadeIn();
+function showSpinner() {
+    Swal.fire({ title: 'Generando...', text: 'Por favor espera.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 }
-
-$('#cancel_copy').click(function () {
-    $('#modalReport').fadeOut();
-});
+function hideSpinner() {
+    Swal.close();
+}

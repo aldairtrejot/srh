@@ -394,7 +394,8 @@ Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('r
 
 Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');
 
-Route::get('dashboard/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
+Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatalogos'])->name('dashboardoffice.catalogos');
 
+Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
 
 

@@ -201,9 +201,9 @@ class OfficeM extends Model
     }
 
 
-public function getReporteOficios()
+public function getReporteFiltrado($area, $status, $year)
 {
-    return DB::table('correspondencia.tbl_oficio AS o')
+    $query = DB::table('correspondencia.tbl_oficio AS o')
         ->join('correspondencia.tbl_correspondencia AS c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
         ->leftJoin('correspondencia.cat_anio AS anio', 'o.id_cat_anio', '=', 'anio.id_cat_anio')
         ->leftJoin('correspondencia.cat_estatus AS est', 'c.id_cat_estatus', '=', 'est.id_cat_estatus')
@@ -233,10 +233,18 @@ public function getReporteOficios()
             'ue.name AS enlace_responsable',
             'uc.name AS capturado_por',
             'c.fecha_usuario_captura'
-        ])
-        ->get();
+        ]);
+
+    if ($area) {
+        $query->where('c.id_cat_area', $area);
+    }
+    if ($status) {
+        $query->where('c.id_cat_estatus', $status);
+    }
+    if ($year) {
+        $query->where('o.id_cat_anio', $year);
+    }
+
+    return $query->get();
 }
-
-
-
 }
