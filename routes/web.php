@@ -398,4 +398,4 @@ Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatal
 
 Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
 
-
+Route::get('/oficios/reporte/encabezados', [DashboardOfficeC::class, 'oficios.reporte.encabezados'])->name('oficios.reporte.encabezados');

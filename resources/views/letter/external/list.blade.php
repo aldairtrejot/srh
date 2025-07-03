@@ -14,12 +14,12 @@
                     </div>
                 </div>
             </div>
-      <div class="d-flex justify-content-end mb-3">
-    <a href="{{}}" class="btn btn-link" id="reporteBtn">
-        <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-        <i class="ti-layout" style="color: #10312b;"></i>
+       <!-- <div class="d-flex justify-content-end mb-3">
+<a href="{{ route('oficios.reporte.encabezados') }}" class="btn btn-link" id="reporteBtn">
+    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+    <i class="ti-layout" style="color: #10312b;"></i>
     </a>
-</div>  
+</div>  -->
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
