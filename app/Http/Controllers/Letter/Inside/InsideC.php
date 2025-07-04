@@ -18,6 +18,12 @@ use App\Models\Letter\Collection\CollectionReportM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Http\Controllers\Letter\Other\ConsecutivoC;
 use App\Models\Letter\Collection\CollectionRolAreaM;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 class InsideC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -263,6 +269,88 @@ class InsideC extends Controller
         return response()->json([
             'value' => $value,
             'status' => true,
+        ]);
+    }
+
+    public function obtenerCatalogos()
+    {
+        $areas = DB::table('correspondencia.cat_area')
+            ->select('id_cat_area', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
+
+        $estatus = DB::table('correspondencia.cat_estatus')
+            ->select('id_cat_estatus', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
+
+        $anios = DB::table('correspondencia.cat_anio')
+            ->select('id_cat_anio', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
+
+        return response()->json([
+            'areas' => $areas,
+            'estatus' => $estatus,
+            'anios' => $anios,
+        ]);
+    }
+
+    public function descargarReporte(Request $request)
+    {
+        $area = $request->input('area');
+        $status = $request->input('status');
+        $year = $request->input('year');
+
+        $model = new InsideM();
+        $datos = $model->getReporteFiltrado($area, $status, $year);
+
+        if ($datos->isEmpty()) {
+            return response()->json(['error' => 'Sin datos'], 400);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => Color::COLOR_WHITE],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FF006800'],
+            ],
+        ];
+
+        $columnas = array_keys((array)$datos->first());
+
+        // Encabezados
+        foreach ($columnas as $colIndex => $colNombre) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue("{$colLetter}1", strtoupper($colNombre));
+            $sheet->getStyle("{$colLetter}1")->applyFromArray($headerStyle);
+        }
+
+        // Datos
+        $row = 2;
+        foreach ($datos as $dato) {
+            foreach ($columnas as $colIndex => $colNombre) {
+                $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
+            }
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        return new StreamedResponse(function () use ($writer) {
+            if (ob_get_contents()) ob_end_clean();
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="reporte_interno.xlsx"',
+            'Cache-Control' => 'max-age=0',
+            'Pragma' => 'public',
         ]);
     }
 }

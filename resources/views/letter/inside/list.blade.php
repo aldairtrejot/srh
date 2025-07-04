@@ -2,6 +2,7 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
@@ -15,6 +16,14 @@
                 </div>
             </div>
 
+            <!-- Botón de Informe -->
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
+                    <span class="font-weight-bold">Informe</span>
+                    <i class="ti-layout"></i>
+                </button>
+            </div>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -23,8 +32,8 @@
                             <div>
                                 <h4 class="card-title">Interno</h4>
                                 <p class="card-description">
-                                    ¿Deseas agregar un registro? <a href="{{ route('inside.create') }}"
-                                        class="text-danger" style="margin-left: 10px;">
+                                    ¿Deseas agregar un registro? 
+                                    <a href="{{ route('inside.create') }}" class="text-danger" style="margin-left: 10px;">
                                         <i class="fa fa-arrow-up"></i> Agregar Registro
                                     </a>
                                 </p>
@@ -39,21 +48,11 @@
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>
-                                        Menú
-                                    </th>
-                                    <th>
-                                        Año
-                                    </th>
-                                    <th>
-                                        No. Folio
-                                    </th>
-                                    <th>
-                                        Folio de gestión
-                                    </th>
-                                    <th>
-                                        Asunto
-                                    </th>
+                                    <th>Menú</th>
+                                    <th>Año</th>
+                                    <th>No. Folio</th>
+                                    <th>Folio de gestión</th>
+                                    <th>Asunto</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
@@ -68,8 +67,18 @@
         </div>
     </div>
 
-    <!-- CODE SCRIPT-->
+    <!-- Definir URLs de catálogo y generación de reporte -->
+    <script>
+        const reporteURL = "{{ route('dashboardinside.generate') }}";
+        const catalogosURL = "{{ route('dashboardinside.catalogos') }}";
+    </script>
+
+    <!-- Scripts -->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/inside/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/inside/report.js') }}"></script>
+
+    <!-- Incluir modal -->
+    @include('letter.inside.modal')
 
 </x-template-app.app-layout>

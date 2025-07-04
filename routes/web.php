@@ -399,3 +399,22 @@ Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatal
 Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
 
 Route::get('/oficios/reporte/encabezados', [DashboardOfficeC::class, 'oficios.reporte.encabezados'])->name('oficios.reporte.encabezados');
+
+
+// Vista principal de listado (si la tienes)
+Route::get('/letter/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
+
+// Ruta que devuelve los catálogos para el modal de filtros
+Route::get('/dashboardround/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('dashboardround.catalogos')->middleware('auth');
+
+// Ruta que genera y descarga el reporte en Excel
+Route::get('/dashboardround/generate', [RoundC::class, 'descargarReporte'])->name('dashboardround.generate')->middleware('auth');
+
+// Ruta para crear un nuevo registro
+Route::get('/letter/round/create', [RoundC::class, 'create'])->name('round.create')->middleware('auth');
+
+
+
+Route::get('/dashboardinside/generate', [InsideC::class, 'descargarReporte'])->name('dashboardinside.generate');
+Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->name('dashboardinside.catalogos');
+
