@@ -141,39 +141,41 @@ class RoundM extends Model
             ->first();  // Devuelve el primer (y único) resultado
     }
 
-    public function getReporteFiltrado($area, $status, $year)
-    {
-        return DB::table('correspondencia.tbl_interno AS i')
-            ->join('correspondencia.tbl_correspondencia AS c', 'i.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
-            ->leftJoin('correspondencia.cat_anio AS anio', 'i.id_cat_anio', '=', 'anio.id_cat_anio')
-            ->leftJoin('correspondencia.cat_area AS a', 'c.id_cat_area', '=', 'a.id_cat_area')
-            ->leftJoin('administration.users AS ua', 'i.id_usuario_area', '=', 'ua.id')
-            ->leftJoin('administration.users AS ue', 'i.id_usuario_enlace', '=', 'ue.id')
-            ->when($area, function ($query) use ($area) {
-                return $query->where('c.id_cat_area', $area);
-            })
-            ->when($status, function ($query) use ($status) {
-                return $query->where('c.id_cat_estatus', $status);
-            })
-            ->when($year, function ($query) use ($year) {
-                return $query->where('i.id_cat_anio', $year);
-            })
-            ->select([
-                'i.num_turno_sistema',
-                'c.fecha_captura',
-                'anio.descripcion AS anio',
-                'a.descripcion AS area',
-                'c.num_documento',
-                'ua.name AS usuario_responsable',
-                'ue.name AS enlace_responsable',
-                'c.fecha_inicio',
-                'c.fecha_fin',
-                'c.folio_gestion',
-                'i.asunto',
-                'i.destinatario',
-                'i.observaciones'
-            ])
-            ->get();
+
+    public function getReporteFiltrado($area, $year)
+{
+    $query = DB::table('correspondencia.tbl_circular as o')
+        ->select([
+            'o.num_turno_sistema as No_Turno',
+            'o.fecha_captura as Fecha_captura',
+            'anio.descripcion as Anio',
+            'a.descripcion as Area',
+            'o.num_documento_area as No_Doc',
+            'ua.name as Usuario',
+            'ue.name as Enlace',
+            'o.fecha_inicio as Fecha_emision',
+            'o.fecha_fin as Fecha_aplicacion',
+            'o.asunto as Asunto',
+            'o.destinatario as Destinatario',
+            'o.observaciones as Observaciones'
+        ])
+        ->leftJoin('correspondencia.tbl_correspondencia as c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
+        ->leftJoin('correspondencia.cat_anio as anio', 'o.id_cat_anio', '=', 'anio.id_cat_anio')
+        ->leftJoin('correspondencia.cat_area as a', 'o.id_cat_area', '=', 'a.id_cat_area')
+        ->leftJoin('administration.users as ua', 'o.id_usuario_area', '=', 'ua.id')
+        ->leftJoin('administration.users as ue', 'o.id_usuario_enlace', '=', 'ue.id');
+
+    // Filtros dinámicos
+    if (!empty($area)) {
+        $query->where('o.id_cat_area', $area);
     }
+    if (!empty($year)) {
+        $query->where('o.id_cat_anio', $year);
+    }
+
+    $query->orderBy('o.id_tbl_circular', 'ASC');
+
+    return $query->get();
 }
 
+}

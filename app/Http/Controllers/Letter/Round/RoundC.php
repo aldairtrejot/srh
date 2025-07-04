@@ -248,16 +248,10 @@ class RoundC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
-
-   public function obtenerCatalogos()
+public function obtenerCatalogos()
     {
         $areas = DB::table('correspondencia.cat_area')
             ->select('id_cat_area', 'descripcion')
-            ->orderBy('descripcion')
-            ->get();
-
-        $estatus = DB::table('correspondencia.cat_estatus')
-            ->select('id_cat_estatus', 'descripcion')
             ->orderBy('descripcion')
             ->get();
 
@@ -268,19 +262,17 @@ class RoundC extends Controller
 
         return response()->json([
             'areas' => $areas,
-            'estatus' => $estatus,
-            'anios' => $anios,
+            'anios' => $anios
         ]);
     }
 
     public function descargarReporte(Request $request)
     {
         $area = $request->input('area');
-        $status = $request->input('status');
         $year = $request->input('year');
 
         $model = new RoundM();
-        $datos = $model->getReporteFiltrado($area, $status, $year);
+        $datos = $model->getReporteFiltrado($area, $year);
 
         if ($datos->isEmpty()) {
             return response()->json(['error' => 'Sin datos'], 400);
@@ -291,24 +283,22 @@ class RoundC extends Controller
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['argb' => Color::COLOR_WHITE]],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FF006800'],
-            ],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF006800']],
         ];
 
+        // Crear encabezados
         $columnas = array_keys((array)$datos->first());
-
-        foreach ($columnas as $i => $col) {
-            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
-            $sheet->setCellValue($colLetter . '1', strtoupper($col));
+        foreach ($columnas as $colIndex => $colNombre) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter . '1', strtoupper($colNombre));
             $sheet->getStyle($colLetter . '1')->applyFromArray($headerStyle);
         }
 
+        // Insertar datos
         $row = 2;
         foreach ($datos as $dato) {
-            foreach ($columnas as $i => $col) {
-                $sheet->setCellValueByColumnAndRow($i + 1, $row, $dato->$col);
+            foreach ($columnas as $colIndex => $colNombre) {
+                $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
             }
             $row++;
         }
@@ -320,9 +310,10 @@ class RoundC extends Controller
             $writer->save('php://output');
         }, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="reporte_interno.xlsx"',
+            'Content-Disposition' => 'attachment; filename="reporte_circulares.xlsx"',
             'Cache-Control' => 'max-age=0',
             'Pragma' => 'public',
         ]);
     }
 }
+  

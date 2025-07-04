@@ -394,27 +394,20 @@ Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('r
 
 Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');
 
-Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatalogos'])->name('dashboardoffice.catalogos');
-
-Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate');
-
-Route::get('/oficios/reporte/encabezados', [DashboardOfficeC::class, 'oficios.reporte.encabezados'])->name('oficios.reporte.encabezados');
-
+//officio
+Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatalogos'])->name('dashboardoffice.catalogos')->middleware('auth');
+Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate')->middleware('auth');
+Route::get('/oficios/reporte/encabezados', [DashboardOfficeC::class, 'oficios.reporte.encabezados'])->name('oficios.reporte.encabezados')->middleware('auth');
 
 // Vista principal de listado (si la tienes)
 Route::get('/letter/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
 
-// Ruta que devuelve los catálogos para el modal de filtros
-Route::get('/dashboardround/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('dashboardround.catalogos')->middleware('auth');
+//Interno
+Route::get('/dashboardinside/generate', [InsideC::class, 'descargarReporte'])->name('dashboardinside.generate')->middleware('auth');
+Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->name('dashboardinside.catalogos')->middleware('auth');
 
-// Ruta que genera y descarga el reporte en Excel
-Route::get('/dashboardround/generate', [RoundC::class, 'descargarReporte'])->name('dashboardround.generate')->middleware('auth');
+// Circulares
+Route::get('/round/dashboard/generate', [RoundC::class, 'descargarReporte'])->name('roundoffice.generate')->middleware('auth');
+Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('roundoffice.catalogos')->middleware('auth');
 
-// Ruta para crear un nuevo registro
-Route::get('/letter/round/create', [RoundC::class, 'create'])->name('round.create')->middleware('auth');
-
-
-
-Route::get('/dashboardinside/generate', [InsideC::class, 'descargarReporte'])->name('dashboardinside.generate');
-Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->name('dashboardinside.catalogos');
 

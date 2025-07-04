@@ -77,7 +77,7 @@
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/inside/table.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/inside/report.js') }}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Incluir modal -->
     @include('letter.inside.modal')
 
