@@ -11,6 +11,13 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class ExternalC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -152,4 +159,78 @@ class ExternalC extends Controller
             return $messagesC->messageSuccessRedirect('external.list', 'Elemento modificado con éxito.');
         }
     }
+
+    public function obtenerCatalogos()
+{
+    $areas = DB::table('correspondencia.cat_dependencia_area')
+        ->select('id_cat_dependencia_area', 'descripcion')
+        ->orderBy('descripcion')
+        ->get();
+
+    $anios = DB::table('correspondencia.tbl_circular_externa')
+        ->select(DB::raw("EXTRACT(YEAR FROM fecha_documento)::TEXT AS descripcion"))
+        ->groupBy(DB::raw("EXTRACT(YEAR FROM fecha_documento)"))
+        ->orderByDesc(DB::raw("EXTRACT(YEAR FROM fecha_documento)"))
+        ->get();
+
+    return response()->json([
+        'areas' => $areas,
+        'anios' => $anios,
+    ]);
+}
+
+public function descargarReporte(Request $request)
+{
+    $area = $request->input('area');
+    $year = $request->input('year');
+
+    $model = new ExternalM();
+    $datos = $model->getReporteEncabezados($area, $year);
+
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'Sin datos'], 400);
+    }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $headerStyle = [
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => Color::COLOR_WHITE],
+        ],
+        'fill' => [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FF006800'],
+        ],
+    ];
+
+    // Encabezados dinámicos
+    $columnas = array_keys((array)$datos->first());
+    foreach ($columnas as $colIndex => $colNombre) {
+        $sheet->setCellValueByColumnAndRow($colIndex + 1, 1, strtoupper(str_replace('_', ' ', $colNombre)));
+        $sheet->getStyleByColumnAndRow($colIndex + 1, 1)->applyFromArray($headerStyle);
+    }
+
+    // Datos
+    $row = 2;
+    foreach ($datos as $dato) {
+        foreach ($columnas as $colIndex => $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
+        }
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+
+    return new StreamedResponse(function () use ($writer) {
+        if (ob_get_contents()) ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_circulares_externas.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
+}
 }

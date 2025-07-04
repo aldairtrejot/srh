@@ -14,12 +14,13 @@
                     </div>
                 </div>
             </div>
-       <!-- <div class="d-flex justify-content-end mb-3">
-<a href="{{ route('oficios.reporte.encabezados') }}" class="btn btn-link" id="reporteBtn">
-    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-    <i class="ti-layout" style="color: #10312b;"></i>
-    </a>
-</div>  -->
+<div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
+        <span class="font-weight-bold">Informe</span>
+        <i class="ti-layout"></i>
+    </button>
+</div>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -77,5 +78,13 @@
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/external/table.js') }}"></script>
+    <script>
+    const reporteURL = "{{ route('externaloffice.generate') }}";
+    const catalogosURL = "{{ route('externaloffice.catalogos') }}";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/app/letter/external/report.js') }}"></script>
+
+@include('letter.external.modal')
 
 </x-template-app.app-layout>

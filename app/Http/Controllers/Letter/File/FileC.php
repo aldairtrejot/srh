@@ -17,6 +17,12 @@ use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Http\Controllers\Letter\Other\ConsecutivoC;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\DB;
+
+
 class FileC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -242,4 +248,95 @@ class FileC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
+
+
+public function obtenerCatalogos()
+{
+    $areas = DB::table('correspondencia.cat_area')
+        ->select('id_cat_area', 'descripcion')
+        ->orderBy('descripcion')
+        ->get();
+
+    $anios = DB::table('correspondencia.cat_anio')
+        ->select('id_cat_anio', 'descripcion')
+        ->orderBy('descripcion')
+        ->get();
+
+    return response()->json([
+        'areas' => $areas,
+        'anios' => $anios,
+    ]);
+}
+
+public function descargarReporte(Request $request)
+{
+    $area = $request->input('area') ?: null;
+    $year = $request->input('year') ?: null;
+
+    $model = new FileM();
+    $datos = $model->getReporteFiltrado($area, $year);
+
+    \Log::info('Filtros aplicados', ['area' => $area, 'year' => $year]);
+    \Log::info('Cantidad de registros', ['count' => $datos->count()]);
+
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'No se encontraron datos con los filtros seleccionados.'], 400);
+    }
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $headerStyle = [
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => \PhpOffice\PhpSpreadsheet\Style\Color::COLOR_WHITE],
+        ],
+        'fill' => [
+            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FF006800'],
+        ],
+    ];
+
+    $columnas = [
+        'NO_TURNO',
+        'NO_DOCUMENTO',
+        'ANIO',
+        'AREA',
+        'USUARIO_AREA',
+        'USUARIO_ENLACE',
+        'FECHA_EMISION',
+        'FECHA_APLICACION',
+        'ASUNTO',
+        'DESTINATARIO',
+        'OBSERVACIONES',
+    ];
+
+    foreach ($columnas as $index => $col) {
+        $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1);
+        $sheet->setCellValue("{$colLetter}1", $col);
+        $sheet->getStyle("{$colLetter}1")->applyFromArray($headerStyle);
+    }
+
+    $row = 2;
+    foreach ($datos as $dato) {
+        foreach ($columnas as $index => $col) {
+            $sheet->setCellValueByColumnAndRow($index + 1, $row, $dato->$col ?? '');
+        }
+        $row++;
+    }
+
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+    return new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($writer) {
+        if (ob_get_contents()) ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_expedientes.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
+}
+
+
 }

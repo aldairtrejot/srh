@@ -140,4 +140,40 @@ class FileM extends Model
             ->where('id_cat_anio', $idAnio)
             ->first();  // Devuelve el primer (y único) resultado
     }
+
+public function getReporteFiltrado($area = null, $year = null)
+{
+    $query = DB::table('correspondencia.tbl_expediente as e')
+        ->leftJoin('correspondencia.cat_anio as anio', 'e.id_cat_anio', '=', 'anio.id_cat_anio')
+        ->leftJoin('correspondencia.cat_area as area', 'e.id_cat_area', '=', 'area.id_cat_area')
+        ->leftJoin('administration.users as ua', 'e.id_usuario_area', '=', 'ua.id')
+        ->leftJoin('administration.users as ue', 'e.id_usuario_enlace', '=', 'ue.id')
+        ->leftJoin('correspondencia.cat_remitente as r', 'e.id_cat_remitente', '=', 'r.id_cat_remitente')
+        ->select([
+            'e.num_turno_sistema as NO_TURNO',
+            'e.num_documento_area as NO_DOCUMENTO',
+            'anio.descripcion as ANIO',
+            'area.descripcion as AREA',
+            'ua.name as USUARIO_AREA',
+            'ue.name as USUARIO_ENLACE',
+            DB::raw("to_char(e.fecha_inicio, 'YYYY-MM-DD') as FECHA_EMISION"),
+            DB::raw("to_char(e.fecha_fin, 'YYYY-MM-DD') as FECHA_APLICACION"),
+            'e.asunto as ASUNTO',
+            'r.nombre as DESTINATARIO',
+            'e.observaciones as OBSERVACIONES',
+        ])
+        ->orderByDesc('e.id_tbl_expediente');
+
+    if (!empty($area)) {
+        $query->where('e.id_cat_area', $area);
+    }
+    if (!empty($year)) {
+        $query->where('e.id_cat_anio', $year);
+    }
+
+    return $query->get();
+}
+
+
+
 }

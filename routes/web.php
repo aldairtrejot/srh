@@ -158,6 +158,14 @@ Route::post('/file/cloud/oficios', [CloudFileC::class, 'cloudOficios'])->name('f
 Route::post('/file/cloud/upload', [CloudFileC::class, 'upload'])->name('file.cloud.upload')->middleware('auth');
 Route::post('/file/cloud/delete', [CloudFileC::class, 'delete'])->name('file.cloud.delete')->middleware('auth');
 Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middleware('auth');
+Route::get('/expediente/dashboard/generate', [FileC::class, 'descargarReporte'])->name('expedientoffice.generate')->middleware('auth');
+Route::get('/expediente/dashboard/catalogos', [FileC::class, 'obtenerCatalogos'])->name('expedientoffice.catalogos')->middleware('auth');
+
+
+
+
+
+
 
 
 //Communication
@@ -376,15 +384,22 @@ Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])-
 
 
 //descargas de doc
-
-
 Route::get('/letter/dashboard', [DashboardLetterC::class, 'generate'])->name('letter.dashboard');
 
+
+// Circulares Externas
 Route::get('/external/list', [ExternalC::class, 'list'])->name('external.list')->middleware('auth');
+Route::post('/external/table', [ExternalC::class, 'table'])->name('external.table')->middleware('auth');
+Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
+Route::get('/external/edit/{id}', [ExternalC::class, 'edit'])->name('external.edit')->middleware('auth');
+Route::get('/external/dashboard/generate', [ExternalC::class, 'descargarReporte'])->name('externaloffice.generate')->middleware('auth');
+Route::get('/external/dashboard/catalogos', [ExternalC::class, 'obtenerCatalogos'])->name('externaloffice.catalogos')->middleware('auth');
+Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
+
+
 
 Route::get('/administration/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
 
-Route::get('/external/create', [ExternalC::class, 'create'])->name('external.create')->middleware('auth');
 
 Route::get('/dependenciarea/list', [DependenciareaC::class, 'list'])->name('dependenciarea.list')->middleware('auth');
 
@@ -409,5 +424,7 @@ Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->
 // Circulares
 Route::get('/round/dashboard/generate', [RoundC::class, 'descargarReporte'])->name('roundoffice.generate')->middleware('auth');
 Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('roundoffice.catalogos')->middleware('auth');
+
+
 
 

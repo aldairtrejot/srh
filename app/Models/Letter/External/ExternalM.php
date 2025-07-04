@@ -107,4 +107,36 @@ class ExternalM extends Model
 
         return $query;
     }
+
+public function getReporteEncabezados($area = null, $year = null)
+{
+    $query = DB::table('correspondencia.tbl_circular_externa as o')
+        ->select([
+            DB::raw('o.num_turno_sistema AS no_turno'),
+            DB::raw('o.fecha_captura'),
+            DB::raw('EXTRACT(YEAR FROM o.fecha_documento)::TEXT AS anio'),
+            DB::raw('d.descripcion AS dependencia'),
+            DB::raw('a.descripcion AS area'),
+            DB::raw('o.fecha_documento'),
+            DB::raw('o.no_documento'),
+            DB::raw('o.asunto'),
+            DB::raw('o.observaciones')
+        ])
+        ->leftJoin('correspondencia.cat_dependencia as d', 'o.id_cat_dependencia', '=', 'd.id_cat_dependencia')
+        ->leftJoin('correspondencia.cat_dependencia_area as a', 'o.id_cat_dependencia_area', '=', 'a.id_cat_dependencia_area');
+
+    // Filtro por área si viene
+    if (!empty($area)) {
+        $query->where('o.id_cat_dependencia_area', $area);
+    }
+
+    // Filtro por año si viene
+    if (!empty($year)) {
+        $query->whereRaw("EXTRACT(YEAR FROM o.fecha_documento) = ?", [$year]);
+    }
+
+    return $query->orderByDesc('o.id_tbl_circular_externa')->get();
+}
+
+
 }

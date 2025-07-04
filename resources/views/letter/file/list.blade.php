@@ -2,6 +2,7 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
@@ -14,69 +15,64 @@
                     </div>
                 </div>
             </div>
-    <!-- <div class="d-flex justify-content-end mb-3">
-     <a href="{{ route('oficios.reporte.encabezados') }}" class="btn btn-link" id="reporteBtn">
-    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-    <i class="ti-layout" style="color: #10312b;"></i>
-    </a>
-    </div> -->
+
+            {{-- Botón de Informe (activar si lo necesitas) --}}
+  
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
+                    <span class="font-weight-bold">Informe</span>
+                    <i class="ti-layout"></i>
+                </button>
+            </div>
+
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
-
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Lineamientos</h4>
                                 @if($letterAdminMatch)
                                     <p class="card-description">
-                                        ¿Deseas agregar un registro? <a href="{{ route('file.create') }}"
-                                            class="text-danger" style="margin-left: 10px;">
+                                        ¿Deseas agregar un registro?
+                                        <a href="{{ route('file.create') }}" class="text-danger" style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Agregar Registro
                                         </a>
                                     </p>
                                 @endif
                             </div>
                             <div class="input-group" style="max-width: 300px;">
-                                <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
                             </div>
                         </div>
 
-                        <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>
                                 <tr>
-                                    <th>
-                                        Menú
-                                    </th>
-                                    <th>
-                                        Año
-                                    </th>
-                                    <th>
-                                        No. Turno
-                                    </th>
-                                    <th>
-                                        No. Turno Asoc.
-                                    </th>
-                                    <th>
-                                        Asunto
-                                    </th>
+                                    <th>Menú</th>
+                                    <th>Año</th>
+                                    <th>No. Turno</th>
+                                    <th>No. Turno Asoc.</th>
+                                    <th>Asunto</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
 
-                        <!-- TEMPLATE PAGINATOR-->
                         <x-template-table.template-paginator />
-
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
+@include('letter.file.modal')
 
-    <!-- CODE SCRIPT-->
+<script>
+    const catalogosURL = "{{ route('expedientoffice.catalogos') }}";
+    const reporteURL = "{{ route('expedientoffice.generate') }}";
+</script>
+    <!-- CODE SCRIPT -->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/file/table.js') }}"></script>
-
+    <script src="{{ asset('assets/js/app/letter/file/report.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </x-template-app.app-layout>
