@@ -283,7 +283,7 @@ public function descargarReporte(Request $request)
         return response()->json(['error' => 'No se encontraron datos con los filtros seleccionados.'], 400);
     }
 
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
     $headerStyle = [
@@ -325,9 +325,9 @@ public function descargarReporte(Request $request)
         $row++;
     }
 
-    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $writer = new Xlsx($spreadsheet);
 
-    return new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($writer) {
+    return new StreamedResponse(function () use ($writer) {
         if (ob_get_contents()) ob_end_clean();
         $writer->save('php://output');
     }, 200, [
