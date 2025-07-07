@@ -69,8 +69,6 @@ function generateReport() {
     let incluir_horas = $('#incluir_horas').prop('checked') ? true : false;
 
     let inicio = $('#inicio').val();
-
-    console.log(inicio);
 }*/
 
 

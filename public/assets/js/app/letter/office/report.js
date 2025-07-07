@@ -1,7 +1,6 @@
 var token = $('meta[name="csrf-token"]').attr('content');
 
 window.openModal = function() {
-    console.log("openModal se llamó!");
     $('#modalReport').fadeIn();
     loadCatalogs();
 };
@@ -18,14 +17,10 @@ $(document).ready(function () {
 });
 
 function loadCatalogs() {
-    console.log("Intentando cargar catálogos...");
-
     $.ajax({
         url: catalogosURL,
         type: "GET",
         success: function(response) {
-            console.log("Datos recibidos:", response);
-
             // Destruir pickers ANTES de cambiar opciones
             $('#id_cat_area_informe').selectpicker('destroy');
             $('#id_cat_status_informe').selectpicker('destroy');
@@ -52,7 +47,6 @@ function loadCatalogs() {
             // Volver a inicializar pickers
             $('.selectpicker').selectpicker();
 
-            console.log("Selects reinicializados correctamente.");
         },
         error: function(xhr) {
             console.error("Error al cargar catálogos:", xhr.responseText);

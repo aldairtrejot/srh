@@ -94,7 +94,6 @@ function getNoUniqueFol(id, value) {
                 _token: token  // Usar el token extraído de la metaetiqueta
             },
             success: function (response) {
-                console.log(response);
                 let item = response.value;
                 if (item) {
                     isValid = true;  // La validación fue exitosa
