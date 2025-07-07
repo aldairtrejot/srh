@@ -312,7 +312,6 @@ class CommunicationC extends Controller
                 $uuid = $collectionConfigCloudInternoM->getUuid($id_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'));
 
                 $result = $alfrescoC->add($file, $uuid); // Se sube el archivo a alfresco
-                log::info($result);
                 //Validacion
                 if ($result) {// Manda el uuid para que se agregue a la tabla
                     $data = [
@@ -375,7 +374,6 @@ class CommunicationC extends Controller
                 $uuid = $collectionConfigCloudInternoM->getUuid($id_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA_INTERNO'));
 
                 $result = $alfrescoC->add($file, $uuid); // Se sube el archivo a alfresco
-                log::info($result);
                 //Validacion
                 if ($result) {// Manda el uuid para que se agregue a la tabla
                     $data = [

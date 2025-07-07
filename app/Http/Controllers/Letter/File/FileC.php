@@ -276,9 +276,6 @@ public function descargarReporte(Request $request)
     $model = new FileM();
     $datos = $model->getReporteFiltrado($area, $year);
 
-    \Log::info('Filtros aplicados', ['area' => $area, 'year' => $year]);
-    \Log::info('Cantidad de registros', ['count' => $datos->count()]);
-
     if ($datos->isEmpty()) {
         return response()->json(['error' => 'No se encontraron datos con los filtros seleccionados.'], 400);
     }

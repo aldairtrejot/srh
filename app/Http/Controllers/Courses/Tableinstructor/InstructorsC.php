@@ -126,9 +126,7 @@ class InstructorsC extends Controller
                     'value' => null,
                 ], 200);
             }
-    
-            \Log::info('Resultados encontrados: ', $resultados); // Registro para verificar la respuesta
-    
+     
             return response()->json([
                 'status' => true,
                 'value' => $resultados,
