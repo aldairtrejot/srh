@@ -66,6 +66,25 @@
             </li>
         @endif
 
+        <!-- Item Expediente -->
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#ui-basic_expediente" aria-expanded="false"
+                    aria-controls="ui-basic_expediente">
+                    <i class="fa-solid fa-file-zipper menu-icon"></i>
+                    <span class="menu-title">C. Expedientes</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="ui-basic_expediente">
+                    <ul class="nav flex-column sub-menu">
+
+                            <li class="nav-item"><a class="nav-link" href="">Catalogo Documento</a></li>
+                            <li class="nav-item"><a class="nav-link" href="">Catalogo Prestamo</a></li>
+                        
+                    </ul>
+                </div>
+            </li>
+        
+
         <!-- Item Correspondencia -->
         @if($letterCRH)
             <li class="nav-item">
