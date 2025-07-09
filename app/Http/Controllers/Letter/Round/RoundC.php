@@ -248,7 +248,7 @@ class RoundC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
-public function obtenerCatalogos()
+    public function obtenerCatalogos()
     {
         $areas = DB::table('correspondencia.cat_area')
             ->select('id_cat_area', 'descripcion')
@@ -267,53 +267,89 @@ public function obtenerCatalogos()
     }
 
     public function descargarReporte(Request $request)
-    {
-        $area = $request->input('area');
-        $year = $request->input('year');
+{
+    $area = $request->input('area');
+    $year = $request->input('year');
 
-        $model = new RoundM();
-        $datos = $model->getReporteFiltrado($area, $year);
+    $model = new RoundM();
+    $datos = $model->getReporteFiltrado($area, $year);
 
-        if ($datos->isEmpty()) {
-            return response()->json(['error' => 'Sin datos'], 400);
-        }
-
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        $headerStyle = [
-            'font' => ['bold' => true, 'color' => ['argb' => Color::COLOR_WHITE]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF006800']],
-        ];
-
-        // Crear encabezados
-        $columnas = array_keys((array)$datos->first());
-        foreach ($columnas as $colIndex => $colNombre) {
-            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-            $sheet->setCellValue($colLetter . '1', strtoupper($colNombre));
-            $sheet->getStyle($colLetter . '1')->applyFromArray($headerStyle);
-        }
-
-        // Insertar datos
-        $row = 2;
-        foreach ($datos as $dato) {
-            foreach ($columnas as $colIndex => $colNombre) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
-            }
-            $row++;
-        }
-
-        $writer = new Xlsx($spreadsheet);
-
-        return new StreamedResponse(function () use ($writer) {
-            if (ob_get_contents()) ob_end_clean();
-            $writer->save('php://output');
-        }, 200, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="reporte_circulares.xlsx"',
-            'Cache-Control' => 'max-age=0',
-            'Pragma' => 'public',
-        ]);
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'Sin datos'], 400);
     }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Estilo de encabezado
+    $headerStyle = [
+        'font' => ['bold' => true, 'color' => ['argb' => Color::COLOR_WHITE]],
+        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF10312B']],
+    ];
+
+    // Mapeo de nombres amigables
+    $encabezadosPersonalizados = [
+        'No_Turno' => 'No. Turno',
+        'Fecha_captura' => 'Fecha de Captura',
+        'Anio' => 'Año',
+        'Area' => 'Área',
+        'No_Doc' => 'No. Documento',
+        'Usuario' => 'Usuario',
+        'Enlace' => 'Enlace',
+        'Fecha_emision' => 'Fecha de Emisión',
+        'Fecha_aplicacion' => 'Fecha de Aplicación',
+        'Asunto' => 'Asunto',
+        'Destinatario' => 'Destinatario',
+        'Observaciones' => 'Observaciones',
+    ];
+
+    $columnas = array_keys((array) $datos->first());
+
+    // Encabezado: columna "No." centrada y autoajustada
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    // Generar encabezados personalizados
+    foreach ($columnas as $colNombre) {
+        $etiqueta = $encabezadosPersonalizados[$colNombre] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $etiqueta);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
+    }
+
+    // Cuerpo del Excel
+    $row = 2;
+    $contador = 1;
+    foreach ($datos as $dato) {
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador); // No.
+        $colIndex++;
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre);
+            $colIndex++;
+        }
+        $contador++;
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+
+    return new StreamedResponse(function () use ($writer) {
+        if (ob_get_contents()) ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_circulares_internas.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
 }
-  
+
+}
+

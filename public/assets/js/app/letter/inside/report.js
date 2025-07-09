@@ -1,6 +1,6 @@
 var token = $('meta[name="csrf-token"]').attr('content');
 
-window.openModal = function() {
+window.openModal = function () {
     $('#modalReport').fadeIn();
     loadCatalogs();
 };
@@ -20,7 +20,7 @@ function loadCatalogs() {
     $.ajax({
         url: catalogosURL,
         type: "GET",
-        success: function(response) {
+        success: function (response) {
             // Destruir pickers ANTES de cambiar opciones
             $('#id_cat_area_informe').selectpicker('destroy');
             $('#id_cat_status_informe').selectpicker('destroy');
@@ -47,7 +47,7 @@ function loadCatalogs() {
             // Volver a inicializar pickers
             $('.selectpicker').selectpicker();
         },
-        error: function(xhr) {
+        error: function (xhr) {
             console.error("Error al cargar catálogos:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
@@ -76,7 +76,7 @@ function generateReport(area, status, year) {
         data: { area, status, year },
         xhrFields: { responseType: 'blob' },
         success: function (response, status, xhr) {
-            const filename = "reporte_oficios.xlsx";
+            const filename = "reporte_interno.xlsx";
             const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);

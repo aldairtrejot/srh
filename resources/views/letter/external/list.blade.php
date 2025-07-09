@@ -2,24 +2,29 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Gestión de control</h3>
                             <h5 class="font-weight-normal mb-0">Circulares Externas</h5>
                         </div>
+                        @if($letterAdminMatch)
+                            <div class="col-12 col-xl-4 text-xl-right">
+                                <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
+                                    <span class="font-weight-bold">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
-<div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
-        <span class="font-weight-bold">Informe</span>
-        <i class="ti-layout"></i>
-    </button>
-</div>
+
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -35,7 +40,7 @@
                                     </a>
                                 </p>
                             </div>
-                            
+
                             <div class="input-group" style="max-width: 300px;">
                                 <!-- TEMPLATE SEARCH-->
                                 <x-template-table.template-search />
@@ -79,12 +84,12 @@
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/external/table.js') }}"></script>
     <script>
-    const reporteURL = "{{ route('externaloffice.generate') }}";
-    const catalogosURL = "{{ route('externaloffice.catalogos') }}";
+        const reporteURL = "{{ route('externaloffice.generate') }}";
+        const catalogosURL = "{{ route('externaloffice.catalogos') }}";
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/app/letter/external/report.js') }}"></script>
 
-@include('letter.external.modal')
+    @include('letter.external.modal')
 
 </x-template-app.app-layout>

@@ -2,26 +2,11 @@
 <?php include(resource_path('views/config.php')); ?>
 <x-template-app.app-layout>
 
-
     <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
-
-
     <style>
-
     </style>
     <div class="main-panel">
         <div class="content-wrapper">
-            <!--
-            <div class="row">
-                <div class="col-md-12 grid-margin">
-                    <div class="row">
-                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Control de gestión</h3>
-                            <h5 class="font-weight-normal mb-0">Corresponencia</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>-->
             <div class="row">
                 <div class="col-md-12 grid-margin">
                     <div class="row align-items-center">
@@ -55,8 +40,9 @@
                                 <h4 class="card-title">Correspondencia</h4>
                                 @if($letterAdminMatch)
                                     <p class="card-description">
-                                        ¿Deseas agregar un registro? <a href="{{ route('letter.create') }}"
-                                            class="text-danger" style="margin-left: 10px;">
+                                        ¿Deseas agregar un registro?
+                                        <a href="{{ route('letter.create') }}" class="text-danger"
+                                            style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Agregar Registro
                                         </a>
                                     </p>

@@ -7,21 +7,21 @@
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Circulares Internas</h5>
                         </div>
+                        @if($letterAdminMatch)
+                            <div class="col-12 col-xl-4 text-xl-right">
+                                <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
+                                    <span class="font-weight-bold">Informe</span>
+                                    <i class="ti-layout" style="color: #10312b;"></i>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
-            </div>
-
-            <!-- Botón para abrir el modal de informe -->
-            <div class="d-flex justify-content-end mb-3">
-                <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
-                    <span class="font-weight-bold">Informe</span>
-                    <i class="ti-layout"></i>
-                </button>
             </div>
 
             <div class="col-lg-12 grid-margin stretch-card">
@@ -33,8 +33,9 @@
                                 <h4 class="card-title">Circulares Internas</h4>
                                 @if($letterAdminMatch)
                                     <p class="card-description">
-                                        ¿Deseas agregar un registro? 
-                                        <a href="{{ route('round.create') }}" class="text-danger" style="margin-left: 10px;">
+                                        ¿Deseas agregar un registro?
+                                        <a href="{{ route('round.create') }}" class="text-danger"
+                                            style="margin-left: 10px;">
                                             <i class="fa fa-arrow-up"></i> Agregar Registro
                                         </a>
                                     </p>
@@ -68,10 +69,10 @@
 
         </div>
     </div>
-<script>
-const catalogosURL = "{{ route('roundoffice.catalogos') }}";
-const reporteURL = "{{ route('roundoffice.generate') }}";
-</script>
+    <script>
+        const catalogosURL = "{{ route('roundoffice.catalogos') }}";
+        const reporteURL = "{{ route('roundoffice.generate') }}";
+    </script>
 
     <!-- SCRIPTS -->
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>

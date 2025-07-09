@@ -64,7 +64,7 @@ function generateReport(area, year) {
         data: { area, year },
         xhrFields: { responseType: 'blob' },
         success: function (response, status, xhr) {
-            const filename = "reporte_expedientes.xlsx";
+            const filename = "reporte_lineamientos.xlsx";
             const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);

@@ -194,6 +194,7 @@ public function descargarReporte(Request $request)
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
+    // Estilo para encabezados
     $headerStyle = [
         'font' => [
             'bold' => true,
@@ -201,23 +202,56 @@ public function descargarReporte(Request $request)
         ],
         'fill' => [
             'fillType' => Fill::FILL_SOLID,
-            'startColor' => ['argb' => 'FF006800'],
+            'startColor' => ['argb' => 'FF10312B'],
         ],
     ];
 
-    // Encabezados dinámicos
+    // Mapeo personalizado
+    $encabezadosPersonalizados = [
+        'no_turno'        => 'No. Turno',
+        'fecha_captura'   => 'Fecha de Captura',
+        'anio'            => 'Año',
+        'dependencia'     => 'Dependencia',
+        'area'            => 'Área',
+        'fecha_documento' => 'Fecha del Documento',
+        'no_documento'    => 'No. Documento',
+        'asunto'          => 'Asunto',
+        'observaciones'   => 'Observaciones',
+    ];
+
     $columnas = array_keys((array)$datos->first());
-    foreach ($columnas as $colIndex => $colNombre) {
-        $sheet->setCellValueByColumnAndRow($colIndex + 1, 1, strtoupper(str_replace('_', ' ', $colNombre)));
-        $sheet->getStyleByColumnAndRow($colIndex + 1, 1)->applyFromArray($headerStyle);
+
+    // Encabezados con columna "No." centrada y autoajustada
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    foreach ($columnas as $colNombre) {
+        $etiqueta = $encabezadosPersonalizados[$colNombre] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $etiqueta);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
     }
 
-    // Datos
+    // Llenar los datos
     $row = 2;
+    $contador = 1;
     foreach ($datos as $dato) {
-        foreach ($columnas as $colIndex => $colNombre) {
-            $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
+        $colIndex++;
+
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre);
+            $colIndex++;
         }
+
+        $contador++;
         $row++;
     }
 
@@ -233,4 +267,5 @@ public function descargarReporte(Request $request)
         'Pragma' => 'public',
     ]);
 }
+
 }

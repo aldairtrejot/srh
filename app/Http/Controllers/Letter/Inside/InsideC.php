@@ -296,61 +296,98 @@ class InsideC extends Controller
         ]);
     }
 
-    public function descargarReporte(Request $request)
-    {
-        $area = $request->input('area');
-        $status = $request->input('status');
-        $year = $request->input('year');
+   public function descargarReporte(Request $request)
+{
+    $area = $request->input('area');
+    $status = $request->input('status');
+    $year = $request->input('year');
 
-        $model = new InsideM();
-        $datos = $model->getReporteFiltrado($area, $status, $year);
+    $model = new InsideM();
+    $datos = $model->getReporteFiltrado($area, $status, $year);
 
-        if ($datos->isEmpty()) {
-            return response()->json(['error' => 'Sin datos'], 400);
-        }
-
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        $headerStyle = [
-            'font' => [
-                'bold' => true,
-                'color' => ['argb' => Color::COLOR_WHITE],
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FF006800'],
-            ],
-        ];
-
-        $columnas = array_keys((array)$datos->first());
-
-        // Encabezados
-        foreach ($columnas as $colIndex => $colNombre) {
-            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-            $sheet->setCellValue("{$colLetter}1", strtoupper($colNombre));
-            $sheet->getStyle("{$colLetter}1")->applyFromArray($headerStyle);
-        }
-
-        // Datos
-        $row = 2;
-        foreach ($datos as $dato) {
-            foreach ($columnas as $colIndex => $colNombre) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $row, $dato->$colNombre);
-            }
-            $row++;
-        }
-
-        $writer = new Xlsx($spreadsheet);
-
-        return new StreamedResponse(function () use ($writer) {
-            if (ob_get_contents()) ob_end_clean();
-            $writer->save('php://output');
-        }, 200, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="reporte_interno.xlsx"',
-            'Cache-Control' => 'max-age=0',
-            'Pragma' => 'public',
-        ]);
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'Sin datos'], 400);
     }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Estilo para encabezados
+    $headerStyle = [
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => Color::COLOR_WHITE],
+        ],
+        'fill' => [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FF10312B'],
+        ],
+    ];
+
+    // Mapeo de encabezados personalizados
+    $encabezadosPersonalizados = [
+        'num_turno_sistema' => 'No. Turno',
+        'fecha_captura'     => 'Fecha de captura',
+        'anio'              => 'Año',
+        'area'              => 'Área',
+        'folio_gestion'     => 'No. Folio',
+        'usuario'           => 'Usuario',
+        'enlace'            => 'Enlace',
+        'fecha_emision'     => 'Fecha de emisión',
+        'fecha_aplicacion'  => 'Fecha de aplicación',
+        'folio_asoc'        => 'Fol. Asoc',
+        'asunto'            => 'Asunto',
+        'destinatario'      => 'Destinatario',
+        'observaciones'     => 'Observaciones',
+    ];
+
+    $columnas = array_keys((array) $datos->first());
+
+    // Crear encabezados con "No." centrado y autoajuste
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    // Encabezados personalizados
+    foreach ($columnas as $colNombre) {
+        $nombreEncabezado = $encabezadosPersonalizados[$colNombre] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $nombreEncabezado);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
+    }
+
+    // Llenar los datos
+    $row = 2;
+    $contador = 1;
+    foreach ($datos as $dato) {
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
+        $colIndex++;
+        $contador++;
+
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre);
+            $colIndex++;
+        }
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+
+    return new StreamedResponse(function () use ($writer) {
+        if (ob_get_contents()) ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_interno.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
+}
+
 }

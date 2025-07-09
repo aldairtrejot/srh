@@ -250,25 +250,25 @@ class FileC extends Controller
     }
 
 
-public function obtenerCatalogos()
-{
-    $areas = DB::table('correspondencia.cat_area')
-        ->select('id_cat_area', 'descripcion')
-        ->orderBy('descripcion')
-        ->get();
+    public function obtenerCatalogos()
+    {
+        $areas = DB::table('correspondencia.cat_area')
+            ->select('id_cat_area', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
 
-    $anios = DB::table('correspondencia.cat_anio')
-        ->select('id_cat_anio', 'descripcion')
-        ->orderBy('descripcion')
-        ->get();
+        $anios = DB::table('correspondencia.cat_anio')
+            ->select('id_cat_anio', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
 
-    return response()->json([
-        'areas' => $areas,
-        'anios' => $anios,
-    ]);
-}
+        return response()->json([
+            'areas' => $areas,
+            'anios' => $anios,
+        ]);
+    }
 
-public function descargarReporte(Request $request)
+    public function descargarReporte(Request $request)
 {
     $area = $request->input('area') ?: null;
     $year = $request->input('year') ?: null;
@@ -283,6 +283,7 @@ public function descargarReporte(Request $request)
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
+    // Estilo para encabezados
     $headerStyle = [
         'font' => [
             'bold' => true,
@@ -290,50 +291,71 @@ public function descargarReporte(Request $request)
         ],
         'fill' => [
             'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-            'startColor' => ['argb' => 'FF006800'],
+            'startColor' => ['argb' => 'FF10312B'],
         ],
     ];
 
-    $columnas = [
-        'NO_TURNO',
-        'NO_DOCUMENTO',
-        'ANIO',
-        'AREA',
-        'USUARIO_AREA',
-        'USUARIO_ENLACE',
-        'FECHA_EMISION',
-        'FECHA_APLICACION',
-        'ASUNTO',
-        'DESTINATARIO',
-        'OBSERVACIONES',
+    // Encabezados personalizados
+    $encabezadosPersonalizados = [
+        'NO_TURNO' => 'No. Turno',
+        'NO_DOCUMENTO' => 'No. Documento',
+        'ANIO' => 'Año',
+        'AREA' => 'Área',
+        'USUARIO_AREA' => 'Usuario Área',
+        'USUARIO_ENLACE' => 'Usuario Enlace',
+        'FECHA_EMISION' => 'Fecha de Emisión',
+        'FECHA_APLICACION' => 'Fecha de Aplicación',
+        'ASUNTO' => 'Asunto',
+        'DESTINATARIO' => 'Destinatario',
+        'OBSERVACIONES' => 'Observaciones',
     ];
 
-    foreach ($columnas as $index => $col) {
-        $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1);
-        $sheet->setCellValue("{$colLetter}1", $col);
-        $sheet->getStyle("{$colLetter}1")->applyFromArray($headerStyle);
+    $columnas = array_keys((array) $datos->first());
+
+    // Encabezado: agregar "No."
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    foreach ($columnas as $colNombre) {
+        $encabezado = $encabezadosPersonalizados[strtoupper($colNombre)] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $encabezado);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
     }
 
+    // Insertar datos
     $row = 2;
+    $contador = 1;
     foreach ($datos as $dato) {
-        foreach ($columnas as $index => $col) {
-            $sheet->setCellValueByColumnAndRow($index + 1, $row, $dato->$col ?? '');
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
+        $colIndex++;
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre ?? '');
+            $colIndex++;
         }
+        $contador++;
         $row++;
     }
 
     $writer = new Xlsx($spreadsheet);
 
     return new StreamedResponse(function () use ($writer) {
-        if (ob_get_contents()) ob_end_clean();
+        if (ob_get_contents())
+            ob_end_clean();
         $writer->save('php://output');
     }, 200, [
         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition' => 'attachment; filename="reporte_expedientes.xlsx"',
+        'Content-Disposition' => 'attachment; filename="reporte_lineamientos.xlsx"',
         'Cache-Control' => 'max-age=0',
         'Pragma' => 'public',
     ]);
 }
-
 
 }

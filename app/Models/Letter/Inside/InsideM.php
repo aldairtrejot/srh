@@ -186,30 +186,31 @@ class InsideM extends Model
     public function getReporteFiltrado($area, $status, $year)
     {
         $query = DB::table('correspondencia.tbl_interno AS i')
-            ->join('correspondencia.tbl_correspondencia AS c', 'i.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.tbl_correspondencia AS c', 'i.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
             ->leftJoin('correspondencia.cat_anio AS anio', 'i.id_cat_anio', '=', 'anio.id_cat_anio')
             ->leftJoin('correspondencia.cat_estatus AS est', 'c.id_cat_estatus', '=', 'est.id_cat_estatus')
-            ->leftJoin('correspondencia.cat_area AS a', 'c.id_cat_area', '=', 'a.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS a', 'i.id_cat_area', '=', 'a.id_cat_area') // 👈 corregido aquí
             ->leftJoin('administration.users AS ua', 'i.id_usuario_area', '=', 'ua.id')
             ->leftJoin('administration.users AS ue', 'i.id_usuario_enlace', '=', 'ue.id')
             ->select([
-                'i.num_turno_sistema AS no_turno',
-                'c.fecha_captura',
+                'i.num_turno_sistema AS num_turno_sistema',
+                'i.fecha_captura AS fecha_captura',
                 'anio.descripcion AS anio',
-                'a.descripcion AS area',
-                'c.folio_gestion AS no_folio',
+                'a.descripcion AS area', // ✅ ahora se refiere al área de tbl_interno
+                'c.folio_gestion AS folio_gestion',
                 'ua.name AS usuario',
                 'ue.name AS enlace',
-                'c.fecha_inicio AS fecha_emision',
-                'c.fecha_fin AS fecha_aplicacion',
+                'i.fecha_inicio AS fecha_emision',
+                'i.fecha_fin AS fecha_aplicacion',
                 'c.num_documento AS folio_asoc',
-                'i.asunto',
-                'i.destinatario',
-                'i.observaciones'
+                'i.asunto AS asunto',
+                'i.destinatario AS destinatario',
+                'i.observaciones AS observaciones'
             ]);
 
+        // Filtros
         if ($area) {
-            $query->where('c.id_cat_area', $area);
+            $query->where('i.id_cat_area', $area); // 👈 también filtra por el área de tbl_interno
         }
         if ($status) {
             $query->where('c.id_cat_estatus', $status);
@@ -220,5 +221,6 @@ class InsideM extends Model
 
         return $query->get();
     }
+
 }
 

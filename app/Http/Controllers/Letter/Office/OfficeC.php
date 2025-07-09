@@ -17,7 +17,6 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
-use Illuminate\Support\Facades\Log;
 use App\Models\Letter\Collection\CollectionRolAreaM;
 use Illuminate\Support\Facades\DB;
 
