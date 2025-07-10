@@ -244,6 +244,7 @@ Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth
 
 //ROUTE_EXPEDIENTE
 Route::get('/files/listview', [FilesC::class, 'listview'])->name('files.listview')->middleware('auth');
+Route::post('/files/buscar', [FilesC::class, 'buscarEmpleado'])->name('files.buscar')->middleware('auth');
 
 
 //ROUTE_COUSER ---- > Beneficio

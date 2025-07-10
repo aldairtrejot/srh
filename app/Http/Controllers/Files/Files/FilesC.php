@@ -12,7 +12,25 @@ class FilesC extends Controller
     {
         return view('files.listview');
     }
+
+  public function buscarEmpleado(Request $request)
+{
+    $valor = trim($request->input('datos'));
+    $model = new FilesM();
+
+    $curp = $valor;
+    $rfc = $valor;
+    $nombre = $valor;
+    $primerApellido = $valor;
+    $segundoApellido = $valor;
+
+    $resultados = $model->buscarEmpleadoHraes($valor);
+return response()->json($resultados);
+
 }
+
+}
+
 
 
 
