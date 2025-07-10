@@ -28,7 +28,7 @@
                                 href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
                              
                             <x-template-button-dash title="Control de archivos" field="CONTROL DE ARCHIVOS"
-                                href="" icon="fa-solid fa-file-zipper" description="Expediente" />  
+                                href="{{ route('files.listview') }}" icon="fa-solid fa-file-zipper" description="Expediente" />  
 
                         @endif
 

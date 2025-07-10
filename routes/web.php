@@ -52,6 +52,7 @@ use App\Http\Controllers\Letter\Report\ReporteTemplateC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
+use App\Http\Controllers\Files\Files\FilesC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -240,6 +241,10 @@ Route::get('/other/generate-pdf/office/{id}', [ReporteCorrespondenciaC::class, '
 Route::post('/collection/validate/letter', [CollectionAreaC::class, 'getletter'])->middleware('auth');
 // TRAE INFORMACION COMO EL NO DE CORRESPONDENCIA QUE EXISTA ASI COMO USUAIRO
 Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth');
+
+//ROUTE_EXPEDIENTE
+Route::get('/files/listview', [FilesC::class, 'listview'])->name('files.listview')->middleware('auth');
+
 
 //ROUTE_COUSER ---- > Beneficio
 Route::get('/courses/list', CoursesC::class)->name('courses.list')->middleware('auth');
