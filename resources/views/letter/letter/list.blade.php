@@ -101,6 +101,8 @@
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Delete -->
     <script src="{{ asset('assets/js/app/letter/dashboard/report.js') }}"></script>

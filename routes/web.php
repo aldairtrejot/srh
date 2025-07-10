@@ -81,7 +81,6 @@ Route::get('/user/create', [UserC::class, 'create'])->name('user.create')->middl
 Route::post('/user/save', [UserC::class, 'save'])->name('user.save')->middleware('auth');
 Route::get('/user/edit/{id}', [UserC::class, 'edit'])->name('user.edit')->middleware('auth');
 Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name('user.validatePassword')->middleware('auth');
-Route::post('/user/changePassword', [UserC::class, 'changePassword'])->name('user.changePassword')->middleware('auth');
 
 
 //ROUTE_LETTER
@@ -105,6 +104,8 @@ Route::post('/letter/delete/copy', [LetterC::class, 'deleteCopy'])->name('letter
 Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name('letter.collectionArea')->middleware('auth');
 Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
+Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
+
 
 
 ////Cloud
@@ -128,6 +129,8 @@ Route::post('/inside/cloud/oficios', [CloudInsideC::class, 'cloudOficios'])->nam
 Route::post('/inside/cloud/upload', [CloudInsideC::class, 'upload'])->name('inside.cloud.upload')->middleware('auth');
 Route::post('/inside/cloud/delete', [CloudInsideC::class, 'delete'])->name('inside.cloud.delete')->middleware('auth');
 Route::get('/inside/generate-pdf/{id}', [ReporteTemplateC::class, 'inside'])->middleware('auth');
+Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->name('dashboardinside.catalogos')->middleware('auth');
+
 
 
 //ROUTE ROUND / CIRCULARES
@@ -385,6 +388,10 @@ Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])-
 
 //descargas de doc
 Route::get('/letter/dashboard', [DashboardLetterC::class, 'generate'])->name('letter.dashboard');
+Route::post('/letter/dashboard/getCollection', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
+Route::post('/letter/dashboard/generate', [DashboardLetterC::class, 'generate'])->name('letter.dashboard.generate')->middleware('auth');
+
+
 
 
 // Circulares Externas
