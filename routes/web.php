@@ -132,7 +132,6 @@ Route::get('/inside/generate-pdf/{id}', [ReporteTemplateC::class, 'inside'])->mi
 Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->name('dashboardinside.catalogos')->middleware('auth');
 
 
-
 //ROUTE ROUND / CIRCULARES
 Route::get('/round/list', [RoundC::class, 'list'])->name('round.list')->middleware('auth');
 Route::post('/round/table', [RoundC::class, 'table'])->name('round.table')->middleware('auth');
@@ -163,11 +162,6 @@ Route::post('/file/cloud/delete', [CloudFileC::class, 'delete'])->name('file.clo
 Route::get('/file/generate-pdf/{id}', [ReporteTemplateC::class, 'file'])->middleware('auth');
 Route::get('/expediente/dashboard/generate', [FileC::class, 'descargarReporte'])->name('expedientoffice.generate')->middleware('auth');
 Route::get('/expediente/dashboard/catalogos', [FileC::class, 'obtenerCatalogos'])->name('expedientoffice.catalogos')->middleware('auth');
-
-
-
-
-
 
 
 
