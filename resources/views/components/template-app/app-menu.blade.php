@@ -77,7 +77,7 @@
                 <div class="collapse" id="ui-basic_expediente">
                     <ul class="nav flex-column sub-menu">
 
-                            <li class="nav-item"><a class="nav-link" href="">Catalogo Documento</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'filesdocument.list') }}">Catalogo Documento</a></li>
                             <li class="nav-item"><a class="nav-link" href="">Catalogo Prestamo</a></li>
                         
                     </ul>

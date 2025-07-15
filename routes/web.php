@@ -53,6 +53,7 @@ use App\Http\Controllers\Letter\Round\RoundC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
 use App\Http\Controllers\Files\Files\FilesC;
+use App\Http\Controllers\Files\Files\FilesdocumentC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
@@ -245,6 +246,14 @@ Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth
 //ROUTE_EXPEDIENTE
 Route::get('/files/listview', [FilesC::class, 'listview'])->name('files.listview')->middleware('auth');
 Route::post('/files/buscar', [FilesC::class, 'buscarEmpleado'])->name('files.buscar')->middleware('auth');
+
+//ROUTE_EXPEDIENTE_CATALOGO ---- > Documento
+Route::get('/filesdocument', FilesdocumentC::class)->name('filesdocument.list')->middleware('auth');
+Route::get('/filesdocument/create', [FilesdocumentC::class, 'create'])->name('filesdocument.create')->middleware('auth');
+Route::post('/filesdocument/save', [FilesdocumentC::class, 'save'])->name('filesdocument.save')->middleware('auth');
+Route::post('/filesdocument/table', [FilesdocumentC::class, 'searchTable']);
+Route::match(['get', 'post'], '/filesdocument/edit/{id}', [FilesdocumentC::class, 'edit'])->name('filesdocument.edit')->middleware('auth');
+Route::delete('/filesdocument/delete/{id}', [FilesdocumentC::class, 'destroy']);
 
 
 //ROUTE_COUSER ---- > Beneficio
