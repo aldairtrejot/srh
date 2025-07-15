@@ -10,7 +10,6 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
         console.warn("empleadoData no está definido.");
     }
-        
-    });
+});
 
 
