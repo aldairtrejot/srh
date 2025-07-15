@@ -168,7 +168,7 @@ function deleteCourse(id) {
         data: { _token: token },
         success: () => {
             alert('Categoría eliminada exitosamente.');
-            window.location.href = `${URL_DEFAULT}/filesdocument/list`;
+            window.location.href = `${URL_DEFAULT}/filesdocument`;
         },
         error: (xhr) => handleAjaxError(xhr)
     });
