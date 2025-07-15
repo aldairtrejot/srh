@@ -11,7 +11,7 @@
                     <div class="row">
                         <x-template-tittle.tittle-header 
                             tittle="Control de Archivos" 
-                            caption="Información del Usuario" />
+                            caption="Información del Empleado" />
                     </div>
                 </div>
             </div>
@@ -21,8 +21,8 @@
                     <div class="card-body">
                         <div class="row align-items-end">
                             <div class="col-12 col-md-9 mb-3">
-                                <label for="datos" class="form-label">Datos del Usuario</label>
-                                <input type="text" name="datos" id="datos" class="form-control form-control-sm" placeholder="Ingrese datos del Usuario" />
+                                <label for="datos" class="form-label">Datos del Empleado</label>
+                                <input type="text" name="datos" id="datos" class="form-control form-control-sm" placeholder="Ingrese datos del Empleado" />
                             </div>
                             <div class="col-12 col-md-3 mb-3 text-md-end">
                                 <label class="form-label d-none d-md-block invisible">Buscar</label>

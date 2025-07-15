@@ -10,14 +10,13 @@ function validarcurp() {
         return;
     }
 
-   document.getElementById("contenidoTabla").innerHTML = `
-    <tr>
-        <td colspan="8" class="text-center py-4">
-            <i class="fas fa-spinner fa-spin fa-2x text-secondary"></i>
-        </td>
-    </tr>
-`;
-
+    document.getElementById("contenidoTabla").innerHTML = `
+        <tr>
+            <td colspan="9" class="text-center py-4">
+                <i class="fas fa-spinner fa-spin fa-2x text-secondary"></i>
+            </td>
+        </tr>
+    `;
 
     fetch(rutaBuscarEmpleado, {
         method: 'POST',
@@ -34,10 +33,19 @@ function validarcurp() {
 
         if (data && data.length > 0) {
             emptyContent = false;
+
             data.forEach(item => {
+                const finalUrl = `/srh/public/fileschecklist/view/${item.id}`; // Ruta personalizada por ID
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><i class="fas fa-eye"></i></td>
+                        <td>
+                            <div class="button-container" style="display: flex; gap: 2px;">
+                                <a href="${finalUrl}" style="background: #10312b; padding: 8px 12px;" class="custom-button custom-button-x" title="Checklist">
+                                    <i style="color: white; font-size: 15px" class="fa-solid fa-file-zipper"></i>
+                                </a>
+                            </div>
+                        </td>
                         <td>${item.rfc ?? '-'}</td>
                         <td>${item.curp ?? '-'}</td>
                         <td>${item.nombre ?? '-'}</td>
@@ -50,7 +58,7 @@ function validarcurp() {
             });
         } else {
             emptyContent = true;
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center">No se encontraron resultados.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center">No se encontraron resultados.</td></tr>`;
         }
 
         setValue();
@@ -95,6 +103,7 @@ function setValue() {
     document.getElementById("is_iteratorMin").innerText = iterator - 1;
     document.getElementById("is_iteratorMax").innerText = iterator + 1;
 }
+
 
 
 
