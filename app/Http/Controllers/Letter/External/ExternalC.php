@@ -11,6 +11,13 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class ExternalC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -152,4 +159,113 @@ class ExternalC extends Controller
             return $messagesC->messageSuccessRedirect('external.list', 'Elemento modificado con éxito.');
         }
     }
+
+    public function obtenerCatalogos()
+{
+    $areas = DB::table('correspondencia.cat_dependencia_area')
+        ->select('id_cat_dependencia_area', 'descripcion')
+        ->orderBy('descripcion')
+        ->get();
+
+    $anios = DB::table('correspondencia.tbl_circular_externa')
+        ->select(DB::raw("EXTRACT(YEAR FROM fecha_documento)::TEXT AS descripcion"))
+        ->groupBy(DB::raw("EXTRACT(YEAR FROM fecha_documento)"))
+        ->orderByDesc(DB::raw("EXTRACT(YEAR FROM fecha_documento)"))
+        ->get();
+
+    return response()->json([
+        'areas' => $areas,
+        'anios' => $anios,
+    ]);
+}
+
+public function descargarReporte(Request $request)
+{
+    $area = $request->input('area');
+    $year = $request->input('year');
+
+    $model = new ExternalM();
+    $datos = $model->getReporteEncabezados($area, $year);
+
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'Sin datos'], 400);
+    }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Estilo para encabezados
+    $headerStyle = [
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => Color::COLOR_WHITE],
+        ],
+        'fill' => [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FF10312B'],
+        ],
+    ];
+
+    // Mapeo personalizado
+    $encabezadosPersonalizados = [
+        'no_turno'        => 'No. Turno',
+        'fecha_captura'   => 'Fecha de Captura',
+        'anio'            => 'Año',
+        'dependencia'     => 'Dependencia',
+        'area'            => 'Área',
+        'fecha_documento' => 'Fecha del Documento',
+        'no_documento'    => 'No. Documento',
+        'asunto'          => 'Asunto',
+        'observaciones'   => 'Observaciones',
+    ];
+
+    $columnas = array_keys((array)$datos->first());
+
+    // Encabezados con columna "No." centrada y autoajustada
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    foreach ($columnas as $colNombre) {
+        $etiqueta = $encabezadosPersonalizados[$colNombre] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $etiqueta);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
+    }
+
+    // Llenar los datos
+    $row = 2;
+    $contador = 1;
+    foreach ($datos as $dato) {
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
+        $colIndex++;
+
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre);
+            $colIndex++;
+        }
+
+        $contador++;
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+
+    return new StreamedResponse(function () use ($writer) {
+        if (ob_get_contents()) ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_circulares_externas.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
+}
+
 }

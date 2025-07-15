@@ -15,9 +15,9 @@ $(document).ready(function () {
 
 
 function generateReport() {
+    $('#modalReport').fadeOut(); // Ocultar modal
+    showSpinner(); // Mostrar spinner
 
-    $('#modalReport').fadeOut(); // Ocultar la ventana modal
-    showSpinner();// Inicio de spinner
     $.ajax({
         url: URL_DEFAULT.concat('/letter/dashboard/generate'),
         type: 'POST',
@@ -35,27 +35,45 @@ function generateReport() {
             _token: token
         },
         xhrFields: {
-            responseType: 'blob' // Para manejar archivos binarios
+            responseType: 'blob'
         },
         success: function (response, status, xhr) {
-            let filename = "DATA_GC_SIRH.xlsx";
-            let blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
-
-            let link = document.createElement('a');
+            const filename = "DATA_GC_SIRH.xlsx";
+            const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+            const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            notyfEM.success("Documento generado correctamente.");
-            hideSpinner(); // Se oculta el spinner
+
+            hideSpinner();
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'El archivo Excel se ha descargado correctamente.',
+                confirmButtonColor: '#3085d6'
+            });
         },
         error: function (xhr, status, error) {
-            notyfEM.error('Error al generar el archivo:', error);
-            hideSpinner(); // Se oculta el spinner
+            hideSpinner();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un problema al generar el archivo.',
+                confirmButtonColor: '#d33'
+            });
         }
     });
 }
+
+function getFormattedHourValue(inputId) {
+    const value = $(inputId).val();
+    return value == 24 ? value : parseInt(value);
+}
+
 
 function getFormattedHourValue(inputId) {
     var value = $(inputId).val();  // Obtiene el valor del input range
@@ -69,8 +87,6 @@ function generateReport() {
     let incluir_horas = $('#incluir_horas').prop('checked') ? true : false;
 
     let inicio = $('#inicio').val();
-
-    console.log(inicio);
 }*/
 
 

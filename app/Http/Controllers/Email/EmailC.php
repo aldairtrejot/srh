@@ -43,7 +43,6 @@ class EmailC extends Controller
             ]);
         } catch (\Exception $e) {
             // Capturar cualquier excepción y mostrar el error
-            Log::info($e->getMessage());
             return response()->json([
                 'status' => false,
                 'error' => $e->getMessage(),

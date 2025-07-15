@@ -17,9 +17,9 @@ use App\Models\Letter\Collection\CollectionRelUsuarioM;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\MessagesC;
 use App\Http\Controllers\Letter\Log\LogC;
-use Illuminate\Support\Facades\Log;
 use App\Models\Letter\Collection\CollectionRolAreaM;
 use Illuminate\Support\Facades\DB;
+
 
 class OfficeC extends Controller
 {
@@ -297,4 +297,6 @@ class OfficeC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
+
+ 
 }

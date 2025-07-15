@@ -206,7 +206,6 @@ class AlfrescoC extends Controller
 
         // Verificar si la respuesta fue exitosa (200 OK o 204 No Content)
         if ($httpCode == 200 || $httpCode == 204) {
-            //Log::info("Archivo con UUID {$uuid} eliminado correctamente.");
             //return response()->json(['message' => 'Archivo eliminado correctamente'], 200);
             return true; // Exito
         } /*elseif ($httpCode == 404) {

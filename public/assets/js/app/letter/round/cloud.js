@@ -26,13 +26,11 @@ $(document).ready(function () {
 function getRole() {
     let new_variable = (user_role && user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
     if (!new_variable) { //Condicion para inabilitar las opciones
-        console.log('intro');
         disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
         disabledInput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida');
         disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
         disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
     } else {
-        console.log('no entro');
         enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
         enableIput('#label_oficio_salida', '#icon_oficio_salida', '#file_oficio_salida');
         enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');

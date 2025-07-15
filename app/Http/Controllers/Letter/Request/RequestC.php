@@ -181,7 +181,6 @@ class RequestC extends Controller
             } else {
                 // Agregar archivo, pero se obtienen el uid de la carpeta asi como el año del documento
                 $id_anio = $requestM->getIdAnio($request->id); // Se obtiene el id de anio de archivo
-                Log::info($id_anio);
                 // Se obtienen el uuid de la carpeta donde se guardara el archivo
                 $uuid = $collectionConfigCloudInternoM->getUuid($id_anio, config('custom_config.CP_TABLE_REQUERIMRNTOS_INTERNO'));
 

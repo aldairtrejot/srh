@@ -17,6 +17,12 @@ use App\Http\Controllers\Admin\MessagesC;
 use App\Models\Letter\Collection\CollectionReportM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Http\Controllers\Letter\Other\ConsecutivoC;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\DB;
+
+
 class FileC extends Controller
 {
     //La funcion retorna la vista principal de la tabla
@@ -242,4 +248,113 @@ class FileC extends Controller
         // Concatenamos las partes
         return $letras1 . '/' . $numeros2 . '/2025';
     }
+
+
+    public function obtenerCatalogos()
+    {
+        $areas = DB::table('correspondencia.cat_area')
+            ->select('id_cat_area', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
+
+        $anios = DB::table('correspondencia.cat_anio')
+            ->select('id_cat_anio', 'descripcion')
+            ->orderBy('descripcion')
+            ->get();
+
+        return response()->json([
+            'areas' => $areas,
+            'anios' => $anios,
+        ]);
+    }
+
+    public function descargarReporte(Request $request)
+{
+    $area = $request->input('area') ?: null;
+    $year = $request->input('year') ?: null;
+
+    $model = new FileM();
+    $datos = $model->getReporteFiltrado($area, $year);
+
+    if ($datos->isEmpty()) {
+        return response()->json(['error' => 'No se encontraron datos con los filtros seleccionados.'], 400);
+    }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Estilo para encabezados
+    $headerStyle = [
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => \PhpOffice\PhpSpreadsheet\Style\Color::COLOR_WHITE],
+        ],
+        'fill' => [
+            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FF10312B'],
+        ],
+    ];
+
+    // Encabezados personalizados
+    $encabezadosPersonalizados = [
+        'NO_TURNO' => 'No. Turno',
+        'NO_DOCUMENTO' => 'No. Documento',
+        'ANIO' => 'Año',
+        'AREA' => 'Área',
+        'USUARIO_AREA' => 'Usuario Área',
+        'USUARIO_ENLACE' => 'Usuario Enlace',
+        'FECHA_EMISION' => 'Fecha de Emisión',
+        'FECHA_APLICACION' => 'Fecha de Aplicación',
+        'ASUNTO' => 'Asunto',
+        'DESTINATARIO' => 'Destinatario',
+        'OBSERVACIONES' => 'Observaciones',
+    ];
+
+    $columnas = array_keys((array) $datos->first());
+
+    // Encabezado: agregar "No."
+    $colIndex = 1;
+    $sheet->setCellValueByColumnAndRow($colIndex, 1, 'No.');
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+    $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+    $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+    $colIndex++;
+
+    foreach ($columnas as $colNombre) {
+        $encabezado = $encabezadosPersonalizados[strtoupper($colNombre)] ?? strtoupper($colNombre);
+        $sheet->setCellValueByColumnAndRow($colIndex, 1, $encabezado);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
+        $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
+        $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        $colIndex++;
+    }
+
+    // Insertar datos
+    $row = 2;
+    $contador = 1;
+    foreach ($datos as $dato) {
+        $colIndex = 1;
+        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
+        $colIndex++;
+        foreach ($columnas as $colNombre) {
+            $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre ?? '');
+            $colIndex++;
+        }
+        $contador++;
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+
+    return new StreamedResponse(function () use ($writer) {
+        if (ob_get_contents())
+            ob_end_clean();
+        $writer->save('php://output');
+    }, 200, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition' => 'attachment; filename="reporte_lineamientos.xlsx"',
+        'Cache-Control' => 'max-age=0',
+        'Pragma' => 'public',
+    ]);
+}
 }

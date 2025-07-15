@@ -1,0 +1,110 @@
+var token = $('meta[name="csrf-token"]').attr('content');
+
+window.openModal = function() {
+    $('#modalReport').fadeIn();
+    loadCatalogs();
+};
+
+$(document).ready(function () {
+    $(window).click(function (event) {
+        if ($(event.target).is('#modalReport')) {
+            $('#modalReport').fadeOut();
+        }
+    });
+    $('#cancel_copy').click(function () {
+        $('#modalReport').fadeOut();
+    });
+});
+
+function loadCatalogs() {
+    $.ajax({
+        url: catalogosURL,
+        type: "GET",
+        success: function(response) {
+            // Destruir pickers ANTES de cambiar opciones
+            $('#id_cat_area_informe').selectpicker('destroy');
+            $('#id_cat_status_informe').selectpicker('destroy');
+            $('#id_cat_date_informe').selectpicker('destroy');
+
+            // Área
+            const areaOptions = response.areas.map(item =>
+                `<option value="${item.id_cat_area}">${item.descripcion}</option>`
+            );
+            $("#id_cat_area_informe").html('<option value="">-- Todas las áreas --</option>' + areaOptions.join(''));
+
+            // Estatus
+            const statusOptions = response.estatus.map(item =>
+                `<option value="${item.id_cat_estatus}">${item.descripcion}</option>`
+            );
+            $("#id_cat_status_informe").html('<option value="">-- Todos los estatus --</option>' + statusOptions.join(''));
+
+            // Año
+            const yearOptions = response.anios.map(item =>
+                `<option value="${item.id_cat_anio}">${item.descripcion}</option>`
+            );
+            $("#id_cat_date_informe").html('<option value="">-- Todos los años --</option>' + yearOptions.join(''));
+
+            // Volver a inicializar pickers
+            $('.selectpicker').selectpicker();
+
+        },
+        error: function(xhr) {
+            console.error("Error al cargar catálogos:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los catálogos.'
+            });
+        }
+    });
+}
+
+
+function validateDate() {
+    const area = $('#id_cat_area_informe').val();
+    const status = $('#id_cat_status_informe').val();
+    const year = $('#id_cat_date_informe').val();
+
+    $('#modalReport').fadeOut();
+    generateReport(area, status, year);
+}
+
+function generateReport(area, status, year) {
+    showSpinner();
+
+    $.ajax({
+        url: reporteURL,
+        type: 'POST',
+        data: {
+            area: area,
+            status: status,
+            year: year,
+            _token: token
+        },
+        xhrFields: { responseType: 'blob' },
+        success: function (response, status, xhr) {
+            const filename = "reporte_oficios.xlsx";
+            const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            hideSpinner();
+            Swal.fire({ icon: 'success', title: '¡Éxito!', text: 'El archivo se descargó correctamente.' });
+        },
+        error: function () {
+            hideSpinner();
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo generar el archivo.' });
+        }
+    });
+}
+
+
+function showSpinner() {
+    Swal.fire({ title: 'Generando...', text: 'Por favor espera.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+}
+function hideSpinner() {
+    Swal.close();
+}

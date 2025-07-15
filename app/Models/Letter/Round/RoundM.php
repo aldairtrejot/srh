@@ -140,4 +140,42 @@ class RoundM extends Model
             ->where('id_cat_anio', $idAnio)
             ->first();  // Devuelve el primer (y único) resultado
     }
+
+
+    public function getReporteFiltrado($area, $year)
+    {
+        $query = DB::table('correspondencia.tbl_circular as o')
+            ->select([
+                'o.num_turno_sistema as No_Turno',
+                'o.fecha_captura as Fecha_captura',
+                'anio.descripcion as Anio',
+                'a.descripcion as Area',
+                'o.num_documento_area as No_Doc',
+                'ua.name as Usuario',
+                'ue.name as Enlace',
+                'o.fecha_inicio as Fecha_emision',
+                'o.fecha_fin as Fecha_aplicacion',
+                'o.asunto as Asunto',
+                'o.destinatario as Destinatario',
+                'o.observaciones as Observaciones'
+            ])
+            ->leftJoin('correspondencia.tbl_correspondencia as c', 'o.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia')
+            ->leftJoin('correspondencia.cat_anio as anio', 'o.id_cat_anio', '=', 'anio.id_cat_anio')
+            ->leftJoin('correspondencia.cat_area as a', 'o.id_cat_area', '=', 'a.id_cat_area')
+            ->leftJoin('administration.users as ua', 'o.id_usuario_area', '=', 'ua.id')
+            ->leftJoin('administration.users as ue', 'o.id_usuario_enlace', '=', 'ue.id');
+
+        // Filtros dinámicos
+        if (!empty($area)) {
+            $query->where('o.id_cat_area', $area);
+        }
+        if (!empty($year)) {
+            $query->where('o.id_cat_anio', $year);
+        }
+
+        $query->orderBy('o.id_tbl_circular', 'ASC');
+
+        return $query->get();
+    }
+
 }

@@ -40,7 +40,7 @@ class ReldependenciaC extends Controller
         $dependenciareaM = new DependenciareaM();
        
         $selectDependencia = $dependenciaM->listdependencia(); //Catalogo de beneficio
-        $selectDependenciaEdit = []; //catalogo de beneficio null
+        $selectDependenciaEdit = []; //catalogo de beneficio null   
 
         $selectDependenciarea = $dependenciareaM->listdependenciarea(); //Catalogo de beneficio
         $selectDependenciareaEdit = []; //catalogo de beneficio null

@@ -32,7 +32,6 @@ function validateNameSol(id_solicitante) {
             }
             /*
             let result = response.result;
-            console.log(result.estatus);
             */
             /*
             let item = response;
