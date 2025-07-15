@@ -1,12 +1,11 @@
 <!-- TEMPLATE APP -->
-<?php include(resource_path('views/config.php')); ?>
+<?php include resource_path('views/config.php'); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
+    <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
     <div class="main-panel">
         <div class="content-wrapper">
@@ -17,7 +16,7 @@
                             <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Oficios</h5>
                         </div>
-                        @if($letterAdminMatch)
+                        @if ($letterMatch)
                             <div class="col-12 col-xl-4 text-xl-right">
                                 <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
                                     <span class="font-weight-bold" style="color: #10312b;">Informe</span>
@@ -37,7 +36,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Oficios</h4>
-                                @if($letterAdminMatch)
+                                @if ($letterAdminMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro?
                                         <a href="{{ route('office.create') }}" class="text-danger"
