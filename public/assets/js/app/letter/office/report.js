@@ -74,8 +74,13 @@ function generateReport(area, status, year) {
 
     $.ajax({
         url: reporteURL,
-        type: 'GET',
-        data: { area, status, year },
+        type: 'POST',
+        data: {
+            area: area,
+            status: status,
+            year: year,
+            _token: token
+        },
         xhrFields: { responseType: 'blob' },
         success: function (response, status, xhr) {
             const filename = "reporte_oficios.xlsx";
@@ -95,6 +100,7 @@ function generateReport(area, status, year) {
         }
     });
 }
+
 
 function showSpinner() {
     Swal.fire({ title: 'Generando...', text: 'Por favor espera.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });

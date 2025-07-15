@@ -200,7 +200,6 @@ class OfficeM extends Model
         return $result;
     }
 
-
 public function getReporteFiltrado($area, $status, $year)
 {
     $query = DB::table('correspondencia.tbl_oficio AS o')
@@ -220,7 +219,7 @@ public function getReporteFiltrado($area, $status, $year)
             'o.observaciones AS observaciones_oficio',
             'c.num_documento',
             'c.folio_gestion',
-            'c.fecha_captura',
+            'o.fecha_captura',
             'c.fecha_inicio',
             'c.fecha_fin',
             'anio.descripcion AS anio',
@@ -235,16 +234,18 @@ public function getReporteFiltrado($area, $status, $year)
             'c.fecha_usuario_captura'
         ]);
 
-    if ($area) {
+    if (!empty($area)) {
         $query->where('c.id_cat_area', $area);
     }
-    if ($status) {
+    if (!empty($status)) {
         $query->where('c.id_cat_estatus', $status);
     }
-    if ($year) {
+    if (!empty($year)) {
         $query->where('o.id_cat_anio', $year);
     }
 
     return $query->get();
 }
+
+
 }

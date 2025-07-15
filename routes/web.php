@@ -412,7 +412,7 @@ Route::get('/administration/list', [AdministrationC::class, 'list'])->name('admi
 
 //officio
 Route::get('/dashboardoffice/catalogos', [DashboardOfficeC::class, 'obtenerCatalogos'])->name('dashboardoffice.catalogos')->middleware('auth');
-Route::get('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate')->middleware('auth');
+Route::post('/dashboardoffice/generate', [DashboardOfficeC::class, 'descargarReporte'])->name('dashboardoffice.generate')->middleware('auth');
 Route::get('/oficios/reporte/encabezados', [DashboardOfficeC::class, 'oficios.reporte.encabezados'])->name('oficios.reporte.encabezados')->middleware('auth');
 
 // Vista principal de listado (si la tienes)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Letter\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Office\OfficeM;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -37,7 +38,6 @@ class DashboardOfficeC extends Controller
             'anios' => $anios,
         ]);
     }
-
 public function descargarReporte(Request $request)
 {
     $area = $request->input('area');
@@ -56,24 +56,18 @@ public function descargarReporte(Request $request)
 
     // Estilo del encabezado
     $headerStyle = [
-        'font' => [
-            'bold' => true,
-            'color' => ['argb' => Color::COLOR_WHITE],
-        ],
-        'fill' => [
-            'fillType' => Fill::FILL_SOLID,
-            'startColor' => ['argb' => 'FF10312B'],
-        ],
+        'font' => ['bold' => true, 'color' => ['argb' => Color::COLOR_WHITE]],
+        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF10312B']],
     ];
 
-    // Mapeo de encabezados personalizados
+    // Encabezados personalizados (sin fecha_usuario_captura)
     $encabezadosPersonalizados = [
         'num_turno_sistema'        => 'Turno',
         'asunto_oficio'            => 'Asunto',
         'observaciones_oficio'     => 'Observaciones',
         'num_documento'            => 'No. Documento',
         'folio_gestion'            => 'Folio de Gestión',
-        'fecha_captura'            => 'Fecha de Registro',
+        'fecha_captura'            => 'Fecha de Captura',
         'fecha_inicio'             => 'Fecha Inicio',
         'fecha_fin'                => 'Fecha Fin',
         'anio'                     => 'Año',
@@ -84,11 +78,12 @@ public function descargarReporte(Request $request)
         'coordinacion_responsable' => 'Coordinación',
         'responsable_area'         => 'Responsable',
         'enlace_responsable'       => 'Enlace',
-        'capturado_por'            => 'Capturado por',
-        'fecha_usuario_captura'    => ['Fecha de Captura', 'Hora de Captura'],
+        'capturado_por'            => 'Capturado por'
     ];
 
+    // Eliminar columna no deseada antes de procesar
     $columnas = array_keys((array) $datos->first());
+    $columnas = array_filter($columnas, fn($col) => $col !== 'fecha_usuario_captura');
 
     // Crear encabezados
     $colIndex = 1;
@@ -100,18 +95,6 @@ public function descargarReporte(Request $request)
 
     foreach ($columnas as $colNombre) {
         $nombreEncabezado = $encabezadosPersonalizados[$colNombre] ?? strtoupper($colNombre);
-
-        if (is_array($nombreEncabezado)) {
-            foreach ($nombreEncabezado as $etiqueta) {
-                $sheet->setCellValueByColumnAndRow($colIndex, 1, $etiqueta);
-                $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
-                $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
-                $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
-                $colIndex++;
-            }
-            continue;
-        }
-
         $sheet->setCellValueByColumnAndRow($colIndex, 1, $nombreEncabezado);
         $sheet->getStyleByColumnAndRow($colIndex, 1)->applyFromArray($headerStyle);
         $sheet->getStyleByColumnAndRow($colIndex, 1)->getAlignment()->setHorizontal('center');
@@ -124,27 +107,20 @@ public function descargarReporte(Request $request)
     $contador = 1;
     foreach ($datos as $dato) {
         $colIndex = 1;
-        $sheet->setCellValueByColumnAndRow($colIndex, $row, $contador);
-        $colIndex++;
-        $contador++;
-
+        $sheet->setCellValueByColumnAndRow($colIndex++, $row, $contador++);
         foreach ($columnas as $colNombre) {
-            if ($colNombre === 'fecha_usuario_captura') {
-                if ($dato->$colNombre) {
-                    $fechaHora = explode(' ', $dato->$colNombre);
-                    $fecha = $fechaHora[0] ?? '';
-                    $hora = $fechaHora[1] ?? '';
-                } else {
-                    $fecha = '';
-                    $hora = '';
+            $valor = $dato->$colNombre;
+
+            // Formatear fechas
+            if (in_array($colNombre, ['fecha_captura', 'fecha_inicio', 'fecha_fin']) && $valor) {
+                try {
+                    $valor = \Carbon\Carbon::parse($valor)->format('d/m/Y');
+                } catch (\Exception $e) {
+                    // deja el valor original si falla
                 }
-                $sheet->setCellValueByColumnAndRow($colIndex, $row, $fecha);
-                $colIndex++;
-                $sheet->setCellValueByColumnAndRow($colIndex, $row, $hora);
-            } else {
-                $sheet->setCellValueByColumnAndRow($colIndex, $row, $dato->$colNombre);
             }
-            $colIndex++;
+
+            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $valor);
         }
         $row++;
     }
