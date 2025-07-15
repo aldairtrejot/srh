@@ -16,7 +16,7 @@
                             <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Oficios</h5>
                         </div>
-                        @if ($letterMatch)
+                        @if ($letterAdminMatch)
                             <div class="col-12 col-xl-4 text-xl-right">
                                 <button class="btn btn-link" onclick="openModal()" style="color: #10312b;">
                                     <span class="font-weight-bold" style="color: #10312b;">Informe</span>
@@ -36,7 +36,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Oficios</h4>
-                                @if ($letterAdminMatch)
+                                @if ($letterMatch)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro?
                                         <a href="{{ route('office.create') }}" class="text-danger"
