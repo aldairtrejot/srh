@@ -49,6 +49,26 @@
                                 <label id="file_coordinacion" class="valor"></label>
                             </div>
                         </div>
+                        <x-template-tittle.tittle-caption-secon tittle="Checklist de Documentos" />
+
+<x-template-table.template-table>
+    <thead class="text-center">
+        <tr>
+            <th>Documento</th>
+            <th>Check</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($documentos as $doc)
+            <tr>
+                <td>{{ $doc->descripcion }}</td>
+                <td class="text-center">
+                    <input type="checkbox" name="check_documentos[]" value="{{ $doc->id }}">
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</x-template-table.template-table>
                         
                     </div>
                 </div>
