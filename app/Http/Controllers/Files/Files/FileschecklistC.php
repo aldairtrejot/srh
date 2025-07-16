@@ -15,20 +15,16 @@ class FileschecklistC extends Controller
   public function view($id)
 {
       $model = new FilesChecklistM();
-      $empleado = $model->obtenerEmpleadoPorId($id);
+    $empleado = $model->obtenerEmpleadoPorId($id);
 
     if (!$empleado) {
         abort(404, 'Empleado no encontrado');
     }
-    // Obtener catálogo de documentos
-    $catalogoModel = new FilesdocumentM();
-    $documentos = $catalogoModel->listdocuments();
 
     return view('files.fileschecklist.list', [
         'id' => $id,
         'empleado' => $empleado,
-        'empleado_json' => json_encode($empleado),// lo convertimos a JSON para JavaScript
-        'documentos' => $documentos 
+        'empleado_json' => json_encode($empleado) // 👈 lo convertimos a JSON para JavaScript
     ]);
 }
 
