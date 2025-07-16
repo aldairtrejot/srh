@@ -49,8 +49,8 @@
                                 <label id="file_coordinacion" class="valor"></label>
                             </div>
                         </div>
+                        <br>
                         <x-template-tittle.tittle-caption-secon tittle="Checklist de Documentos" />
-
 <x-template-table.template-table>
     <thead class="text-center">
         <tr>
