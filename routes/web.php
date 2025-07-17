@@ -248,6 +248,9 @@ Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth
 Route::get('/files/listview', [FilesC::class, 'listview'])->name('files.listview')->middleware('auth');
 Route::post('/files/buscar', [FilesC::class, 'buscarEmpleado'])->name('files.buscar')->middleware('auth');
 
+
+
+
 //ROUTE_EXPEDIENTE_CHECKLIST
 Route::match(['get', 'post'], '/fileschecklist/view/{id}', [FileschecklistC::class, 'view'])->name('fileschecklist.view')->middleware('auth');
 

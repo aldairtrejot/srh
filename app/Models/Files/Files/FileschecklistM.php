@@ -26,4 +26,23 @@ class FileschecklistM extends Model
             ])
             ->first(); // Solo un registro
     }
+
+    public function insertarGestionDocumentoPorEmpleado($idEmpleado)
+    {
+        // Verifica si ya existe un registro con ese empleado
+        $existe = DB::table('expediente.tbl_gestion_documentos')
+            ->where('id_empleado_hraes', $idEmpleado)
+            ->exists();
+
+        if (!$existe) {
+            return DB::table('expediente.tbl_gestion_documentos')->insert([
+                'id_empleado_hraes' => $idEmpleado,
+                'creado_en' => now(),
+                'actualizado_en' => now(),
+            ]);
+        }
+
+        return false; // No se insertó porque ya existe
+    }
 }
+
