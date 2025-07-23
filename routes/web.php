@@ -253,6 +253,8 @@ Route::post('/files/buscar', [FilesC::class, 'buscarEmpleado'])->name('files.bus
 
 //ROUTE_EXPEDIENTE_CHECKLIST
 Route::match(['get', 'post'], '/fileschecklist/view/{id}', [FileschecklistC::class, 'view'])->name('fileschecklist.view')->middleware('auth');
+Route::post('/fileschecklist/guardar-check', [FileschecklistC::class, 'guardarChecklist']);
+
 
 //ROUTE_EXPEDIENTE_CATALOGO ---- > Documento
 Route::get('/filesdocument', FilesdocumentC::class)->name('filesdocument.list')->middleware('auth');
