@@ -44,7 +44,7 @@ function mostrarAlertaExito() {
     alerta.style.display = 'block';
     setTimeout(() => {
         alerta.style.display = 'none';
-    }, 2000); // Oculta la alerta después de 2 segundos
+    }, 1000); // Oculta la alerta después de 1 segundos
 }
 
 
