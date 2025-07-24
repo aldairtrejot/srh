@@ -29,11 +29,6 @@ function generateFileHTML(boolx, template) {
             <div class="custom-file-icon-container">
                 <i style="color:#777777" class="fa fa-file" aria-hidden="true"></i>
                 <div class="custom-button-container">
-                    <!--
-                    <button onclick="getInfo('${template.id}')" style="background: #003366" class="custom-button" title="Usuario">
-                        <i style="color: white" class="fa fa-user"></i>
-                    </button>
-                    -->
                     <button onclick="seeDocumentUid('${template.uid}')" style="background: #10312b; padding: 8px 12px;" class="custom-button-x custom-button" title="Ver">
                         <i style="color: white; font-size: 15px" class="fa fa-eye"></i>
                     </button> 
@@ -71,37 +66,40 @@ function enableIput(idLabel, idIcon, idValue) {
     $(idLabel).css('cursor', 'pointer');  // Restaurar el cursor normal
 }
 
+// Función para descargar archivo Excel correctamente usando fetch
 function download(uid) {
-    //showSpinner();// Inicio de spinner
-    // Crear una URL para la descarga
-    let url = URL_DEFAULT.concat('/cloud/download');
+  const url = URL_DEFAULT.concat('/cloud/download');
 
-    // Crear un formulario temporal para enviar el UID y activar la descarga
-    let form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
+  // Preparar datos para enviar (incluye el token si es necesario)
+  const formData = new FormData();
+  formData.append('uid', uid);
+  formData.append('_token', token);  // token debe estar definido globalmente
 
-    // Añadir un campo oculto para el UID
-    let uidField = document.createElement('input');
-    uidField.type = 'hidden';
-    uidField.name = 'uid';
-    uidField.value = uid;
-    form.appendChild(uidField);
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) throw new Error('Error en la descarga');
+      return response.blob();
+    })
+    .then(blob => {
+      const urlBlob = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlBlob;
 
-    // Añadir el token CSRF (si es necesario)
-    let tokenField = document.createElement('input');
-    tokenField.type = 'hidden';
-    tokenField.name = '_token';
-    tokenField.value = token;  // Asegúrate de que 'token' esté correctamente definido
-    form.appendChild(tokenField);
+      // Aquí puedes definir el nombre del archivo que quieres que tenga la descarga
+      a.download = 'archivo.xlsx';
 
-    // Añadir el formulario al body y enviarlo
-    document.body.appendChild(form);
-    form.submit();
-
-    // Limpiar el formulario después de enviarlo
-    document.body.removeChild(form);
-    //hideSpinner(); // Se oculta el spinner
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(urlBlob);
+    })
+    .catch(error => {
+      console.error('Error descargando archivo:', error);
+      alert('Error descargando archivo.');
+    });
 }
 
 //Se utiliza la funcion para ver archivos de alfresco

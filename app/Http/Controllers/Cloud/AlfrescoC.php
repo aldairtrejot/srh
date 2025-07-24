@@ -55,65 +55,72 @@ class AlfrescoC extends Controller
 
     //La funcion descarga un documento de alfresco
     public function download(Request $request)
-    {
-        $username = env('ALFRESCO_USER'); // Credenciales para la autenticación básica
-        $password = env('ALFRESCO_PASS'); // Credenciales para la autenticación básica
-        $alfresco_url = env('ALFRESCO_URL_DOWNLOAD');// Reemplaza {node-id} con el UID del archivo
-        $usuario = $username;
-        $contrasena = $password;
-        $nodeId = $request->uid;  // Usamos el UID del archivo recibido en la solicitud
-        $url = str_replace('{node-id}', $nodeId, $alfresco_url);// Construir la URL completa de la API
-        $ch = curl_init();// Inicializar cURL
+{
+    $username = env('ALFRESCO_USER');
+    $password = env('ALFRESCO_PASS');
+    $alfresco_url = env('ALFRESCO_URL_DOWNLOAD');
+    $nodeId = $request->uid;
+    $url = str_replace('{node-id}', $nodeId, $alfresco_url);
 
-        curl_setopt($ch, CURLOPT_URL, $url);// Configurar opciones de cURL
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERPWD, "$usuario:$contrasena");  // Autenticación básica
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);  // Esto incluirá los encabezados en la respuesta
-        curl_setopt($ch, CURLOPT_NOBODY, false); // Para incluir el cuerpo de la respuesta también
+    $ch = curl_init();
 
-        $response = curl_exec($ch);// Ejecutar la solicitud
-        if (curl_errno($ch)) {// Comprobar si hubo un error
-            return response()->json([
-                'estatus' => 'Error de cURL: ' . curl_error($ch),
-                'status' => false,
-            ]);
-        } else {
-            // Obtener el código de respuesta HTTP
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_HEADER, true);  // Incluye encabezados en la respuesta
 
-            if ($http_code == 200) {
-                $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE); // Separar los encabezados y el cuerpo de la respuesta
-                $headers = substr($response, 0, $header_size);
-                $body = substr($response, $header_size);
+    $response = curl_exec($ch);
 
-                // Buscar el nombre del archivo en el encabezado Content-Disposition
-                $fileName = 'archivo_descargado'; // Nombre predeterminado en caso de que no se encuentre el archivo
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        return response()->json([
+            'estatus' => 'Error de cURL: ' . curl_error($ch),
+            'status' => false,
+        ]);
+    }
 
-                if (preg_match('/Content-Disposition:.*filename="([^"]+)"/i', $headers, $matches)) {
-                    $fileName = $matches[1]; // El nombre del archivo con extensión
-                }
-                curl_close($ch); // Cerrar cURL
-                return response($body)// Enviar la respuesta al cliente para la descarga
-                    ->header('Content-Type', 'application/octet-stream')  // Tipo MIME genérico
-                    ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')  // Nombre original del archivo
-                    ->header('Content-Length', strlen($body));
-            } else {
-                curl_close($ch);
-                return redirect()->back()->with([
-                    'value' => 'error', //VALUE_IS(error, warning, success)
-                    'message' => 'Se produjo un problema al intentar completar la descarga.',
-                    'estatus' => 'true'
-                ]);
-                /*
-                return response()->json([
-                    'estatus' => "Error: No se pudo obtener el archivo. Código de respuesta: $http_code",
-                    'status' => false,
-                ]);
-                */
-            }
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if ($http_code !== 200) {
+        curl_close($ch);
+        return redirect()->back()->with([
+            'value' => 'error',
+            'message' => 'Se produjo un problema al intentar completar la descarga.',
+            'estatus' => 'true'
+        ]);
+    }
+
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $headers = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+
+    curl_close($ch);
+
+    // Obtener el nombre del archivo del header Content-Disposition
+    $fileName = 'archivo_descargado.xlsx'; // valor default
+
+    if (preg_match('/filename[^;=\n]*=((["\']).*?\2|[^;\n]*)/', $headers, $matches)) {
+        $fileNameRaw = trim($matches[1], "\"'");
+        if ($fileNameRaw !== '') {
+            $fileName = $fileNameRaw;
         }
     }
+
+    // Eliminar cualquier espacio o contenido adicional antes de enviar el archivo
+    ob_clean();
+    flush();
+
+    return response($body)
+        ->header('Content-Type', 'application/octet-stream')
+        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+        ->header('Content-Length', strlen($body))
+        ->header('Cache-Control', 'no-cache, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+}
+
+
 
     public function see(Request $request)
     {
