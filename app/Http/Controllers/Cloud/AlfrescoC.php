@@ -98,21 +98,24 @@ class AlfrescoC extends Controller
     curl_close($ch);
 
     // Obtener el nombre del archivo del header Content-Disposition
-    $fileName = 'archivo_descargado.xlsx'; // valor default
+    $fileName = 'archivo_descargado'; // default sin extensión
+    $contentType = 'application/octet-stream'; // default tipo
 
-    if (preg_match('/filename[^;=\n]*=((["\']).*?\2|[^;\n]*)/', $headers, $matches)) {
-        $fileNameRaw = trim($matches[1], "\"'");
-        if ($fileNameRaw !== '') {
-            $fileName = $fileNameRaw;
-        }
+    // Extraer Content-Disposition y Content-Type del header
+    if (preg_match('/Content-Disposition:.*filename="?([^\";]+)"?/i', $headers, $matches)) {
+        $fileName = $matches[1];
+    }
+    if (preg_match('/Content-Type:\s*([^\s;]+)/i', $headers, $matches)) {
+        $contentType = $matches[1];
     }
 
-    // Eliminar cualquier espacio o contenido adicional antes de enviar el archivo
-    ob_clean();
-    flush();
+    // Limpiar buffer por si acaso
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
 
     return response($body)
-        ->header('Content-Type', 'application/octet-stream')
+        ->header('Content-Type', $contentType)
         ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
         ->header('Content-Length', strlen($body))
         ->header('Cache-Control', 'no-cache, must-revalidate')

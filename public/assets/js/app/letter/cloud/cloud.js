@@ -70,10 +70,9 @@ function enableIput(idLabel, idIcon, idValue) {
 function download(uid) {
   const url = URL_DEFAULT.concat('/cloud/download');
 
-  // Preparar datos para enviar (incluye el token si es necesario)
   const formData = new FormData();
   formData.append('uid', uid);
-  formData.append('_token', token);  // token debe estar definido globalmente
+  formData.append('_token', token);  // token global definido
 
   fetch(url, {
     method: 'POST',
@@ -81,16 +80,26 @@ function download(uid) {
   })
     .then(response => {
       if (!response.ok) throw new Error('Error en la descarga');
-      return response.blob();
+
+      // Obtener el nombre de archivo del header Content-Disposition
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'archivo_descargado';
+
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+
+      return response.blob().then(blob => ({ blob, filename }));
     })
-    .then(blob => {
+    .then(({ blob, filename }) => {
       const urlBlob = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = urlBlob;
-
-      // Aquí puedes definir el nombre del archivo que quieres que tenga la descarga
-      a.download = 'archivo.xlsx';
-
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -101,6 +110,8 @@ function download(uid) {
       alert('Error descargando archivo.');
     });
 }
+
+
 
 //Se utiliza la funcion para ver archivos de alfresco
 function seeDocumentUid(uid) {
