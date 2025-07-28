@@ -54,6 +54,7 @@ use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Area\AreaC;
 use App\Http\Controllers\Files\Files\FilesC;
 use App\Http\Controllers\Files\Files\FilesdocumentC;
+use App\Http\Controllers\Files\Files\FilesgestionC;
 use App\Http\Controllers\Files\Files\FileschecklistC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
@@ -248,13 +249,14 @@ Route::post('/valitade/letter', [LetterC::class, 'getletter'])->middleware('auth
 Route::get('/files/listview', [FilesC::class, 'listview'])->name('files.listview')->middleware('auth');
 Route::post('/files/buscar', [FilesC::class, 'buscarEmpleado'])->name('files.buscar')->middleware('auth');
 
-
-
-
 //ROUTE_EXPEDIENTE_CHECKLIST
 Route::match(['get', 'post'], '/fileschecklist/view/{id}', [FileschecklistC::class, 'view'])->name('fileschecklist.view')->middleware('auth');
 Route::post('/fileschecklist/guardar-check', [FileschecklistC::class, 'guardarChecklist']);
 
+//ROUTE_EXPEDIENTE_GESTION
+Route::get('/filesgestion', FilesgestionC::class)->name('filesgestion.list')->middleware('auth');
+Route::post('/filesgestion/table', [FilesgestionC::class, 'searchTable']);
+Route::delete('/filesgestion/delete/{id}', [FilesgestionC::class, 'destroy']);
 
 //ROUTE_EXPEDIENTE_CATALOGO ---- > Documento
 Route::get('/filesdocument', FilesdocumentC::class)->name('filesdocument.list')->middleware('auth');
