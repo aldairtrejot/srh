@@ -334,6 +334,7 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
                 DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
                 DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, \'DD/MM/YYYY\') AS fecha_inicio'),
                 DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, \'DD/MM/YYYY\') AS fecha_fin'),

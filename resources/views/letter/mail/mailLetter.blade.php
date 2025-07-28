@@ -98,7 +98,7 @@
                             <strong style="color: #000;">Asunto:</strong> {{ $mailBody->asunto }}
                         </li>
                         <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">No. Turno:</strong> {{ $mailBody->num_turno_sistema }}
+                            <strong style="color: #000;">Fol. Gestión:</strong> {{ $mailBody->folio_gestion }}
                         </li>
                         <li style="margin-bottom: 10px;">
                             <strong style="color: #000;">No. Documento:</strong> {{ $mailBody->num_documento }}
