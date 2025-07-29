@@ -39,14 +39,14 @@
                 <div class="collapse" id="ui-basic_corres">
                     <ul class="nav flex-column sub-menu">
                         <!--
-                                                                                                                <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
-                                                                                        -->
+                                                                                                                    <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
+                                                                                            -->
                         <!--
-                                                                            @if($letterAdminMatch)
-                                                                                <li class="nav-item"><a class="nav-link @if(Request::is('letter/*')) active @endif"
-                                                                                        href="{{ route('letter.dashboard') }}">Dashboard</a></li>
-                                                                            @endif
-                                                    -->
+                                                                                @if($letterAdminMatch)
+                                                                                    <li class="nav-item"><a class="nav-link @if(Request::is('letter/*')) active @endif"
+                                                                                            href="{{ route('letter.dashboard') }}">Dashboard</a></li>
+                                                                                @endif
+                                                        -->
                         @if($letterMatch)
                             <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
@@ -56,11 +56,11 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route(name: 'external.list') }}">Circ. Externa</a>
                             <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'returned.list') }}">Returnado</a></li>
                         @endif
                         @if ($letterAdminMatch)
                             <li class="nav-item"><a class="nav-link" href="{{ route('administration.dashboard') }}">Catálogos</a></li>
                         @endif
-                        
                     </ul>
                 </div>
             </li>
@@ -84,9 +84,9 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('informative.list') }}">Informativo</a>
                         </li>
                         <!--
-                                                                                <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
-                                                                                </li>
-                                                        -->
+                                                                                    <li class="nav-item"><a class="nav-link" href="{{ route('certification.list') }}">Certificaciones</a>
+                                                                                    </li>
+                                                            -->
                     </ul>
                 </div>
             </li>
@@ -122,8 +122,7 @@
                         <li class="nav-item"><a class="nav-link"
                                 href="{{ route('coursesorganizacion.list') }}">Organización</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursesprograma.list') }}">P.
-                                Institucional</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('coursesprograma.list') }}">P.Institucional</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursestipoac.list') }}">Tipo Acción</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursestipocur.list') }}">Tipo Cursos</a>

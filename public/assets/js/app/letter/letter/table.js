@@ -88,6 +88,14 @@ function searchInit() {
                                         </span>
                                         Email
                                     </button>
+                                    <button class="dropdown-item" onclick="openReturnModal(${object.id})">
+                                              <span style="background:#34495E" class="icon-container-template">
+                                   <div style="text-align: center;">
+                                 <i class="fa fa-mail-reply item-icon-menu"></i>
+                                  </div>
+                                  </span>
+                                          Returnado
+                                    </button>
                                 </div>
                             </div>
                         </td>
@@ -157,4 +165,54 @@ function searchValue() {
     iterator = 1;
     setValue();
     searchInit();
+}
+
+function openReturnModal(id) {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    $.ajax({
+        url: `/returned/get-area-subareas/${id}`,
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': token
+        },
+        success: function(response) {
+            if (response.area) {
+                document.getElementById('areaActual').textContent = response.area.descripcion;
+            } else {
+                document.getElementById('areaActual').textContent = 'Área no encontrada';
+            }
+
+            const tbody = document.getElementById('tablaSubareas');
+            tbody.innerHTML = '';
+
+            response.subareas.forEach(sub => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${sub.descripcion}</td><td><button class="btn btn-sm btn-primary">Asignar</button></td>`;
+                tbody.appendChild(tr);
+            });
+
+            $('#modalReturnado').modal('show');
+        },
+        error: function() {
+            alert('Error al cargar subáreas');
+        }
+    });
+}
+
+
+function renderSubareas(subareas) {
+    const contenedor = document.getElementById("listaSubareas");
+    contenedor.innerHTML = '';
+
+    if (subareas.length === 0) {
+        contenedor.innerHTML = '<p>No hay subáreas disponibles para esta área.</p>';
+        return;
+    }
+
+    subareas.forEach(sub => {
+        const li = document.createElement("li");
+        li.textContent = sub.descripcion;
+        contenedor.appendChild(li);
+    });
 }

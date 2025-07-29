@@ -92,6 +92,7 @@
 
         </div>
     </div>
+@include('letter.Returned.modal')
 
     <x-template-other.app-mail />
 

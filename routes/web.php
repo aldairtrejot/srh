@@ -55,6 +55,7 @@ use App\Http\Controllers\Courses\Assignedcourse\ConstanciaAlumnoC;
 use App\Http\Controllers\Letter\Dashboard\DashboardOfficeC;
 use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
 use App\Http\Controllers\Letter\External\ExternalC;
+use App\Http\Controllers\Letter\Returned\ReturnedC;
 use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
@@ -425,6 +426,21 @@ Route::get('/dashboardinside/catalogos', [InsideC::class, 'obtenerCatalogos'])->
 // Circulares
 Route::get('/round/dashboard/generate', [RoundC::class, 'descargarReporte'])->name('roundoffice.generate')->middleware('auth');
 Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('roundoffice.catalogos')->middleware('auth');
+
+
+//Returnado, Sub áreas
+Route::get('/returned/list', [ReturnedC::class, 'list'])->name('returned.list')->middleware('auth');
+Route::post('/returned/table', [ReturnedC::class, 'table'])->name('returned.table')->middleware('auth');
+Route::get('/returned/create', [ReturnedC::class, 'create'])->name('returned.create')->middleware('auth');
+Route::post('/returned/save', [ReturnedC::class, 'save'])->name('returned.save')->middleware('auth');
+Route::get('/returned/edit/{id}', [ReturnedC::class, 'edit'])->middleware('auth');
+Route::post('/returned/edit/{id}', [ReturnedC::class, 'edit'])->middleware('auth');
+Route::delete('/returned/delete/{id}', [ReturnedC::class, 'delete'])->name('returned.delete')->middleware('auth');
+Route::get('/returned/areas', [ReturnedC::class, 'table'])->name('returned.areas')->middleware('auth');
+Route::get('/returned/subareas/{id}', [ReturnedC::class, 'getSubareas'])->name('returned.subareas')->middleware('auth');
+Route::get('/returned/get-area-subareas/{id}', [ReturnedC::class, 'getAreaAndSubareas'])->name('returned.getAreaAndSubareas');
+
+
 
 
 
