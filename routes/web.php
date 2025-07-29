@@ -258,6 +258,14 @@ Route::get('/filesgestion', FilesgestionC::class)->name('filesgestion.list')->mi
 Route::post('/filesgestion/table', [FilesgestionC::class, 'searchTable']);
 Route::delete('/filesgestion/delete/{id}', [FilesgestionC::class, 'destroy']);
 
+//ROUTE_EXPEDIENTE_CATALOGO ---- > Ubicacion
+Route::get('/filesubicacion', FilesdocumentC::class)->name('filesdocument.list')->middleware('auth');
+Route::get('/filesubicacion/create', [FilesdocumentC::class, 'create'])->name('filesdocument.create')->middleware('auth');
+Route::post('/filesubicacion/save', [FilesdocumentC::class, 'save'])->name('filesdocument.save')->middleware('auth');
+Route::post('/filesubicacion/table', [FilesdocumentC::class, 'searchTable']);
+Route::match(['get', 'post'], '/filesubicacion/edit/{id}', [FilesdocumentC::class, 'edit'])->name('filesdocument.edit')->middleware('auth');
+Route::delete('/filesubicacion/delete/{id}', [FilesdocumentC::class, 'destroy']);
+
 //ROUTE_EXPEDIENTE_CATALOGO ---- > Documento
 Route::get('/filesdocument', FilesdocumentC::class)->name('filesdocument.list')->middleware('auth');
 Route::get('/filesdocument/create', [FilesdocumentC::class, 'create'])->name('filesdocument.create')->middleware('auth');

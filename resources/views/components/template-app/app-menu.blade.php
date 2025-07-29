@@ -80,6 +80,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route(name: 'filesgestion.list') }}">Gestion Documentos</a></li>    
                         <li class="nav-item"><a class="nav-link" href="{{ route(name: 'filesdocument.list') }}">Catalogo Documento</a></li>
                         <li class="nav-item"><a class="nav-link" href="">Catalogo Prestamo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="">Catalogo Ubicacion</a></li>
                         
                     </ul>
                 </div>
