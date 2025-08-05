@@ -6,6 +6,7 @@ use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
+use App\Http\Controllers\Letter\External\CloudExternalC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Request\RequestC;
@@ -398,7 +399,12 @@ Route::get('/external/dashboard/catalogos', [ExternalC::class, 'obtenerCatalogos
 Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
 Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.area')->middleware('auth');
 Route::post('/external/unique', [ExternalC::class, 'unique'])->name('external.unique')->middleware('auth');
-
+Route::get('/external/cloud/{id}', [CloudExternalC::class, 'cloud'])->name('external.cloud')->middleware('auth');
+//Route::post('/external/cloud/data', [CloudExternalC::class, 'cloudData'])->name('external.cloud.data')->middleware('auth');
+Route::post('/external/cloud/anexos', [CloudExternalC::class, 'list'])->name('external.cloud.list')->middleware('auth');
+//Route::post('/external/cloud/oficios', [CloudExternalC::class, 'cloudOficios'])->name('external.cloud.oficios')->middleware('auth');
+Route::post('/external/cloud/upload', [CloudExternalC::class, 'upload'])->name('external.cloud.upload')->middleware('auth');
+Route::post('/external/cloud/delete', [CloudExternalC::class, 'delete'])->name('external.cloud.delete')->middleware('auth');
 
 
 Route::get('/administration/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
