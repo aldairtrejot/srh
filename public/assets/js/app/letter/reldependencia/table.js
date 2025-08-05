@@ -49,7 +49,7 @@ function searchInit() {
     };
 
     $.ajax({
-        url: `${URL_DEFAULT}/rel/dependenciarea/table`,
+        url: `${URL_DEFAULT}/reldependenciarea/table`,
         type: 'POST',
         data: {
             iterator: iteradorAux,
@@ -62,7 +62,7 @@ function searchInit() {
     
             if (response.value && response.value.length > 0) {
                 response.value.forEach(function (object) {
-                    const finalUrl = `${URL_DEFAULT}/rel/dependenciarea/edit/${object.id}`;
+                    const finalUrl = `${URL_DEFAULT}/reldependenciarea/edit/${object.id}`;
                     const estatusTexto = object.estatus ? 'ACTIVO' : 'INACTIVO';
                     const estatusColor = estatusTexto === 'ACTIVO' ? '#26874A' : '#660000';
     

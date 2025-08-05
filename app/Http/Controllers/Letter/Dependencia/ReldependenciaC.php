@@ -33,6 +33,12 @@ class ReldependenciaC extends Controller
         return view('administration.reldependenciaC.list');
     }
 
+     public function list()
+{
+    return view('administration.reldependenciaC.list');
+}
+
+
     public function create()
     {
         $item = new ReldependenciaM();
