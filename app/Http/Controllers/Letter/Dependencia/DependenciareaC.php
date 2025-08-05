@@ -46,7 +46,7 @@ public function list()
         }
         
 
-        return $messagesC->messageSuccessRedirect('dependenciarea.list', 'Dependencia guardada exitosamente.');
+        return $messagesC->messageSuccessRedirect('dependenciarea.list', 'Registro guardado exitosamente.');
     }
 
     public function create()
