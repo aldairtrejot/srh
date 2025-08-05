@@ -1,4 +1,4 @@
- <?php
+<?php
 
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Certification\CertificationC;
@@ -396,6 +396,8 @@ Route::get('/external/edit/{id}', [ExternalC::class, 'edit'])->name('external.ed
 Route::get('/external/dashboard/generate', [ExternalC::class, 'descargarReporte'])->name('externaloffice.generate')->middleware('auth');
 Route::get('/external/dashboard/catalogos', [ExternalC::class, 'obtenerCatalogos'])->name('externaloffice.catalogos')->middleware('auth');
 Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
+Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.area')->middleware('auth');
+Route::post('/external/unique', [ExternalC::class, 'unique'])->name('external.unique')->middleware('auth');
 
 
 
