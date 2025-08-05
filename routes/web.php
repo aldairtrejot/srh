@@ -6,6 +6,7 @@ use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionIteradorInternoC;
 use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
+use App\Http\Controllers\Letter\External\CloudExternalC;
 use App\Http\Controllers\Letter\File\CloudFileC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Request\RequestC;
@@ -398,17 +399,39 @@ Route::get('/external/dashboard/catalogos', [ExternalC::class, 'obtenerCatalogos
 Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')->middleware('auth');
 Route::post('/external/collection/area', [ExternalC::class, 'area'])->name('external.area')->middleware('auth');
 Route::post('/external/unique', [ExternalC::class, 'unique'])->name('external.unique')->middleware('auth');
-
+Route::get('/external/cloud/{id}', [CloudExternalC::class, 'cloud'])->name('external.cloud')->middleware('auth');
+//Route::post('/external/cloud/data', [CloudExternalC::class, 'cloudData'])->name('external.cloud.data')->middleware('auth');
+Route::post('/external/cloud/anexos', [CloudExternalC::class, 'list'])->name('external.cloud.list')->middleware('auth');
+//Route::post('/external/cloud/oficios', [CloudExternalC::class, 'cloudOficios'])->name('external.cloud.oficios')->middleware('auth');
+Route::post('/external/cloud/upload', [CloudExternalC::class, 'upload'])->name('external.cloud.upload')->middleware('auth');
+Route::post('/external/cloud/delete', [CloudExternalC::class, 'delete'])->name('external.cloud.delete')->middleware('auth');
 
 
 Route::get('/administration/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
 
-
+// Catalogo Dependenciarea
 Route::get('/dependenciarea/list', [DependenciareaC::class, 'list'])->name('dependenciarea.list')->middleware('auth');
+Route::get('/dependenciarea/create', [DependenciareaC::class, 'create'])->name('dependenciarea.create')->middleware('auth');
+Route::post('/dependenciarea/save', action: [DependenciareaC::class, 'save'])->name('dependenciarea.save')->middleware('auth');
+Route::post('/dependenciarea/table', [DependenciareaC::class, 'searchTable']);
+Route::get('/dependenciarea/edit/{id}', [DependenciareaC::class, 'edit'])->name('dependenciarea.edit')->middleware('auth');
+Route::delete('/dependenciarea/delete/{id}', [DependenciareaC::class, 'destroy']);
 
+// Catalogo Dependencia
 Route::get('/dependencia/list', [DependenciaC::class, 'list'])->name('dependencia.list')->middleware('auth');
+Route::get('/dependencia/create', [DependenciaC::class, 'create'])->name('dependencia.create')->middleware('auth');
+Route::post('/dependencia/save', action: [DependenciaC::class, 'save'])->name('dependencia.save')->middleware('auth');
+Route::post('/dependencia/table', [DependenciaC::class, 'searchTable']);
+Route::get('/dependencia/edit/{id}', [DependenciaC::class, 'edit'])->name('dependencia.edit')->middleware('auth');
+Route::delete('/dependencia/delete/{id}', [DependenciaC::class, 'destroy']);
 
+// Catalogo Relacion Dependencia
 Route::get('/reldependenciarea/list', [ReldependenciaC::class, 'list'])->name('reldependenciarea.list')->middleware('auth');
+Route::get('/reldependenciarea/create', [ReldependenciaC::class, 'create'])->name('reldependenciarea.create')->middleware('auth');
+Route::post('/reldependenciarea/save', action: [ReldependenciaC::class, 'save'])->name('reldependenciarea.save')->middleware('auth');
+Route::post('/reldependenciarea/table', [ReldependenciaC::class, 'searchTable']);
+Route::get('/reldependenciarea/edit/{id}', [ReldependenciaC::class, 'edit'])->name('reldependenciarea.edit')->middleware('auth');
+Route::delete('/reldependenciarea/delete/{id}', [ReldependenciaC::class, 'destroy']);
 
 Route::get('/administration/list', [AdministrationC::class, 'list'])->name('administration.list')->middleware('auth');
 

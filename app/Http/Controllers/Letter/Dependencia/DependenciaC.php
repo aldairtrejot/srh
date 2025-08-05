@@ -19,6 +19,12 @@ class DependenciaC extends Controller
         return view('administration.dependenciaC.list', compact('courses'));
     }
 
+    public function list()
+{
+    return view('administration.dependenciaC.list');
+}
+
+
     public function save(Request $request)
     {
         $dependenciaM = new DependenciaM();
@@ -42,7 +48,7 @@ class DependenciaC extends Controller
         }
         
 
-        return $messagesC->messageSuccessRedirect('dependencia.list', 'Dependencia guardada exitosamente.');
+        return $messagesC->messageSuccessRedirect('dependencia.list', 'Registro guardado exitosamente.');
     }
 
     public function create()
