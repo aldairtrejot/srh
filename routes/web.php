@@ -427,5 +427,6 @@ Route::get('/round/dashboard/generate', [RoundC::class, 'descargarReporte'])->na
 Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('roundoffice.catalogos')->middleware('auth');
 
 
+Route::post('/external/collection/area', [ExternalC::class, 'area']);
 
 
