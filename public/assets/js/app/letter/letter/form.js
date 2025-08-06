@@ -1,67 +1,153 @@
-
-//Scrip que se ejecuta con el formulario, para funciones u herramientas extras
-//Ejecucion cuando carga el formulario
-var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
+var token = $('meta[name="csrf-token"]').attr('content');
 
 $(document).ready(function () {
-    $('select').selectpicker(); //Iniciar los select
-    //checkboxState();
-    setData(); //Establecer las variables de informacion general
-    getRole(); //Obtener y definir los roles para no tener los input
+    $('select').selectpicker();
+    setData();
+    getRole();
     setCheckboxArea();
-    setCheckbox(); // Inicio de status de checkox
+    setCheckbox();
+    setDateLimits(); // <-- APLICAMOS límites visuales a las fechas
 
-    tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico'); // Tooltip
-    tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado'); // Tooltip
-    tooltip('#mas_remitentes', 'Añadir dos o más remitentes'); // Tooltip
+    tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico');
+    tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado');
+    tooltip('#mas_remitentes', 'Añadir dos o más remitentes');
 
+    $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
+        clearFieldError('#' + this.id);
+    });
 
+    $('#formulario').on('submit', function (e) {
+        if (!validarFechasAntesDeEnviar()) {
+            e.preventDefault(); // Detener envío si hay errores
+        }
+    });
 });
 
-//La funcion activa o desactiva el valor de un checkbox de area
+// =========================
+// LÓGICA FECHAS
+// =========================
+function setDateLimits() {
+    const today = new Date();
+    const maxDate = new Date(today);
+    const minDate = new Date('2020-01-01');
+    maxDate.setMonth(maxDate.getMonth() + 3);
+
+    const minStr = minDate.toISOString().split('T')[0];
+    const maxStr = maxDate.toISOString().split('T')[0];
+
+    ['#fecha_inicio', '#fecha_fin', '#fecha_documento'].forEach(id => {
+        $(id).attr('min', minStr);
+        $(id).attr('max', maxStr);
+        const val = $(id).val();
+        if (val && (val < minStr || val > maxStr)) {
+            $(id).val('');
+        }
+    });
+}
+
+function validarFechasAntesDeEnviar() {
+    clearFieldError('#fecha_inicio');
+    clearFieldError('#fecha_fin');
+
+    const fechaInicio = $('#fecha_inicio').val();
+    const fechaFin = $('#fecha_fin').val();
+
+    const today = new Date();
+    const maxDate = new Date(today);
+    const minDate = new Date('2020-01-01');
+    maxDate.setMonth(maxDate.getMonth() + 3);
+
+    const limitStr = maxDate.toISOString().split('T')[0];
+    const minStr = minDate.toISOString().split('T')[0];
+
+    let ok = true;
+
+    if (!fechaInicio) {
+        showFieldError('#fecha_inicio', 'Por favor, ingresa la fecha de inicio.');
+        ok = false;
+    }
+    if (!fechaFin) {
+        showFieldError('#fecha_fin', 'Por favor, ingresa la fecha de fin.');
+        ok = false;
+    }
+    if (!ok) return false;
+
+    const fi = new Date(fechaInicio);
+    const ff = new Date(fechaFin);
+
+    if (fi < minDate) {
+        showFieldError('#fecha_inicio', 'La fecha de inicio no puede ser menor a ' + minStr + '.');
+        ok = false;
+    }
+    if (ff < minDate) {
+        showFieldError('#fecha_fin', 'La fecha de fin no puede ser menor a ' + minStr + '.');
+        ok = false;
+    }
+    if (ff < fi) {
+        showFieldError('#fecha_fin', 'La fecha de fin no puede ser menor a la fecha de inicio.');
+        ok = false;
+    }
+    if (fi > maxDate) {
+        showFieldError('#fecha_inicio', 'La fecha de inicio no puede ser mayor a ' + limitStr + '.');
+        ok = false;
+    }
+    if (ff > maxDate) {
+        showFieldError('#fecha_fin', 'La fecha de fin no puede ser mayor a ' + limitStr + '.');
+        ok = false;
+    }
+
+    return ok;
+}
+
+function showFieldError(selector, message) {
+    const $inp = $(selector);
+    if ($inp.next('.invalid-feedback').length === 0) {
+        $inp.after('<div class="invalid-feedback"></div>');
+    }
+    $inp.addClass('is-invalid');
+    $inp.next('.invalid-feedback').text(message).show();
+}
+
+function clearFieldError(selector) {
+    const $inp = $(selector);
+    $inp.removeClass('is-invalid');
+    $inp.next('.invalid-feedback').hide().text('');
+}
+
+// =========================
+// FUNCIONES EXISTENTES
+// =========================
+
 function setCheckboxArea() {
-    if ($('#rfc_remitente_bool').val()) { //valor del  la variable check true
-        $('#idcheckboxTemplate').prop('checked', true); //Activar el checkk
-        cleanSelect('#id_cat_remitente'); //Se limpia el select
-        $('#id_cat_remitente').prop('disabled', true); // desabilitar no de documento por area
-        $('#id_cat_remitente').selectpicker('refresh');
-        showDiv('mostrar_ocultar_template'); //Mostrar contenido
-    } else { //Valor de la variable check falso
-        $('#remitente_nombre').val('');// Limpiar input
-        $('#remitente_apellido_paterno').val('');// Limpiar input
-        $('#remitente_apellido_materno').val('');// Limpiar input
-        $('#remitente_rfc').val('');// Limpiar input
-        $('#id_cat_remitente').prop('disabled', false); // desabilitar no de documento por area
-        $('#id_cat_remitente').selectpicker('refresh');
-        hideDiv('mostrar_ocultar_template'); //Ocultar contenido
+    if ($('#rfc_remitente_bool').val()) {
+        $('#idcheckboxTemplate').prop('checked', true);
+        cleanSelect('#id_cat_remitente');
+        $('#id_cat_remitente').prop('disabled', true).selectpicker('refresh');
+        showDiv('mostrar_ocultar_template');
+    } else {
+        $('#remitente_nombre, #remitente_apellido_paterno, #remitente_apellido_materno, #remitente_rfc').val('');
+        $('#id_cat_remitente').prop('disabled', false).selectpicker('refresh');
+        hideDiv('mostrar_ocultar_template');
     }
     getRole();
 }
 
-// La función de define el status de los checkbox, con el fin de marcalos y obtener el status de sus variables
 function setCheckbox() {
-    // Declaracion de variables
     let es_doc_fisico = $('#es_doc_fisico').val();
     let son_mas_remitentes = $('#son_mas_remitentes').val();
 
-    // Dependiendo del valor marca o desmarca el checbox
-    es_doc_fisico ? $('#es_doc_fisico_box').prop('checked', true) : $('#es_doc_fisico_box').prop('checked', false);
-    son_mas_remitentes ? $('#son_mas_remitentes_box').prop('checked', true) : $('#son_mas_remitentes_box').prop('checked', false);
-
-    // Oculta o muestra el contenido dependiendo del la seleccion de remitentes
+    $('#es_doc_fisico_box').prop('checked', !!es_doc_fisico);
+    $('#son_mas_remitentes_box').prop('checked', !!son_mas_remitentes);
     setValueOfMoreRem();
-
 }
 
-// Oculta o muestra el contenido dependiendo del la seleccion de remitentes
 function setValueOfMoreRem() {
     let son_mas_remitentes = $('#son_mas_remitentes').val();
-
     if (son_mas_remitentes) {
         hideDiv('_hidden_select');
         hideDiv('mostrar_ocultar_template');
         showDiv('mostrar_ocultar_mas_remitentes');
-        cleanSelect('#id_cat_remitente'); //Se limpia el select
+        cleanSelect('#id_cat_remitente');
     } else {
         showDiv('_hidden_select');
         hideDiv('mostrar_ocultar_template');
@@ -70,129 +156,68 @@ function setValueOfMoreRem() {
     }
 }
 
-//Codigo para la ejecucion de un checkbox
 $('#es_doc_fisico_box').change(function () {
-    let bool = false; // Inicio de variable de checkbox de area
-    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#es_doc_fisico').val(bool); //Se asigna el valor
+    $('#es_doc_fisico').val($(this).is(':checked') ? true : '');
 });
 
-//Codigo para la ejecucion de un checkbox
 $('#son_mas_remitentes_box').change(function () {
-    let bool = false; // Inicio de variable de checkbox de area
-    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#son_mas_remitentes').val(bool); //Se asigna el valor
+    $('#son_mas_remitentes').val($(this).is(':checked') ? true : '');
     setCheckbox();
 });
 
-//Codigo para la ejecucion de un checkbox
 $('#idcheckboxTemplate').change(function () {
-    let bool = false; // Inicio de variable de checkbox de area
-    bool = $(this).prop('checked') ? true : ''; //Se valida si el checkbox es verdadero o falso para asignarle ese valor a la variable
-    $('#rfc_remitente_bool').val(bool); //Se asigna el valor
-    setCheckboxArea();//Se ejecuta la funcon
+    $('#rfc_remitente_bool').val($(this).is(':checked') ? true : '');
+    setCheckboxArea();
 });
 
-//La funcion desabilita los campos dependiendo del rol de usuario
 function getRole() {
-    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
-    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
-    if (!new_variable) { //Condicion para inabilitar las opciones
+    let bool_user_role = $('#bool_user_role').val();
+    let new_variable = bool_user_role && bool_user_role.trim() !== '';
+    if (!new_variable) {
         validateEstatus();
-
-        $('#num_documento').prop('disabled', true);
-        $('#num_copias').prop('disabled', true);
-        $('#fecha_inicio').prop('disabled', true);
-        $('#fecha_fin').prop('disabled', true);
-        $('#num_flojas').prop('disabled', true);
-        $('#num_tomos').prop('disabled', true);
-        $('#asunto').prop('disabled', true);
-        $('#remitente_nombre').prop('disabled', true);
-        $('#remitente_apellido_paterno').prop('disabled', true);
-        $('#remitente_apellido_materno').prop('disabled', true);
-        $('#remitente_rfc').prop('disabled', true);
-        $('#horas_respuesta').prop('disabled', true);
-        $('#puesto_remitente').prop('disabled', true);
-        $('#id_cat_remitente').prop('disabled', true);
-        $('#folio_gestion').prop('disabled', true);
-        $('#remitente').prop('disabled', true);
-        $('#fecha_documento').prop('disabled', true);
-
-        $('#idcheckboxTemplate').prop('disabled', true);
-        $('#es_doc_fisico_box').prop('disabled', true);
-        $('#son_mas_remitentes_box').prop('disabled', true);
-
-        $('#id_cat_area').prop('disabled', true); //Desabilitar selecct
-        $('#id_usuario_area').prop('disabled', true);
-        $('#id_usuario_enlace').prop('disabled', true);
-        $('#id_cat_unidad').prop('disabled', true);
-        $('#id_cat_coordinacion').prop('disabled', true);
-        $('#id_cat_tramite').prop('disabled', true);
-        $('#id_cat_clave').prop('disabled', true);
-        $('#id_cat_remitente').prop('disabled', true);
-        $('#id_cat_entidad').prop('disabled', true);
-
-        $('#id_cat_entidad').selectpicker('refresh');
-        $('#id_cat_area').selectpicker('refresh'); //Refresh de select 
-        $('#id_usuario_area').selectpicker('refresh');
-        $('#id_usuario_enlace').selectpicker('refresh');
-        $('#id_cat_unidad').selectpicker('refresh');
-        $('#id_cat_coordinacion').selectpicker('refresh');
-        $('#id_cat_tramite').selectpicker('refresh');
-        $('#id_cat_clave').selectpicker('refresh');
-        $('#id_cat_remitente').selectpicker('refresh');
+        const toDisable = [
+            '#num_documento', '#num_copias', '#fecha_inicio', '#fecha_fin',
+            '#num_flojas', '#num_tomos', '#asunto', '#remitente_nombre',
+            '#remitente_apellido_paterno', '#remitente_apellido_materno', '#remitente_rfc',
+            '#horas_respuesta', '#puesto_remitente', '#id_cat_remitente', '#folio_gestion',
+            '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
+            '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
+            '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
+            '#id_cat_remitente', '#id_cat_entidad'
+        ];
+        toDisable.forEach(id => $(id).prop('disabled', true));
+        ['#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
+         '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
+         '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
     }
 }
 
-//valida si el estatus es vencido o cancelado se desabilite para que el enlace no pueda cambiar el estatus
 function validateEstatus() {
-    // Se eliminan las opciones
-    if ($('#id_cat_estatus').val() == 2 || $('#id_cat_estatus').val() == 5 || $('#id_cat_estatus').val() == 7) {
-        $('#id_cat_estatus').prop('disabled', true); //Desabilitar selecct
-        $('#id_cat_estatus').selectpicker('refresh'); //Refresh de select 
+    if ([2, 5, 7].includes(Number($('#id_cat_estatus').val()))) {
+        $('#id_cat_estatus').prop('disabled', true).selectpicker('refresh');
     } else {
-        //$('#id_cat_estatus option').eq(1).remove(); // Elimina la opción 2
-        $('#id_cat_estatus option[value="2"]').remove();
-        $('#id_cat_estatus option[value="5"]').remove();
+        $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"]').remove();
         $('#id_cat_estatus').selectpicker('refresh');
     }
 }
 
-//la funcion obtiene los datos al iniciar el formulario, como fecha inicio, año etc
 function setData() {
-    let fecha_captura = $('#fecha_captura').val();//fecha de captura
-    $('#_labFechaCaptura').text(fecha_captura); //establecer los varoles
-
-    let num_turno_sistema = $('#num_turno_sistema').val();//fecha de captura
-    $('#_labNoCorrespondencia').text(num_turno_sistema); //establecer los varoles
-
-    getData();//Se hace busqueda de la informacion
+    $('#_labFechaCaptura').text($('#fecha_captura').val());
+    $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
+    getData();
 }
 
-//La funcion obtiene el año, clave, codigo y redaccion
 function getData() {
-
-    let id_cat_anio = $('#id_cat_anio').val();//Obtener elemento
-    let id_cat_clave = $('#id_cat_clave_aux').val();//Obtener elemento
-
-    $.ajax({
-        url: URL_DEFAULT.concat('/letter/collection/dataClave'),
-        type: 'POST',
-        data: {
-            id_cat_anio: id_cat_anio,
-            id_cat_clave: id_cat_clave,
-            _token: token  // Usar el token extraído de la metaetiqueta
-        },
-        success: function (response) {
-            let item = response.nameYear;
-            let itemClave = response.dataClave;
-
-            $('#_labAño').text(item.name); // establecer los valores
-            $('#_labClave').text(itemClave._labClave);
-            $('#_labClaveCodigo').text(itemClave._labClaveCodigo);
-            $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
-        },
+    const id_cat_anio = $('#id_cat_anio').val();
+    const id_cat_clave = $('#id_cat_clave_aux').val();
+    $.post(URL_DEFAULT + '/letter/collection/dataClave', {
+        id_cat_anio, id_cat_clave, _token: token
+    }, function (response) {
+        let item = response.nameYear;
+        let itemClave = response.dataClave;
+        $('#_labAño').text(item.name);
+        $('#_labClave').text(itemClave._labClave);
+        $('#_labClaveCodigo').text(itemClave._labClaveCodigo);
+        $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
     });
 }
-
-
