@@ -208,6 +208,8 @@ class LetterC extends Controller
 
     public function save(Request $request)
     {
+
+
         // Class
         $logC = new LogC();
         $collectionRemitenteM = new CollectionRemitenteM();
