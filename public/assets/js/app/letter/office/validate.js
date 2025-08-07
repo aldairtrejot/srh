@@ -51,6 +51,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
     }
 
+    //event.preventDefault();  // Detener el envío si la validación falla
+    //return;  // Detener la ejecución aquí
 
     $('#num_documento_area').prop('disabled', false); //desabilitar contenid
 });
