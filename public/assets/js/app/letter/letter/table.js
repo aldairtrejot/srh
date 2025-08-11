@@ -15,7 +15,6 @@ function searchInit() {
         searchValue: searchValue
     }, function (response) {
 
-
         const tbody = $('#template-table tbody');
         tbody.empty(); // Limpiar la tabla
 
@@ -27,12 +26,12 @@ function searchInit() {
 
                 // Generar el HTML con template literals
                 const estatusColors = {
-                    "TURNADO": "#FFA82E",  // Azul
+                    "TURNADO": "#FFA82E",   // Azul
                     "CANCELADO": "#660000", // Rojo
-                    "EN PROCESO": "#0077B6", // Amarillo
+                    "EN PROCESO": "#0077B6",// Amarillo
                     "CONCLUIDO": "#26874A", // Verde
-                    "VENCIDO": "#FF0000 ", // Naranja
-                    "RECHAZADO": "#b30000" // Gris
+                    "VENCIDO": "#FF0000 ",  // Naranja
+                    "RECHAZADO": "#b30000"  // Gris
                 };
 
                 // Determina el color de fondo según el estatus
@@ -89,12 +88,12 @@ function searchInit() {
                                         Email
                                     </button>
                                     <button class="dropdown-item" onclick="openReturnModal(${object.id})">
-                                              <span style="background:#34495E" class="icon-container-template">
-                                   <div style="text-align: center;">
-                                 <i class="fa fa-mail-reply item-icon-menu"></i>
-                                  </div>
-                                  </span>
-                                          Returnado
+                                        <span style="background:#34495E" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-mail-reply item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Returnado
                                     </button>
                                 </div>
                             </div>
@@ -167,40 +166,110 @@ function searchValue() {
     searchInit();
 }
 
+/* ======================= Returnado: helper de estado ======================= */
+function setReturnadoTableState(state, message) {
+    const $tbody = $('#tablaSubareas');
+    $tbody.empty();
+
+    let text = '';
+    if (state === 'loading') {
+        text = '<tr><td colspan="2" class="text-center">Cargando subáreas...</td></tr>';
+    } else if (state === 'empty') {
+        text = '<tr><td colspan="2" class="text-center">No hay subáreas disponibles.</td></tr>';
+    } else if (state === 'error') {
+        text = `<tr><td colspan="2" class="text-center text-danger">${message || 'Error al cargar.'}</td></tr>`;
+    }
+    $tbody.html(text);
+}
+
+/* ======================= Returnado: abrir modal ======================= */
 function openReturnModal(id) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+    // Usa la URL que llega desde Blade (con /srh/public)
+    const baseGet = (window.RETURNED_GET_URL || '/returned/get-area-subareas').replace(/\/$/, '');
+    const url = baseGet + '/' + id;
+
+    // UI
+    $('#areaActual').text('');
+    setReturnadoTableState('loading');
+
+    // Abre con el template (fadeIn), no con Bootstrap .modal('show')
+    $('#modalReturnado').fadeIn();
+
     $.ajax({
-        url: `/returned/get-area-subareas/${id}`,
+        url: url,
         method: 'GET',
-        headers: {
-            'X-CSRF-TOKEN': token
-        },
-        success: function(response) {
-            if (response.area) {
-                document.getElementById('areaActual').textContent = response.area.descripcion;
-            } else {
-                document.getElementById('areaActual').textContent = 'Área no encontrada';
-            }
-
-            const tbody = document.getElementById('tablaSubareas');
-            tbody.innerHTML = '';
-
-            response.subareas.forEach(sub => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${sub.descripcion}</td><td><button class="btn btn-sm btn-primary">Asignar</button></td>`;
-                tbody.appendChild(tr);
-            });
-
-            $('#modalReturnado').modal('show');
-        },
-        error: function() {
-            alert('Error al cargar subáreas');
+        headers: { 'X-CSRF-TOKEN': token }
+    })
+    .done(function(response) {
+        if (response && response.area && response.area.descripcion) {
+            $('#areaActual').text(response.area.descripcion);
+        } else {
+            $('#areaActual').text('Área no encontrada');
         }
+
+        const subareas = Array.isArray(response && response.subareas) ? response.subareas : [];
+        const $tbody = $('#tablaSubareas');
+
+        if (subareas.length === 0) {
+            setReturnadoTableState('empty');
+            return;
+        }
+
+        $tbody.empty();
+        subareas.forEach(function(sub) {
+            // tu API devuelve id_sub_area
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${sub.descripcion || ''}</td>
+                <td class="text-right">
+                    <button class="btn btn-sm btn-primary"
+                        onclick="selectReturnadoSubarea(${id}, ${sub.id_sub_area}, this)">
+                        Asignar
+                    </button>
+                </td>`;
+            $tbody.append(tr);
+        });
+
+        // (sin tabs en el nuevo diseño)
+    })
+    .fail(function(xhr) {
+        setReturnadoTableState('error', `No se pudo cargar la información (HTTP ${xhr.status}).`);
+        alert('Error al cargar subáreas');
+    });
+}
+
+/* ============== Returnado: guardar subárea seleccionada (POST) ============== */
+function selectReturnadoSubarea(idCorrespondencia, idSubarea, el) {
+  const token   = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const postUrl = URL_DEFAULT.replace(/\/$/, '') + '/returned/assign';
+
+  const $btn = $(el);
+  const original = $btn.html();
+  $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1"></span> Guardando...');
+
+  // 👇 MUY IMPORTANTE: nombres EXACTOS
+  const payload = { id_correspondencia: idCorrespondencia, id_subarea: idSubarea, _token: token };
+  console.log('[Returnado] payload ->', payload);
+
+  $.post(postUrl, payload)
+    .done(function() {
+      $btn.removeClass('btn-primary').addClass('btn-success').text('Asignado');
+    })
+    .fail(function(xhr) {
+      console.log('[Returnado] error ->', xhr.responseJSON);
+      const msg = xhr.responseJSON?.errors
+        ? Object.values(xhr.responseJSON.errors).flat()[0]
+        : (xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error');
+      alert('No se pudo guardar la asignación: ' + msg);
+      $btn.prop('disabled', false).html(original);
     });
 }
 
 
+
+// === (Opcional) función previa no utilizada en este flujo ===
 function renderSubareas(subareas) {
     const contenedor = document.getElementById("listaSubareas");
     contenedor.innerHTML = '';

@@ -402,7 +402,6 @@ Route::post('/external/save', [ExternalC::class, 'save'])->name('external.save')
 
 Route::get('/administration/dashboard', AdministrationC::class)->name('administration.dashboard')->middleware('auth');
 
-
 Route::get('/dependenciarea/list', [DependenciareaC::class, 'list'])->name('dependenciarea.list')->middleware('auth');
 
 Route::get('/dependencia/list', [DependenciaC::class, 'list'])->name('dependencia.list')->middleware('auth');
@@ -439,6 +438,9 @@ Route::delete('/returned/delete/{id}', [ReturnedC::class, 'delete'])->name('retu
 Route::get('/returned/areas', [ReturnedC::class, 'table'])->name('returned.areas')->middleware('auth');
 Route::get('/returned/subareas/{id}', [ReturnedC::class, 'getSubareas'])->name('returned.subareas')->middleware('auth');
 Route::get('/returned/get-area-subareas/{id}', [ReturnedC::class, 'getAreaAndSubareas'])->name('returned.getAreaAndSubareas');
+// Guardar relación Área–Subárea
+Route::post('/returned/assign', [ReturnedC::class, 'assignSubarea'])->name('returned.assign')->middleware('auth');
+
 
 
 

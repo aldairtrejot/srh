@@ -150,3 +150,48 @@ function setValue() {
     $("#is_iteratorMin").text(Math.max(iterator - 1, 1));
     $("#is_iteratorMax").text(iterator + 2);
 }
+
+function openReturnModal(id) {
+  const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  // ✅ Usa URL_DEFAULT para respetar /srh/public
+  const url = URL_DEFAULT.concat('/returned/get-area-subareas/').concat(id);
+
+  $('#areaActual').text('');
+  setReturnadoTableState('loading');
+  $('#modalReturnado').fadeIn(); // tu modalTemplate usa fadeIn/fadeOut
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    headers: { 'X-CSRF-TOKEN': token }
+  })
+  .done(function(response) {
+    $('#areaActual').text(response?.area?.descripcion || 'Área no encontrada');
+
+    const subareas = Array.isArray(response?.subareas) ? response.subareas : [];
+    const $tbody = $('#tablaSubareas');
+
+    if (subareas.length === 0) { setReturnadoTableState('empty'); return; }
+
+    $tbody.empty();
+    subareas.forEach(function(sub) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${sub.descripcion || ''}</td>
+        <td class="text-right">
+          <button class="btn btn-sm btn-primary"
+            onclick="selectReturnadoSubarea(${id}, ${sub.id_sub_area}, this)">
+            Asignar
+          </button>
+        </td>`;
+      $tbody.append(tr);
+    });
+  })
+  .fail(function(xhr) {
+    setReturnadoTableState('error', `No se pudo cargar la información (HTTP ${xhr.status}).`);
+    console.error('Returnado GET error:', xhr);
+  });
+}
+
+

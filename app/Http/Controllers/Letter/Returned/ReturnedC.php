@@ -107,24 +107,31 @@ class ReturnedC extends Controller
         }
     }
 
+
+// 1) Cargar área + subáreas a partir del ID de correspondencia (id_tbl_correspondencia)
 public function getAreaAndSubareas($id)
 {
-    $area = DB::table('correspondencia.cat_area')
-        ->select('id_cat_area', 'descripcion')
-        ->where('id_cat_area', $id)
+    $row = \DB::table('correspondencia.tbl_correspondencia')
+        ->select('id_cat_area')
+        ->where('id_tbl_correspondencia', $id)
         ->first();
 
-    if (!$area) {
+    if (!$row) {
         return response()->json([
-            'error' => 'Área no encontrada',
+            'error' => 'Correspondencia no encontrada',
             'area' => null,
             'subareas' => []
-        ]);
+        ], 404);
     }
 
-    $subareas = DB::table('correspondencia.sub_area')
+    $area = \DB::table('correspondencia.cat_area')
+        ->select('id_cat_area', 'descripcion')
+        ->where('id_cat_area', $row->id_cat_area)
+        ->first();
+
+    $subareas = \DB::table('correspondencia.sub_area')
         ->select('id_sub_area', 'descripcion')
-        ->where('id_cat_area', $id)
+        ->where('id_cat_area', $row->id_cat_area)
         ->orderBy('descripcion')
         ->get();
 
@@ -134,5 +141,35 @@ public function getAreaAndSubareas($id)
     ]);
 }
 
+// 2) Guardar la subárea elegida EN la correspondencia
+public function assignSubarea(Request $request)
+{
+   $request->validate([
+        'id_correspondencia' => 'required|integer',
+        'id_subarea'         => 'required|integer',
+    ]);
+
+    $columnaSubarea = 'id_cat_subarea'; // <- tu columna real
+
+    // ¿existe la correspondencia?
+    $exists = \DB::table('correspondencia.tbl_correspondencia')
+        ->where('id_tbl_correspondencia', $request->id_correspondencia)
+        ->exists();
+
+    if (!$exists) {
+        return response()->json(['error' => 'Correspondencia no encontrada.'], 404);
+    }
+
+    // Actualizar (si ya tiene ese valor, update() puede regresar 0)
+    \DB::table('correspondencia.tbl_correspondencia')
+        ->where('id_tbl_correspondencia', $request->id_correspondencia)
+        ->update([
+            $columnaSubarea      => $request->id_subarea,
+            'id_usuario_sistema' => \Auth::id(),
+            'fecha_usuario'      => now(),
+        ]);
+
+    return response()->json(['ok' => true]);
+}
 
 }

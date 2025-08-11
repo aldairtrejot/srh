@@ -59,4 +59,31 @@ public function obtenerSubareas($idCatArea)
 }
 
 
+public function getAreaAndSubareasByCorrespondencia($idCorrespondencia)
+    {
+        $row = DB::table('correspondencia.tbl_correspondencia')
+            ->select('id_cat_area')
+            ->where('id_tbl_correspondencia', $idCorrespondencia)
+            ->first();
+
+        if (!$row) {
+            return null;
+        }
+
+        $area = DB::table('correspondencia.cat_area')
+            ->select('id_cat_area', 'descripcion')
+            ->where('id_cat_area', $row->id_cat_area)
+            ->first();
+
+        $subareas = DB::table('correspondencia.sub_area')
+            ->select('id_sub_area', 'descripcion')
+            ->where('id_cat_area', $row->id_cat_area)
+            ->orderBy('descripcion')
+            ->get();
+
+        return [
+            'area' => $area,
+            'subareas' => $subareas
+        ];
+    }
 }

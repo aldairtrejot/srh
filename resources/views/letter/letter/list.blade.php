@@ -95,18 +95,38 @@
 @include('letter.Returned.modal')
 
     <x-template-other.app-mail />
+<!-- CSRF -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- CODE SCRIPT-->
-    <script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
-    <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
-    <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
-    <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
-    <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
-<!-- SweetAlert2 CDN -->
+<!-- Vendor -->
+<!-- <script src="{{ asset('vendor/jquery.min.js') }}"></script>
+<script src="{{ asset('vendor/bootstrap.bundle.min.js') }}"></script> -->
+
+
+<!-- App comunes -->
+<script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
+<script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
+
+<!-- Modal RETURNADO (correcto) -->
+<script src="{{ asset('assets/js/app/letter/Returned/modal.js') }}"></script>
+
+<!-- Tabla de correspondencia -->
+<script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
+
+<!-- (Si aún ocupas el modal general de letter) -->
+<script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
+
+<!-- Otros -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('assets/js/app/letter/dashboard/report.js') }}"></script>
+<script src="{{ asset('assets/js/app/letter/dashboard/validate.js') }}"></script>
 
-    <!-- Delete -->
-    <script src="{{ asset('assets/js/app/letter/dashboard/report.js') }}"></script>
-    <script src="{{ asset('assets/js/app/letter/dashboard/validate.js') }}"></script>
+<script>
+  window.RETURNED_GET_URL    = "{{ url('/returned/get-area-subareas') }}";
+  window.RETURNED_ASSIGN_URL = "{{ url('/returned/assign') }}";
+  console.log('[Returnado] RETURNED_GET_URL =', window.RETURNED_GET_URL);
+</script>
+
 
 </x-template-app.app-layout>
