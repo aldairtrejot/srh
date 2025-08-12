@@ -62,7 +62,7 @@
                                     href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
                         @endif
                         @if ($letterTuaf)
-                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'guest') }}">Invitado</a>
+                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'guest') }}">TUAF</a>
                         @endif
                         @if ($letterAdminMatch)
                             <li class="nav-item"><a class="nav-link"
