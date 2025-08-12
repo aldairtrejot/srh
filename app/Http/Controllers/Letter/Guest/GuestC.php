@@ -19,6 +19,7 @@ use App\Models\Letter\Collection\CollectionUnidadM;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
+use App\Models\Letter\Guest\GuestM;
 use App\Models\Letter\Letter\LetterM;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class GuestC extends Controller
     {
         $object = new LetterM();
         $item = $object->edit($id);
-        return view('letter/letter/cloud', compact('item'));
+        return view('letter/guest/cloud', compact('item'));
 
     }
 
@@ -163,7 +164,7 @@ class GuestC extends Controller
         $selectEntidad = $collectionEntidadM->listEdit();
         $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : [];
 
-        return view('letter.letter.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
+        return view('letter.guest.form', compact('selectEntidadEdit', 'selectEntidad', 'selectRemitenteEdit', 'selectRemitente', 'selectClaveEdit', 'selectClave', 'selectTramite', 'selectTramiteEdit', 'selectStatusEdit', 'selectStatus', 'selectCoordinacionEdit', 'selectCoordinacion', 'selectUnidadEdit', 'selectUnidad', 'item', 'selectArea', 'selectAreaEdit', 'selectUser', 'selectUserEdit', 'selectEnlace', 'selectEnlaceEdit'));
     }
 
     public function table(Request $request)
@@ -172,6 +173,7 @@ class GuestC extends Controller
             $collectionRelUsuarioM = new CollectionRelUsuarioM();
             $collectionRolAreaM = new CollectionRolAreaM();
             $letterM = new LetterM();
+            $guestM = new GuestM();
 
             // Obtener valores de la solicitud
             $iterator = $request->input('iterator'); // OFSET valor de paginador
@@ -181,7 +183,9 @@ class GuestC extends Controller
             $COR_TOTAL = config('custom_config.COR_TOTAL'); // Acceso completo a correspondencia
             $COR_VISTA = config('custom_config.COR_VISTA'); // Acceso por área
 
-            // Verificar si el usuario tiene acceso completo
+            /*
+            // Verificar si
+            //  el usuario tiene acceso completo
             if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray) || in_array($COR_VISTA, $roleUserArray)) {
                 // Si tiene acceso completo, no hay necesidad de filtrar por área o enlace
                 // Procesar la tabla con acceso completo si es necesario
@@ -190,7 +194,8 @@ class GuestC extends Controller
                 // Llamamos al método list() con los parámetros necesarios
                 $value = $letterM->list($iterator, $searchValue, $collectionRolAreaM->getListArea());
             }
-
+*/
+            $value = $guestM->list($iterator, $searchValue, null);
             // Responder con los resultados
             return response()->json([
                 'value' => $value,

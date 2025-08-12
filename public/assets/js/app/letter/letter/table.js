@@ -32,7 +32,8 @@ function searchInit() {
                     "EN PROCESO": "#0077B6", // Amarillo
                     "CONCLUIDO": "#26874A", // Verde
                     "VENCIDO": "#FF0000 ", // Naranja
-                    "RECHAZADO": "#b30000" // Gris
+                    "RECHAZADO": "#b30000", // Gris
+                    "CONOCIMIENTO": "#6fc5f4ff",
                 };
 
                 // Determina el color de fondo según el estatus

@@ -109,6 +109,9 @@ Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getColl
 
 //Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
+Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
+Route::get('/guest/edit/{id}', [GuestC::class, 'edit'])->name('guest.edit')->middleware('auth');
+Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->middleware('auth');
 
 ////Cloud
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');

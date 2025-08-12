@@ -1,5 +1,5 @@
 <!-- TEMPLATE APP-->
-<?php include(resource_path('views/config.php')); ?>
+<?php include resource_path('views/config.php'); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
     <div class="main-panel">
@@ -20,22 +20,22 @@
                     <div class="card-body">
 
                         <div>
-                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('letter.list') }}" />
+                            <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('guest') }}" />
 
                             <x-template-form.template-form-input-hidden name="bool_user_role"
-                                value="{{  $letterAdminMatch }}" />
+                                value="{{ $letterAdminMatch }}" />
 
                             <x-template-form.template-form-input-hidden name="id"
-                                value="{{  $item->id_tbl_correspondencia }}" />
+                                value="{{ $item->id_tbl_correspondencia }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
-                                value="{{  $item->id_cat_area }}" />
+                                value="{{ $item->id_cat_area }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_entrada"
-                                value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
+                                value="{{ config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_CORRESPONDENCIA') }}" />
+                                value="{{ config('custom_config.CLOUD_ALFRESCO_CORRESPONDENCIA') }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />

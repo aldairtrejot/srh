@@ -183,12 +183,12 @@ function getRole() {
             '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
             '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
             '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-            '#id_cat_remitente', '#id_cat_entidad'
+            '#id_cat_remitente', '#id_cat_entidad', '#id_cat_estatus', '#observaciones'
         ];
         toDisable.forEach(id => $(id).prop('disabled', true));
         ['#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-         '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-         '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
+            '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave', '#id_cat_estatus',
+            '#id_cat_remitente', '#observaciones'].forEach(id => $(id).selectpicker('refresh'));
     }
 }
 
