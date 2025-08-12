@@ -8,6 +8,8 @@ use App\Http\Controllers\Letter\Collection\CollectionSolicitanteC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
 use App\Http\Controllers\Letter\External\CloudExternalC;
 use App\Http\Controllers\Letter\File\CloudFileC;
+use App\Http\Controllers\Letter\Guest\GuestC;
+use App\Http\Controllers\Letter\Guest\GuestReportC;
 use App\Http\Controllers\Letter\Informative\InformativeC;
 use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
@@ -61,8 +63,6 @@ use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
 
-
-
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
 Route::get('/recover', RecoverC::class)->name('recover');//ROUTE_RECOVER
@@ -107,6 +107,12 @@ Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.save
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
 
+//Guest
+Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
+Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
+Route::get('/guest/edit/{id}', [GuestC::class, 'edit'])->name('guest.edit')->middleware('auth');
+Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->middleware('auth');
+Route::post('/guest/generate', [GuestReportC::class, 'generate'])->name('guest.generate')->middleware('auth');
 
 
 ////Cloud

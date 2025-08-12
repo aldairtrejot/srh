@@ -10,7 +10,7 @@ function searchInit() {
     const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
-    $.get(URL_DEFAULT.concat('/letter/table'), {
+    $.get(URL_DEFAULT.concat('/guest/table'), {
         iterator: iteradorAux,
         searchValue: searchValue
     }, function (response) {
@@ -21,8 +21,8 @@ function searchInit() {
 
         if (response.value && response.value.length > 0) {
             response.value.forEach(function (object) {
-                const finalUrl = URL_DEFAULT.concat(`/letter/edit/${object.id}`);
-                const finalCloud = URL_DEFAULT.concat(`/letter/cloud/${object.id}`);
+                const finalUrl = URL_DEFAULT.concat(`/guest/edit/${object.id}`);
+                const finalCloud = URL_DEFAULT.concat(`/guest/cloud/${object.id}`);
                 const urlReport = URL_DEFAULT.concat(`/letter/generate-pdf/correspondencia/${object.id}`);
 
                 // Generar el HTML con template literals
@@ -65,30 +65,6 @@ function searchInit() {
                                         </span>
                                         Cloud
                                     </a>
-                                    <a class="dropdown-item" href="${urlReport}">
-                                        <span style="background:#707070" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-print item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Reporte
-                                    </a>
-                                    <button class="dropdown-item" onclick="openCopy(${object.id}, '${object.folio_gestion}')">
-                                        <span style="background:#691C32" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-share-square item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Copia
-                                    </button>
-                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.folio_gestion}')">
-                                        <span style="background:#462c95" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-location-arrow item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Email
-                                    </button>
                                 </div>
                             </div>
                         </td>

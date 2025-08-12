@@ -1,16 +1,16 @@
-<?php include(resource_path('views/config.php')); ?>
+<?php include resource_path('views/config.php'); ?>
 <nav class="sidebar sidebar-offcanvas" id="sidebar" style="background:#777777">
     <ul class="nav">
         <!-- Item de inicio -->
         <li class="nav-item">
-            <a class="nav-link @if(Request::is('/*')) active @endif" href="{{ route('dashboard') }}">
+            <a class="nav-link @if (Request::is('/*')) active @endif" href="{{ route('dashboard') }}">
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Inicio</span>
             </a>
         </li>
 
         <!-- Item Administracion -->
-        @if($adminMatch)
+        @if ($adminMatch)
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic-admin" aria-expanded="false"
                     aria-controls="ui-basic-admin">
@@ -28,7 +28,7 @@
         @endif
 
         <!-- Item Correspondencia -->
-        @if($letterMatch)
+        @if ($letterMatch || $letterTuaf)
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres" aria-expanded="false"
                     aria-controls="ui-basic_corres">
@@ -42,32 +42,40 @@
                                                                                                                 <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
                                                                                         -->
                         <!--
-                                                                            @if($letterAdminMatch)
-                                                                                <li class="nav-item"><a class="nav-link @if(Request::is('letter/*')) active @endif"
-                                                                                        href="{{ route('letter.dashboard') }}">Dashboard</a></li>
-                                                                            @endif
-                                                    -->
-                        @if($letterMatch)
-                            <li class="nav-item"><a class="nav-link" href="{{ route('letter.list') }}">Correspondencia</a></li>
+                         @if ($letterAdminMatch)
+<li class="nav-item"><a class="nav-link @if (Request::is('letter/*')) active @endif"
+                         href="{{ route('letter.dashboard') }}">Dashboard</a></li>
+@endif
+                         -->
+                        @if ($letterMatch)
+                            <li class="nav-item"><a class="nav-link"
+                                    href="{{ route('letter.list') }}">Correspondencia</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('inside.list') }}">Interno</a></li>
                         @endif
-                        @if($letterUSERS)
-                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'external.list') }}">Circ. Externa</a>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
+                        @if ($letterUSERS)
+                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'external.list') }}">Circ.
+                                    Externa</a>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link"
+                                    href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
+                        @endif
+                        @if ($letterTuaf)
+                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'guest') }}">Invitado</a>
                         @endif
                         @if ($letterAdminMatch)
-                            <li class="nav-item"><a class="nav-link" href="{{ route('administration.dashboard') }}">Catálogos</a></li>
+                            <li class="nav-item"><a class="nav-link"
+                                    href="{{ route('administration.dashboard') }}">Catálogos</a></li>
                         @endif
-                        
+
                     </ul>
                 </div>
             </li>
         @endif
 
         <!-- Item Correspondencia -->
-        @if($letterCRH)
+        @if ($letterCRH)
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic_corres-x" aria-expanded="false"
                     aria-controls="ui-basic_corres-x">
@@ -94,7 +102,7 @@
 
 
         <!-- Item Cursos -->
-        @if($adminMatch)
+        @if ($adminMatch)
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#ui-basic-courses" aria-expanded="false"
                     aria-controls="ui-basic-courses">
@@ -105,17 +113,21 @@
                 </a>
                 <div class="collapse" id="ui-basic-courses">
                     <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursesauditoria.list') }}">Auditoria</a>
+                        <li class="nav-item"><a class="nav-link"
+                                href="{{ route('coursesauditoria.list') }}">Auditoria</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('courses.list') }}">Beneficio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursescategoria.list') }}">Categoría</a>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('courses.list') }}">Beneficio</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link"
+                                href="{{ route('coursescategoria.list') }}">Categoría</a>
                         </li>
                         <li class="nav-item"><a class="nav-link"
                                 href="{{ route('coursescoordinacion.list') }}">Coordinación</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursesestatuto.list') }}">Estatuto
                                 Orgánico</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursesmodalidad.list') }}">Modalidad</a>
+                        <li class="nav-item"><a class="nav-link"
+                                href="{{ route('coursesmodalidad.list') }}">Modalidad</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursesnombreacc.list') }}">Nombre
                                 Acción</a></li>
@@ -124,13 +136,17 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('coursesprograma.list') }}">P.
                                 Institucional</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursestipoac.list') }}">Tipo Acción</a>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('coursestipoac.list') }}">Tipo
+                                Acción</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('coursestipocur.list') }}">Tipo Cursos</a>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('coursestipocur.list') }}">Tipo
+                                Cursos</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tableinstructor.list') }}">Instructores</a>
+                        <li class="nav-item"><a class="nav-link"
+                                href="{{ route('tableinstructor.list') }}">Instructores</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tablecourses.list') }}">Cursos Tabla</a>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('tablecourses.list') }}">Cursos
+                                Tabla</a>
                         </li>
 
                     </ul>
