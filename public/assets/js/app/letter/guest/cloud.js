@@ -23,8 +23,8 @@ $(document).ready(function () {
 
 function getRole() {
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
-    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
-    if (!new_variable) { //Condicion para inabilitar las opciones
+    let new_variable = false; //Se validan para obtener una variable boolean
+    if (true) { //Condicion para inabilitar las opciones
         disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
         disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
     } else {
@@ -36,7 +36,7 @@ function getRole() {
 function getDataDocument() {
 
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
-    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+    let new_variable = false; //Se validan para obtener una variable boolean
 
     let container_anexo_entrada_vacio = $('#container_anexo_entrada_vacio');
     let container_anexo_entrada = $('#container_anexo_entrada');
@@ -55,11 +55,11 @@ function getDataDocument() {
             let oficosEntrada = response.oficosEntrada;
 
             //Habilita o desabilita los botones de agregar
-            response.resultOficioEntrada || !new_variable ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
-            response.resultAnexosEntrada || !new_variable ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+            disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada')
+            disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada')
 
-            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            templateCloud(false, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
+            templateCloud(false, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
 
 
         },

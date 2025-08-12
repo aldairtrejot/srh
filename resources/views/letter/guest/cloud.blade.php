@@ -122,6 +122,6 @@
 
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
-    <script src="{{ asset('assets/js/app/letter/letter/cloud.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/guest/cloud.js') }}"></script>
 
 </x-template-app.app-layout>
