@@ -14,14 +14,12 @@
                             <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Corresponencia</h5>
                         </div>
-                        @if ($letterAdminMatch)
-                            <div class="col-12 col-xl-4 text-xl-right">
-                                <button onclick="openModal();" type="button" class="btn btn-link" id="reporteBtn">
-                                    <span class="font-weight-bold" style="color: #10312b;">Informe</span>
-                                    <i class="ti-layout" style="color: #10312b;"></i>
-                                </button>
-                            </div>
-                        @endif
+                        <div class="col-12 col-xl-4 text-xl-right">
+                            <button onclick="generateReportX();" type="button" class="btn btn-link" id="reporteBtn">
+                                <span class="font-weight-bold" style="color: #10312b;">Informe</span>
+                                <i class="ti-layout" style="color: #10312b;"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -38,7 +36,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="card-title">Correspondencia</h4>
-                                @if ($letterAdminMatch)
+                                @if (false)
                                     <p class="card-description">
                                         ¿Deseas agregar un registro?
                                         <a href="{{ route('letter.create') }}" class="text-danger"
@@ -96,6 +94,7 @@
     <x-template-other.app-mail />
 
     <script src="{{ asset('assets/js/app/letter/guest/table.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/guest/report.js') }}"></script>
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
 
     {{-- 

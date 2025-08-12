@@ -173,7 +173,7 @@ $('#idcheckboxTemplate').change(function () {
 function getRole() {
     let bool_user_role = $('#bool_user_role').val();
     let new_variable = bool_user_role && bool_user_role.trim() !== '';
-    if (!new_variable) {
+    if (true) {
         validateEstatus();
         const toDisable = [
             '#num_documento', '#num_copias', '#fecha_inicio', '#fecha_fin',
