@@ -52,10 +52,10 @@
                                     <input type="text" name="captcha" class="form-control form-control-lg"
                                         placeholder="Captcha" value="" autocomplete="current-password">
                                     @error('captcha')
-                                        <x-template-message-required>
-                                            {{ $message }}
-                                        </x-template-message-required>
-                                    @enderror
+    <x-template-message-required>
+                                                {{ $message }}
+                                            </x-template-message-required>
+@enderror
                                 </div>
 
                                 <div class="captcha-container">
@@ -74,11 +74,12 @@
                                         Ingresar
                                     </button>
                                 </div>
+                            
                                 <div class="text-center mt-4 font-weight-light">
-                                    <a href="{{ route('recover') }}" class="text-primary">
+                                    <a href="#" class="text-primary">
                                         ¿Olvidaste tu contraseña?</a>
                                 </div>
-                                <!--
+                  <!--                  
                                 <div class="text-center mt-4 font-weight-light">
                                     ¿Aún no estás registrado? <a href="{{ route('register') }}" class="text-primary">
                                         Registro</a>
