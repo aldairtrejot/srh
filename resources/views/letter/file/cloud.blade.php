@@ -1,5 +1,5 @@
 <!-- TEMPLATE APP-->
-<?php include(resource_path('views/config.php')); ?>
+<?php include resource_path('views/config.php'); ?>
 <x-template-app.app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- token html-->
     <div class="main-panel">
@@ -8,7 +8,7 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Lineamientos</h5>
                         </div>
                     </div>
@@ -22,22 +22,22 @@
                         <div>
                             <x-template-tittle.tittle-caption tittle="Cloud" route="{{ route('file.list') }}" />
 
-                            <x-template-form.template-form-input-hidden name="id" value="{{  $id }}" />
+                            <x-template-form.template-form-input-hidden name="id" value="{{ $id }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_area"
-                                value="{{  $id_cat_area }}" />
+                                value="{{ $id_cat_area }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_salida"
-                                value="{{  config('custom_config.CONFIG_CLOUD_SALIDA') }}" />
+                                value="{{ config('custom_config.CONFIG_CLOUD_SALIDA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_entrada"
-                                value="{{  config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
+                                value="{{ config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
 
                             <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio"
-                                value="{{  config('custom_config.CLOUD_ALFRESCO_EXPEDIENTE') }}" />
+                                value="{{ config('custom_config.CLOUD_ALFRESCO_EXPEDIENTE') }}" />
 
                             <x-template-form.template-form-input-hidden name="bool_user_role"
-                                value="{{  $letterAdminMatch }}" />
+                                value="{{ $letterAdminMatch }}" />
 
 
                             <x-template-tittle.tittle-caption-secon tittle="Doc. seleccionado" />

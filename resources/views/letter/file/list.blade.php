@@ -10,7 +10,7 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row align-items-center">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Gestión de control</h3>
+                            <h3 class="font-weight-bold">Control de gestión</h3>
                             <h5 class="font-weight-normal mb-0">Lineamientos</h5>
                         </div>
                         @if($letterAdminMatch)
