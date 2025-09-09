@@ -74,12 +74,13 @@ class DashboardLetterC extends Controller
             'I' => 'Área',
             'J' => 'Copia a',
             'K' => 'Tipo de Documento',
+            'L' => 'Estatus'
         ];
 
         if ($request->inlcuir_usuario_capturo) {
-            $encabezados['L'] = 'Fecha de Captura';
-            $encabezados['M'] = 'Hora de Captura';
-            $encabezados['N'] = 'Usuario que Captura';
+            $encabezados['M'] = 'Fecha de Captura';
+            $encabezados['N'] = 'Hora de Captura';
+            $encabezados['O'] = 'Usuario que Captura';
         }
 
         foreach ($encabezados as $col => $titulo) {
@@ -121,11 +122,12 @@ class DashboardLetterC extends Controller
             $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('J' . $row, $data->area_cc, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('K' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L' . $row, $data->estatus, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValueExplicit('L' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('M' . $row, $data->hora_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('N' . $row, $data->usuario_add, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('M' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('N' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('O' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
 
             $row++;
@@ -133,7 +135,7 @@ class DashboardLetterC extends Controller
         }
 
         // Aplicar autofiltros
-        $ultimaCol = $request->inlcuir_usuario_capturo ? 'N' : 'K';
+        $ultimaCol = $request->inlcuir_usuario_capturo ? 'O' : 'K';
         $sheet->setAutoFilter("A1:{$ultimaCol}1");
 
         // Guardar en stream
