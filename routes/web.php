@@ -389,7 +389,8 @@ Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])-
 
 //descargas de doc
 Route::get('/letter/dashboard', [DashboardLetterC::class, 'generate'])->name('letter.dashboard');
-Route::post('/letter/dashboard/getCollection', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
+
+Route::post('/letter/dashboard/getCollection/let', [DashboardLetterC::class, 'getCollection'])->name('letter.dashboard.getCollection')->middleware('auth');
 Route::post('/letter/dashboard/generate', [DashboardLetterC::class, 'generate'])->name('letter.dashboard.generate')->middleware('auth');
 
 

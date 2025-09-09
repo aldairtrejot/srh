@@ -108,6 +108,36 @@ class CollectionAreaM extends Model
     }
 
 
+    public function listLetter()
+    {
+        $query = DB::table('correspondencia.cat_area')
+            ->select([
+                'correspondencia.cat_area.id_cat_area AS id',
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+            ])
+            ->where('correspondencia.cat_area.estatus', '=', true);
+
+        // Si no tiene ni rol 1 ni rol 2
+        if (
+            !in_array(1, session('SESSION_ROLE_USER', [])) &&
+            !in_array(2, session('SESSION_ROLE_USER', []))
+        ) {
+            $query->join(
+                'correspondencia.ctrl_rol_usuario_area',
+                'correspondencia.cat_area.id_cat_area',
+                '=',
+                'correspondencia.ctrl_rol_usuario_area.id_cat_area'
+            )
+                ->where('correspondencia.ctrl_rol_usuario_area.id_usuario', auth()->id());
+        }
+
+        $query->orderBy('correspondencia.cat_area.descripcion', 'ASC');
+
+        // Ejecutar la consulta y obtener resultados
+        return $query->get();
+    }
+
+
     public function listEdit()
     {
         $query = DB::table('correspondencia.cat_area')

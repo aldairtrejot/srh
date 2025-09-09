@@ -112,7 +112,7 @@ function cleanTime() {
 // La función obtiene los catalgoos inciales para mostrarlos
 function getCollection() {
     $.ajax({
-        url: URL_DEFAULT.concat('/letter/dashboard/getCollection'),
+        url: URL_DEFAULT.concat('/letter/dashboard/getCollection/let'),
         type: 'POST',
         data: {
             _token: token  // Usar el token extraído de la metaetiqueta

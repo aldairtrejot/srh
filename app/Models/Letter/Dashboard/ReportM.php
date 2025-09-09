@@ -55,9 +55,32 @@ class ReportM extends Model
             ->leftJoin('correspondencia.cat_area AS area_cc', 'correspondencia.ctrl_transcribir_correspondencia.id_cat_area', '=', 'area_cc.id_cat_area');
 
         // Aplicar los filtros opcionales usando el método `when()`
-        $query->when(!empty($idArea), function ($query) use ($idArea) {
-            return $query->where('correspondencia.tbl_correspondencia.id_cat_area', '=', $idArea);
-        });
+        // filtro de área
+        if (
+            !in_array(1, session('SESSION_ROLE_USER', [])) &&
+            !in_array(2, session('SESSION_ROLE_USER', []))
+        ) {
+
+            if (!empty($idArea)) {
+                // Si se pasa un idArea, filtrar solo por esa área
+                $query->where('correspondencia.tbl_correspondencia.id_cat_area', '=', $idArea);
+            } else {
+                // Si no hay idArea, filtrar las áreas asignadas al usuario
+                $query->join(
+                    'correspondencia.ctrl_rol_usuario_area',
+                    'correspondencia.cat_area.id_cat_area',
+                    '=',
+                    'correspondencia.ctrl_rol_usuario_area.id_cat_area'
+                )
+                    ->where('correspondencia.ctrl_rol_usuario_area.id_usuario', auth()->id());
+            }
+
+        } else { // solo administradores estatus ok
+            $query->when(!empty($idArea), function ($query) use ($idArea) {
+                return $query->where('correspondencia.tbl_correspondencia.id_cat_area', '=', $idArea);
+            });
+        }
+        // fin de filtros de área
 
         $query->when(!empty($idStatus), function ($query) use ($idStatus) {
             return $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '=', $idStatus);

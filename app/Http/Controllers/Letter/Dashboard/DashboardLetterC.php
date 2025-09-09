@@ -30,7 +30,7 @@ class DashboardLetterC extends Controller
         $collectionDateM = new CollectionDateM();
 
         // Se obtienen los catalogos
-        $resultCollectionArea = $collectionAreaM->list();
+        $resultCollectionArea = $collectionAreaM->listLetter();
         $resultCollectionStatus = $collectionStatusM->list();
         $resultCollectionDate = $collectionDateM->list();
 
@@ -43,112 +43,113 @@ class DashboardLetterC extends Controller
     }
 
     // Genera reporte de Exel
-public function generate(Request $request)
-{
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-    $reportM = new ReportM();
+    public function generate(Request $request)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $reportM = new ReportM();
 
-    $query = $reportM->generateReport(
-        $request->id_cat_area,
-        $request->id_cat_status,
-        $request->fecha_inicio_fecha_fin,
-        $request->fecha_inicio_informe,
-        $request->fecha_fin_informe,
-        $request->id_cat_date_informe,
-        $request->incluir_horas,
-        $request->inicio,
-        $request->fin,
-    );
+        $query = $reportM->generateReport(
+            $request->id_cat_area,
+            $request->id_cat_status,
+            $request->fecha_inicio_fecha_fin,
+            $request->fecha_inicio_informe,
+            $request->fecha_fin_informe,
+            $request->id_cat_date_informe,
+            $request->incluir_horas,
+            $request->inicio,
+            $request->fin,
+        );
 
-    // Encabezados
-    $encabezados = [
-        'A' => 'No.',
-        'B' => 'Folio de Gestión',
-        'C' => 'Oficio Recibido',
-        'D' => 'Fecha de Alta',
-        'E' => 'Fecha de Vencimiento',
-        'F' => 'Puesto del Remitente',
-        'G' => 'Asunto',
-        'H' => 'Clave',
-        'I' => 'Área',
-        'J' => 'Copia a',
-        'K' => 'Tipo de Documento',
-    ];
-
-    if ($request->inlcuir_usuario_capturo) {
-        $encabezados['L'] = 'Fecha de Captura';
-        $encabezados['M'] = 'Hora de Captura';
-        $encabezados['N'] = 'Usuario que Captura';
-    }
-
-    foreach ($encabezados as $col => $titulo) {
-        $cell = $col . '1';
-        $sheet->setCellValue($cell, $titulo);
-
-        // Estilo del encabezado
-        $sheet->getStyle($cell)->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['argb' => Color::COLOR_WHITE],
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['argb' => '10312B'],
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
-        ]);
-
-        // Ajuste automático de columna
-        $sheet->getColumnDimension($col)->setAutoSize(true);
-    }
-
-    // Datos
-    $row = 2;
-    $id = 1;
-    foreach ($query as $data) {
-        $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('D' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('E' . $row, $data->fecha_fin, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('F' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('J' . $row, $data->area_cc, DataType::TYPE_STRING);
-        $sheet->setCellValueExplicit('K' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+        // Encabezados
+        $encabezados = [
+            'A' => 'No.',
+            'B' => 'Folio de Gestión',
+            'C' => 'Oficio Recibido',
+            'D' => 'Fecha de Alta',
+            'E' => 'Fecha de Vencimiento',
+            'F' => 'Puesto del Remitente',
+            'G' => 'Asunto',
+            'H' => 'Clave',
+            'I' => 'Área',
+            'J' => 'Copia a',
+            'K' => 'Tipo de Documento',
+        ];
 
         if ($request->inlcuir_usuario_capturo) {
-            $sheet->setCellValueExplicit('L' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('M' . $row, $data->hora_captura, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('N' . $row, $data->usuario_add, DataType::TYPE_STRING);
+            $encabezados['L'] = 'Fecha de Captura';
+            $encabezados['M'] = 'Hora de Captura';
+            $encabezados['N'] = 'Usuario que Captura';
         }
 
-        $row++;
-        $id++;
+        foreach ($encabezados as $col => $titulo) {
+            $cell = $col . '1';
+            $sheet->setCellValue($cell, $titulo);
+
+            // Estilo del encabezado
+            $sheet->getStyle($cell)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'color' => ['argb' => Color::COLOR_WHITE],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => '10312B'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Ajuste automático de columna
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Datos
+        $row = 2;
+        $id = 1;
+        foreach ($query as $data) {
+            $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E' . $row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->area_cc, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('K' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+
+            if ($request->inlcuir_usuario_capturo) {
+                $sheet->setCellValueExplicit('L' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('M' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('N' . $row, $data->usuario_add, DataType::TYPE_STRING);
+            }
+
+            $row++;
+            $id++;
+        }
+
+        // Aplicar autofiltros
+        $ultimaCol = $request->inlcuir_usuario_capturo ? 'N' : 'K';
+        $sheet->setAutoFilter("A1:{$ultimaCol}1");
+
+        // Guardar en stream
+        $writer = new Xlsx($spreadsheet);
+
+        return new StreamedResponse(function () use ($writer) {
+            if (ob_get_contents())
+                ob_end_clean();
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="DATA_GC_SIRH.xlsx"',
+            'Cache-Control' => 'max-age=0',
+            'Pragma' => 'public',
+        ]);
     }
-
-    // Aplicar autofiltros
-    $ultimaCol = $request->inlcuir_usuario_capturo ? 'N' : 'K';
-    $sheet->setAutoFilter("A1:{$ultimaCol}1");
-
-    // Guardar en stream
-    $writer = new Xlsx($spreadsheet);
-
-    return new StreamedResponse(function () use ($writer) {
-        if (ob_get_contents()) ob_end_clean();
-        $writer->save('php://output');
-    }, 200, [
-        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition' => 'attachment; filename="DATA_GC_SIRH.xlsx"',
-        'Cache-Control' => 'max-age=0',
-        'Pragma' => 'public',
-    ]);
-}
 
     // La función agrega encabezados para las columnas
     private function addStyleValue($sheet, $cell, $value, $background)
