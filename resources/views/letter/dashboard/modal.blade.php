@@ -65,7 +65,8 @@
             style="display: inline-block; margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
                 ¿Agregar datos de captura?
-                <input type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo" style="margin-left: 10px;">
+                <input disabled type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo"
+                    style="margin-left: 10px;">
             </label>
         </div>
 
@@ -82,7 +83,8 @@
     <div class="custom-row" style="margin-bottom: 20px;">
         <div class="custom-col">
             <span class="label-time" id="inicio-label">Hora de inicio de captura</span>
-            <input type="range" id="inicio" min="0" max="24" value="0" step="1" class="range">
+            <input type="range" id="inicio" min="0" max="24" value="0" step="1"
+                class="range">
             <span class="hour-label" id="inicio-hour-right">00:00</span>
         </div>
     </div>
@@ -90,7 +92,8 @@
     <div class="custom-row" style="margin-bottom: 20px;">
         <div class="custom-col">
             <span class="label-time" id="fin-label">Hora de fin de captura</span>
-            <input type="range" id="fin" min="0" max="24" value="24" step="1" class="range">
+            <input type="range" id="fin" min="0" max="24" value="24" step="1"
+                class="range">
             <span class="hour-label" id="fin-hour-right">24:00</span>
         </div>
     </div>
@@ -242,14 +245,14 @@
     const finHourLabelRight = document.getElementById('fin-hour-right');
 
     // Control de movimiento sin que las bolitas se crucen
-    inicio.addEventListener('input', function () {
+    inicio.addEventListener('input', function() {
         if (parseInt(inicio.value) > parseInt(fin.value)) {
             fin.value = inicio.value;
         }
         updateHourLabels();
     });
 
-    fin.addEventListener('input', function () {
+    fin.addEventListener('input', function() {
         if (parseInt(fin.value) < parseInt(inicio.value)) {
             inicio.value = fin.value;
         }
