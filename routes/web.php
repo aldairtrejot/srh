@@ -62,6 +62,7 @@ use App\Http\Controllers\Administration\AdministrationC\AdministrationC;
 use App\Http\Controllers\Letter\Dependencia\DependenciareaC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
 use App\Http\Controllers\Letter\Dependencia\ReldependenciaC;
+use App\Http\Controllers\Letter\Letter\UploadTempC;
 
 Route::get('/login', LoginC::class)->name('login'); ///ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); ///ROUTE_REGISTER
@@ -106,6 +107,11 @@ Route::post('/letter/collection/area', [LetterC::class, 'collectionArea'])->name
 Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.saveCopy')->middleware('auth');
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
+
+// === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
+Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
+Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
+
 
 //Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
