@@ -128,39 +128,21 @@
                                     <div id="container_oficio_entrada_vacio" class="rectangulo">Sin contenido</div>
                                     <div id="container_oficio_entrada"></div>
 
-                                    {{-- Anexos (Max 3) --}}
+                                    {{-- Anexos (Max 3 con UN SOLO input) --}}
                                     <div style="display: flex; align-items: center; gap: 12px; margin-top: 18px; margin-bottom: 8px;">
                                         <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
-                                    </div>
-
-                                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-                                        <label for="file_anexo_entrada_1" id="label_anexo_entrada_1"
+                                        <label for="file_anexo_entrada" id="label_anexo_entrada"
                                             style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada_1" style="margin-right: 5px;"></i>
-                                            Cargar (Anexo 1)
+                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada" style="margin-right: 5px;"></i>
+                                            Cargar anexos
                                         </label>
-                                        <input type="file" id="file_anexo_entrada_1" name="file_anexo_entrada[]"
-                                               style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                    </div>
-
-                                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-                                        <label for="file_anexo_entrada_2" id="label_anexo_entrada_2"
-                                            style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada_2" style="margin-right: 5px;"></i>
-                        Cargar (Anexo 2)
-                                        </label>
-                                        <input type="file" id="file_anexo_entrada_2" name="file_anexo_entrada[]"
-                                               style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                    </div>
-
-                                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-                                        <label for="file_anexo_entrada_3" id="label_anexo_entrada_3"
-                                            style="background-color: white; color: red; font-weight: normal; font-size: 1rem; padding: 5px 15px; cursor: pointer; display: flex; align-items: center; text-decoration: none;">
-                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada_3" style="margin-right: 5px;"></i>
-                                            Cargar (Anexo 3)
-                                        </label>
-                                        <input type="file" id="file_anexo_entrada_3" name="file_anexo_entrada[]"
-                                               style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                        <input
+                                            type="file"
+                                            id="file_anexo_entrada"
+                                            name="file_anexo_entrada[]"
+                                            multiple
+                                            style="display:none;"
+                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                     </div>
 
                                     <div id="container_anexo_entrada_vacio" class="rectangulo">Sin contenido</div>
@@ -220,7 +202,7 @@
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
 
-{{-- Script para mostrar/ocultar el bloque de archivos con EL ÚNICO CHECKBOX --}}
+{{-- Script para mostrar/ocultar el bloque de archivos con EL ÚNICO CHECKBOX y limitar anexos a 3 --}}
 <script>
 (function ($) {
   'use strict';
@@ -238,7 +220,7 @@
     } else {
       _hide($container);
       // limpiar selección si se apaga
-      $('#file_oficio_entrada, #file_anexo_entrada_1, #file_anexo_entrada_2, #file_anexo_entrada_3').val('');
+      $('#file_oficio_entrada, #file_anexo_entrada').val('');
     }
   }
 
@@ -246,10 +228,25 @@
     if (typeof window.tooltip === 'function') {
       window.tooltip('#habilitar_carga_archivos', 'Habilita la sección para subir oficio y anexos');
     }
+
     syncUI();
+
     $checkBox.on('change', function () {
       $hiddenFlag.val($(this).is(':checked') ? true : '');
       syncUI();
+    });
+
+    // Limitar anexos a máx 3 en un solo input
+    $('#file_anexo_entrada').on('change', function(){
+      var files = this.files;
+      if (files && files.length > 3) {
+        this.value = '';
+        if (window.notyfEM && window.notyfEM.error) {
+          window.notyfEM.error('Puedes seleccionar como máximo 3 anexos.');
+        } else {
+          alert('Puedes seleccionar como máximo 3 anexos.');
+        }
+      }
     });
   });
 
