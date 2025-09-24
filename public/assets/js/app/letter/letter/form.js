@@ -6,7 +6,7 @@ $(document).ready(function () {
     getRole();
     setCheckboxArea();
     setCheckbox();
-    setDateLimits(); // <-- APLICAMOS límites visuales a las fechas
+    setDateLimits(); // límites visuales a las fechas
 
     tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico');
     tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado');
@@ -18,7 +18,7 @@ $(document).ready(function () {
 
     $('#formulario').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
-            e.preventDefault(); // Detener envío si hay errores
+            e.preventDefault();
         }
     });
 });
@@ -183,12 +183,14 @@ function getRole() {
             '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
             '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
             '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-            '#id_cat_remitente', '#id_cat_entidad'
+            '#id_cat_remitente', '#id_cat_entidad',
+            // Áreas nuevas (solo visual si no es admin)
+            '#id_cat_area_1', '#id_cat_area_2'
         ];
         toDisable.forEach(id => $(id).prop('disabled', true));
         ['#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
          '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-         '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
+         '#id_cat_remitente', '#id_cat_area_1', '#id_cat_area_2'].forEach(id => $(id).selectpicker('refresh'));
     }
 }
 
@@ -221,3 +223,5 @@ function getData() {
         $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
     });
 }
+
+
