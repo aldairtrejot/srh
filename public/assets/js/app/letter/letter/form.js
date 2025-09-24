@@ -6,20 +6,42 @@ $(document).ready(function () {
     getRole();
     setCheckboxArea();
     setCheckbox();
-    setDateLimits(); // <-- APLICAMOS límites visuales a las fechas
+    setDateLimits(); // límites visuales a las fechas
 
+    // tooltips existentes
     tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico');
     tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado');
     tooltip('#mas_remitentes', 'Añadir dos o más remitentes');
 
+    // tooltip para el nuevo checkbox de archivos
+    tooltip('#id_checkbox_carga_archivos', 'Mostrar/ocultar la sección de carga de Oficio y Anexos');
+
+    // Estado inicial del bloque de archivos
+    setCheckboxFiles();
+
+    // Validación visual de fechas
     $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
         clearFieldError('#' + this.id);
     });
 
-    $('#formulario').on('submit', function (e) {
+    // Validación en submit (usar el id correcto del formulario)
+    $('#myForm').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
-            e.preventDefault(); // Detener envío si hay errores
+            e.preventDefault();
         }
+    });
+
+    // limpiar error local al seleccionar archivos
+    ['#file_oficio_unico', '#file_anexo_1', '#file_anexo_2', '#file_anexo_3'].forEach(function (id) {
+        $(id).on('change', function () {
+            clearLocalFileError(id);
+        });
+    });
+
+    // Sincroniza hidden al cambiar el checkbox de archivos
+    $('#carga_archivos_box').on('change', function () {
+        $('#carga_archivos').val($(this).is(':checked') ? true : '');
+        setCheckboxFiles();
     });
 });
 
@@ -117,7 +139,6 @@ function clearFieldError(selector) {
 // =========================
 // FUNCIONES EXISTENTES
 // =========================
-
 function setCheckboxArea() {
     if ($('#rfc_remitente_bool').val()) {
         $('#idcheckboxTemplate').prop('checked', true);
@@ -220,4 +241,49 @@ function getData() {
         $('#_labClaveCodigo').text(itemClave._labClaveCodigo);
         $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
     });
+}
+
+// =========================
+// NUEVA SECCIÓN: CARGA DE ARCHIVOS (UI)
+// =========================
+function setCheckboxFiles() {
+    const activo = !!$('#carga_archivos').val();
+
+    if (activo) {
+        showDiv('contenedor_carga_archivos');
+        enableFile('#file_oficio_unico', '#label_oficio_unico', '#icon_oficio_unico');
+        enableFile('#file_anexo_1', '#label_anexo_1');
+        enableFile('#file_anexo_2', '#label_anexo_2');
+        enableFile('#file_anexo_3', '#label_anexo_3');
+        $('#carga_archivos_box').prop('checked', true);
+    } else {
+        hideDiv('contenedor_carga_archivos');
+        resetFile('#file_oficio_unico', '#label_oficio_unico', '#icon_oficio_unico');
+        resetFile('#file_anexo_1', '#label_anexo_1');
+        resetFile('#file_anexo_2', '#label_anexo_2');
+        resetFile('#file_anexo_3', '#label_anexo_3');
+        $('#carga_archivos_box').prop('checked', false);
+    }
+}
+
+function enableFile(inputSel, labelSel, iconSel) {
+    $(inputSel).prop('disabled', false);
+    $(labelSel).css({ opacity: 1, cursor: 'pointer' });
+    if (iconSel) { $(iconSel).css('opacity', 1); }
+}
+
+function resetFile(inputSel, labelSel, iconSel) {
+    $(inputSel).val('').prop('disabled', true);
+    $(labelSel).css({ opacity: 0.5, cursor: 'not-allowed' });
+    if (iconSel) { $(iconSel).css('opacity', 0.5); }
+    clearLocalFileError(inputSel);
+}
+
+function clearLocalFileError(inputSel) {
+    const id = inputSel.replace('#', '');
+    const $err = $('#error_' + id);
+    if ($err.length) {
+        $err.hide().text('');
+        $(inputSel).removeClass('is-invalid');
+    }
 }
