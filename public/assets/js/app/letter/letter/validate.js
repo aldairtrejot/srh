@@ -1,32 +1,26 @@
 // Validacion de fórmulario
-
 document.getElementById("myForm").addEventListener("submit", function (event) {
     let fecha_inicio = document.getElementById('fecha_inicio').value;
     let fecha_fin = document.getElementById('fecha_fin').value;
 
-    let bool_user_role = $('#bool_user_role').val(); // Se obtienen los roles de usuario
+    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false;
 
-    // Helper para selects (usa el mismo criterio en todos)
-    const isSelectEmpty = (selector, label) => {
-        const val = getVal(selector); // asumiendo que ya existe getVal()
-        if (val === '' || val === null || typeof val === 'undefined') {
-            notyfEM.error(`El campo ${label} es obligatorio.`);
-            return true;
-        }
-        return false;
-    };
-
     if (new_variable) {
-        // Requeridos base (los que ya tenías)
         if (
+            //isPositiveInteger($('#num_flojas').val(), 'No. hojas') ||
             isFieldEmpty($('#num_documento').val(), 'No. Documento') ||
             isFieldEmpty($('#fecha_inicio').val(), 'Fecha de inicio') ||
             isFieldEmpty($('#fecha_fin').val(), 'Fecha fin') ||
+            //isFieldEmpty($('#num_flojas').val(), 'No. hojas') ||
             isFieldEmpty($('#folio_gestion').val(), 'Folio de gestión') ||
             isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
             isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
             isFieldEmpty($('#asunto').val(), 'Asunto') ||
+            // NUEVO: Áreas obligatorias
+            isFieldEmpty($('#id_cat_area_1').val(), 'Área 1') ||
+            isFieldEmpty($('#id_cat_area_2').val(), 'Área 2') ||
+            isFieldEmpty($('#id_cat_area').val(), 'Área 3') ||
             isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
             isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace') ||
             isFieldEmpty($('#id_cat_unidad').val(), 'Unidad') ||
@@ -45,18 +39,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             return;
         }
 
-        // === REQUERIDOS: ÁREAS ===
-        // Usa SIEMPRE getVal para los 3
-        if (
-            isSelectEmpty('#id_cat_area_1', 'Área 1') ||
-            isSelectEmpty('#id_cat_area_2', 'Área 2') ||
-            isSelectEmpty('#id_cat_area',   'Área 3')
-        ) {
-            event.preventDefault();
-            return;
-        }
-
-        // Varios remitentes
+        // Valida el check de agregar remitentes, mas de dos
         if ($('#son_mas_remitentes').val()) {
             if (isFieldEmpty($('#remitente').val(), 'Remitente') ||
                 isExceedingLength($('#remitente').val(), 'Remitente', 230)) {
@@ -65,7 +48,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             }
         }
 
-        // Remitente único seleccionado
         if (!$('#son_mas_remitentes').val() && !$('#rfc_remitente_bool').val()) {
             if (isFieldEmpty($('#id_cat_remitente').val(), 'Remitente')) {
                 event.preventDefault();
@@ -73,12 +55,12 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             }
         }
 
-        // Alta de remitente (RFC)
+        //Validacion para agregar remitente al sistema
         if ($('#rfc_remitente_bool').val()) {
             if (isFieldEmpty($('#remitente_nombre').val(), 'Nombre') ||
                 isFieldEmpty($('#remitente_apellido_paterno').val(), 'Apellido paterno') ||
-                isFieldEmpty($('#remitente_apellido_materno').val(), 'Apellido materno') ||
-                isExceedingLength($('#remitente_nombre').val(), 'Nombre', 50) ||
+                isFieldEmpty($('#remitente_apellido_materno').val(), 'Unidad') ||
+                isExceedingLength($('#remitente_nombre').val(), 'Apellido materno', 50) ||
                 isExceedingLength($('#remitente_apellido_paterno').val(), 'Apellido paterno', 50) ||
                 isExceedingLength($('#remitente_apellido_materno').val(), 'Apellido materno', 50) ||
                 isExceedingLength($('#remitente_rfc').val(), 'RFC', 13)) {
@@ -86,14 +68,16 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
                 return;
             }
 
+            // Valida la estructura del RFC
             if ($('#remitente_rfc').val() !== '') {
                 if (!validateRfc($('#remitente_rfc').val())) {
-                    notyfEM.error('El RFC de remitente no es válido.');
+                    notyfEM.error('El RFC de remitente no es valido.');
                     event.preventDefault();
                     return;
                 }
             }
 
+            // Nombre único de remitente
             let isValidN = getUniqueNameRemitente($('#remitente_nombre').val(), $('#remitente_apellido_paterno').val(), $('#remitente_apellido_materno').val(), 'nombre');
             if (isValidN) {
                 notyfEM.error('El Nombre de remitente ya está registrado.');
@@ -101,6 +85,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
                 return;
             }
 
+            // RFC único de remitente
             let isValidR = getUniqueRemitente($('#remitente_rfc').val(), 'rfc');
             if (isValidR) {
                 notyfEM.error('El RFC de remitente ya está registrado.');
@@ -109,7 +94,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             }
         }
 
-        // Horas si fechas iguales
+        // Si las fechas son iguales, horas respuesta requerido
         if (fecha_inicio == fecha_fin) {
             if (isFieldEmpty($('#horas_respuesta').val(), 'Horas respuesta')) {
                 event.preventDefault();
@@ -117,25 +102,24 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             }
         }
 
-        // Fechas coherentes
+        // La fecha de inicio no puede ser mayor a la de fin
         if (fecha_inicio > fecha_fin) {
             notyfEM.error("La fecha de inicio no puede ser mayor a la fecha de fin.");
             event.preventDefault();
             return;
         }
 
-        // Folio de gestión único (si lo quieres activo)
+        // Folio de gestión único
         let isValidG = getNoUnique($('#id_tbl_correspondencia').val(), $('#folio_gestion').val(), 'folio_gestion');
         if (isValidG) {
             notyfEM.error('El Folio de gestión ya está registrado.');
             event.preventDefault();
             return;
         }
-
     } else {
-        // Role not administration
+        // Role no administración (edición restringida)
         if ($('#id_cat_estatus').val() == 7) {
-            notyfEM.error('El usuario no tiene permisos para acceder a esta sección.');
+            notyfEM.error('El usuairo no tiene permisos para acceder a esta sección.');
             event.preventDefault();
             return;
         }
@@ -152,19 +136,25 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     // Rehabilitar campos antes de enviar
     $('#id_cat_estatus').prop('disabled', false);
     $('#id_cat_area').prop('disabled', false);
-    $('#id_cat_area_1').prop('disabled', false);
-    $('#id_cat_area_2').prop('disabled', false);
+    $('#id_cat_area_1').prop('disabled', false); // NUEVO
+    $('#id_cat_area_2').prop('disabled', false); // NUEVO
     $('#num_documento').prop('disabled', false);
     $('#folio_gestion').prop('disabled', false);
     $('#asunto').prop('disabled', false);
     $('#observaciones').prop('disabled', false);
 });
 
-// Validación cuando cambia fecha
-$('#fecha_inicio').change(function () { validateDate(); });
-$('#fecha_fin').change(function () { validateDate(); });
+//Validacion cuando se cambia el evento de fecha
+$('#fecha_inicio').change(function () {
+    validateDate();
+});
 
-// La función valida que la fecha de inicio no sea mayor a la fecha de fin
+//Validacion cuando se cambia el evento de fecha
+$('#fecha_fin').change(function () {
+    validateDate();
+});
+
+//La funcion valida que la fecha de inicio no sea mayor a la fecha de fin
 function validateDate() {
     let fecha_inicio = document.getElementById('fecha_inicio').value;
     let fecha_fin = document.getElementById('fecha_fin').value;
@@ -174,4 +164,3 @@ function validateDate() {
         }
     }
 }
-
