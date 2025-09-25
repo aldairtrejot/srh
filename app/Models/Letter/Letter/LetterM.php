@@ -44,7 +44,7 @@ class LetterM extends Model
         'remitente',
         'fecha_documento',
         'id_cat_entidad',
-        // NUEVOS CAMPOS
+        // nuevos campos
         'id_cat_area_1',
         'id_cat_area_2',
     ];
@@ -53,7 +53,6 @@ class LetterM extends Model
        BÁSICOS
        ========================= */
 
-    // La función retorna el id de correspondencia, esperando el folio unico de gestión
     public function getIdFolGestion($folGestion)
     {
         return DB::table('correspondencia.tbl_correspondencia')
@@ -77,7 +76,7 @@ class LetterM extends Model
     }
 
     /* =========================
-       LISTADO (con Área 1 y Área 2)
+       LISTADO (incluye Área 1 y Área 2)
        ========================= */
 
     public function list($iterator, $searchValue, $idUser)
@@ -125,11 +124,10 @@ class LetterM extends Model
                   ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
             });
 
-            // Oculta CANCELADO para roles no-admin (según tu lógica original)
             $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
         }
 
-        // Búsqueda (incluye nombre de las tres áreas)
+        // Búsqueda (incluye 3 áreas)
         if (!empty($searchValue)) {
             $searchValue = strtoupper(trim($searchValue));
             $query->where(function ($q) use ($searchValue) {
@@ -159,8 +157,65 @@ class LetterM extends Model
         }
 
         $query->offset($iterator)->limit(5);
-
         return $query->get();
+    }
+
+    /* =========================
+       SELECTS ESPECIALES (ÁREA 1 y 2)
+       ========================= */
+
+    // Opciones para Área 1 desde rel_cat_area_jerarquia_1 (DISTINCT)
+    public function getArea1Options()
+    {
+        return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
+            ->join('correspondencia.cat_area as a', 'r.id_cat_area_1', '=', 'a.id_cat_area')
+            ->select('a.id_cat_area as id', DB::raw('UPPER(a.descripcion) as descripcion'))
+            ->distinct()
+            ->orderBy('descripcion')
+            ->get();
+    }
+
+    // Opciones para Área 1 filtradas por mi área (si aplica)
+    public function getArea1OptionsByArea(int $miAreaId)
+    {
+        return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
+            ->join('correspondencia.cat_area as a', 'r.id_cat_area_1', '=', 'a.id_cat_area')
+            ->select('a.id_cat_area as id', DB::raw('UPPER(a.descripcion) as descripcion'))
+            ->where('r.id_cat_area', $miAreaId)
+            ->distinct()
+            ->orderBy('descripcion')
+            ->get();
+    }
+
+    // Opción seleccionada (edit) para Área 1 -> OBJETO
+    public function getArea1EditObj($id = null)
+    {
+        if (!$id) return null;
+        return DB::table('correspondencia.cat_area')
+            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_area', $id)
+            ->first();
+    }
+
+    // Opciones para Área 2 desde rel_cat_area_jerarquia_2 (DISTINCT)
+    public function getArea2Options()
+    {
+        return DB::table('correspondencia.rel_cat_area_jerarquia_2 as r')
+            ->join('correspondencia.cat_area as a', 'r.id_cat_area_2', '=', 'a.id_cat_area')
+            ->select('a.id_cat_area as id', DB::raw('UPPER(a.descripcion) as descripcion'))
+            ->distinct()
+            ->orderBy('descripcion')
+            ->get();
+    }
+
+    // Opción seleccionada (edit) para Área 2 -> OBJETO
+    public function getArea2EditObj($id = null)
+    {
+        if (!$id) return null;
+        return DB::table('correspondencia.cat_area')
+            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_area', $id)
+            ->first();
     }
 
     /* =========================
@@ -184,7 +239,7 @@ class LetterM extends Model
     {
         $q = DB::table('correspondencia.tbl_correspondencia')
             ->select('correspondencia.tbl_correspondencia.id_tbl_correspondencia')
-            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia. ' . $attribute . ')) = UPPER(TRIM(?))', [trim($value)]);
+            ->whereRaw('UPPER(TRIM(correspondencia.tbl_correspondencia.' . $attribute . ')) = UPPER(TRIM(?))', [trim($value)]);
 
         if (isset($id)) {
             $q->whereRaw('correspondencia.tbl_correspondencia.id_tbl_correspondencia <> ?', [$id]);
@@ -280,7 +335,7 @@ class LetterM extends Model
             ->value('correspondencia.tbl_correspondencia.id_cat_area') ?: null;
     }
 
-    // Valida que el área NO esté ya asociada al folio (considera principal, 1, 2 y copias)
+    // Valida que el área NO esté ya asociada al folio (principal, 1, 2 y copias)
     public function getValue($id_letter, $id_area)
     {
         $exists = DB::table('correspondencia.tbl_correspondencia')
@@ -295,11 +350,11 @@ class LetterM extends Model
             })
             ->exists();
 
-        return !$exists; // true si NO existe (válido para agregar)
+        return !$exists; // true si no existe (válido para agregar)
     }
 
     /* =========================
-       EMAIL / USUARIOS
+       EMAIL / OTROS
        ========================= */
 
     public function getUserEnlace($value)
@@ -343,10 +398,6 @@ class LetterM extends Model
             ->first();
     }
 
-    /* =========================
-       DASHBOARD / OTROS
-       ========================= */
-
     public function getMaxNuSistem()
     {
         return DB::table('correspondencia.tbl_correspondencia')
@@ -376,4 +427,8 @@ class LetterM extends Model
             ->get();
     }
 }
+
+
+
+
 

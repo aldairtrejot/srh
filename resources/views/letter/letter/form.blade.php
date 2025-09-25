@@ -22,7 +22,7 @@
                             <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample">
                                 @csrf
 
-                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{  $letterAdminMatch }}" />
+                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
 
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="fecha_captura" value="{{ optional($item)->fecha_captura ?? '' }}" />
@@ -53,95 +53,188 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Información general" />
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="No. Documento" type="text" name="num_documento" placeholder="NO. DOCUMENTO" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->num_documento ?? '' }}" />
+                                    <x-template-form.template-form-input-required
+                                        label="No. Documento" type="text" name="num_documento" placeholder="NO. DOCUMENTO"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->num_documento ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Folio de gestión" type="text" name="folio_gestion" placeholder="FOLIO DE GESTIÓN" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->folio_gestion ?? '' }}" />
+                                    <x-template-form.template-form-input-required
+                                        label="Folio de gestión" type="text" name="folio_gestion" placeholder="FOLIO DE GESTIÓN"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->folio_gestion ?? '' }}" />
 
-                                    <x-template-form.template-form-input-required label="Fecha de doc." type="date" name="fecha_documento" placeholder="" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->fecha_documento ?? '' }}" />
+                                    <x-template-form.template-form-input-required
+                                        label="Fecha de doc." type="date" name="fecha_documento" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->fecha_documento ?? '' }}" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="Fecha de inicio" type="date" name="fecha_inicio" placeholder="" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->fecha_inicio ?? '' }}" />
-                                    <x-template-form.template-form-input-required label="Fecha fin" type="date" name="fecha_fin" placeholder="" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->fecha_fin ?? '' }}" />
-                                    <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box" label="¿El documento es físico?" />
+                                    <x-template-form.template-form-input-required
+                                        label="Fecha de inicio" type="date" name="fecha_inicio" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->fecha_inicio ?? '' }}" />
+
+                                    <x-template-form.template-form-input-required
+                                        label="Fecha fin" type="date" name="fecha_fin" placeholder=""
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->fecha_fin ?? '' }}" />
+
+                                    <x-template-form.template-form-input-check
+                                        idDiv="id_checkbox_Template_tooltip_fisico" name="es_doc_fisico_box" label="¿El documento es físico?" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectEntidad" :selectEdit="$selectEntidadEdit" name="id_cat_entidad" tittle="Entidad" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" />
-                                    <x-template-form.template-form-input-required label="Horas respuesta" type="integer" name="horas_respuesta" placeholder="HORAS DE RESPUESTA" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete="" value="{{optional($item)->horas_respuesta ?? '' }}" />
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectEntidad" :selectEdit="$selectEntidadEdit"
+                                        name="id_cat_entidad" tittle="Entidad"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-8" />
+
+                                    <x-template-form.template-form-input-required
+                                        label="Horas respuesta" type="integer" name="horas_respuesta" placeholder="HORAS DE RESPUESTA"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" autocomplete=""
+                                        value="{{ optional($item)->horas_respuesta ?? '' }}" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-text-area grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Asunto" name="asunto" placeholder="ASUNTO" value="{{ optional($item)->asunto ?: '' }}" />
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+                                        label="Asunto" name="asunto" placeholder="ASUNTO"
+                                        value="{{ optional($item)->asunto ?: '' }}" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-text-area grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Observaciones" name="observaciones" placeholder="OBSERVACIONES" value="{{ optional($item)->observaciones ?: '' }}" />
+                                    <x-template-form.template-form-input-text-area
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+                                        label="Observaciones" name="observaciones" placeholder="OBSERVACIONES"
+                                        value="{{ optional($item)->observaciones ?: '' }}" />
                                 </div>
 
                                 <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
                                 <div class="row">
 
-                                    <!-- NUEVO: Área 1 -->
-                                    <x-template-form.template-form-select-required :selectValue="$selectArea1" :selectEdit="$selectArea1Edit" name="id_cat_area_1" tittle="Área 1" grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
+                                    <!-- NUEVO: Área 1 (lista desde rel_cat_area_jerarquia_1) -->
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectArea1"
+                                        :selectEdit="$selectArea1Edit"
+                                        :valueSelected="optional($item)->id_cat_area_1"
+                                        name="id_cat_area_1"
+                                        tittle="Área 1"
+                                        grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    <!-- NUEVO: Área 2 -->
-                                    <x-template-form.template-form-select-required :selectValue="$selectArea2" :selectEdit="$selectArea2Edit" name="id_cat_area_2" tittle="Área 2" grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
-                                    
-                                    <!-- Área principal -->
-                                    <x-template-form.template-form-select-required :selectValue="$selectArea" :selectEdit="$selectAreaEdit" name="id_cat_area" tittle="Área 3" grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
+                                    <!-- NUEVO: Área 2 (lista desde rel_cat_area_jerarquia_2) -->
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectArea2"
+                                        :selectEdit="$selectArea2Edit"
+                                        :valueSelected="optional($item)->id_cat_area_2"
+                                        name="id_cat_area_2"
+                                        tittle="Área 2"
+                                        grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    
+                                    <!-- Área principal (Área 3) -->
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectArea" :selectEdit="$selectAreaEdit"
+                                        name="id_cat_area" tittle="Área 3"
+                                        grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectUser" :selectEdit="$selectUserEdit" name="id_usuario_area" tittle="Usuario" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                                    <x-template-form.template-form-select-required :selectValue="$selectEnlace" :selectEdit="$selectEnlaceEdit" name="id_usuario_enlace" tittle="Enlace" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectUser" :selectEdit="$selectUserEdit"
+                                        name="id_usuario_area" tittle="Usuario"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectEnlace" :selectEdit="$selectEnlaceEdit"
+                                        name="id_usuario_enlace" tittle="Enlace"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectUnidad" :selectEdit="$selectUnidadEdit" name="id_cat_unidad" tittle="Unidad" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                                    <x-template-form.template-form-select-required :selectValue="$selectCoordinacion" :selectEdit="$selectCoordinacionEdit" name="id_cat_coordinacion" tittle="Coordinación" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectUnidad" :selectEdit="$selectUnidadEdit"
+                                        name="id_cat_unidad" tittle="Unidad"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectCoordinacion" :selectEdit="$selectCoordinacionEdit"
+                                        name="id_cat_coordinacion" tittle="Coordinación"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
                                 </div>
 
                                 <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                                 <div class="row">
-                                    <x-template-form.template-form-select-required :selectValue="$selectStatus" :selectEdit="$selectStatusEdit" name="id_cat_estatus" tittle="Estatus" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                                    <x-template-form.template-form-select-required :selectValue="$selectTramite" :selectEdit="$selectTramiteEdit" name="id_cat_tramite" tittle="Tramite" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-                                    <x-template-form.template-form-select-required :selectValue="$selectClave" :selectEdit="$selectClaveEdit" name="id_cat_clave" tittle="Clave" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectStatus" :selectEdit="$selectStatusEdit"
+                                        name="id_cat_estatus" tittle="Estatus"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectTramite" :selectEdit="$selectTramiteEdit"
+                                        name="id_cat_tramite" tittle="Tramite"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
+                                    <x-template-form.template-form-select-required
+                                        :selectValue="$selectClave" :selectEdit="$selectClaveEdit"
+                                        name="id_cat_clave" tittle="Clave"
+                                        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
                                 </div>
 
                                 <p class="card-description" style="font-size: 1rem; font-weight: bold; color: #000; display: inline-block; margin-right: 30px;">
                                     Información de remitente
                                 </p>
 
-                                <x-template-form.template-form-input-check idDiv="mas_remitentes" name="son_mas_remitentes_box" label="¿Cuenta con varios remitentes?" />
+                                <x-template-form.template-form-input-check
+                                    idDiv="mas_remitentes" name="son_mas_remitentes_box"
+                                    label="¿Cuenta con varios remitentes?" />
 
                                 <div id="_hidden_select">
                                     <div class="row">
-                                        <x-template-form.template-form-select-required :selectValue="$selectRemitente" :selectEdit="$selectRemitenteEdit" name="id_cat_remitente" tittle="Remitente" grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
-                                        <x-template-form.template-form-input-check idDiv="id_checkbox_Template_tooltip" name="idcheckboxTemplate" label="Agregar remitente" />
+                                        <x-template-form.template-form-select-required
+                                            :selectValue="$selectRemitente" :selectEdit="$selectRemitenteEdit"
+                                            name="id_cat_remitente" tittle="Remitente"
+                                            grid="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8" />
+
+                                        <x-template-form.template-form-input-check
+                                            idDiv="id_checkbox_Template_tooltip" name="idcheckboxTemplate"
+                                            label="Agregar remitente" />
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <x-template-form.template-form-input-required label="Puesto remitente" type="text" name="puesto_remitente" placeholder="PUESTO DE REMITENTE" grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete="" value="{{optional($item)->puesto_remitente ?? '' }}" />
+                                    <x-template-form.template-form-input-required
+                                        label="Puesto remitente" type="text" name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
+                                        grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
+                                        value="{{ optional($item)->puesto_remitente ?? '' }}" />
                                 </div>
 
                                 <div id="mostrar_ocultar_template">
                                     <div class="row">
-                                        <x-template-form.template-form-input-required label="Nombre" type="text" name="remitente_nombre" placeholder="NOMBRE" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
-                                        <x-template-form.template-form-input-required label="Apellido paterno" type="text" name="remitente_apellido_paterno" placeholder="APELLIDO PATERNO" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
+                                        <x-template-form.template-form-input-required
+                                            label="Nombre" type="text" name="remitente_nombre" placeholder="NOMBRE"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
+
+                                        <x-template-form.template-form-input-required
+                                            label="Apellido paterno" type="text" name="remitente_apellido_paterno" placeholder="APELLIDO PATERNO"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
                                     </div>
                                     <div class="row">
-                                        <x-template-form.template-form-input-required label="Apellido materno" type="text" name="remitente_apellido_materno" placeholder="APELLIDO MATERNO" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
-                                        <x-template-form.template-form-input-required label="RFC" type="text" name="remitente_rfc" placeholder="RFC" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
+                                        <x-template-form.template-form-input-required
+                                            label="Apellido materno" type="text" name="remitente_apellido_materno" placeholder="APELLIDO MATERNO"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
+
+                                        <x-template-form.template-form-input-required
+                                            label="RFC" type="text" name="remitente_rfc" placeholder="RFC"
+                                            grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" autocomplete="" value="" />
                                     </div>
                                 </div>
 
                                 <div id="mostrar_ocultar_mas_remitentes">
                                     <div class="row">
-                                        <x-template-form.template-form-input-text-area grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" label="Remitentes" name="remitente" placeholder="REMITENTES" value="{{ optional($item)->remitente ?: '' }}" />
+                                        <x-template-form.template-form-input-text-area
+                                            grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+                                            label="Remitentes" name="remitente" placeholder="REMITENTES"
+                                            value="{{ optional($item)->remitente ?: '' }}" />
                                     </div>
                                 </div>
 
