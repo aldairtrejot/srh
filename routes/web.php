@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administration\ChangePasswordC;
 use App\Http\Controllers\Email\EmailC;
 use App\Http\Controllers\Letter\Certification\CertificationC;
 use App\Http\Controllers\Letter\Collection\CollectionAreaInternoC;
@@ -72,8 +73,9 @@ Route::post('/login', [LoginC::class, 'authenticate']);///ROUTE_AUTHENTICATE
 ///IS_PROTECT
 Route::get('/dashboard', [DashboardC::class, 'dashboard'])->name('dashboard')->middleware('auth'); //ROUTE_DASH BOARD
 Route::get('/about', AboutC::class)->name('about')->middleware('auth'); //ROUTE_ABOUT
-Route::post('/logout', [LoginC::class, 'logout'])->name('logout')->middleware('auth');//ROUTE_LOGOUT
-
+Route::post('/logout', [LoginC::class, 'logout'])->name(name: 'logout')->middleware('auth');//ROUTE_LOGOUT
+Route::get('/changePassword', [ChangePasswordC::class, 'changePassword'])->name('changePassword')->middleware('auth'); //ROUTE_DASH BOARD
+Route::post('/savePassword', [ChangePasswordC::class, 'savePassword'])->name('savePassword')->middleware('auth'); //ROUTE_DASH BOARD
 
 //ROUTE_USER
 Route::get('/user', UserC::class)->name('user.list')->middleware('auth'); //ROUTE_USER

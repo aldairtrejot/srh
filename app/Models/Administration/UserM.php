@@ -25,7 +25,8 @@ class UserM extends Model
         'es_por_nomina',
         'estatus',
         'id_usuario',
-        'fecha_usuario'
+        'fecha_usuario',
+        'password_update'
     ];
     public function list($iterator, $searchValue)
     {
