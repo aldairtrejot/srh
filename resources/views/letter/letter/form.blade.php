@@ -22,8 +22,20 @@
                             <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample" enctype="multipart/form-data">
                                 @csrf
 
-                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
+                                <!-- Config para el JS (bandera de edición y valores iniciales) -->
+                                <script>
+                                  window.LETTER = {
+                                    collectionAreaUrl: "{{ route('letter.collectionArea') }}",
+                                    includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
+                                    initials: {
+                                      area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
+                                      area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
+                                      area3: "{{ old('id_cat_area',   optional($item)->id_cat_area) }}"
+                                    }
+                                  };
+                                </script>
 
+                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
                                 {{-- fecha_captura -> guardamos en hidden como d/m/Y para el save() --}}
@@ -40,11 +52,6 @@
                                 <x-template-form.template-form-input-hidden name="rfc_remitente_bool" value="{{ optional($item)->rfc_remitente_bool ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="es_doc_fisico" value="{{ optional($item)->es_doc_fisico ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="son_mas_remitentes" value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
-
-                                {{-- iniciales para el JS externo (precarga en edición) --}}
-                                <x-template-form.template-form-input-hidden name="_init_area1" value="{{ optional($item)->id_cat_area_1 ?? '' }}" />
-                                <x-template-form.template-form-input-hidden name="_init_area2" value="{{ optional($item)->id_cat_area_2 ?? '' }}" />
-                                <x-template-form.template-form-input-hidden name="_init_area3" value="{{ optional($item)->id_cat_area ?? '' }}" />
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
@@ -125,7 +132,6 @@
 
                                 <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
                                 <div class="row">
-
                                     <!-- Área 1 -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea1"
@@ -135,7 +141,7 @@
                                         tittle="Área 1"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    <!-- Área 2 -->
+                                    <!-- Área 2 (arranca solo con SELECCIONE) -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea2"
                                         :selectEdit="$selectArea2Edit"
@@ -144,7 +150,7 @@
                                         tittle="Área 2"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    <!-- Área 3 (principal) -->
+                                    <!-- Área 3 (principal; arranca solo con SELECCIONE) -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea" :selectEdit="$selectAreaEdit"
                                         name="id_cat_area" tittle="Área 3"
@@ -262,26 +268,14 @@
 
 </x-template-app.app-layout>
 
-<!-- CODE SCRIPT-->
+<!-- CODE SCRIPT (tuyos existentes) -->
 <script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
 
-{{-- Config global para el JS externo (URL y valores iniciales) --}}
-<script>
-  window.LETTER = {
-    collectionAreaUrl: "{{ route('letter.collectionArea') }}",
-    initials: {
-      area1: "{{ optional($item)->id_cat_area_1 }}",
-      area2: "{{ optional($item)->id_cat_area_2 }}",
-      area3: "{{ optional($item)->id_cat_area }}"
-    }
-  };
-</script>
-
-{{-- Tu JS externo con las dependencias de Área 1 -> Área 2 -> Área 3 --}}
+<!-- NUEVO: dependencias de áreas separado -->
 <script src="{{ asset('assets/js/app/letter/letter/deps-areas.js') }}"></script>
 
 

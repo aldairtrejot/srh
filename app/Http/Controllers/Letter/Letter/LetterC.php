@@ -57,90 +57,91 @@ class LetterC extends Controller
         }
     }
 
-   public function create()
-{
-    $item = new LetterM();
-    $collectionUnidadM   = new CollectionUnidadM();
-    $collectionStatusM   = new CollectionStatusM();
-    $collectionDateM     = new CollectionDateM();
-    $collectionConsecutivoM = new CollectionConsecutivoM();
-    $collectionRemitenteM   = new CollectionRemitenteM();
-    $collectionEntidadM     = new CollectionEntidadM();
+    public function create()
+    {
+        $item = new LetterM();
+        $collectionUnidadM      = new CollectionUnidadM();
+        $collectionStatusM      = new CollectionStatusM();
+        $collectionDateM        = new CollectionDateM();
+        $collectionConsecutivoM = new CollectionConsecutivoM();
+        $collectionRemitenteM   = new CollectionRemitenteM();
+        $collectionEntidadM     = new CollectionEntidadM();
 
-    // Defaults (fecha como Carbon para evitar parseos raros)
-    $item->fecha_captura      = now();
-    $item->id_cat_anio        = $collectionDateM->idYear();
-    $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
-        $item->id_cat_anio,
-        config('custom_config.CP_TABLE_CORRESPONDENCIA')
-    );
-    $item->rfc_remitente_bool = false;
-    $item->es_doc_fisico      = true;
-    $item->son_mas_remitentes = false;
-    $item->num_flojas         = 1;
-    $item->num_tomos          = 0;
-    $item->horas_respuesta    = 0;
+        // Defaults (fecha como Carbon para evitar parseos raros)
+        $item->fecha_captura      = now();
+        $item->id_cat_anio        = $collectionDateM->idYear();
+        $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
+            $item->id_cat_anio,
+            config('custom_config.CP_TABLE_CORRESPONDENCIA')
+        );
+        $item->rfc_remitente_bool = false;
+        $item->es_doc_fisico      = true;
+        $item->son_mas_remitentes = false;
+        $item->num_flojas         = 1;
+        $item->num_tomos          = 0;
+        $item->horas_respuesta    = 0;
 
-    /* ===== Área 3 (AGREGAR: VACÍO hasta elegir Área 2) ===== */
-    // ANTES cargabas cat_area aquí; para el flujo en cascada dejamos vacío:
-    $selectArea     = collect([]);   // 👈 vacío
-    $selectAreaEdit = null;
+        /* ===== Área 3 (AGREGAR: VACÍO hasta elegir Área 2) ===== */
+        $selectArea     = collect([]);   // vacío (solo "SELECCIONE" en el front)
+        $selectAreaEdit = null;
 
-    /* ===== Área 1 (sí se muestra) ===== */
-    $miAreaId        = Auth::user()->id_cat_area ?? null;
-    $selectArea1     = $miAreaId
-        ? $item->getArea1OptionsByArea((int)$miAreaId)
-        : $item->getArea1Options();
-    $selectArea1Edit = null;
+        /* ===== Área 1 ===== */
+        $miAreaId        = Auth::user()->id_cat_area ?? null;
+        $selectArea1     = $miAreaId
+            ? $item->getArea1OptionsByArea((int)$miAreaId)
+            : $item->getArea1Options();
+        $selectArea1Edit = null;
 
-    /* ===== Área 2 (AGREGAR: VACÍO hasta elegir Área 1) ===== */
-    // ANTES: $selectArea2 = $item->getArea2Options();
-    $selectArea2     = collect([]);  // 👈 vacío
-    $selectArea2Edit = null;
+        /* ===== Área 2 (AGREGAR: VACÍO hasta elegir Área 1) ===== */
+        $selectArea2     = collect([]);  // vacío
+        $selectArea2Edit = null;
 
-    // Resto de selects (vacíos o con sus catálogos según tu flujo)
-    $selectUser            = [];
-    $selectUserEdit        = [];
-    $selectEnlace          = [];
-    $selectEnlaceEdit      = [];
-    $selectUnidad          = [];
-    $selectUnidadEdit      = null;
-    $selectCoordinacion    = [];
-    $selectCoordinacionEdit= null;
-    $selectStatus          = $collectionStatusM->list();
-    $selectStatusEdit      = $collectionStatusM->edit(1);
-    $selectTramite         = [];
-    $selectTramiteEdit     = null;
-    $selectClave           = [];
-    $selectClaveEdit       = null;
-    $selectRemitente       = $collectionRemitenteM->list();
-    $selectRemitenteEdit   = null;
-    $selectEntidad         = $collectionEntidadM->list();
-    $selectEntidadEdit     = null;
+        // Otros selects
+        $selectUser             = [];
+        $selectUserEdit         = [];
+        $selectEnlace           = [];
+        $selectEnlaceEdit       = [];
+        $selectUnidad           = [];
+        $selectUnidadEdit       = null;
+        $selectCoordinacion     = [];
+        $selectCoordinacionEdit = null;
+        $selectStatus           = $collectionStatusM->list();
+        $selectStatusEdit       = $collectionStatusM->edit(1);
+        $selectTramite          = [];
+        $selectTramiteEdit      = null;
+        $selectClave            = [];
+        $selectClaveEdit        = null;
+        $selectRemitente        = $collectionRemitenteM->list();
+        $selectRemitenteEdit    = null;
+        $selectEntidad          = $collectionEntidadM->list();
+        $selectEntidadEdit      = null;
 
-    return view('letter.letter.form', compact(
-        'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
-        'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
-        'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
-        'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
-        'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
-        'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit'
-    ));
-}
+        // Flag para la vista/JS (en create NO se muestran inactivos en Área 3)
+        $isEdit = false;
 
+        return view('letter.letter.form', compact(
+            'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
+            'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
+            'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
+            'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
+            'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
+            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit',
+            'isEdit'
+        ));
+    }
 
     public function edit(string $id)
     {
-        $letterM = new LetterM();
+        $letterM               = new LetterM();
         $collectionRelUsuarioM = new CollectionRelUsuarioM();
-        $collectionRelEnlaceM = new CollectionRelEnlaceM();
-        $collectionUnidadM = new CollectionUnidadM();
-        $collectionStatusM = new CollectionStatusM();
+        $collectionRelEnlaceM  = new CollectionRelEnlaceM();
+        $collectionUnidadM     = new CollectionUnidadM();
+        $collectionStatusM     = new CollectionStatusM();
         $collectionCoordinacionM = new CollectionCoordinacionM();
-        $collectionTramiteM = new CollectionTramiteM();
-        $collectionRemitenteM = new CollectionRemitenteM();
-        $collectionClaveM = new CollectionClaveM();
-        $collectionEntidadM = new CollectionEntidadM();
+        $collectionTramiteM    = new CollectionTramiteM();
+        $collectionRemitenteM  = new CollectionRemitenteM();
+        $collectionClaveM      = new CollectionClaveM();
+        $collectionEntidadM    = new CollectionEntidadM();
 
         $item = $letterM->edit($id);
 
@@ -148,7 +149,7 @@ class LetterC extends Controller
         $selectStatus     = $collectionStatusM->listEdit();
         $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
 
-        /* ===== Área 3 (EDIT: TODAS) ===== */
+        /* ===== Área 3 (EDIT: TODAS, incluidos inactivos) ===== */
         $selectArea = DB::table('correspondencia.cat_area')
             ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
             ->orderBy('descripcion')
@@ -162,12 +163,12 @@ class LetterC extends Controller
             : null;
 
         /* ===== Área 1 ===== */
-        $miAreaId    = Auth::user()->id_cat_area ?? null;
-        $selectArea1 = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
+        $miAreaId        = Auth::user()->id_cat_area ?? null;
+        $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
         $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
 
         /* ===== Área 2 ===== */
-        $selectArea2 = $letterM->getArea2Options();
+        $selectArea2     = $letterM->getArea2Options();
         $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
 
         // Usuarios / Enlace
@@ -198,33 +199,37 @@ class LetterC extends Controller
         $selectEntidad     = $collectionEntidadM->listEdit();
         $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
 
+        // Flag para la vista/JS (en edit SÍ se muestran inactivos en Área 3)
+        $isEdit = true;
+
         return view('letter.letter.form', compact(
             'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
             'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
             'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
             'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
             'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
-            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit'
+            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit',
+            'isEdit'
         ));
     }
 
     public function save(Request $request)
     {
         $logC = new LogC();
-        $collectionRemitenteM = new CollectionRemitenteM();
-        $messagesC = new MessagesC();
+        $collectionRemitenteM   = new CollectionRemitenteM();
+        $messagesC              = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
-        $collectionRolAreaM = new CollectionRolAreaM();
-        $collectionLetterLogM = new CollectionLetterLogM();
+        $collectionRolAreaM     = new CollectionRolAreaM();
+        $collectionLetterLogM   = new CollectionLetterLogM();
         $now = Carbon::now();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
         $ADM_TOTAL = config('custom_config.ADM_TOTAL');
         $COR_TOTAL = config('custom_config.COR_TOTAL');
 
-        $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0;
-        $es_doc_fisico = isset($request->es_doc_fisico) ? 1 : 0;
-        $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0;
+        $rfc_remitente_bool  = isset($request->rfc_remitente_bool) ? 1 : 0;
+        $es_doc_fisico       = isset($request->es_doc_fisico) ? 1 : 0;
+        $son_mas_remitentes  = isset($request->son_mas_remitentes) ? 1 : 0;
 
         $request->validate([
             'archivo_oficio'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
@@ -442,18 +447,25 @@ class LetterC extends Controller
                 return response()->json(['ok' => true, 'value' => $rows]);
             }
 
-            // 2) Área 3 por Área 2 (TU SQL)
+            // 2) Área 3 por Área 2 (regla SQL) + filtro de estatus
             if ($by === 'area3_by_area2') {
-                $area2Id = (int) $request->input('id_cat_area_2');
+                $area2Id          = (int) $request->input('id_cat_area_2');
+                $includeInactive  = filter_var($request->input('include_inactive', false), FILTER_VALIDATE_BOOLEAN);
 
-                $rows = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
+                $q = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
                     ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
                     ->join('correspondencia.cat_area as ca', 'r2.id_cat_area_2', '=', 'ca.id_cat_area')
-                    ->where('r1.id_cat_area_2', $area2Id)
-                    ->select('ca.id_cat_area as id', DB::raw('UPPER(ca.descripcion) AS label'))
-                    ->distinct()
-                    ->orderBy('label')
-                    ->get();
+                    ->where('r1.id_cat_area_2', $area2Id);
+
+                // En CREATE (includeInactive=false) solo activos; en EDIT (true) todos
+                if (!$includeInactive) {
+                    $q->where('ca.estatus', true);
+                }
+
+                $rows = $q->select('ca.id_cat_area as id', DB::raw('UPPER(ca.descripcion) AS label'))
+                          ->distinct()
+                          ->orderBy('label')
+                          ->get();
 
                 return response()->json(['ok' => true, 'value' => $rows]);
             }

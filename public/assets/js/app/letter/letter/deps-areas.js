@@ -1,26 +1,24 @@
-// deps-areas.js
+// Dependencias: Área 2 (por Área 1) y Área 3 (por Área 2)
+// Reglas:
+// - Área 2 y Área 3 arrancan mostrando solo "SELECCIONE"
+// - Área 3 en CREATE filtra a3.estatus = true; en EDIT permite activos e inactivos
+
 document.addEventListener('DOMContentLoaded', function () {
   const $area1 = document.getElementById('id_cat_area_1');
   const $area2 = document.getElementById('id_cat_area_2');
   const $area3 = document.getElementById('id_cat_area');
   if (!$area1 || !$area2 || !$area3) return;
 
-  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-  const url = (window.LETTER && window.LETTER.collectionAreaUrl) || '';
+  const tokenEl = document.querySelector('meta[name="csrf-token"]');
+  const token = tokenEl ? tokenEl.getAttribute('content') : '';
 
-  // Helpers
-  function refreshPicker(sel) {
+  function refreshPicker(id) {
     if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
-      $(sel).selectpicker('refresh');
+      $(id).selectpicker('refresh');
     }
   }
 
-  function resetSelect($el) {
-    $el.innerHTML = '<option value="">SELECCIONE</option>';
-    refreshPicker('#' + $el.id);
-  }
-
-  async function postJSON(body) {
+  async function postJSON(url, body) {
     const resp = await fetch(url, {
       method: 'POST',
       headers: {
@@ -28,76 +26,104 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-CSRF-TOKEN': token,
         'Accept': 'application/json',
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return resp.json();
   }
 
-  function fillOptions($el, items, selectedId) {
-    resetSelect($el); // siempre deja primero "SELECCIONE"
-    if (Array.isArray(items)) {
-      items.forEach(opt => {
-        const o = document.createElement('option');
-        o.value = String(opt.id ?? '');
-        o.textContent = String(opt.label ?? '');
-        if (selectedId && String(selectedId) === String(opt.id)) o.selected = true;
-        $el.appendChild(o);
-      });
-    }
-    refreshPicker('#' + $el.id);
+  // ===== helpers para limpiar selects =====
+  function resetArea2() {
+    $area2.innerHTML = '<option value="">SELECCIONE</option>';
+    refreshPicker('#id_cat_area_2');
+  }
+  function resetArea3() {
+    $area3.innerHTML = '<option value="">SELECCIONE</option>';
+    refreshPicker('#id_cat_area');
   }
 
-  // Cargas
+  // ===== Área 2 por Área 1 =====
   async function cargarArea2PorArea1(area1Id, selectedId = null) {
-    // NO se deshabilita, solo se limpia
-    resetSelect($area2);
-    if (!area1Id) return; // si no hay área1, mantenemos solo "SELECCIONE"
+    resetArea2();
+    if (!area1Id) return;
+
     try {
-      const json = await postJSON({ by: 'area2_by_area1', id_cat_area_1: area1Id });
-      if (json.ok) fillOptions($area2, json.value, selectedId);
-    } catch (e) { console.error('AREA2_LOAD_ERROR:', e); }
+      const json = await postJSON((window.LETTER || {}).collectionAreaUrl, {
+        by: 'area2_by_area1',
+        id_cat_area_1: area1Id,
+      });
+      if (json.ok && Array.isArray(json.value)) {
+        json.value.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = String(opt.id ?? '');
+          option.textContent = String(opt.label ?? '');
+          if (selectedId && String(selectedId) === String(opt.id)) option.selected = true;
+          $area2.appendChild(option);
+        });
+      }
+    } catch (e) {
+      console.error('AREA2_LOAD_ERROR:', e);
+    } finally {
+      refreshPicker('#id_cat_area_2');
+    }
   }
 
+  // ===== Área 3 por Área 2 (tu regla SQL) =====
   async function cargarArea3PorArea2(area2Id, selectedId = null) {
-    resetSelect($area3);
-    if (!area2Id) return; // si no hay área2, mantenemos solo "SELECCIONE"
+    resetArea3();
+    if (!area2Id) return;
+
     try {
-      const json = await postJSON({ by: 'area3_by_area2', id_cat_area_2: area2Id });
-      if (json.ok) fillOptions($area3, json.value, selectedId);
-    } catch (e) { console.error('AREA3_LOAD_ERROR:', e); }
+      const json = await postJSON((window.LETTER || {}).collectionAreaUrl, {
+        by: 'area3_by_area2',
+        id_cat_area_2: area2Id,
+        include_inactive: !!(window.LETTER && window.LETTER.includeInactiveArea3),
+      });
+      if (json.ok && Array.isArray(json.value)) {
+        json.value.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = String(opt.id ?? '');
+          option.textContent = String(opt.label ?? '');
+          if (selectedId && String(selectedId) === String(opt.id)) option.selected = true;
+          $area3.appendChild(option);
+        });
+      }
+    } catch (e) {
+      console.error('AREA3_LOAD_ERROR:', e);
+    } finally {
+      refreshPicker('#id_cat_area');
+    }
   }
 
-  // Al cambiar Área 1 -> refresca Área 2; limpia Área 3
-  $area1.addEventListener('change', () => {
-    const area1Id = $area1.value || '';
+  // Eventos
+  $area1.addEventListener('change', function (e) {
+    const area1Id = e.target.value || '';
     cargarArea2PorArea1(area1Id, null);
-    resetSelect($area3); // hasta que escojan Área 2
+    resetArea3(); // al cambiar área1, limpia área3
   });
 
-  // Al cambiar Área 2 -> refresca Área 3
-  $area2.addEventListener('change', () => {
-    const area2Id = $area2.value || '';
+  $area2.addEventListener('change', function (e) {
+    const area2Id = e.target.value || '';
     cargarArea3PorArea2(area2Id, null);
   });
 
-  // Estado inicial:
-  // 1) Siempre deja Área 2 y Área 3 con "SELECCIONE"
-  resetSelect($area2);
-  resetSelect($area3);
-
-  // 2) Si es edición y vienen iniciales, precargar en cascada
-  const initials = (window.LETTER && window.LETTER.initials) || {};
-  const area1Inicial = initials.area1 || '';
-  const area2Inicial = initials.area2 || '';
-  const area3Inicial = initials.area3 || '';
+  // Precarga en edición
+  const area1Inicial = window.LETTER?.initials?.area1 || null;
+  const area2Inicial = window.LETTER?.initials?.area2 || null;
+  const area3Inicial = window.LETTER?.initials?.area3 || null;
 
   if (area1Inicial) {
-    // Carga Área 2 y selecciona la inicial
     cargarArea2PorArea1(area1Inicial, area2Inicial).then(() => {
-      // Si además hay Área 2 inicial, carga Área 3 y selecciónala
-      if (area2Inicial) cargarArea3PorArea2(area2Inicial, area3Inicial);
+      const a2 = $area2.value || area2Inicial;
+      if (a2) {
+        cargarArea3PorArea2(a2, area3Inicial);
+      }
     });
+  } else {
+    // nuevo (create) -> ambos vacíos
+    resetArea2();
+    resetArea3();
   }
 });
+
 
