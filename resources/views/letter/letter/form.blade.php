@@ -19,13 +19,21 @@
                             tittle="{{ isset($item->id_tbl_correspondencia) ? 'Modificar' : 'Agregar ' }} Correspondencia"
                             route="{{ route('letter.list') }}" />
                         <div>
-                            <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample">
+                            <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample" enctype="multipart/form-data">
                                 @csrf
 
                                 <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
 
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
-                                <x-template-form.template-form-input-hidden name="fecha_captura" value="{{ optional($item)->fecha_captura ?? '' }}" />
+
+                                {{-- fecha_captura formateada a d/m/Y de forma segura --}}
+                                @php
+                                    $fc = $item->fecha_captura ?? null;
+                                    try { $fc_fmt = \Carbon\Carbon::parse($fc)->format('d/m/Y'); }
+                                    catch (\Exception $e) { $fc_fmt = is_string($fc) ? $fc : ''; }
+                                @endphp
+                                <x-template-form.template-form-input-hidden name="fecha_captura" value="{{ $fc_fmt }}" />
+
                                 <x-template-form.template-form-input-hidden name="id_cat_anio" value="{{ optional($item)->id_cat_anio ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="num_turno_sistema" value="{{ optional($item)->num_turno_sistema ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="id_cat_clave_aux" value="{{ optional($item)->id_cat_clave ?? '' }}" />
@@ -255,3 +263,79 @@
 <script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
+
+{{-- ====== Script: Dependencia Área 2 a partir de Área 1 ====== --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $area1 = document.getElementById('id_cat_area_1');
+    const $area2 = document.getElementById('id_cat_area_2');
+    if (!$area1 || !$area2) return;
+
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    async function cargarArea2PorArea1(area1Id, selectedId = null) {
+        try {
+            $area2.disabled = true;
+            $area2.innerHTML = '<option value="">SELECCIONE</option>';
+
+            const resp = await fetch("{{ route('letter.collectionArea') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    by: 'area2_by_area1',
+                    id_cat_area_1: area1Id
+                })
+            });
+
+            if (!resp.ok) throw new Error('Error al consultar Áreas');
+
+            const json = await resp.json();
+
+            if (json.ok && Array.isArray(json.value)) {
+                json.value.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = String(opt.id ?? '');
+                    option.textContent = String(opt.label ?? '');
+                    if (selectedId && String(selectedId) === String(opt.id)) {
+                        option.selected = true;
+                    }
+                    $area2.appendChild(option);
+                });
+            }
+
+        } catch (e) {
+            console.error('AREA2_LOAD_ERROR:', e);
+        } finally {
+            $area2.disabled = false;
+            if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
+                $('#id_cat_area_2').selectpicker('refresh');
+            }
+        }
+    }
+
+    $area1.addEventListener('change', function (e) {
+        const area1Id = e.target.value || '';
+        if (area1Id) {
+            cargarArea2PorArea1(area1Id, null);
+        } else {
+            $area2.innerHTML = '<option value="">SELECCIONE</option>';
+            if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
+                $('#id_cat_area_2').selectpicker('refresh');
+            }
+        }
+    });
+
+    // Precarga en edición
+    const area1Inicial = $area1.value || null;
+    const area2Inicial = "{{ optional($item)->id_cat_area_2 }}";
+    if (area1Inicial) {
+        cargarArea2PorArea1(area1Inicial, area2Inicial);
+    }
+});
+</script>
+
+

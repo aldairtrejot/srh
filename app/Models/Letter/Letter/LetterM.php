@@ -49,6 +49,30 @@ class LetterM extends Model
         'id_cat_area_2',
     ];
 
+    protected $casts = [
+        'fecha_captura'          => 'date:Y-m-d',
+        'fecha_inicio'           => 'date:Y-m-d',
+        'fecha_fin'              => 'date:Y-m-d',
+        'fecha_usuario'          => 'datetime',
+        'fecha_usuario_captura'  => 'datetime',
+        'fecha_documento'        => 'date:Y-m-d',
+        'num_flojas'             => 'integer',
+        'num_tomos'              => 'integer',
+        'horas_respuesta'        => 'integer',
+        'es_doc_fisico'          => 'boolean',
+        'son_mas_remitentes'     => 'boolean',
+        'id_cat_area'            => 'integer',
+        'id_cat_area_1'          => 'integer',
+        'id_cat_area_2'          => 'integer',
+        'id_cat_estatus'         => 'integer',
+        'id_cat_unidad'          => 'integer',
+        'id_cat_coordinacion'    => 'integer',
+        'id_cat_tramite'         => 'integer',
+        'id_cat_clave'           => 'integer',
+        'id_cat_anio'            => 'integer',
+        'id_cat_entidad'         => 'integer',
+    ];
+
     /* =========================
        BÁSICOS
        ========================= */
@@ -79,8 +103,10 @@ class LetterM extends Model
        LISTADO (incluye Área 1 y Área 2)
        ========================= */
 
-    public function list($iterator, $searchValue, $idUser)
+    public function list($iterator, $searchValue, $idUser, $pageSize = 10)
     {
+        $pageSize = max(1, (int)$pageSize);
+
         $query = DB::table('correspondencia.tbl_correspondencia')
             ->select([
                 'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
@@ -115,7 +141,6 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.fecha_fin'
             );
 
-        // Filtro por rol/áreas (principal, 1, 2 y copias)
         if (!empty($idUser)) {
             $query->where(function ($q) use ($idUser) {
                 $q->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
@@ -127,22 +152,20 @@ class LetterM extends Model
             $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
         }
 
-        // Búsqueda (incluye 3 áreas)
         if (!empty($searchValue)) {
-            $searchValue = strtoupper(trim($searchValue));
-            $query->where(function ($q) use ($searchValue) {
-                $q->whereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.num_documento)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.asunto)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(correspondencia.cat_estatus.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(correspondencia.tbl_correspondencia.folio_gestion)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(area_main.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(area1.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(area2.descripcion)) LIKE ?", ['%' . $searchValue . '%'])
-                  ->orWhereRaw("UPPER(TRIM(TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY'))) LIKE ?", ['%' . $searchValue . '%']);
+            $sv = '%'.trim($searchValue).'%';
+            $query->where(function ($q) use ($sv) {
+                $q->whereRaw("TRIM(correspondencia.tbl_correspondencia.num_documento) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.asunto) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.cat_estatus.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.folio_gestion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area_main.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area1.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area2.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') ILIKE ?", [$sv]);
             });
         }
 
-        // Orden
         if (!empty($idUser)) {
             $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
                                 WHEN 1 THEN 1
@@ -156,7 +179,7 @@ class LetterM extends Model
             $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
         }
 
-        $query->offset($iterator)->limit(5);
+        $query->offset($iterator)->limit($pageSize);
         return $query->get();
     }
 
@@ -164,7 +187,18 @@ class LetterM extends Model
        SELECTS ESPECIALES (ÁREA 1 y 2)
        ========================= */
 
-    // Opciones para Área 1 desde rel_cat_area_jerarquia_1 (DISTINCT)
+    // NUEVO: Opciones de Área 2 filtradas por Área 1 (dependiente)
+    public function getArea2OptionsByArea1(int $area1Id)
+    {
+        return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
+            ->join('correspondencia.cat_area as a2', 'r.id_cat_area_2', '=', 'a2.id_cat_area')
+            ->select('a2.id_cat_area as id', DB::raw('UPPER(a2.descripcion) as descripcion'))
+            ->where('r.id_cat_area_1', $area1Id)
+            ->distinct()
+            ->orderBy('descripcion')
+            ->get();
+    }
+
     public function getArea1Options()
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
@@ -175,7 +209,6 @@ class LetterM extends Model
             ->get();
     }
 
-    // Opciones para Área 1 filtradas por mi área (si aplica)
     public function getArea1OptionsByArea(int $miAreaId)
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
@@ -187,7 +220,6 @@ class LetterM extends Model
             ->get();
     }
 
-    // Opción seleccionada (edit) para Área 1 -> OBJETO
     public function getArea1EditObj($id = null)
     {
         if (!$id) return null;
@@ -197,7 +229,6 @@ class LetterM extends Model
             ->first();
     }
 
-    // Opciones para Área 2 desde rel_cat_area_jerarquia_2 (DISTINCT)
     public function getArea2Options()
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_2 as r')
@@ -208,7 +239,6 @@ class LetterM extends Model
             ->get();
     }
 
-    // Opción seleccionada (edit) para Área 2 -> OBJETO
     public function getArea2EditObj($id = null)
     {
         if (!$id) return null;
@@ -335,7 +365,6 @@ class LetterM extends Model
             ->value('correspondencia.tbl_correspondencia.id_cat_area') ?: null;
     }
 
-    // Valida que el área NO esté ya asociada al folio (principal, 1, 2 y copias)
     public function getValue($id_letter, $id_area)
     {
         $exists = DB::table('correspondencia.tbl_correspondencia')
@@ -350,7 +379,7 @@ class LetterM extends Model
             })
             ->exists();
 
-        return !$exists; // true si no existe (válido para agregar)
+        return !$exists;
     }
 
     /* =========================
@@ -401,8 +430,14 @@ class LetterM extends Model
     public function getMaxNuSistem()
     {
         return DB::table('correspondencia.tbl_correspondencia')
-            ->selectRaw("MAX(CAST((REGEXP_MATCH(num_turno_sistema, '/([0-9]{4,5})/'))[1] AS INTEGER)) AS max_num_turno")
-            ->whereRaw("num_turno_sistema ~ '/[0-9]{4,5}/'")
+            ->selectRaw("
+                MAX(
+                    CAST(
+                        substring(num_turno_sistema FROM '/([0-9]{3,})/') 
+                    AS INTEGER)
+                ) AS max_num_turno
+            ")
+            ->whereRaw("num_turno_sistema ~ '/[0-9]{3,}/'")
             ->value('max_num_turno');
     }
 
@@ -427,6 +462,7 @@ class LetterM extends Model
             ->get();
     }
 }
+
 
 
 

@@ -72,7 +72,7 @@ class LetterC extends Controller
         $collectionEntidadM = new CollectionEntidadM();
 
         // defaults
-        $item->fecha_captura = now()->format('d/m/Y');
+        $item->fecha_captura = now(); // <-- Carbon en vez de 'd/m/Y' para evitar parseos en Eloquent
         $item->id_cat_anio = $collectionDateM->idYear();
         $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
         $item->rfc_remitente_bool = false;
@@ -251,6 +251,23 @@ class LetterC extends Controller
             );
         }
 
+        // Tolerancia al formato de fecha_captura: d/m/Y o Y-m-d
+        $fcOriginal = $request->fecha_captura;
+        $fechaCapturaYmd = null;
+        if ($fcOriginal) {
+            try {
+                $fechaCapturaYmd = Carbon::createFromFormat('d/m/Y', $fcOriginal)->format('Y-m-d');
+            } catch (\Exception $e) {
+                try {
+                    $fechaCapturaYmd = Carbon::parse($fcOriginal)->format('Y-m-d');
+                } catch (\Exception $e2) {
+                    $fechaCapturaYmd = now()->toDateString(); // fallback
+                }
+            }
+        } else {
+            $fechaCapturaYmd = now()->toDateString();
+        }
+
         // CREATE
         if (!isset($request->id_tbl_correspondencia)) {
 
@@ -269,7 +286,7 @@ class LetterC extends Controller
             $data = [
                 'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'num_documento' => strtoupper($request->num_documento),
-                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
+                'fecha_captura' => $fechaCapturaYmd, // <-- YA normalizada
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'num_flojas' => 1,
@@ -427,6 +444,48 @@ class LetterC extends Controller
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
     }
 
+    /**
+     * Reutiliza la ruta POST /letter/collection/area (name: letter.collectionArea).
+     * Caso usado por el front para poblar "Área 2" dependiente de "Área 1":
+     *   by=area2_by_area1  &  id_cat_area_1=<id>
+     */
+    public function collectionArea(Request $request, LetterM $model)
+    {
+        try {
+            $by = $request->input('by');
+
+            if ($by === 'area2_by_area1' && $request->filled('id_cat_area_1')) {
+                $area1Id = (int) $request->input('id_cat_area_1');
+
+                // Método posible en tu modelo; si no lo tienes, usa un join directo aquí
+                if (!method_exists($model, 'getArea2OptionsByArea1')) {
+                    $rows = DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
+                        ->join('correspondencia.cat_area as a2', 'r.id_cat_area_2', '=', 'a2.id_cat_area')
+                        ->select('a2.id_cat_area as id', DB::raw('UPPER(a2.descripcion) as descripcion'))
+                        ->where('r.id_cat_area_1', $area1Id)
+                        ->distinct()
+                        ->orderBy('descripcion')
+                        ->get();
+                } else {
+                    $rows = $model->getArea2OptionsByArea1($area1Id);
+                }
+
+                $clean = collect($rows)->map(function ($x) {
+                    if (is_array($x)) $x = (object)$x;
+                    return ['id' => (string) ($x->id ?? $x->id_cat_area ?? ''), 'label' => (string) ($x->descripcion ?? '')];
+                })->values();
+
+                return response()->json(['ok' => true, 'value' => $clean]);
+            }
+
+            return response()->json(['ok' => true, 'value' => []]);
+
+        } catch (\Throwable $e) {
+            Log::error('LETTER_COLLECTION_AREA_ERROR: '.$e->getMessage(), ['ex' => $e]);
+            return response()->json(['ok' => false, 'value' => []], 500);
+        }
+    }
+
     /* ==== helpers privados ==== */
     private function getMaxTurno($numTurno) {
         if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
@@ -519,6 +578,8 @@ class LetterC extends Controller
         ]);
     }
 }
+
+
 
 
 
