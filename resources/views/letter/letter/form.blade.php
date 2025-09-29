@@ -22,15 +22,15 @@
                             <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample" enctype="multipart/form-data">
                                 @csrf
 
-                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
+                                <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
 
                                 <x-template-form.template-form-input-hidden name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
-                                {{-- fecha_captura formateada a d/m/Y de forma segura --}}
+                                {{-- fecha_captura -> guardamos en hidden como d/m/Y para el save() --}}
                                 @php
                                     $fc = $item->fecha_captura ?? null;
                                     try { $fc_fmt = \Carbon\Carbon::parse($fc)->format('d/m/Y'); }
-                                    catch (\Exception $e) { $fc_fmt = is_string($fc) ? $fc : ''; }
+                                    catch (\Exception $e) { $fc_fmt = is_string($fc) ? $fc : now()->format('d/m/Y'); }
                                 @endphp
                                 <x-template-form.template-form-input-hidden name="fecha_captura" value="{{ $fc_fmt }}" />
 
@@ -40,6 +40,11 @@
                                 <x-template-form.template-form-input-hidden name="rfc_remitente_bool" value="{{ optional($item)->rfc_remitente_bool ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="es_doc_fisico" value="{{ optional($item)->es_doc_fisico ?? '' }}" />
                                 <x-template-form.template-form-input-hidden name="son_mas_remitentes" value="{{ optional($item)->son_mas_remitentes ?? '' }}" />
+
+                                {{-- iniciales para el JS externo (precarga en edición) --}}
+                                <x-template-form.template-form-input-hidden name="_init_area1" value="{{ optional($item)->id_cat_area_1 ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="_init_area2" value="{{ optional($item)->id_cat_area_2 ?? '' }}" />
+                                <x-template-form.template-form-input-hidden name="_init_area3" value="{{ optional($item)->id_cat_area ?? '' }}" />
 
                                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                                 <div class="contenedor">
@@ -121,7 +126,7 @@
                                 <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
                                 <div class="row">
 
-                                    <!-- NUEVO: Área 1 (lista desde rel_cat_area_jerarquia_1) -->
+                                    <!-- Área 1 -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea1"
                                         :selectEdit="$selectArea1Edit"
@@ -130,7 +135,7 @@
                                         tittle="Área 1"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    <!-- NUEVO: Área 2 (lista desde rel_cat_area_jerarquia_2) -->
+                                    <!-- Área 2 -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea2"
                                         :selectEdit="$selectArea2Edit"
@@ -139,7 +144,7 @@
                                         tittle="Área 2"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-                                    <!-- Área principal (Área 3) -->
+                                    <!-- Área 3 (principal) -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea" :selectEdit="$selectAreaEdit"
                                         name="id_cat_area" tittle="Área 3"
@@ -264,78 +269,24 @@
 <script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
 
-{{-- ====== Script: Dependencia Área 2 a partir de Área 1 ====== --}}
+{{-- Config global para el JS externo (URL y valores iniciales) --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const $area1 = document.getElementById('id_cat_area_1');
-    const $area2 = document.getElementById('id_cat_area_2');
-    if (!$area1 || !$area2) return;
-
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    async function cargarArea2PorArea1(area1Id, selectedId = null) {
-        try {
-            $area2.disabled = true;
-            $area2.innerHTML = '<option value="">SELECCIONE</option>';
-
-            const resp = await fetch("{{ route('letter.collectionArea') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    by: 'area2_by_area1',
-                    id_cat_area_1: area1Id
-                })
-            });
-
-            if (!resp.ok) throw new Error('Error al consultar Áreas');
-
-            const json = await resp.json();
-
-            if (json.ok && Array.isArray(json.value)) {
-                json.value.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = String(opt.id ?? '');
-                    option.textContent = String(opt.label ?? '');
-                    if (selectedId && String(selectedId) === String(opt.id)) {
-                        option.selected = true;
-                    }
-                    $area2.appendChild(option);
-                });
-            }
-
-        } catch (e) {
-            console.error('AREA2_LOAD_ERROR:', e);
-        } finally {
-            $area2.disabled = false;
-            if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
-                $('#id_cat_area_2').selectpicker('refresh');
-            }
-        }
+  window.LETTER = {
+    collectionAreaUrl: "{{ route('letter.collectionArea') }}",
+    initials: {
+      area1: "{{ optional($item)->id_cat_area_1 }}",
+      area2: "{{ optional($item)->id_cat_area_2 }}",
+      area3: "{{ optional($item)->id_cat_area }}"
     }
-
-    $area1.addEventListener('change', function (e) {
-        const area1Id = e.target.value || '';
-        if (area1Id) {
-            cargarArea2PorArea1(area1Id, null);
-        } else {
-            $area2.innerHTML = '<option value="">SELECCIONE</option>';
-            if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
-                $('#id_cat_area_2').selectpicker('refresh');
-            }
-        }
-    });
-
-    // Precarga en edición
-    const area1Inicial = $area1.value || null;
-    const area2Inicial = "{{ optional($item)->id_cat_area_2 }}";
-    if (area1Inicial) {
-        cargarArea2PorArea1(area1Inicial, area2Inicial);
-    }
-});
+  };
 </script>
+
+{{-- Tu JS externo con las dependencias de Área 1 -> Área 2 -> Área 3 --}}
+<script src="{{ asset('assets/js/app/letter/letter/deps-areas.js') }}"></script>
+
+
+
+
+
 
 

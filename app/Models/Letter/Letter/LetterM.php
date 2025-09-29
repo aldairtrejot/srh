@@ -2,7 +2,6 @@
 
 namespace App\Models\Letter\Letter;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -44,7 +43,6 @@ class LetterM extends Model
         'remitente',
         'fecha_documento',
         'id_cat_entidad',
-        // nuevos campos
         'id_cat_area_1',
         'id_cat_area_2',
     ];
@@ -73,10 +71,6 @@ class LetterM extends Model
         'id_cat_entidad'         => 'integer',
     ];
 
-    /* =========================
-       BÁSICOS
-       ========================= */
-
     public function getIdFolGestion($folGestion)
     {
         return DB::table('correspondencia.tbl_correspondencia')
@@ -98,10 +92,6 @@ class LetterM extends Model
             ->whereRaw('UPPER(TRIM(folio_gestion)) = ?', [strtoupper(trim($fol))])
             ->first() ?? null;
     }
-
-    /* =========================
-       LISTADO (incluye Área 1 y Área 2)
-       ========================= */
 
     public function list($iterator, $searchValue, $idUser, $pageSize = 10)
     {
@@ -183,11 +173,7 @@ class LetterM extends Model
         return $query->get();
     }
 
-    /* =========================
-       SELECTS ESPECIALES (ÁREA 1 y 2)
-       ========================= */
-
-    // NUEVO: Opciones de Área 2 filtradas por Área 1 (dependiente)
+    // ===== SELECTS ESPECIALES (ÁREA 1 y 2) =====
     public function getArea2OptionsByArea1(int $area1Id)
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
@@ -248,9 +234,7 @@ class LetterM extends Model
             ->first();
     }
 
-    /* =========================
-       VALIDACIONES / ÚNICOS
-       ========================= */
+    // ==== Otros métodos (únicos, reportes, etc.) ====
 
     public function validateNoDocument($id, $value)
     {
@@ -277,10 +261,6 @@ class LetterM extends Model
 
         return $q->first();
     }
-
-    /* =========================
-       REPORTES / CLOUD
-       ========================= */
 
     public function getDataReport($id)
     {
@@ -340,10 +320,6 @@ class LetterM extends Model
             ->first();
     }
 
-    /* =========================
-       TURNOS / ÁREAS
-       ========================= */
-
     public function getTurno($id)
     {
         return DB::table('correspondencia.tbl_correspondencia')
@@ -381,10 +357,6 @@ class LetterM extends Model
 
         return !$exists;
     }
-
-    /* =========================
-       EMAIL / OTROS
-       ========================= */
 
     public function getUserEnlace($value)
     {
@@ -462,6 +434,9 @@ class LetterM extends Model
             ->get();
     }
 }
+
+
+
 
 
 

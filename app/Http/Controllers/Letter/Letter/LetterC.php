@@ -7,7 +7,6 @@ use App\Models\Letter\Collection\CollectionRolAreaM;
 use App\Http\Controllers\Letter\Log\LogC;
 use App\Models\Letter\Collection\CollectionClaveM;
 use App\Models\Letter\Collection\CollectionEntidadM;
-use App\Models\Letter\Collection\CollectionLetterCopyM;
 use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
@@ -37,19 +36,17 @@ class LetterC extends Controller
         return view('letter/letter/list');
     }
 
-    // Usado por table.js -> /letter/table
+    // /letter/table
     public function table(Request $request, LetterM $model)
     {
         try {
             $iterator    = (int) $request->get('iterator', 0);
             $searchValue = (string) $request->get('searchValue', '');
-            $idUser      = []; // si aplicas filtro por rol, coloca aquí los IDs de área permitidos
+            $idUser      = [];
 
             $rows = $model->list($iterator, $searchValue, $idUser);
 
-            return response()->json([
-                'value' => $rows,
-            ]);
+            return response()->json(['value' => $rows]);
         } catch (\Throwable $e) {
             Log::error('LETTER_TABLE_ERROR: '.$e->getMessage(), ['ex' => $e]);
             return response()->json([
@@ -60,73 +57,77 @@ class LetterC extends Controller
         }
     }
 
-    public function create()
-    {
-        $item = new LetterM();
-        $collectionAreaM = new CollectionAreaM();
-        $collectionUnidadM = new CollectionUnidadM();
-        $collectionStatusM = new CollectionStatusM();
-        $collectionDateM = new CollectionDateM();
-        $collectionConsecutivoM = new CollectionConsecutivoM();
-        $collectionRemitenteM = new CollectionRemitenteM();
-        $collectionEntidadM = new CollectionEntidadM();
+   public function create()
+{
+    $item = new LetterM();
+    $collectionUnidadM   = new CollectionUnidadM();
+    $collectionStatusM   = new CollectionStatusM();
+    $collectionDateM     = new CollectionDateM();
+    $collectionConsecutivoM = new CollectionConsecutivoM();
+    $collectionRemitenteM   = new CollectionRemitenteM();
+    $collectionEntidadM     = new CollectionEntidadM();
 
-        // defaults
-        $item->fecha_captura = now(); // <-- Carbon en vez de 'd/m/Y' para evitar parseos en Eloquent
-        $item->id_cat_anio = $collectionDateM->idYear();
-        $item->num_turno_sistema = $collectionConsecutivoM->noDocumento($item->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
-        $item->rfc_remitente_bool = false;
-        $item->es_doc_fisico = true;
-        $item->son_mas_remitentes = false;
-        $item->num_flojas = 1;
-        $item->num_tomos = 0;
-        $item->horas_respuesta = 0;
+    // Defaults (fecha como Carbon para evitar parseos raros)
+    $item->fecha_captura      = now();
+    $item->id_cat_anio        = $collectionDateM->idYear();
+    $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
+        $item->id_cat_anio,
+        config('custom_config.CP_TABLE_CORRESPONDENCIA')
+    );
+    $item->rfc_remitente_bool = false;
+    $item->es_doc_fisico      = true;
+    $item->son_mas_remitentes = false;
+    $item->num_flojas         = 1;
+    $item->num_tomos          = 0;
+    $item->horas_respuesta    = 0;
 
-        /* ===== Área 3 (AGREGAR: solo activas) ===== */
-        $selectArea = DB::table('correspondencia.cat_area')
-            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-            ->where('estatus', true)
-            ->orderBy('descripcion')
-            ->get();
-        $selectAreaEdit = null;
+    /* ===== Área 3 (AGREGAR: VACÍO hasta elegir Área 2) ===== */
+    // ANTES cargabas cat_area aquí; para el flujo en cascada dejamos vacío:
+    $selectArea     = collect([]);   // 👈 vacío
+    $selectAreaEdit = null;
 
-        /* ===== Área 1 (relación jerárquica 1) ===== */
-        $miAreaId        = Auth::user()->id_cat_area ?? null; // ajusta si tu User tiene otro campo
-        $selectArea1     = $miAreaId ? $item->getArea1OptionsByArea((int)$miAreaId) : $item->getArea1Options();
-        $selectArea1Edit = null;
+    /* ===== Área 1 (sí se muestra) ===== */
+    $miAreaId        = Auth::user()->id_cat_area ?? null;
+    $selectArea1     = $miAreaId
+        ? $item->getArea1OptionsByArea((int)$miAreaId)
+        : $item->getArea1Options();
+    $selectArea1Edit = null;
 
-        /* ===== Área 2 (relación jerárquica 2) ===== */
-        $selectArea2     = $item->getArea2Options();
-        $selectArea2Edit = null;
+    /* ===== Área 2 (AGREGAR: VACÍO hasta elegir Área 1) ===== */
+    // ANTES: $selectArea2 = $item->getArea2Options();
+    $selectArea2     = collect([]);  // 👈 vacío
+    $selectArea2Edit = null;
 
-        $selectUser = [];
-        $selectUserEdit = [];
-        $selectEnlace = [];
-        $selectEnlaceEdit = [];
-        $selectUnidad = [];
-        $selectUnidadEdit = null;
-        $selectCoordinacion = [];
-        $selectCoordinacionEdit = null;
-        $selectStatus = $collectionStatusM->list();
-        $selectStatusEdit = $collectionStatusM->edit(1);
-        $selectTramite = [];
-        $selectTramiteEdit = null;
-        $selectClave = [];
-        $selectClaveEdit = null;
-        $selectRemitente = $collectionRemitenteM->list();
-        $selectRemitenteEdit = null;
-        $selectEntidad = $collectionEntidadM->list();
-        $selectEntidadEdit = null;
+    // Resto de selects (vacíos o con sus catálogos según tu flujo)
+    $selectUser            = [];
+    $selectUserEdit        = [];
+    $selectEnlace          = [];
+    $selectEnlaceEdit      = [];
+    $selectUnidad          = [];
+    $selectUnidadEdit      = null;
+    $selectCoordinacion    = [];
+    $selectCoordinacionEdit= null;
+    $selectStatus          = $collectionStatusM->list();
+    $selectStatusEdit      = $collectionStatusM->edit(1);
+    $selectTramite         = [];
+    $selectTramiteEdit     = null;
+    $selectClave           = [];
+    $selectClaveEdit       = null;
+    $selectRemitente       = $collectionRemitenteM->list();
+    $selectRemitenteEdit   = null;
+    $selectEntidad         = $collectionEntidadM->list();
+    $selectEntidadEdit     = null;
 
-        return view('letter.letter.form', compact(
-            'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
-            'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
-            'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
-            'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
-            'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
-            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit'
-        ));
-    }
+    return view('letter.letter.form', compact(
+        'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
+        'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
+        'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
+        'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
+        'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
+        'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit'
+    ));
+}
+
 
     public function edit(string $id)
     {
@@ -147,13 +148,12 @@ class LetterC extends Controller
         $selectStatus     = $collectionStatusM->listEdit();
         $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
 
-        /* ===== Área 3 (EDIT: TODAS, incluso inactivas) ===== */
+        /* ===== Área 3 (EDIT: TODAS) ===== */
         $selectArea = DB::table('correspondencia.cat_area')
             ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
             ->orderBy('descripcion')
             ->get();
 
-        // objeto (no collection)
         $selectAreaEdit = isset($item->id_cat_area)
             ? DB::table('correspondencia.cat_area')
                 ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
@@ -226,7 +226,6 @@ class LetterC extends Controller
         $es_doc_fisico = isset($request->es_doc_fisico) ? 1 : 0;
         $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0;
 
-        // (opcional) validación de archivos
         $request->validate([
             'archivo_oficio'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
             'archivo_anexo_1'  => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
@@ -251,23 +250,6 @@ class LetterC extends Controller
             );
         }
 
-        // Tolerancia al formato de fecha_captura: d/m/Y o Y-m-d
-        $fcOriginal = $request->fecha_captura;
-        $fechaCapturaYmd = null;
-        if ($fcOriginal) {
-            try {
-                $fechaCapturaYmd = Carbon::createFromFormat('d/m/Y', $fcOriginal)->format('Y-m-d');
-            } catch (\Exception $e) {
-                try {
-                    $fechaCapturaYmd = Carbon::parse($fcOriginal)->format('Y-m-d');
-                } catch (\Exception $e2) {
-                    $fechaCapturaYmd = now()->toDateString(); // fallback
-                }
-            }
-        } else {
-            $fechaCapturaYmd = now()->toDateString();
-        }
-
         // CREATE
         if (!isset($request->id_tbl_correspondencia)) {
 
@@ -286,7 +268,7 @@ class LetterC extends Controller
             $data = [
                 'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
                 'num_documento' => strtoupper($request->num_documento),
-                'fecha_captura' => $fechaCapturaYmd, // <-- YA normalizada
+                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'num_flojas' => 1,
@@ -444,45 +426,42 @@ class LetterC extends Controller
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
     }
 
-    /**
-     * Reutiliza la ruta POST /letter/collection/area (name: letter.collectionArea).
-     * Caso usado por el front para poblar "Área 2" dependiente de "Área 1":
-     *   by=area2_by_area1  &  id_cat_area_1=<id>
-     */
-    public function collectionArea(Request $request, LetterM $model)
+    /* ===== Collection dependiente Áreas (AJAX) ===== */
+    public function collectionArea(Request $request)
     {
         try {
             $by = $request->input('by');
 
-            if ($by === 'area2_by_area1' && $request->filled('id_cat_area_1')) {
+            // 1) Área 2 por Área 1
+            if ($by === 'area2_by_area1') {
                 $area1Id = (int) $request->input('id_cat_area_1');
+                $rows = (new LetterM())->getArea2OptionsByArea1($area1Id)
+                    ->map(fn($r) => ['id' => $r->id, 'label' => $r->descripcion])
+                    ->values();
 
-                // Método posible en tu modelo; si no lo tienes, usa un join directo aquí
-                if (!method_exists($model, 'getArea2OptionsByArea1')) {
-                    $rows = DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
-                        ->join('correspondencia.cat_area as a2', 'r.id_cat_area_2', '=', 'a2.id_cat_area')
-                        ->select('a2.id_cat_area as id', DB::raw('UPPER(a2.descripcion) as descripcion'))
-                        ->where('r.id_cat_area_1', $area1Id)
-                        ->distinct()
-                        ->orderBy('descripcion')
-                        ->get();
-                } else {
-                    $rows = $model->getArea2OptionsByArea1($area1Id);
-                }
-
-                $clean = collect($rows)->map(function ($x) {
-                    if (is_array($x)) $x = (object)$x;
-                    return ['id' => (string) ($x->id ?? $x->id_cat_area ?? ''), 'label' => (string) ($x->descripcion ?? '')];
-                })->values();
-
-                return response()->json(['ok' => true, 'value' => $clean]);
+                return response()->json(['ok' => true, 'value' => $rows]);
             }
 
-            return response()->json(['ok' => true, 'value' => []]);
+            // 2) Área 3 por Área 2 (TU SQL)
+            if ($by === 'area3_by_area2') {
+                $area2Id = (int) $request->input('id_cat_area_2');
 
+                $rows = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
+                    ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
+                    ->join('correspondencia.cat_area as ca', 'r2.id_cat_area_2', '=', 'ca.id_cat_area')
+                    ->where('r1.id_cat_area_2', $area2Id)
+                    ->select('ca.id_cat_area as id', DB::raw('UPPER(ca.descripcion) AS label'))
+                    ->distinct()
+                    ->orderBy('label')
+                    ->get();
+
+                return response()->json(['ok' => true, 'value' => $rows]);
+            }
+
+            return response()->json(['ok' => false, 'message' => 'Parámetro "by" inválido'], 422);
         } catch (\Throwable $e) {
             Log::error('LETTER_COLLECTION_AREA_ERROR: '.$e->getMessage(), ['ex' => $e]);
-            return response()->json(['ok' => false, 'value' => []], 500);
+            return response()->json(['ok' => false, 'message' => 'Error interno'], 500);
         }
     }
 
@@ -502,11 +481,6 @@ class LetterC extends Controller
         return $letras1 . '/' . $numeros2 . '/2025';
     }
 
-    /**
-     * Subida de oficio y anexos (si vienen) y registro en tablas:
-     * - correspondencia.ctrl_correspondencia_oficio
-     * - correspondencia.ctrl_correspondencia_anexo
-     */
     private function handleUploads(int $idCorrespondencia, Request $request): void
     {
         try {
@@ -532,7 +506,7 @@ class LetterC extends Controller
         $disk = 'public';
         $basePath = 'correspondencia/' . trim($subdir, '/');
         $original = $file->getClientOriginalName();
-        $ext = $file->getClientOriginalExtension(); // FIX del parse error
+        $ext = $file->getClientOriginalExtension();
         $uuid = (string) Str::uuid();
         $filename = $uuid . '.' . $ext;
 
@@ -578,6 +552,10 @@ class LetterC extends Controller
         ]);
     }
 }
+
+
+
+
 
 
 
