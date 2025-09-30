@@ -308,7 +308,7 @@ class LetterC extends Controller
                 'id_usuario_captura' => Auth::user()->id,
             ]);
 
-            // === NUEVO: subir archivos después de crear (usa el ID) ===
+            // Subir archivos después de crear
             $this->uploadFilesIfAny($request, $created->id_tbl_correspondencia);
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
@@ -367,7 +367,7 @@ class LetterC extends Controller
                     'id_usuario_captura' => Auth::user()->id,
                 ]);
 
-                // === NUEVO: subir archivos si vienen en la edición ===
+                // Subir archivos si vienen en la edición
                 $this->uploadFilesIfAny($request, $request->id_tbl_correspondencia);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
@@ -415,10 +415,19 @@ class LetterC extends Controller
         }
     }
 
-    // === NUEVO: subida a Alfresco después de guardar ===
+    // === Subida a Alfresco después de guardar (con logs) ===
     private function uploadFilesIfAny(Request $request, $idCorrespondencia)
     {
         try {
+            Log::info('[UPLOAD] init', [
+                'correspondencia' => $idCorrespondencia,
+                'has_oficio' => $request->hasFile('file_oficio_entrada'),
+                'has_anexos' => $request->hasFile('file_anexo_entrada'),
+                'area' => $request->id_cat_area,
+                'entrada_salida' => $request->id_cat_entrada,
+                'tipo_oficio' => $request->id_cat_tipo_oficio,
+            ]);
+
             $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
             $hasAnexos = $request->hasFile('file_anexo_entrada') && is_array($request->file('file_anexo_entrada'));
 
@@ -427,17 +436,17 @@ class LetterC extends Controller
             $alfrescoC = new AlfrescoC();
             $cloudConfigM = new CloudConfigM();
 
-            $idCatArea = $request->id_cat_area;
-            $idEntradaSalida = $request->id_cat_entrada;     // hidden del blade
-            $idCatTipoOficio = $request->id_cat_tipo_oficio; // hidden del blade
-
-            $uidFolder = $cloudConfigM->getUid($idCatArea, $idEntradaSalida, $idCatTipoOficio);
+            $uidFolder = $cloudConfigM->getUid($request->id_cat_area, $request->id_cat_entrada, $request->id_cat_tipo_oficio);
+            Log::info('[UPLOAD] uidFolder', ['uid' => $uidFolder->uid ?? null]);
             if (!$uidFolder || !isset($uidFolder->uid)) { return; }
 
             // Oficio (máx 1)
             if ($hasOficio) {
                 $file = $request->file('file_oficio_entrada');
+                Log::info('[UPLOAD] oficio', ['name' => $file->getClientOriginalName()]);
                 $uploadedUid = $alfrescoC->addFile($file, $uidFolder->uid, 1); // 1 => OFICIO_
+                Log::info('[UPLOAD] oficio uid', ['uid' => $uploadedUid]);
+
                 if ($uploadedUid) {
                     $now = Carbon::now();
                     $filename = 'OFICIO_' . $file->getClientOriginalName();
@@ -449,17 +458,20 @@ class LetterC extends Controller
                         'fecha_usuario' => $now,
                         'id_tbl_correspondencia' => $idCorrespondencia,
                         'id_usuario_sistema' => Auth::user()->id,
-                        'id_cat_tipo_doc_cloud' => $idEntradaSalida,
+                        'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
                     ]);
                 }
             }
 
-            // Anexos (hasta 3 por UI, pero aquí subimos todos los que vengan)
+            // Anexos (hasta 3 por UI; aquí subimos todos los que lleguen)
             if ($hasAnexos) {
                 $now = Carbon::now();
                 foreach ($request->file('file_anexo_entrada') as $file) {
                     if (!$file || !$file->isValid()) { continue; }
+                    Log::info('[UPLOAD] anexo', ['name' => $file->getClientOriginalName()]);
                     $uploadedUid = $alfrescoC->addFile($file, $uidFolder->uid, 0); // 0 => ANEXO_
+                    Log::info('[UPLOAD] anexo uid', ['uid' => $uploadedUid]);
+
                     if ($uploadedUid) {
                         $filename = 'ANEXO_' . $file->getClientOriginalName();
                         CloudAnexosM::create([
@@ -469,7 +481,7 @@ class LetterC extends Controller
                             'fecha_usuario' => $now,
                             'id_tbl_correspondencia' => $idCorrespondencia,
                             'id_usuario_sistema' => Auth::user()->id,
-                            'id_cat_tipo_doc_cloud' => $idEntradaSalida,
+                            'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
                         ]);
                     }
                 }

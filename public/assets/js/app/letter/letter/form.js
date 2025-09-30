@@ -1,6 +1,14 @@
+/* form.js — LÓGICA GENERAL DE FORMULARIO
+   - Fechas (límites y validación)
+   - Roles/permits, selectpickers, tooltips
+   - Remitentes (uno o varios)
+   - Carga de archivos (UI) usando IDs REALES del Blade
+*/
+
 var token = $('meta[name="csrf-token"]').attr('content');
 
 $(document).ready(function () {
+    // UI base
     $('select').selectpicker();
     setData();
     getRole();
@@ -13,10 +21,10 @@ $(document).ready(function () {
     tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado');
     tooltip('#mas_remitentes', 'Añadir dos o más remitentes');
 
-    // tooltip para el nuevo checkbox de archivos
-    tooltip('#id_checkbox_carga_archivos', 'Mostrar/ocultar la sección de carga de Oficio y Anexos');
+    // tooltip para el checkbox de archivos (el contenedor es #habilitar_carga_archivos)
+    tooltip('#habilitar_carga_archivos', 'Mostrar/ocultar la sección de carga de Oficio y Anexos');
 
-    // Estado inicial del bloque de archivos
+    // Estado inicial del bloque de archivos (usa hidden real #habilitar_carga)
     setCheckboxFiles();
 
     // Validación visual de fechas
@@ -24,23 +32,23 @@ $(document).ready(function () {
         clearFieldError('#' + this.id);
     });
 
-    // Validación en submit (usar el id correcto del formulario)
+    // Validación en submit
     $('#myForm').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
             e.preventDefault();
         }
     });
 
-    // limpiar error local al seleccionar archivos
-    ['#file_oficio_unico', '#file_anexo_1', '#file_anexo_2', '#file_anexo_3'].forEach(function (id) {
+    // limpiar error local al seleccionar archivos (IDs reales)
+    ['#file_oficio_entrada', '#file_anexo_entrada'].forEach(function (id) {
         $(id).on('change', function () {
             clearLocalFileError(id);
         });
     });
 
-    // Sincroniza hidden al cambiar el checkbox de archivos
-    $('#carga_archivos_box').on('change', function () {
-        $('#carga_archivos').val($(this).is(':checked') ? true : '');
+    // Sincroniza hidden al cambiar el checkbox correcto
+    $('#habilitar_carga_box').on('change', function () {
+        $('#habilitar_carga').val($(this).is(':checked') ? true : '');
         setCheckboxFiles();
     });
 });
@@ -244,25 +252,21 @@ function getData() {
 }
 
 // =========================
-// NUEVA SECCIÓN: CARGA DE ARCHIVOS (UI)
+// CARGA DE ARCHIVOS (UI) — IDs reales del Blade
 // =========================
 function setCheckboxFiles() {
-    const activo = !!$('#carga_archivos').val();
+    const activo = !!$('#habilitar_carga').val();
 
     if (activo) {
         showDiv('contenedor_carga_archivos');
-        enableFile('#file_oficio_unico', '#label_oficio_unico', '#icon_oficio_unico');
-        enableFile('#file_anexo_1', '#label_anexo_1');
-        enableFile('#file_anexo_2', '#label_anexo_2');
-        enableFile('#file_anexo_3', '#label_anexo_3');
-        $('#carga_archivos_box').prop('checked', true);
+        enableFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
+        enableFile('#file_anexo_entrada', '#label_anexo_entrada', '#icon_anexo_entrada');
+        $('#habilitar_carga_box').prop('checked', true);
     } else {
         hideDiv('contenedor_carga_archivos');
-        resetFile('#file_oficio_unico', '#label_oficio_unico', '#icon_oficio_unico');
-        resetFile('#file_anexo_1', '#label_anexo_1');
-        resetFile('#file_anexo_2', '#label_anexo_2');
-        resetFile('#file_anexo_3', '#label_anexo_3');
-        $('#carga_archivos_box').prop('checked', false);
+        resetFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
+        resetFile('#file_anexo_entrada', '#label_anexo_entrada', '#icon_anexo_entrada');
+        $('#habilitar_carga_box').prop('checked', false);
     }
 }
 
@@ -287,3 +291,8 @@ function clearLocalFileError(inputSel) {
         $(inputSel).removeClass('is-invalid');
     }
 }
+
+// (Limpieza defensiva) elimina listeners antiguos si existieran
+try {
+  $('#carga_archivos, #carga_archivos_box, #id_checkbox_carga_archivos').off();
+} catch(e) {}

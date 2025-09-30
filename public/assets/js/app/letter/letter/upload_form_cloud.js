@@ -1,12 +1,12 @@
 /* upload_form_cloud.js
-   - Solo UI (mostrar/ocultar, límites, vista previa simple)
-   - La subida real se hace en LetterC::save, via multipart/form-data
+   - UI para sección de archivos (mostrar/ocultar, límites, vista previa simple)
+   - El envío real se hace en LetterC::save via multipart/form-data (POST normal)
 */
 
 (function ($, window, document) {
   'use strict';
 
-  // ===== Spinner full-screen (usa el tuyo si ya existe; si no, genera uno simple) =====
+  // ===== Overlay Spinner full-screen =====
   if (typeof window.showSpinner !== 'function') {
     window.showSpinner = function showSpinner() {
       var spinner = document.getElementById('spinner');
@@ -58,7 +58,7 @@
     };
   }
 
-  // ===== Helpers mostrar/ocultar con tus animaciones, si existen =====
+  // ===== Helpers mostrar/ocultar (usa tus animaciones si existen) =====
   function _show($el){ if(window.showDiv){ return window.showDiv($el.attr('id')); } $el.show(); }
   function _hide($el){ if(window.hideDiv){ return window.hideDiv($el.attr('id')); } $el.hide(); }
 
@@ -67,35 +67,21 @@
     var $hiddenFlag = $('#habilitar_carga');
     var $container  = $('#contenedor_carga_archivos');
 
-    function syncUI() {
-      if (!!$hiddenFlag.val()) {
-        _show($container);
-      } else {
-        _hide($container);
-        // limpiar selección si se apaga
-        $('#file_oficio_entrada, #file_anexo_entrada').val('');
-        $('#container_anexo_entrada').empty();
-        $('#container_anexo_entrada_vacio').text('Sin contenido');
-        $('#container_oficio_entrada').empty();
-        $('#container_oficio_entrada_vacio').text('Sin contenido');
-      }
-    }
-
     // Tooltip global si existe
     if (typeof window.tooltip === 'function') {
       window.tooltip('#habilitar_carga_archivos', 'Habilita la sección para subir oficio y anexos');
     }
 
-    // Estado inicial
+    // Estado inicial de sección según hidden
     syncUI();
 
-    // Toggle del checkbox
+    // Toggle del checkbox (sincroniza hidden)
     $checkBox.on('change', function () {
       $hiddenFlag.val($(this).is(':checked') ? true : '');
       syncUI();
     });
 
-    // Roles (usa hidden con id="bool_user_role")
+    // Respeta roles (usa hidden con id="bool_user_role")
     (function roleSwitch(){
       var canUpload = !!$('#bool_user_role').val();
       if(!canUpload){
@@ -109,7 +95,7 @@
       }
     })();
 
-    // Límite y render de anexos
+    // Límite y render de anexos (máx 3 en UI)
     $('#file_anexo_entrada').on('change', function(){
       var files = this.files;
       if (files && files.length > 3) {
@@ -141,10 +127,30 @@
       }
     });
 
-    // Muestra spinner al enviar si la sección está habilitada (para subida en save())
+    // Muestra spinner al enviar si hay archivos o la sección está habilitada
     $('#myForm').on('submit', function(){
-      if (!!$hiddenFlag.val()) { window.showSpinner && window.showSpinner(); }
+      var hasOficio = ($('#file_oficio_entrada')[0] && $('#file_oficio_entrada')[0].files.length > 0);
+      var hasAnexos = ($('#file_anexo_entrada')[0] && $('#file_anexo_entrada')[0].files.length > 0);
+      var enabled   = !!$('#habilitar_carga').val();
+      if (hasOficio || hasAnexos || enabled) {
+        window.showSpinner && window.showSpinner();
+      }
     });
+
+    // --------- funciones internas ----------
+    function syncUI() {
+      if (!!$hiddenFlag.val()) {
+        _show($container);
+      } else {
+        _hide($container);
+        // limpiar selección si se apaga
+        $('#file_oficio_entrada, #file_anexo_entrada').val('');
+        $('#container_anexo_entrada').empty();
+        $('#container_anexo_entrada_vacio').text('Sin contenido');
+        $('#container_oficio_entrada').empty();
+        $('#container_oficio_entrada_vacio').text('Sin contenido');
+      }
+    }
   });
 
 })(jQuery, window, document);
