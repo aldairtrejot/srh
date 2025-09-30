@@ -68,9 +68,9 @@ class LoginC extends Controller
             $user = Auth::user();
 
             if ($user->password_update) {
-                return redirect()->intended('dashboard');
+                return redirect('dashboard');
             } else {
-                return redirect()->intended('changePassword');
+                return redirect('changePassword');
             }
 
             // return redirect()->intended('dashboard');

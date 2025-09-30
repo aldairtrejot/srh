@@ -101,3 +101,39 @@ function openModal() {
 $('#cancel_copy').click(function () { //Se pulsa el boton de cancelar
     $('#modalReport').fadeOut(); // Cerrar la ventana modal
 });
+
+
+
+
+function descargarTodosLosArchivos() {
+    $('#modalReport').fadeOut(); // Ocultar modal
+    showSpinner(); // Mostrar spinner
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/alf/download'),
+        method: 'POST',
+        data: {
+            _token: token
+        },
+        xhrFields: {
+            responseType: 'blob'
+        },
+        success: function (data) {
+            const blob = new Blob([data]);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sirh_file.zip';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        },
+        error: function (xhr) {
+            alert('Error al descargar archivos');
+        },
+        complete: function () {
+            hideSpinner();
+        }
+    });
+}

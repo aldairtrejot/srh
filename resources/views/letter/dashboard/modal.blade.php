@@ -1,5 +1,5 @@
 <x-template-modal.modal-template tittle="Generar informe" idModal="modalReport" idCancel="cancel_copy"
-    idConfirm="confir_copy" functionConfirm="validateDate();" width="1200px" height="700px">
+    idConfirm="confir_copy" functionConfirm="descargarTodosLosArchivos();" width="1200px" height="700px">
 
     <div class="row">
         <!-- Dos selects con buscador -->

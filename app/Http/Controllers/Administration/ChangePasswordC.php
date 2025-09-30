@@ -38,16 +38,22 @@ class ChangePasswordC extends Controller
                 'regex:/[0-9]/',      // al menos un número
                 'regex:/[@&.#]/', // al menos un carácter especial
                 'same:confirm_password', // valida que coincida con password_confirmation
+                function ($attribute, $value, $fail) use ($user) {
+                    if (Hash::check($value, $user->password)) {
+                        $fail('La nueva contraseña no puede ser igual a la actual.');
+                    }
+                },
             ],
             'confirm_password' => [
-                'required',
-            ],
+                    'required',
+                ],
         ], [
-            'new_value.required' => 'El campo es obligatorio.',
-            'confirm_password.required' => 'El campo es obligatorio.',
-            'new_value.min' => 'El campo debe tener al menos 8 caracteres.',
-            'new_value.regex' => 'El campo debe incluir al menos una mayúscula, una minúscula, un número y un caracter especial.',
-            'new_value.same' => 'Los campos no coinciden.',
+                'new_value.required' => 'El campo es obligatorio.',
+                'confirm_password.required' => 'El campo es obligatorio.',
+                'new_value.min' => 'El campo debe tener al menos 8 caracteres.',
+                'new_value.regex' => 'El campo debe incluir al menos una mayúscula, una minúscula, un número y un caracter especial.',
+                'new_value.same' => 'Los campos no coinciden.',
+                'new_value.not_in' => 'La nueva contraseña no puede ser igual a la actual.',
         ]);
 
         UserM::where('id', Auth::id())->update([

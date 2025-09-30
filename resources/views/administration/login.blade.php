@@ -64,7 +64,7 @@
                                     <button type="button" class="refresh-btn" title="Refresh"
                                         onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
                                         <i class="fas fa-sync-alt"></i> Refrescar
-                                    </button>
+                                    </button> 
                                 </div>
 -->
 

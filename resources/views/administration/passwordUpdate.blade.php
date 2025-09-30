@@ -35,7 +35,7 @@
                                     <li>Al menos una letra mayúscula</li>
                                     <li>Al menos una letra minúscula</li>
                                     <li>Al menos un número</li>
-                                    <li>Al menos un carácter especial (ejemplo: ! @ # $ % ^ & *)</li>
+                                    <li>Al menos un carácter especial (ejemplo: @ & . #)</li>
                                 </ul>
                                 </p>
                             </div>

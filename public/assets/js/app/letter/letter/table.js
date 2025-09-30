@@ -7,6 +7,9 @@ $(document).ready(function () {
 });
 
 function searchInit() {
+    mostrarBarra();
+    const startTime = Date.now();
+
     const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
@@ -110,7 +113,15 @@ function searchInit() {
             emptyContent = true;
             setValue();
         }
+
+        const tiempoTranscurrido = Date.now() - startTime;
+        const tiempoEspera = Math.max(0, 2000 - tiempoTranscurrido);
+
+        setTimeout(ocultarBarra, tiempoEspera);
+
     });
+
+
 }
 
 //Funcion para que al pulsar el boton se incremente uno
