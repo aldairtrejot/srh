@@ -38,7 +38,7 @@ function generateReport() {
             responseType: 'blob'
         },
         success: function (response, status, xhr) {
-            const filename = "DATA_GC_SIRH.xlsx";
+            const filename = "sirh_data.xlsx";
             const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
@@ -48,23 +48,11 @@ function generateReport() {
             document.body.removeChild(link);
 
             hideSpinner();
-
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: 'El archivo Excel se ha descargado correctamente.',
-                confirmButtonColor: '#3085d6'
-            });
+            notyfEM.success('Descarga finalizada');
         },
         error: function (xhr, status, error) {
             hideSpinner();
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Ocurrió un problema al generar el archivo.',
-                confirmButtonColor: '#d33'
-            });
+            notyfEM.error('No se pudo completar la acción. Por favor, vuelve a intentarlo.');
         }
     });
 }

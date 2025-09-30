@@ -34,6 +34,7 @@ use App\Http\Controllers\Letter\Collection\CollectionTramiteC;
 use App\Http\Controllers\Letter\Collection\CollectionUnidadC;
 use App\Http\Controllers\Letter\Collection\CollectionYearC;
 use App\Http\Controllers\Letter\Communication\CommunicationC;
+use App\Http\Controllers\Letter\Dashboard\CountReportController;
 use App\Http\Controllers\Letter\Dashboard\DashboardLetterC;
 use App\Http\Controllers\Letter\Dashboard\DashboardOfficeC;
 use App\Http\Controllers\Letter\Dependencia\DependenciaC;
@@ -102,6 +103,7 @@ Route::post('/letter/saveCopy', [LetterC::class, 'saveCopy'])->name('letter.save
 Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('letter.validateCopy')->middleware('auth');
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
 Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->name('alf.download')->middleware('auth');
+Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
 
 // Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');

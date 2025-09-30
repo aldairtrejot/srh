@@ -1,5 +1,5 @@
 <x-template-modal.modal-template tittle="Exportar datos o archivos" idModal="modalReport" idCancel="cancel_copy"
-    idConfirm="confir_copy" functionConfirm="descargarTodosLosArchivos();" width="1200px" height="700px">
+    idConfirm="confir_copy" functionConfirm="validateDate();" width="1200px" height="700px">
 
     <!-- CONTADOR EN EL CENTRO -->
 
@@ -7,7 +7,8 @@
         <div class="col-12 text-center">
             <div
                 style="font-size: 4rem; font-weight: bold; color:#10312b; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                <span id="contador-resultados"><label id="_x">0</label> de <label id="_x">0</label></span>
+                <span id="contador-resultados"><label id="lab_countMin">0</label> de <label
+                        id="lab_countMax">0</label></span>
             </div>
             <small class="text-muted" style="font-size:1rem;">Folios totales</small>
         </div>
@@ -78,8 +79,7 @@
             style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
                 ¿Agregar datos de captura?
-                <input disabled type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo"
-                    style="margin-left: 10px;">
+                <input type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo" style="margin-left: 10px;">
             </label>
         </div>
 
@@ -94,8 +94,8 @@
         <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
             style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
-                ¿Agregar copias de conocimiento?
-                <input type="checkbox" class="form-check-input" id="fecha_inicio_fecha_fin" style="margin-left: 10px;">
+                ¿Agregar copia de conocimiento?
+                <input type="checkbox" class="form-check-input" id="check_copia_a" style="margin-left: 10px;">
             </label>
         </div>
     </div>
