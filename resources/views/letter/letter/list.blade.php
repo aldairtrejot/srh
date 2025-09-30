@@ -56,8 +56,8 @@
                                     <th>Fólio de gestión</th>
                                     <th>No. Documento</th>
                                     <th>Área</th>
-                                    <th>Área 1</th>
-                                    <th>Área 2</th>
+                                    <th>CRH</th>
+                                    <th>CRHTOD</th>
                                     <th>Asunto</th>
                                 </tr>
                             </thead>

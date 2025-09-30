@@ -112,7 +112,8 @@ class LetterM extends Model
                 DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin")
             ])
             ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
-            ->join('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
+            // ✅ LEFT JOIN para que aparezcan registros con id_cat_area (Área 3) NULL
+            ->leftJoin('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
             ->leftJoin('correspondencia.cat_area AS area1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area1.id_cat_area')
             ->leftJoin('correspondencia.cat_area AS area2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area2.id_cat_area')
             ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
@@ -434,6 +435,7 @@ class LetterM extends Model
             ->get();
     }
 }
+
 
 
 

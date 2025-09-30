@@ -26,7 +26,7 @@
                                 <script>
                                   window.LETTER = {
                                     collectionAreaUrl: "{{ route('letter.collectionArea') }}",
-                                    includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
+                                    includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }} ,
                                     initials: {
                                       area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
                                       area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
@@ -138,7 +138,7 @@
                                         :selectEdit="$selectArea1Edit"
                                         :valueSelected="optional($item)->id_cat_area_1"
                                         name="id_cat_area_1"
-                                        tittle="Área 1"
+                                        tittle="CRH"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
                                     <!-- Área 2 (arranca solo con SELECCIONE) -->
@@ -147,13 +147,13 @@
                                         :selectEdit="$selectArea2Edit"
                                         :valueSelected="optional($item)->id_cat_area_2"
                                         name="id_cat_area_2"
-                                        tittle="Área 2"
+                                        tittle="CRHTOD"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
                                     <!-- Área 3 (principal; arranca solo con SELECCIONE) -->
                                     <x-template-form.template-form-select-required
                                         :selectValue="$selectArea" :selectEdit="$selectAreaEdit"
-                                        name="id_cat_area" tittle="Área 3"
+                                        name="id_cat_area" tittle="Área"
                                         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
                                 </div>
 
@@ -268,6 +268,31 @@
 
 </x-template-app.app-layout>
 
+<!-- === Quitar obligatoriedad de Área 2 y Área 3 sin tocar componentes === -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var $a2 = document.querySelector("select[name='id_cat_area_2']");
+    var $a3 = document.querySelector("select[name='id_cat_area']");
+
+    [$a2, $a3].forEach(function (el) {
+      if (!el) return;
+      // Remover required
+      el.required = false;
+      el.removeAttribute('required');
+      el.removeAttribute('aria-required');
+      el.removeAttribute('data-rule-required');
+      // Por si algún JS dejó mensaje de validez
+      if (el.setCustomValidity) el.setCustomValidity('');
+
+      // Si usas bootstrap-select, refresca el picker
+      if (typeof $ !== 'undefined' && $.fn.selectpicker) {
+        $(el).prop('required', false);
+        $(el).selectpicker('refresh');
+      }
+    });
+  });
+</script>
+
 <!-- CODE SCRIPT (tuyos existentes) -->
 <script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>
 <script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
@@ -277,6 +302,8 @@
 
 <!-- NUEVO: dependencias de áreas separado -->
 <script src="{{ asset('assets/js/app/letter/letter/deps-areas.js') }}"></script>
+
+
 
 
 

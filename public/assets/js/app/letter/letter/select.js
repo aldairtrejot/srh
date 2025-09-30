@@ -35,12 +35,24 @@ $('#id_cat_area').on('change', function () {
         ensurePickerHasPlaceholder('#id_usuario_area');
         ensurePickerHasPlaceholder('#id_cat_unidad');
         ensurePickerHasPlaceholder('#id_cat_coordinacion');
-        ensurePickerHasPlaceholder('#id_cat_tramite');
 
-        // Clave depende de trámite: limpiar y forzar placeholder
-        cleanSelectMoreSelect('#id_cat_clave');
-        setPickerEmpty('#id_cat_clave');
+        // === AUTOS ELECCIÓN PRIMER TRÁMITE + disparo de change (para cargar Clave) ===
+        (function autoPickFirstTramite() {
+          const $tram = $('#id_cat_tramite');
+          const tramOptions = $tram.find('option').not('[value=""]');
+          if (tramOptions.length > 0) {
+            const firstVal = tramOptions.first().val();
+            $tram.val(firstVal).selectpicker('refresh').trigger('change');
+          } else {
+            // Sin trámites -> Trámite y Clave a "SELECCIONE"
+            setPickerEmpty('#id_cat_tramite');
+            setPickerEmpty('#id_cat_clave');
+            clearClaveData();
+          }
+        })();
 
+        // Clave depende de trámite: limpiar y (si no hubo trámites) ya quedó en "SELECCIONE"
+        // Si sí hubo, el trigger('change') anterior se encargará de llenarla
         clearClaveData();
         setClaveInNuSystem(response.clave);
       },

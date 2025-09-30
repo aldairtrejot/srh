@@ -1,7 +1,11 @@
 // Dependencias: Área 2 (por Área 1) y Área 3 (por Área 2)
-// Además: cuando cambian Área 1 o Área 2, también actualizamos
-// Usuario, Enlace, Unidad, Coordinación, Trámite y Clave,
-// igual que cuando cambias Área 3 (eso ya lo hace tu select.js).
+// Además: cuando cambian Área 1 o Área 2, actualizamos
+// Usuario, Enlace, Unidad, Coordinación y Trámite usando tu endpoint
+// /letter/collection/collectionArea (CollectionAreaC@collection),
+// y auto-seleccionamos el PRIMER Trámite (disparamos change para que
+// select.js cargue Claves). Si no hay trámites, queda "SELECCIONE".
+// IMPORTANTe: aquí ya NO llamamos /letter/collection/area con
+// by: 'tramite_by_area1'/'tramite_by_area2' (eso causaba 422).
 
 document.addEventListener('DOMContentLoaded', function () {
   const $area1 = document.getElementById('id_cat_area_1');
@@ -12,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tokenEl = document.querySelector('meta[name="csrf-token"]');
   const token = tokenEl ? tokenEl.getAttribute('content') : '';
 
-  // ===== Helpers de placeholder para selectpicker =====
+  // ===== Helpers selectpicker =====
   function setPickerEmpty(selector) {
     $(selector).html('<option value="">SELECCIONE</option>').selectpicker('refresh');
   }
@@ -22,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // ===== POST JSON a LetterC@collectionArea (Áreas encadenadas) =====
+  // ===== POST JSON a LetterC@collectionArea (solo para cadenas de Áreas) =====
   async function postJSON(url, body) {
     const resp = await fetch(url, {
       method: 'POST',
@@ -37,18 +41,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return resp.json();
   }
 
-  // ===== Repoblado de dependientes (Usuario/Enlace/Unidad/Coord/Trámite/Clave) =====
+  // ===== helpers limpiar selects encadenados =====
+  function resetArea2() { setPickerEmpty('#id_cat_area_2'); }
+  function resetArea3() { setPickerEmpty('#id_cat_area'); }
+
+  // ===== Repoblado de dependientes (Usuario/Enlace/Unidad/Coord/Trámite) =====
   // Usa tu endpoint existente: /letter/collection/collectionArea (CollectionAreaC@collection)
   function actualizarCamposDerivadosPorAreaId(areaId) {
+    // Si no hay área -> todo a "SELECCIONE" y limpiar claves
     if (!areaId) {
-      // dejar todos en "SELECCIONE"
       setPickerEmpty('#id_usuario_area');
       setPickerEmpty('#id_usuario_enlace');
       setPickerEmpty('#id_cat_unidad');
       setPickerEmpty('#id_cat_coordinacion');
       setPickerEmpty('#id_cat_tramite');
       setPickerEmpty('#id_cat_clave');
-      // limpiar encabezado clave
       if (typeof clearClaveData === 'function') clearClaveData();
       if (typeof setClaveInNuSystem === 'function') setClaveInNuSystem('-');
       return;
@@ -59,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
       type: 'POST',
       data: { id: areaId, _token: token },
       success: function (response) {
-        // Estas funciones ya existen en tu proyecto
+        // Estas funciones vienen en tu proyecto
         if (typeof foreachSelectNull === 'function') {
           foreachSelectNull(response.selectEnlace,  '#id_usuario_enlace');
           foreachSelectNull(response.selectUsuario, '#id_usuario_area');
@@ -67,48 +74,62 @@ document.addEventListener('DOMContentLoaded', function () {
           foreachSelectNull(response.selectCoor,    '#id_cat_coordinacion');
         }
         if (typeof foreachSelect === 'function') {
+          // Poblar Trámite con tus helpers
           foreachSelect(response.selectTramite, '#id_cat_tramite');
         }
 
-        // Si alguno quedó sin opciones, dejar "SELECCIONE"
+        // Refrescar y asegurar "SELECCIONE" si quedaron vacíos
         setTimeout(function () {
-          ['#id_usuario_enlace','#id_usuario_area','#id_cat_unidad',
-           '#id_cat_coordinacion','#id_cat_tramite'].forEach(setPickerEmptyIfNoOptions);
-          // Clave depende de Trámite: limpiar y placeholder
-          setPickerEmpty('#id_cat_clave');
+          ['#id_usuario_enlace','#id_usuario_area','#id_cat_unidad','#id_cat_coordinacion']
+            .forEach((selector) => {
+              const $sel = $(selector);
+              if ($sel.find('option').length === 0) setPickerEmpty(selector);
+              else $sel.selectpicker('refresh');
+            });
+
+          // === AUTOS ELECCIÓN PRIMER TRÁMITE + disparo change ===
+          const $tram = $('#id_cat_tramite');
+          const tramOptions = $tram.find('option').not('[value=""]');
+          if (tramOptions.length > 0) {
+            // Seleccionar el primero y disparar change para que select.js cargue Claves
+            const firstVal = tramOptions.first().val();
+            $tram.val(firstVal).selectpicker('refresh').trigger('change');
+          } else {
+            // Sin trámites -> Trámite y Clave a "SELECCIONE"
+            setPickerEmpty('#id_cat_tramite');
+            setPickerEmpty('#id_cat_clave');
+            if (typeof clearClaveData === 'function') clearClaveData();
+          }
         }, 0);
 
-        // Encabezado/num_turno_sistema
+        // Encabezado/num_turno_sistema (si lo regresa tu backend)
+        if (typeof setClaveInNuSystem === 'function') {
+          setClaveInNuSystem(response.clave || '-');
+        }
         if (typeof clearClaveData === 'function') clearClaveData();
-        if (typeof setClaveInNuSystem === 'function') setClaveInNuSystem(response.clave || '-');
+      },
+      error: function () {
+        // En error, dejar todo coherente
+        setPickerEmpty('#id_usuario_area');
+        setPickerEmpty('#id_usuario_enlace');
+        setPickerEmpty('#id_cat_unidad');
+        setPickerEmpty('#id_cat_coordinacion');
+        setPickerEmpty('#id_cat_tramite');
+        setPickerEmpty('#id_cat_clave');
+        if (typeof clearClaveData === 'function') clearClaveData();
       }
     });
   }
-
-  function setPickerEmptyIfNoOptions(selector) {
-    const $sel = $(selector);
-    if ($sel.find('option').length === 0) {
-      setPickerEmpty(selector);
-    } else {
-      $sel.selectpicker('refresh');
-    }
-  }
-
-  // ===== helpers para limpiar selects encadenados =====
-  function resetArea2() { setPickerEmpty('#id_cat_area_2'); }
-  function resetArea3() { setPickerEmpty('#id_cat_area'); }
 
   // ===== Área 2 por Área 1 =====
   async function cargarArea2PorArea1(area1Id, selectedId = null) {
     resetArea2();
     if (!area1Id) return;
-
     try {
       const json = await postJSON((window.LETTER || {}).collectionAreaUrl, {
         by: 'area2_by_area1',
         id_cat_area_1: area1Id,
       });
-
       if (json.ok && Array.isArray(json.value) && json.value.length) {
         json.value.forEach((opt) => {
           const option = document.createElement('option');
@@ -131,14 +152,12 @@ document.addEventListener('DOMContentLoaded', function () {
   async function cargarArea3PorArea2(area2Id, selectedId = null) {
     resetArea3();
     if (!area2Id) return;
-
     try {
       const json = await postJSON((window.LETTER || {}).collectionAreaUrl, {
         by: 'area3_by_area2',
         id_cat_area_2: area2Id,
         include_inactive: !!(window.LETTER && window.LETTER.includeInactiveArea3),
       });
-
       if (json.ok && Array.isArray(json.value) && json.value.length) {
         json.value.forEach((opt) => {
           const option = document.createElement('option');
@@ -160,23 +179,23 @@ document.addEventListener('DOMContentLoaded', function () {
   // ===== Eventos =====
   $area1.addEventListener('change', function (e) {
     const area1Id = e.target.value || '';
+    // Encadenado de áreas
     cargarArea2PorArea1(area1Id, null);
     resetArea3(); // al cambiar Área 1, limpia Área 3
-    // También actualizar dependientes basados en Área 1:
+    // Dependientes + Trámite (autoselección primer ítem)
     actualizarCamposDerivadosPorAreaId(area1Id);
   });
 
   $area2.addEventListener('change', function (e) {
     const area2Id = e.target.value || '';
+    // Encadenado de áreas
     cargarArea3PorArea2(area2Id, null);
-    // También actualizar dependientes basados en Área 2:
+    // Dependientes + Trámite (autoselección primer ítem)
     actualizarCamposDerivadosPorAreaId(area2Id);
   });
 
-  // Nota: Área 3 ya actualiza dependientes en tu select.js existente.
-  // Si quisieras hacerlo aquí también, podrías escuchar el change de $area3
-  // y llamar a actualizarCamposDerivadosPorAreaId($area3.value), pero no es necesario
-  // para evitar llamadas duplicadas.
+  // Nota: cuando cambias Área 3, tu select.js ya actualiza
+  // Usuario/Enlace/Unidad/Coordinación/Trámite/Clave correctamente.
 
   // ===== Precarga en edición =====
   const area1Inicial = window.LETTER?.initials?.area1 || null;
@@ -184,20 +203,29 @@ document.addEventListener('DOMContentLoaded', function () {
   const area3Inicial = window.LETTER?.initials?.area3 || null;
 
   if (area1Inicial) {
+    // Cargar cadena Área2/Área3
     cargarArea2PorArea1(area1Inicial, area2Inicial).then(() => {
       const a2 = $area2.value || area2Inicial;
       if (a2) {
         cargarArea3PorArea2(a2, area3Inicial);
       }
     });
-    // También precarga dependientes con base en Área 1 inicial
+    // Precargar dependientes + Trámite (auto 1º) con base en Área 1
     actualizarCamposDerivadosPorAreaId(area1Inicial);
   } else {
-    // create -> ambos vacíos
+    // create -> vacíos
     resetArea2();
     resetArea3();
+    setPickerEmpty('#id_usuario_area');
+    setPickerEmpty('#id_usuario_enlace');
+    setPickerEmpty('#id_cat_unidad');
+    setPickerEmpty('#id_cat_coordinacion');
+    setPickerEmpty('#id_cat_tramite');
+    setPickerEmpty('#id_cat_clave');
   }
 });
+
+
 
 
 

@@ -1,3 +1,4 @@
+// public/assets/js/app/letter/letter/validate.js
 // Validacion de fórmulario
 document.getElementById("myForm").addEventListener("submit", function (event) {
     let fecha_inicio = document.getElementById('fecha_inicio').value;
@@ -17,10 +18,11 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             isFieldEmpty($('#fecha_documento').val(), 'Fecha de doc.') ||
             isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
             isFieldEmpty($('#asunto').val(), 'Asunto') ||
-            // NUEVO: Áreas obligatorias
+            // ===== Áreas =====
             isFieldEmpty($('#id_cat_area_1').val(), 'Área 1') ||
-            isFieldEmpty($('#id_cat_area_2').val(), 'Área 2') ||
-            isFieldEmpty($('#id_cat_area').val(), 'Área 3') ||
+            // ⛔️ quitamos estas dos para que NO sean obligatorias:
+            // isFieldEmpty($('#id_cat_area_2').val(), 'Área 2') ||
+            // isFieldEmpty($('#id_cat_area').val(), 'Área 3') ||
             isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
             isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace') ||
             isFieldEmpty($('#id_cat_unidad').val(), 'Unidad') ||
