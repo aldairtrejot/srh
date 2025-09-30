@@ -2,48 +2,56 @@
 
 namespace App\Http\Controllers\Letter\Letter;
 
-use App\Models\Letter\Collection\CollectionLetterLogM;
-use App\Models\Letter\Collection\CollectionRolAreaM;
+use App\Http\Controllers\Admin\MessagesC;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\Letter\Log\LogC;
+
+use App\Models\Letter\Letter\LetterM;
+use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionClaveM;
-use App\Models\Letter\Collection\CollectionEntidadM;
-use App\Models\Letter\Collection\CollectionTramiteM;
 use App\Models\Letter\Collection\CollectionCoordinacionM;
 use App\Models\Letter\Collection\CollectionConsecutivoM;
 use App\Models\Letter\Collection\CollectionDateM;
+use App\Models\Letter\Collection\CollectionEntidadM;
+use App\Models\Letter\Collection\CollectionLetterCopyM;
+use App\Models\Letter\Collection\CollectionLetterLogM;
 use App\Models\Letter\Collection\CollectionRelEnlaceM;
-use App\Models\Letter\Collection\CollectionRemitenteM;
-use App\Models\Letter\Collection\CollectionStatusM;
-use App\Models\Letter\Collection\CollectionUnidadM;
-use App\Http\Controllers\Controller;
-use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionRelUsuarioM;
-use App\Models\Letter\Letter\LetterM;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Admin\MessagesC;
+use App\Models\Letter\Collection\CollectionRemitenteM;
+use App\Models\Letter\Collection\CollectionRolAreaM;
+use App\Models\Letter\Collection\CollectionStatusM;
+use App\Models\Letter\Collection\CollectionTramiteM;
+use App\Models\Letter\Collection\CollectionUnidadM;
+
+use App\Http\Controllers\Cloud\AlfrescoC;
+use App\Models\Letter\Letter\CloudAnexosM;
+use App\Models\Letter\Letter\CloudOficiosM;
+use App\Models\Letter\Cloud\CloudConfigM;
+
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class LetterC extends Controller
 {
     public function __invoke()
     {
-        return view('letter/letter/list');
+        return view('letter.letter.list');
     }
 
+    /* ======================== TABLA ======================== */
     // /letter/table
     public function table(Request $request, LetterM $model)
     {
         try {
             $iterator    = (int) $request->get('iterator', 0);
             $searchValue = (string) $request->get('searchValue', '');
-            $idUser      = [];
+            $idUser      = []; // si necesitas filtrar por usuario, ajústalo
 
             $rows = $model->list($iterator, $searchValue, $idUser);
-
             return response()->json(['value' => $rows]);
         } catch (\Throwable $e) {
             Log::error('LETTER_TABLE_ERROR: '.$e->getMessage(), ['ex' => $e]);
@@ -55,9 +63,24 @@ class LetterC extends Controller
         }
     }
 
+    public function dashboard()
+    {
+        $item = [];
+        return view('letter.dashboard.dashboard', compact('item'));
+    }
+
+    public function cloud($id)
+    {
+        $object = new LetterM();
+        $item = $object->edit($id);
+        return view('letter.letter.cloud', compact('item'));
+    }
+
+    /* ======================== CREATE ======================== */
     public function create()
     {
         $item = new LetterM();
+
         $collectionUnidadM      = new CollectionUnidadM();
         $collectionStatusM      = new CollectionStatusM();
         $collectionDateM        = new CollectionDateM();
@@ -66,7 +89,7 @@ class LetterC extends Controller
         $collectionEntidadM     = new CollectionEntidadM();
 
         // Defaults
-        $item->fecha_captura      = now();
+        $item->fecha_captura      = now()->format('d/m/Y');
         $item->id_cat_anio        = $collectionDateM->idYear();
         $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
             $item->id_cat_anio,
@@ -117,16 +140,24 @@ class LetterC extends Controller
         $isEdit = false;
 
         return view('letter.letter.form', compact(
-            'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
-            'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
-            'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
-            'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
-            'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
-            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit',
-            'isEdit'
+            'item',
+            'isEdit',
+            'selectArea','selectAreaEdit',
+            'selectArea1','selectArea1Edit',
+            'selectArea2','selectArea2Edit',
+            'selectUser','selectUserEdit',
+            'selectEnlace','selectEnlaceEdit',
+            'selectUnidad','selectUnidadEdit',
+            'selectCoordinacion','selectCoordinacionEdit',
+            'selectStatus','selectStatusEdit',
+            'selectTramite','selectTramiteEdit',
+            'selectClave','selectClaveEdit',
+            'selectRemitente','selectRemitenteEdit',
+            'selectEntidad','selectEntidadEdit'
         ));
     }
 
+    /* ======================== EDIT ======================== */
     public function edit(string $id)
     {
         $letterM                 = new LetterM();
@@ -149,14 +180,12 @@ class LetterC extends Controller
         // Área 3 (todas, incl. inactivas)
         $selectArea = DB::table('correspondencia.cat_area')
             ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-            ->orderBy('descripcion')
-            ->get();
+            ->orderBy('descripcion')->get();
 
         $selectAreaEdit = isset($item->id_cat_area)
             ? DB::table('correspondencia.cat_area')
                 ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-                ->where('id_cat_area', $item->id_cat_area)
-                ->first()
+                ->where('id_cat_area', $item->id_cat_area)->first()
             : null;
 
         // Área 1
@@ -176,13 +205,12 @@ class LetterC extends Controller
         $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
 
         // Unidad / Coordinación
-        $selectUnidad     = $collectionUnidadM->listEdit();
-        $selectUnidadEdit = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
-
+        $selectUnidad           = $collectionUnidadM->listEdit();
+        $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
         $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
         $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
 
-        // Trámite / Clave
+        // Trámite / Clave (dependen de Área 3 y trámite)
         $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
         $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
 
@@ -199,20 +227,29 @@ class LetterC extends Controller
         $isEdit = true;
 
         return view('letter.letter.form', compact(
-            'selectEntidadEdit','selectEntidad','selectRemitenteEdit','selectRemitente',
-            'selectClaveEdit','selectClave','selectTramite','selectTramiteEdit',
-            'selectStatusEdit','selectStatus','selectCoordinacionEdit','selectCoordinacion',
-            'selectUnidadEdit','selectUnidad','item','selectArea','selectAreaEdit',
-            'selectUser','selectUserEdit','selectEnlace','selectEnlaceEdit',
-            'selectArea1','selectArea1Edit','selectArea2','selectArea2Edit',
-            'isEdit'
+            'item',
+            'isEdit',
+            'selectArea','selectAreaEdit',
+            'selectArea1','selectArea1Edit',
+            'selectArea2','selectArea2Edit',
+            'selectUser','selectUserEdit',
+            'selectEnlace','selectEnlaceEdit',
+            'selectUnidad','selectUnidadEdit',
+            'selectCoordinacion','selectCoordinacionEdit',
+            'selectStatus','selectStatusEdit',
+            'selectTramite','selectTramiteEdit',
+            'selectClave','selectClaveEdit',
+            'selectRemitente','selectRemitenteEdit',
+            'selectEntidad','selectEntidadEdit'
         ));
     }
 
+    /* ======================== SAVE (CREATE/UPDATE) ======================== */
     public function save(Request $request)
     {
         $logC = new LogC();
         $collectionRemitenteM   = new CollectionRemitenteM();
+        $letterM                = new LetterM();
         $messagesC              = new MessagesC();
         $collectionConsecutivoM = new CollectionConsecutivoM();
         $collectionRolAreaM     = new CollectionRolAreaM();
@@ -220,29 +257,24 @@ class LetterC extends Controller
         $now = Carbon::now();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
-        $ADM_TOTAL     = config('custom_config.ADM_TOTAL');
-        $COR_TOTAL     = config('custom_config.COR_TOTAL');
+        $ADM_TOTAL = config('custom_config.ADM_TOTAL');
+        $COR_TOTAL = config('custom_config.COR_TOTAL');
+        $COR_VISTA = config('custom_config.COR_VISTA');
 
-        $rfc_remitente_bool  = isset($request->rfc_remitente_bool) ? 1 : 0;
-        $es_doc_fisico       = isset($request->es_doc_fisico) ? 1 : 0;
-        $son_mas_remitentes  = isset($request->son_mas_remitentes) ? 1 : 0;
+        $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0;
+        $es_doc_fisico      = isset($request->es_doc_fisico) ? 1 : 0;
+        $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0;
 
-        $request->validate([
-            'archivo_oficio'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-            'archivo_anexo_1'  => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-            'archivo_anexo_2'  => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-            'archivo_anexo_3'  => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-        ]);
-
+        // Alta rápida de remitente por RFC
         if ($rfc_remitente_bool) {
             $collectionRemitenteM::create([
-                'nombre'            => strtoupper($request->remitente_nombre),
-                'primer_apellido'   => strtoupper($request->remitente_apellido_paterno),
-                'segundo_apellido'  => strtoupper($request->remitente_apellido_materno),
-                'rfc'               => strtoupper($request->remitente_rfc),
-                'estatus'           => true,
-                'id_usuario_sistema'=> Auth::user()->id,
-                'fecha_usuario'     => $now,
+                'nombre'             => strtoupper($request->remitente_nombre),
+                'primer_apellido'    => strtoupper($request->remitente_apellido_paterno),
+                'segundo_apellido'   => strtoupper($request->remitente_apellido_materno),
+                'rfc'                => strtoupper($request->remitente_rfc),
+                'estatus'            => true,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario'      => $now,
             ]);
             $request->id_cat_remitente = $collectionRemitenteM->getRfc(
                 strtoupper($request->remitente_nombre),
@@ -251,19 +283,39 @@ class LetterC extends Controller
             );
         }
 
-        // CREATE
+        /* ---------- CREATE ---------- */
         if (!isset($request->id_tbl_correspondencia)) {
 
-            $collectionConsecutivoM = new CollectionConsecutivoM();
-            $letterM = new LetterM();
+            // Oficio obligatorio al crear
+            if (
+                !$request->hasFile('file_oficio_entrada') ||
+                !$request->file('file_oficio_entrada')->isValid()
+            ) {
+                return redirect()->back()->withInput()->with([
+                    'value'   => 'error',
+                    'message' => 'Hace falta cargar un oficio (PDF/DOC/IMG).',
+                    'estatus' => 'true'
+                ]);
+            }
 
+            // Validar extensión
+            $allowed = ['pdf','doc','docx','jpg','jpeg','png'];
+            $ext = strtolower($request->file('file_oficio_entrada')->getClientOriginalExtension());
+            if (!in_array($ext, $allowed)) {
+                return redirect()->back()->withInput()->with([
+                    'value'   => 'error',
+                    'message' => 'El oficio debe ser PDF, DOC, DOCX, JPG o PNG.',
+                    'estatus' => 'true'
+                ]);
+            }
+
+            // Num. Turno (regla de máximo/iterator)
+            $numTurnoSistemaAux = $request->num_turno_sistema;
             if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
                 $numTurnoSistemaAux = $this->procesarParametros(
                     $request->num_turno_sistema,
                     $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'))
                 );
-            } else {
-                $numTurnoSistemaAux = $request->num_turno_sistema;
             }
 
             $data = [
@@ -279,8 +331,6 @@ class LetterC extends Controller
                 'asunto'               => strtoupper($request->asunto),
                 'observaciones'        => strtoupper($request->observaciones),
                 'id_cat_area'          => $request->id_cat_area,
-                'id_cat_area_1'        => $request->id_cat_area_1,
-                'id_cat_area_2'        => $request->id_cat_area_2,
                 'id_usuario_area'      => $request->id_usuario_area,
                 'id_usuario_enlace'    => $request->id_usuario_enlace,
                 'id_cat_estatus'       => $request->id_cat_estatus,
@@ -303,16 +353,9 @@ class LetterC extends Controller
             ];
 
             $created = LetterM::create($data);
+
             $logC->add('correspondencia.tbl_correspondencia', $data);
             $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
-
-            $idCorrespondencia = method_exists($created, 'getIdFolGestion')
-                ? $created->getIdFolGestion($request->folio_gestion)->id
-                : ($created->id_tbl_correspondencia ?? null);
-
-            if ($idCorrespondencia) {
-                $this->handleUploads($idCorrespondencia, $request);
-            }
 
             $collectionLetterLogM::create([
                 'estatus'                => 'AGREGAR',
@@ -322,20 +365,25 @@ class LetterC extends Controller
                 'observaciones'          => strtoupper($request->observaciones),
                 'id_cat_area'            => $request->id_cat_area,
                 'id_cat_estatus'         => $request->id_cat_estatus,
-                'id_tbl_correspondencia' => $idCorrespondencia,
+                'id_tbl_correspondencia' => $created->id_tbl_correspondencia,
                 'fecha_usuario_captura'  => $now,
                 'id_usuario_captura'     => Auth::user()->id,
             ]);
 
+            // Subir a Alfresco si vienen archivos
+            $this->uploadFilesIfAny($request, $created->id_tbl_correspondencia);
+
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
         }
 
-        // UPDATE (admin/correspondencia total)
+        /* ---------- UPDATE ---------- */
+        // Ramas de permisos: admin/correspondencia-todo = actualización total
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
             $data = [
                 'num_turno_sistema'    => strtoupper($request->num_turno_sistema),
-                'num_documento'        => $request->num_documento,
+                'num_documento'        => strtoupper($request->num_documento),
+                'fecha_captura'        => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
                 'fecha_inicio'         => $request->fecha_inicio,
                 'fecha_fin'            => $request->fecha_fin,
                 'num_flojas'           => 1,
@@ -368,7 +416,11 @@ class LetterC extends Controller
 
             LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
 
-            $this->handleUploads($request->id_tbl_correspondencia, $request);
+            // Guardado de archivos locales (oficio/anexos) si se cargan en edición
+            $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
+
+            // También acepta subidas a Alfresco en edición (opcional)
+            $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
 
             $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
             $logC->edit('correspondencia.tbl_correspondencia', $data);
@@ -389,11 +441,10 @@ class LetterC extends Controller
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
         }
 
-        // UPDATE restringido (solo estatus/observaciones)
-        $collectionRolAreaM = new CollectionRolAreaM();
+        // UPDATE restringido (solo estatus/observaciones) validando área del usuario
         if (!in_array($request->id_cat_area, $collectionRolAreaM->getListArea())) {
             return redirect()->back()->with([
-                'value' => 'error',
+                'value'   => 'error',
                 'message' => 'No se han configurado permisos para este usuario.',
                 'estatus' => 'true'
             ]);
@@ -427,7 +478,7 @@ class LetterC extends Controller
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
     }
 
-    /* ===== Collection dependiente Áreas (AJAX) ===== */
+    /* ======================== ÁREAS DEPENDIENTES (AJAX) ======================== */
     public function collectionArea(Request $request)
     {
         try {
@@ -484,7 +535,7 @@ class LetterC extends Controller
                     'selectUnidad'  => $selectUnidad,
                     'selectCoor'    => $selectCoor,
                     'selectTramite' => $selectTramite,
-                    'clave'         => '-', // se resetea cabecera hasta elegir clave
+                    'clave'         => '-', // reset hasta elegir clave
                 ];
             };
 
@@ -571,7 +622,70 @@ class LetterC extends Controller
         }
     }
 
-    /* ====== Unicidad genérica (folio_gestion / num_documento, etc.) ====== */
+    /* ======================== COPIAS ======================== */
+    public function validateCopy(Request $request)
+    {
+        $letterM = new LetterM();
+        $result = $letterM->getValue($request->id_tbl_correspondencia, $request->id_cat_area);
+        return response()->json(['result'=>$result]);
+    }
+
+    public function saveCopy(Request $request)
+    {
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+        $now = Carbon::now();
+
+        $data = [
+            'id_cat_area'            => $request->id_cat_area,
+            'id_usuario_area'        => $request->id_usuario_area,
+            'id_usuario_enlace'      => $request->id_usuario_enlace,
+            'id_cat_tramite'         => $request->id_cat_tramite,
+            'id_cat_clave'           => $request->id_cat_clave,
+            'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+            'id_usuario_sistema'     => Auth::user()->id,
+            'fecha_usuario'          => $now,
+        ];
+
+        $result = $collectionLetterCopyM::create($data);
+        $logC->add('correspondencia.ctrl_transcribir_correspondencia', $data);
+
+        return response()->json(['result'=>$result]);
+    }
+
+    public function tableCopy(Request $request)
+    {
+        try {
+            $letterM = new LetterM();
+            $value = $letterM->tableCopy($request->id);
+            return response()->json(['value'=>$value,'status'=>true]);
+        } catch (\Exception $e) {
+            return response()->json(['status'=>false,'message'=>$e->getMessage()],500);
+        }
+    }
+
+    public function deleteCopy(Request $request)
+    {
+        $collectionLetterCopyM = new CollectionLetterCopyM();
+        $logC = new LogC();
+
+        $data = ['id_ctrl_transcribir_correspondencia'=>$request->id];
+        $logC->delete('correspondencia.ctrl_transcribir_correspondencia',$data);
+
+        $result = $collectionLetterCopyM::where('id_ctrl_transcribir_correspondencia',$request->id)->delete();
+        $bool = $result>0;
+
+        return response()->json(['value'=>$bool]);
+    }
+
+    /* ======================== CRUD AUX ======================== */
+    public function delete($id)
+    {
+        $messagesC = new MessagesC();
+        LetterM::destroy($id);
+        return $messagesC->messageSuccessRedirect('letter.list','Elemento eliminado con éxito.');
+    }
+
     public function validateUnique(Request $request)
     {
         try {
@@ -587,9 +701,6 @@ class LetterC extends Controller
             $letterM = new LetterM();
             $exists  = false;
 
-            // Soportamos dos formas:
-            // - type = 'folio' ⇒ valida folio_gestion
-            // - type = 'num_documento' ⇒ valida num_documento (o el attribute que pases)
             switch ($type) {
                 case 'folio':
                     $exists = (bool) $letterM->uniqueNoDocument($id, $value, 'folio_gestion');
@@ -608,15 +719,46 @@ class LetterC extends Controller
         }
     }
 
-    /* ==== helpers privados ==== */
-    private function getMaxTurno($numTurno) {
+    /* ======================== HELPERS ======================== */
+
+    // Acepta UUID puro, nodeRef "workspace://SpacesStore/<uuid>" o URL de Share con ?nodeRef=...
+    private function normalizeFolderId(?string $value): ?string
+    {
+        if (!$value) return null;
+
+        // 1) UUID
+        if (preg_match('/^[0-9a-fA-F-]{36}$/', $value)) return $value;
+
+        // 2) nodeRef
+        if (preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $value, $m)) return $m[1];
+
+        // 3) Share URL con nodeRef
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            $parts = parse_url($value);
+            if (!empty($parts['query'])) {
+                parse_str($parts['query'], $qs);
+                if (!empty($qs['nodeRef']) && preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $qs['nodeRef'], $m2)) {
+                    return $m2[1];
+                }
+            }
+        }
+
+        // 4) Primer UUID que aparezca
+        if (preg_match('/([0-9a-fA-F-]{36})/', $value, $m3)) return $m3[1];
+
+        return null;
+    }
+
+    private function getMaxTurno($numTurno)
+    {
         if (preg_match('/\/([0-9]{5})\//', $numTurno, $matches)) {
-            return (int) $matches[1];
+            return (int)$matches[1];
         }
         return null;
     }
 
-    private function procesarParametros($param1, $param2) {
+    private function procesarParametros($param1, $param2)
+    {
         preg_match('/^([A-Za-z]+)/', $param1, $coincidencias1);
         $letras1 = $coincidencias1[1] ?? '';
         preg_match('/\/(\d+)\//', $param2, $coincidencias2);
@@ -624,6 +766,87 @@ class LetterC extends Controller
         return $letras1 . '/' . $numeros2 . '/2025';
     }
 
+    /* ===== Subidas a Alfresco si vienen campos file_* de entrada ===== */
+    private function uploadFilesIfAny(Request $request, int $idCorrespondencia): void
+    {
+        try {
+            Log::info('[UPLOAD] init', [
+                'correspondencia' => $idCorrespondencia,
+                'has_oficio' => $request->hasFile('file_oficio_entrada'),
+                'has_anexos' => $request->hasFile('file_anexo_entrada'),
+                'area' => $request->id_cat_area,
+                'entrada_salida' => $request->id_cat_entrada,
+                'tipo_oficio' => $request->id_cat_tipo_oficio,
+            ]);
+
+            $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
+            $hasAnexos = $request->hasFile('file_anexo_entrada') && is_array($request->file('file_anexo_entrada'));
+
+            if (!$hasOficio && !$hasAnexos) { return; }
+
+            $alfrescoC    = new AlfrescoC();
+            $cloudConfigM = new CloudConfigM();
+
+            // Puede venir como UUID, nodeRef o Share URL
+            $rawFolder = optional($cloudConfigM->getUid($request->id_cat_area, $request->id_cat_entrada, $request->id_cat_tipo_oficio))->uid ?? null;
+            $folderId  = $this->normalizeFolderId($rawFolder);
+
+            Log::info('[UPLOAD] folderId normalize', ['raw' => $rawFolder, 'folderId' => $folderId]);
+            if (!$folderId) { Log::error('[UPLOAD] carpeta inválida'); return; }
+
+            // Oficio
+            if ($hasOficio) {
+                $file = $request->file('file_oficio_entrada');
+                Log::info('[UPLOAD] oficio', ['name' => $file->getClientOriginalName(), 'size' => $file->getSize(), 'mime' => $file->getMimeType()]);
+                $uploadedUid = $alfrescoC->addFile($file, $folderId, 1); // 1 => OFICIO_
+                Log::info('[UPLOAD] oficio uid', ['uid' => $uploadedUid]);
+
+                if ($uploadedUid) {
+                    $now = Carbon::now();
+                    $filename = 'OFICIO_' . $file->getClientOriginalName();
+                    CloudOficiosM::create([
+                        'uid'                   => $uploadedUid,
+                        'nombre'                => $filename,
+                        'estatus'               => true,
+                        'fecha_usuario'         => $now,
+                        'id_tbl_correspondencia'=> $idCorrespondencia,
+                        'id_usuario_sistema'    => Auth::user()->id,
+                        'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
+                    ]);
+                }
+            }
+
+            // Anexos
+            if ($hasAnexos) {
+                $now = Carbon::now();
+                foreach ($request->file('file_anexo_entrada') as $file) {
+                    if (!$file || !$file->isValid()) { continue; }
+
+                    Log::info('[UPLOAD] anexo', ['name' => $file->getClientOriginalName(), 'size' => $file->getSize(), 'mime' => $file->getMimeType()]);
+                    $uploadedUid = $alfrescoC->addFile($file, $folderId, 0); // 0 => ANEXO_
+                    Log::info('[UPLOAD] anexo uid', ['uid' => $uploadedUid]);
+
+                    if ($uploadedUid) {
+                        $filename = 'ANEXO_' . $file->getClientOriginalName();
+                        CloudAnexosM::create([
+                            'uid'                   => $uploadedUid,
+                            'nombre'                => $filename,
+                            'estatus'               => true,
+                            'fecha_usuario'         => $now,
+                            'id_tbl_correspondencia'=> $idCorrespondencia,
+                            'id_usuario_sistema'    => Auth::user()->id,
+                            'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
+                        ]);
+                    }
+                }
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('Error subiendo archivos post-guardar: '.$e->getMessage(), ['ex' => $e]);
+        }
+    }
+
+    /* ===== Guardado local en edición (opcional a Alfresco) ===== */
     private function handleUploads(int $idCorrespondencia, Request $request): void
     {
         try {
@@ -656,12 +879,12 @@ class LetterC extends Controller
         $path = $file->storeAs($basePath, $filename, $disk);
 
         return [
-            'uuid'        => $uuid,
-            'path'        => $path,
-            'name'        => $original,
-            'mime'        => $file->getClientMimeType(),
-            'size'        => $file->getSize(),
-            'disk'        => $disk,
+            'uuid' => $uuid,
+            'path' => $path,
+            'name' => $original,
+            'mime' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+            'disk' => $disk,
         ];
     }
 
@@ -695,22 +918,3 @@ class LetterC extends Controller
         ]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

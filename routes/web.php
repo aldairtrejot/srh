@@ -59,6 +59,9 @@ use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
+use App\Http\Controllers\Courses\Assignedcourse\ConstanciaAlumnoC;
+use App\Http\Controllers\Letter\Letter\UploadTempC;
 
 Route::get('/login', LoginC::class)->name('login'); // /ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); // /ROUTE_REGISTER
@@ -105,6 +108,12 @@ Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getColl
 Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->name('alf.download')->middleware('auth');
 Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
 
+// === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
+Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
+Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
+
+
+//Guest
 // Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
 Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
