@@ -50,8 +50,10 @@
                         @if ($letterMatch)
                             <li class="nav-item"><a class="nav-link"
                                     href="{{ route('letter.list') }}">Correspondencia</a></li>
+                            {{-- 
                             <li class="nav-item"><a class="nav-link" href="{{ route('office.list') }}">Oficios</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('inside.list') }}">Interno</a></li>
+                         --}}
                         @endif
                         @if ($letterUSERS)
                             <li class="nav-item"><a class="nav-link" href="{{ route(name: 'external.list') }}">Circ.

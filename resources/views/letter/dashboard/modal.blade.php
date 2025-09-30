@@ -1,13 +1,25 @@
-<x-template-modal.modal-template tittle="Generar informe" idModal="modalReport" idCancel="cancel_copy"
+<x-template-modal.modal-template tittle="Exportar datos o archivos" idModal="modalReport" idCancel="cancel_copy"
     idConfirm="confir_copy" functionConfirm="descargarTodosLosArchivos();" width="1200px" height="700px">
 
+    <!-- CONTADOR EN EL CENTRO -->
+
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div
+                style="font-size: 4rem; font-weight: bold; color:#10312b; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <span id="contador-resultados"><label id="_x">0</label> de <label id="_x">0</label></span>
+            </div>
+            <small class="text-muted" style="font-size:1rem;">Folios totales</small>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
     <div class="row">
-        <!-- Dos selects con buscador -->
         <div class="col-12 col-md-6">
             <div class="custom-col">
-                <label for="select-pickup-1" class="label-time">Área</label>
+                <label class="label-time">Área</label>
                 <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
-                    aria-label="Default select example" data-live-search="true" data-none-results-text="Sin resultados"
+                    aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados"
                     id="id_cat_area_informe">
                 </select>
             </div>
@@ -15,9 +27,9 @@
 
         <div class="col-12 col-md-3">
             <div class="custom-col">
-                <label for="select-pickup-2" class="label-time">Estatus</label>
+                <label class="label-time">Estatus</label>
                 <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
-                    aria-label="Default select example" data-live-search="true" data-none-results-text="Sin resultados"
+                    aria-label="Estatus" data-live-search="true" data-none-results-text="Sin resultados"
                     id="id_cat_status_informe">
                 </select>
             </div>
@@ -25,9 +37,9 @@
 
         <div class="col-12 col-md-3">
             <div class="custom-col">
-                <label for="select-pickup-2" class="label-time">Año</label>
+                <label class="label-time">Año</label>
                 <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
-                    aria-label="Default select example" data-live-search="true" data-none-results-text="Sin resultados"
+                    aria-label="Año" data-live-search="true" data-none-results-text="Sin resultados"
                     id="id_cat_date_informe">
                 </select>
             </div>
@@ -38,23 +50,24 @@
     <div class="row">
         <div class="col-12 col-md-6">
             <div class="custom-col">
-                <label for="select-pickup-2" class="label-time">Fecha Inicio de captura</label>
+                <label class="label-time">Fecha Inicio de captura</label>
                 <input type="date" id="fecha_inicio_informe" class="form-control" style="font-size: 1rem;" />
             </div>
         </div>
 
         <div class="col-12 col-md-6">
             <div class="custom-col">
-                <label for="select-pickup-2" class="label-time">Fecha Fin de captura</label>
+                <label class="label-time">Fecha Fin de captura</label>
                 <input type="date" id="fecha_fin_informe" class="form-control" style="font-size: 1rem;" />
             </div>
         </div>
     </div>
     <br>
 
+    <!-- OPCIONES -->
     <div class="row">
         <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
-            style="display: inline-block; margin-bottom: 30px;">
+            style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
                 ¿Incluir todas las horas?
                 <input type="checkbox" class="form-check-input" id="incluir_horas" style="margin-left: 10px;">
@@ -62,7 +75,7 @@
         </div>
 
         <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
-            style="display: inline-block; margin-bottom: 30px;">
+            style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
                 ¿Agregar datos de captura?
                 <input disabled type="checkbox" class="form-check-input" id="inlcuir_usuario_capturo"
@@ -71,15 +84,23 @@
         </div>
 
         <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
-            style="display: inline-block; margin-bottom: 30px;">
+            style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
-                ¿Filtrar por fecha de inicio y fecha de finalización?
+                ¿Filtrar por fecha de inicio y fin?
+                <input type="checkbox" class="form-check-input" id="fecha_inicio_fecha_fin" style="margin-left: 10px;">
+            </label>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 form-check form-check-flat form-check-secondary"
+            style="margin-bottom: 30px;">
+            <label class="form-check-label" style="display: flex; align-items: center;">
+                ¿Agregar copias de conocimiento?
                 <input type="checkbox" class="form-check-input" id="fecha_inicio_fecha_fin" style="margin-left: 10px;">
             </label>
         </div>
     </div>
 
-
+    <!-- SLIDERS (SE RESPETA TODO TU DISEÑO Y CLASES) -->
     <div class="custom-row" style="margin-bottom: 20px;">
         <div class="custom-col">
             <span class="label-time" id="inicio-label">Hora de inicio de captura</span>
@@ -99,7 +120,6 @@
     </div>
 
 </x-template-modal.modal-template>
-
 <style>
     /* Estilo para los inputs de tipo range deshabilitados */
     input[type="range"]:disabled {
