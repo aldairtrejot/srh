@@ -3,6 +3,44 @@
     <?php include(resource_path('views/config.php')); ?>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- ======= ESTILOS PARA ICONOS, PÍLDORAS Y LAYOUT L/R ======= --}}
+    <style>
+      /* Rectángulo existente (marco blanco con sombra) */
+      .rectangulo{
+        width:120px; height:150px; border:1px solid #ddd; border-radius:8px;
+        display:flex; align-items:center; justify-content:center;
+        color:#9aa0a6; background:#fff;
+        box-shadow: 0 1px 2px rgba(0,0,0,.06);
+        user-select:none; padding:6px;
+      }
+      /* Contenedor centrado de iconos dentro del rectángulo */
+      .icon-row{
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        width:100%; height:100%;
+      }
+      .doc-icon{ font-size:42px; line-height:1; color:#9aa0a6; }
+
+      /* Píldoras horizontales para nombres */
+      .file-pills-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+      .file-pill{
+        display:inline-block; padding:6px 10px; border:1px solid #e5e7eb;
+        border-radius:16px; background:#f9fafb; font-size:.875rem; color:#374151;
+        max-width: 280px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
+      }
+
+      /* Fila con dos columnas lado a lado (Oficios / Anexos) */
+      .upload-row{
+        display:flex;
+        gap:16px;
+        align-items:flex-start;
+        flex-wrap:wrap;            /* si no cabe, cae a 2 filas de forma elegante */
+      }
+      .upload-col{
+        flex:1 1 420px;            /* crece, encoge y propone ~420px */
+        min-width:300px;           /* no se hace demasiado angosta */
+      }
+    </style>
+
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">
@@ -119,34 +157,43 @@
                                         Documentos de Entrada
                                     </p>
 
-                                    <div class="main-container">
-                                        <div class="left-side">
-                                            {{-- ===== OFICIOS (Max 1) ===== --}}
-                                            <div style="display:flex; align-items:center;">
-                                                <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
-                                                <label for="file_oficio_entrada" id="label_oficio_entrada"
-                                                    style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
-                                                    <i class="fa fa-arrow-up" id="icon_oficio_entrada" style="margin-right:5px;"></i>
-                                                    Cargar
-                                                </label>
-                                                <input type="file" id="file_oficio_entrada" name="file_oficio_entrada" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                            </div>
-                                            <div id="container_oficio_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                            <div id="container_oficio_entrada"></div>
-
-                                            {{-- ===== ANEXOS (Max 3) ===== --}}
-                                            <div style="display:flex; align-items:center; margin-top:16px;">
-                                                <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
-                                                <label for="file_anexo_entrada" id="label_anexo_entrada"
-                                                    style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
-                                                    <i class="fa fa-arrow-up" id="icon_anexo_entrada" style="margin-right:5px;"></i>
-                                                    Cargar
-                                                </label>
-                                                <input type="file" id="file_anexo_entrada" name="file_anexo_entrada[]" multiple style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                            </div>
-                                            <div id="container_anexo_entrada_vacio" class="rectangulo">Sin contenido</div>
-                                            <div id="container_anexo_entrada"></div>
+                                    <div class="upload-row">
+                                      <!-- COLUMNA IZQUIERDA: OFICIOS -->
+                                      <div class="upload-col">
+                                        <div style="display:flex; align-items:center;">
+                                          <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
+                                          <label for="file_oficio_entrada" id="label_oficio_entrada"
+                                                 style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
+                                            <i class="fa fa-arrow-up" id="icon_oficio_entrada" style="margin-right:5px;"></i>
+                                            Cargar
+                                          </label>
+                                          <input type="file" id="file_oficio_entrada" name="file_oficio_entrada" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                         </div>
+
+                                        <div id="container_oficio_entrada_vacio" class="rectangulo">Sin contenido</div>
+                                        <div id="container_oficio_entrada"></div>
+
+                                        <!-- Mensaje de requerimiento (lo puedes usar con validación) -->
+                                        <div id="msg_oficio_req" style="display:none;color:#c0392b;font-weight:600;margin-top:6px;">
+                                          Hace falta cargar un oficio.
+                                        </div>
+                                      </div>
+
+                                      <!-- COLUMNA DERECHA: ANEXOS -->
+                                      <div class="upload-col">
+                                        <div style="display:flex; align-items:center;">
+                                          <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
+                                          <label for="file_anexo_entrada" id="label_anexo_entrada"
+                                                 style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
+                                            <i class="fa fa-arrow-up" id="icon_anexo_entrada" style="margin-right:5px;"></i>
+                                            Cargar
+                                          </label>
+                                          <input type="file" id="file_anexo_entrada" name="file_anexo_entrada[]" multiple style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                        </div>
+
+                                        <div id="container_anexo_entrada_vacio" class="rectangulo">Sin contenido</div>
+                                        <div id="container_anexo_entrada"></div>
+                                      </div>
                                     </div>
                                 </div>
                                 {{-- ============ FIN CARGA DE ARCHIVOS ============ --}}

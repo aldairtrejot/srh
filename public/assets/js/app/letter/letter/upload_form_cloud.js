@@ -1,6 +1,7 @@
 /* upload_form_cloud.js
    - UI para sección de archivos (mostrar/ocultar, límites, vista previa simple)
-   - El envío real se hace en LetterC::save via multipart/form-data (POST normal)
+   - Validación: oficio requerido al CREAR
+   - El envío real se hace en LetterC::save vía multipart/form-data
 */
 
 (function ($, window, document) {
@@ -66,6 +67,7 @@
     var $checkBox   = $('#habilitar_carga_box');
     var $hiddenFlag = $('#habilitar_carga');
     var $container  = $('#contenedor_carga_archivos');
+    var $msgReq     = $('#msg_oficio_req');
 
     // Tooltip global si existe
     if (typeof window.tooltip === 'function') {
@@ -95,43 +97,90 @@
       }
     })();
 
-    // Límite y render de anexos (máx 3 en UI)
+    // ====== ANEXOS (máx 3) ======
     $('#file_anexo_entrada').on('change', function(){
       var files = this.files;
+
+      // Límite visual
       if (files && files.length > 3) {
         this.value = '';
         if (window.notyfEM?.error) { window.notyfEM.error('Puedes seleccionar como máximo 3 anexos.'); }
         else { alert('Puedes seleccionar como máximo 3 anexos.'); }
+        // Reset visual
+        $('#container_anexo_entrada_vacio').text('Sin contenido');
+        $('#container_anexo_entrada').empty();
         return;
       }
+
       if (files && files.length > 0) {
-        $('#container_anexo_entrada_vacio').text('');
-        $('#container_anexo_entrada').html('<ul style="margin:0;padding-left:18px;">'+
-          Array.from(files).map(function(f){ return '<li>'+ f.name +'</li>'; }).join('')+
-        '</ul>');
+        // Íconos dentro del rectángulo (uno por archivo)
+        var icons = Array.from(files)
+          .map(function(){ return '<i class="fa fa-file-alt doc-icon"></i>'; })
+          .join('');
+        $('#container_anexo_entrada_vacio')
+          .html('<div class="icon-row">'+ icons +'</div>');
+
+        // Nombres en horizontal (píldoras)
+        var pills = Array.from(files)
+          .map(function(f){ return '<span class="file-pill">'+ f.name +'</span>'; })
+          .join('');
+        $('#container_anexo_entrada')
+          .html('<div class="file-pills-row">'+ pills +'</div>');
       } else {
         $('#container_anexo_entrada_vacio').text('Sin contenido');
         $('#container_anexo_entrada').empty();
       }
     });
 
-    // Render simple para oficio
+    // ====== OFICIO (máx 1) ======
     $('#file_oficio_entrada').on('change', function(){
       var f = this.files && this.files[0];
+
       if (f){
-        $('#container_oficio_entrada_vacio').text('');
-        $('#container_oficio_entrada').html('<div>'+ f.name +'</div>');
+        // Icono dentro del rectángulo
+        $('#container_oficio_entrada_vacio')
+          .html('<div class="icon-row"><i class="fa fa-file-alt doc-icon"></i></div>');
+
+        // Nombre abajo en “píldora”
+        $('#container_oficio_entrada')
+          .html('<div class="file-pills-row"><span class="file-pill">'+ f.name +'</span></div>');
+
+        // Oculta mensaje de requerido si estaba visible
+        $msgReq.hide();
       } else {
         $('#container_oficio_entrada_vacio').text('Sin contenido');
         $('#container_oficio_entrada').empty();
       }
     });
 
-    // Muestra spinner al enviar si hay archivos o la sección está habilitada
-    $('#myForm').on('submit', function(){
+    // ====== SUBMIT: validar oficio requerido al CREAR ======
+    $('#myForm').on('submit', function(e){
       var hasOficio = ($('#file_oficio_entrada')[0] && $('#file_oficio_entrada')[0].files.length > 0);
+      var isEdit    = !!$('#id_tbl_correspondencia').val();
+
+      // Requerido SOLO al crear
+      if (!isEdit && !hasOficio) {
+        e.preventDefault();
+        // Asegura que la sección esté visible
+        $hiddenFlag.val(true);
+        $checkBox.prop('checked', true);
+        _show($container);
+
+        // Mensaje y foco
+        $msgReq.show();
+        if (window.notyfEM?.error) { window.notyfEM.error('Hace falta cargar un oficio.'); }
+        else { alert('Hace falta cargar un oficio.'); }
+
+        var target = document.getElementById('container_oficio_entrada_vacio') || document.getElementById('label_oficio_entrada');
+        if (target && target.scrollIntoView) {
+          target.scrollIntoView({ behavior:'smooth', block:'center' });
+        }
+        return false;
+      }
+
+      // Si pasa validación => spinner
       var hasAnexos = ($('#file_anexo_entrada')[0] && $('#file_anexo_entrada')[0].files.length > 0);
-      var enabled   = !!$('#habilitar_carga').val();
+      var enabled   = !!$hiddenFlag.val();
       if (hasOficio || hasAnexos || enabled) {
         window.showSpinner && window.showSpinner();
       }
@@ -149,6 +198,7 @@
         $('#container_anexo_entrada_vacio').text('Sin contenido');
         $('#container_oficio_entrada').empty();
         $('#container_oficio_entrada_vacio').text('Sin contenido');
+        $('#msg_oficio_req').hide();
       }
     }
   });
