@@ -8,11 +8,12 @@ function initData() {
     activeDate(true); // Desactiva campo fechas
     cleanTime(); // Limpia las horas de input
     cleanSelectDate(false); //Activar Select
-    activeRange(false); // Activar Range
+    activeRange(true); // Activar Range
 
-    $('#incluir_horas').prop('checked', false); //desmarcar el check
+    $('#incluir_horas').prop('checked', true); //desmarcar el check
     $('#inlcuir_usuario_capturo').prop('checked', false); //desmarcar el check
     $('#fecha_inicio_fecha_fin').prop('checked', false); //desmarcar el check
+    getCount(); // inicia contador de correspondencia
 }
 
 //Validacion cuando se cambia el evento de fecha
@@ -121,6 +122,35 @@ function getCollection() {
             allTextForeachSelect(response.resultCollectionArea, '#id_cat_area_informe');
             allTextForeachSelect(response.resultCollectionStatus, '#id_cat_status_informe');
             allTextForeachSelect(response.resultCollectionDate, '#id_cat_date_informe');
+        },
+    });
+}
+
+function getCount() {
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/countReport'),
+        type: 'POST',
+        data: {
+            id_cat_area: $('#id_cat_area_informe').val(),
+            id_cat_status: $('#id_cat_status_informe').val(),
+            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
+            fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
+            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
+            check_copia_a: $('#check_copia_a').prop('checked') ? 1 : 0,
+            fecha_inicio_informe: $('#fecha_inicio_informe').val(),
+            fecha_fin_informe: $('#fecha_fin_informe').val(),
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            inicio: getFormattedHourValue('#inicio'),
+            fin: getFormattedHourValue('#fin'),
+            _token: token
+        },
+        success: function (response) {
+            console.log(response);
+
+            $('#lab_countMin').text(response.countMin);
+            $('#lab_countMax').text(response.countMax);
+
+
         },
     });
 }
