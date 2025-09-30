@@ -42,11 +42,17 @@
                                     </p>
                                 @endif
                             </div>
+
                             <div class="input-group" style="max-width: 300px;">
                                 <x-template-table.template-search />
                             </div>
                         </div>
 
+                        <div id="progress-bar" class="dark-progress-hidden">
+                            <div class="dark-progress-bar"></div>
+                        </div>
+
+                        <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
                             <thead>
                                 <tr>

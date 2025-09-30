@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Administration;
-use Illuminate\Support\Facades\Log;
+
 use App\Http\Controllers\Controller;
 use App\Models\Administration\LoginM;
+use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Redirect;
-use Auth;
+
 class LoginC extends Controller
 {
     // Retorna la vista inicial de login
@@ -19,16 +21,16 @@ class LoginC extends Controller
     public function authenticate(Request $request)
     {
         // Crear objeto del modelo
-        $loginM = new LoginM();
+        $loginM = new LoginM;
 
         // Data
-        $key = 'login-attempts:' . $request->ip();
+        $key = 'login-attempts:'.$request->ip();
 
         //  Primero validar los datos (incluyendo el CAPTCHA)
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            //'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
+            // 'captcha' => 'required|captcha' //  Validar solo aquí, no en Auth::attempt()
         ]);
 
         // Validación de inicio de sesion para max 10 por minuto, poner a 3 intentos con captcha
@@ -36,18 +38,18 @@ class LoginC extends Controller
             return back()->with([
                 'value' => 'error', // VALUE_IS(error, warning, success)
                 'message' => 'Demasiados intentos. Intenta en 1 minuto.',
-                'estatus' => 'true'
+                'estatus' => 'true',
             ]);
         }
 
         $credentials = $request->only('email', 'password'); //  Excluir 'captcha'
         $user = \App\Models\User::where('email', $credentials['email'])->where('estatus', 1)->first(); // Validación de status activo
 
-        if (!$user) { // Validación de que el usuario este activo
+        if (! $user) { // Validación de que el usuario este activo
             return back()->with([
                 'value' => 'error', // VALUE_IS(error, warning, success)
                 'message' => 'La cuenta ha sido inactivada. Intente ingresar de nuevo más tarde.',
-                'estatus' => 'true'
+                'estatus' => 'true',
             ]);
         }
 
@@ -57,21 +59,30 @@ class LoginC extends Controller
                 'id_user' => Auth::id(),
                 'ip_user' => $request->ip(),
                 'time_user' => now(),
-            ]);// Log de inicio de sesion
+            ]); // Log de inicio de sesion
 
             $request->session()->regenerate();
             $userId = Auth::id();
             $roleUser = $loginM->validate($userId);
             session()->put('SESSION_ROLE_USER', $roleUser);
-            return redirect()->intended('dashboard');
+            $user = Auth::user();
+
+            if ($user->password_update) {
+                return redirect('dashboard');
+            } else {
+                return redirect('changePassword');
+            }
+
+            // return redirect()->intended('dashboard');
         }
 
         // Redirección a login con mensaje de error
         RateLimiter::hit($key, 60); // Expira en 60 segundos
+
         return back()->with([
             'value' => 'error', // VALUE_IS(error, warning, success)
             'message' => 'Información de inicio de sesión incorrecta.',
-            'estatus' => 'true'
+            'estatus' => 'true',
         ]);
     }
 
@@ -82,6 +93,7 @@ class LoginC extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         session()->forget('SESSION_ROLE_USER');
+
         return Redirect::to('/login');
     }
 }

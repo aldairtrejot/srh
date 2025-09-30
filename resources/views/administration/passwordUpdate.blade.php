@@ -22,51 +22,48 @@
                                 <img src="assets/images/imss/imss-bienestar-2025.png" alt="logo"
                                     style="width: 200px; height: auto;" />
                             </div>
-                            <h4>Sistema Integral para Recursos Humanos</h4>
-                            <h6 class="font-weight-light">Iniciar sesión</h6>
 
-                            <form class="pt-3" method="POST" action="{{ route('login') }}">
+                            <div class="alert alert-secondary role="alert">
+                                <h4 class="alert-heading">Actualizar contraseña</h4>
+                                <p>Por motivos de seguridad es necesario actualizar tu contraseña para proteger tu
+                                    cuenta.</p>
+                                <hr>
+                                <p class="mb-0">
+                                    La nueva contraseña debe cumplir con los siguientes requisitos:
+                                <ul>
+                                    <li>Mínimo 8 caracteres</li>
+                                    <li>Al menos una letra mayúscula</li>
+                                    <li>Al menos una letra minúscula</li>
+                                    <li>Al menos un número</li>
+                                    <li>Al menos un carácter especial (ejemplo: @ & . #)</li>
+                                </ul>
+                                </p>
+                            </div>
+
+
+
+                            <form class="pt-3" method="POST" action="{{ route('savePassword') }}">
                                 @csrf
 
                                 <div class="form-group">
-                                    <input type="text" name="email" class="form-control form-control-lg"
-                                        placeholder="Usuario" value="{{ old('email') }}" autocomplete="username" />
-                                    @error('email')
+                                    <input type="text" name="new_value" class="form-control form-control-lg"
+                                        placeholder="Contraseña" value="{{ old('new_value') }}" />
+                                    @error('new_value')
                                         <x-template-message-required>
                                             {{ $message }}
                                         </x-template-message-required>
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <input type="password" name="password" class="form-control form-control-lg"
-                                        placeholder="Contraseña" value="" autocomplete="current-password">
-                                    @error('password')
+                                    <input type="text" name="confirm_password" class="form-control form-control-lg"
+                                        placeholder="Confirmar contraseña" value="{{ old('confirm_password') }}">
+                                    @error('confirm_password')
                                         <x-template-message-required>
                                             {{ $message }}
                                         </x-template-message-required>
                                     @enderror
                                 </div>
 
-                                <!--
-                                <div class="form-group">
-                                    <input type="text" name="captcha" class="form-control form-control-lg"
-                                        placeholder="Captcha" value="" autocomplete="current-password">
-                                    @error('captcha')
-    <x-template-message-required>
-                                                        {{ $message }}
-                                                    </x-template-message-required>
-@enderror
-                                </div>
-
-                                <div class="captcha-container">
-                                    <img src="{{ captcha_src() }}" id="captcha-img">
-
-                                    <button type="button" class="refresh-btn" title="Refresh"
-                                        onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
-                                        <i class="fas fa-sync-alt"></i> Refrescar
-                                    </button> 
-                                </div>
--->
 
                                 <div class="mt-3">
                                     <button type="submit"
@@ -74,20 +71,9 @@
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                                         onmouseover="this.style.backgroundColor='#5a6268'"
                                         onmouseout="this.style.backgroundColor='#6c757d'">
-                                        Ingresar
+                                        Continuar
                                     </button>
                                 </div>
-
-                                <div class="text-center mt-4 font-weight-light">
-                                    <a href="#" class="text-primary">
-                                        ¿Olvidaste tu contraseña?</a>
-                                </div>
-                                <!--
-                                <div class="text-center mt-4 font-weight-light">
-                                    ¿Aún no estás registrado? <a href="{{ route('register') }}" class="text-primary">
-                                        Registro</a>
-                                </div>
--->
                             </form>
                         </div>
                     </div>

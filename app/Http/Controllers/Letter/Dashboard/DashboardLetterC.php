@@ -65,22 +65,23 @@ class DashboardLetterC extends Controller
         $encabezados = [
             'A' => 'No.',
             'B' => 'Folio de Gestión',
-            'C' => 'Oficio Recibido',
-            'D' => 'Fecha de Alta',
-            'E' => 'Fecha de Vencimiento',
-            'F' => 'Puesto del Remitente',
-            'G' => 'Asunto',
-            'H' => 'Clave',
-            'I' => 'Área',
-            'J' => 'Copia a',
-            'K' => 'Tipo de Documento',
-            'L' => 'Estatus'
+            'C' => 'Estatus',
+            'D' => 'Oficio Recibido',
+            'E' => 'Fecha de Alta',
+            'F' => 'Fecha de Vencimiento',
+            'G' => 'Puesto del Remitente',
+            'H' => 'Asunto',
+            'I' => 'Clave',
+            'J' => 'Área',
+            'K' => 'Copia a',
+            'L' => 'Tipo de Documento',
+            'M' => 'Observaciones',
         ];
 
         if ($request->inlcuir_usuario_capturo) {
-            $encabezados['M'] = 'Fecha de Captura';
-            $encabezados['N'] = 'Hora de Captura';
-            $encabezados['O'] = 'Usuario que Captura';
+            $encabezados['N'] = 'Fecha de Captura';
+            $encabezados['O'] = 'Hora de Captura';
+            $encabezados['P'] = 'Usuario que Captura';
         }
 
         foreach ($encabezados as $col => $titulo) {
@@ -113,21 +114,22 @@ class DashboardLetterC extends Controller
         foreach ($query as $data) {
             $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('C' . $row, $data->num_documento, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('D' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('E' . $row, $data->fecha_fin, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('F' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('G' . $row, $data->asunto, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('H' . $row, $data->clave, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('I' . $row, $data->area, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('J' . $row, $data->area_cc, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('K' . $row, $data->tipo_documento, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('L' . $row, $data->estatus, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $row, $data->estatus, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D' . $row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F' . $row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H' . $row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I' . $row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('K' . $row, $data->area_cc, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L' . $row, $data->tipo_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('M' . $row, $data->observaciones, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValueExplicit('M' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('N' . $row, $data->hora_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('O' . $row, $data->usuario_add, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('N' . $row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('O' . $row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('P' . $row, $data->usuario_add, DataType::TYPE_STRING);
             }
 
             $row++;
@@ -135,7 +137,7 @@ class DashboardLetterC extends Controller
         }
 
         // Aplicar autofiltros
-        $ultimaCol = $request->inlcuir_usuario_capturo ? 'O' : 'K';
+        $ultimaCol = $request->inlcuir_usuario_capturo ? 'N' : 'P';
         $sheet->setAutoFilter("A1:{$ultimaCol}1");
 
         // Guardar en stream
