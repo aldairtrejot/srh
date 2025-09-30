@@ -24,8 +24,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\MessagesC;
 use Carbon\Carbon;
-
-/* Archivos */
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -67,7 +65,7 @@ class LetterC extends Controller
         $collectionRemitenteM   = new CollectionRemitenteM();
         $collectionEntidadM     = new CollectionEntidadM();
 
-        // Defaults (fecha como Carbon para evitar parseos raros)
+        // Defaults
         $item->fecha_captura      = now();
         $item->id_cat_anio        = $collectionDateM->idYear();
         $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
@@ -81,19 +79,19 @@ class LetterC extends Controller
         $item->num_tomos          = 0;
         $item->horas_respuesta    = 0;
 
-        /* ===== Área 3 (AGREGAR: VACÍO hasta elegir Área 2) ===== */
-        $selectArea     = collect([]);   // vacío (solo "SELECCIONE" en el front)
+        // Área 3 (vacío hasta elegir Área 2)
+        $selectArea     = collect([]);
         $selectAreaEdit = null;
 
-        /* ===== Área 1 ===== */
+        // Área 1
         $miAreaId        = Auth::user()->id_cat_area ?? null;
         $selectArea1     = $miAreaId
             ? $item->getArea1OptionsByArea((int)$miAreaId)
             : $item->getArea1Options();
         $selectArea1Edit = null;
 
-        /* ===== Área 2 (AGREGAR: VACÍO hasta elegir Área 1) ===== */
-        $selectArea2     = collect([]);  // vacío
+        // Área 2 (vacío hasta elegir Área 1)
+        $selectArea2     = collect([]);
         $selectArea2Edit = null;
 
         // Otros selects
@@ -116,7 +114,6 @@ class LetterC extends Controller
         $selectEntidad          = $collectionEntidadM->list();
         $selectEntidadEdit      = null;
 
-        // Flag para la vista/JS (en create NO se muestran inactivos en Área 3)
         $isEdit = false;
 
         return view('letter.letter.form', compact(
@@ -132,16 +129,16 @@ class LetterC extends Controller
 
     public function edit(string $id)
     {
-        $letterM               = new LetterM();
-        $collectionRelUsuarioM = new CollectionRelUsuarioM();
-        $collectionRelEnlaceM  = new CollectionRelEnlaceM();
-        $collectionUnidadM     = new CollectionUnidadM();
-        $collectionStatusM     = new CollectionStatusM();
+        $letterM                 = new LetterM();
+        $collectionRelUsuarioM   = new CollectionRelUsuarioM();
+        $collectionRelEnlaceM    = new CollectionRelEnlaceM();
+        $collectionUnidadM       = new CollectionUnidadM();
+        $collectionStatusM       = new CollectionStatusM();
         $collectionCoordinacionM = new CollectionCoordinacionM();
-        $collectionTramiteM    = new CollectionTramiteM();
-        $collectionRemitenteM  = new CollectionRemitenteM();
-        $collectionClaveM      = new CollectionClaveM();
-        $collectionEntidadM    = new CollectionEntidadM();
+        $collectionTramiteM      = new CollectionTramiteM();
+        $collectionRemitenteM    = new CollectionRemitenteM();
+        $collectionClaveM        = new CollectionClaveM();
+        $collectionEntidadM      = new CollectionEntidadM();
 
         $item = $letterM->edit($id);
 
@@ -149,7 +146,7 @@ class LetterC extends Controller
         $selectStatus     = $collectionStatusM->listEdit();
         $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
 
-        /* ===== Área 3 (EDIT: TODAS, incluidos inactivos) ===== */
+        // Área 3 (todas, incl. inactivas)
         $selectArea = DB::table('correspondencia.cat_area')
             ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
             ->orderBy('descripcion')
@@ -162,12 +159,12 @@ class LetterC extends Controller
                 ->first()
             : null;
 
-        /* ===== Área 1 ===== */
+        // Área 1
         $miAreaId        = Auth::user()->id_cat_area ?? null;
         $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
         $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
 
-        /* ===== Área 2 ===== */
+        // Área 2
         $selectArea2     = $letterM->getArea2Options();
         $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
 
@@ -199,7 +196,6 @@ class LetterC extends Controller
         $selectEntidad     = $collectionEntidadM->listEdit();
         $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
 
-        // Flag para la vista/JS (en edit SÍ se muestran inactivos en Área 3)
         $isEdit = true;
 
         return view('letter.letter.form', compact(
@@ -224,8 +220,8 @@ class LetterC extends Controller
         $now = Carbon::now();
 
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL');
-        $COR_TOTAL = config('custom_config.COR_TOTAL');
+        $ADM_TOTAL     = config('custom_config.ADM_TOTAL');
+        $COR_TOTAL     = config('custom_config.COR_TOTAL');
 
         $rfc_remitente_bool  = isset($request->rfc_remitente_bool) ? 1 : 0;
         $es_doc_fisico       = isset($request->es_doc_fisico) ? 1 : 0;
@@ -240,13 +236,13 @@ class LetterC extends Controller
 
         if ($rfc_remitente_bool) {
             $collectionRemitenteM::create([
-                'nombre' => strtoupper($request->remitente_nombre),
-                'primer_apellido' => strtoupper($request->remitente_apellido_paterno),
-                'segundo_apellido' => strtoupper($request->remitente_apellido_materno),
-                'rfc' => strtoupper($request->remitente_rfc),
-                'estatus' => true,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
+                'nombre'            => strtoupper($request->remitente_nombre),
+                'primer_apellido'   => strtoupper($request->remitente_apellido_paterno),
+                'segundo_apellido'  => strtoupper($request->remitente_apellido_materno),
+                'rfc'               => strtoupper($request->remitente_rfc),
+                'estatus'           => true,
+                'id_usuario_sistema'=> Auth::user()->id,
+                'fecha_usuario'     => $now,
             ]);
             $request->id_cat_remitente = $collectionRemitenteM->getRfc(
                 strtoupper($request->remitente_nombre),
@@ -271,39 +267,39 @@ class LetterC extends Controller
             }
 
             $data = [
-                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
-                'num_documento' => strtoupper($request->num_documento),
-                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'num_flojas' => 1,
-                'num_tomos' => 0,
-                'horas_respuesta' => $request->horas_respuesta,
-                'id_cat_entidad' => $request->id_cat_entidad,
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_cat_area' => $request->id_cat_area,
-                'id_cat_area_1' => $request->id_cat_area_1,
-                'id_cat_area_2' => $request->id_cat_area_2,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_estatus' => $request->id_cat_estatus,
-                'id_cat_remitente' => $request->id_cat_remitente,
-                'id_cat_anio' => $request->id_cat_anio,
-                'id_cat_tramite' => $request->id_cat_tramite,
-                'id_cat_clave' => $request->id_cat_clave,
-                'id_cat_unidad' => $request->id_cat_unidad,
-                'id_cat_coordinacion' => $request->id_cat_coordinacion,
-                'puesto_remitente' => strtoupper($request->puesto_remitente),
-                'folio_gestion' => strtoupper($request->folio_gestion),
-                'es_doc_fisico' => $es_doc_fisico,
-                'son_mas_remitentes' => $son_mas_remitentes,
-                'remitente' => strtoupper($request->remitente),
-                'fecha_documento' => $request->fecha_documento,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-                'id_usuario_captura' => Auth::user()->id,
-                'fecha_usuario_captura' => $now,
+                'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
+                'num_documento'        => strtoupper($request->num_documento),
+                'fecha_captura'        => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
+                'fecha_inicio'         => $request->fecha_inicio,
+                'fecha_fin'            => $request->fecha_fin,
+                'num_flojas'           => 1,
+                'num_tomos'            => 0,
+                'horas_respuesta'      => $request->horas_respuesta,
+                'id_cat_entidad'       => $request->id_cat_entidad,
+                'asunto'               => strtoupper($request->asunto),
+                'observaciones'        => strtoupper($request->observaciones),
+                'id_cat_area'          => $request->id_cat_area,
+                'id_cat_area_1'        => $request->id_cat_area_1,
+                'id_cat_area_2'        => $request->id_cat_area_2,
+                'id_usuario_area'      => $request->id_usuario_area,
+                'id_usuario_enlace'    => $request->id_usuario_enlace,
+                'id_cat_estatus'       => $request->id_cat_estatus,
+                'id_cat_remitente'     => $request->id_cat_remitente,
+                'id_cat_anio'          => $request->id_cat_anio,
+                'id_cat_tramite'       => $request->id_cat_tramite,
+                'id_cat_clave'         => $request->id_cat_clave,
+                'id_cat_unidad'        => $request->id_cat_unidad,
+                'id_cat_coordinacion'  => $request->id_cat_coordinacion,
+                'puesto_remitente'     => strtoupper($request->puesto_remitente),
+                'folio_gestion'        => strtoupper($request->folio_gestion),
+                'es_doc_fisico'        => $es_doc_fisico,
+                'son_mas_remitentes'   => $son_mas_remitentes,
+                'remitente'            => strtoupper($request->remitente),
+                'fecha_documento'      => $request->fecha_documento,
+                'id_usuario_sistema'   => Auth::user()->id,
+                'fecha_usuario'        => $now,
+                'id_usuario_captura'   => Auth::user()->id,
+                'fecha_usuario_captura'=> $now,
             ];
 
             $created = LetterM::create($data);
@@ -319,16 +315,16 @@ class LetterC extends Controller
             }
 
             $collectionLetterLogM::create([
-                'estatus' => 'AGREGAR',
-                'num_documento' => strtoupper($request->num_documento),
-                'folio_gestion' => strtoupper($request->folio_gestion),
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_cat_area' => $request->id_cat_area,
-                'id_cat_estatus' => $request->id_cat_estatus,
+                'estatus'                => 'AGREGAR',
+                'num_documento'          => strtoupper($request->num_documento),
+                'folio_gestion'          => strtoupper($request->folio_gestion),
+                'asunto'                 => strtoupper($request->asunto),
+                'observaciones'          => strtoupper($request->observaciones),
+                'id_cat_area'            => $request->id_cat_area,
+                'id_cat_estatus'         => $request->id_cat_estatus,
                 'id_tbl_correspondencia' => $idCorrespondencia,
-                'fecha_usuario_captura' => $now,
-                'id_usuario_captura' => Auth::user()->id,
+                'fecha_usuario_captura'  => $now,
+                'id_usuario_captura'     => Auth::user()->id,
             ]);
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
@@ -338,36 +334,36 @@ class LetterC extends Controller
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
             $data = [
-                'num_turno_sistema' => strtoupper($request->num_turno_sistema),
-                'num_documento' => $request->num_documento,
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'num_flojas' => 1,
-                'num_tomos' => 0,
-                'horas_respuesta' => $request->horas_respuesta,
-                'id_cat_entidad' => $request->id_cat_entidad,
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_cat_area' => $request->id_cat_area,
-                'id_cat_area_1' => $request->id_cat_area_1,
-                'id_cat_area_2' => $request->id_cat_area_2,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_estatus' => $request->id_cat_estatus,
-                'id_cat_remitente' => $request->id_cat_remitente,
-                'id_cat_anio' => $request->id_cat_anio,
-                'id_cat_tramite' => $request->id_cat_tramite,
-                'id_cat_clave' => $request->id_cat_clave,
-                'id_cat_unidad' => $request->id_cat_unidad,
-                'id_cat_coordinacion' => $request->id_cat_coordinacion,
-                'puesto_remitente' => strtoupper($request->puesto_remitente),
-                'folio_gestion' => strtoupper($request->folio_gestion),
-                'es_doc_fisico' => $es_doc_fisico,
-                'son_mas_remitentes' => $son_mas_remitentes,
-                'remitente' => strtoupper($request->remitente),
-                'fecha_documento' => $request->fecha_documento,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
+                'num_turno_sistema'    => strtoupper($request->num_turno_sistema),
+                'num_documento'        => $request->num_documento,
+                'fecha_inicio'         => $request->fecha_inicio,
+                'fecha_fin'            => $request->fecha_fin,
+                'num_flojas'           => 1,
+                'num_tomos'            => 0,
+                'horas_respuesta'      => $request->horas_respuesta,
+                'id_cat_entidad'       => $request->id_cat_entidad,
+                'asunto'               => strtoupper($request->asunto),
+                'observaciones'        => strtoupper($request->observaciones),
+                'id_cat_area'          => $request->id_cat_area,
+                'id_cat_area_1'        => $request->id_cat_area_1,
+                'id_cat_area_2'        => $request->id_cat_area_2,
+                'id_usuario_area'      => $request->id_usuario_area,
+                'id_usuario_enlace'    => $request->id_usuario_enlace,
+                'id_cat_estatus'       => $request->id_cat_estatus,
+                'id_cat_remitente'     => $request->id_cat_remitente,
+                'id_cat_anio'          => $request->id_cat_anio,
+                'id_cat_tramite'       => $request->id_cat_tramite,
+                'id_cat_clave'         => $request->id_cat_clave,
+                'id_cat_unidad'        => $request->id_cat_unidad,
+                'id_cat_coordinacion'  => $request->id_cat_coordinacion,
+                'puesto_remitente'     => strtoupper($request->puesto_remitente),
+                'folio_gestion'        => strtoupper($request->folio_gestion),
+                'es_doc_fisico'        => $es_doc_fisico,
+                'son_mas_remitentes'   => $son_mas_remitentes,
+                'remitente'            => strtoupper($request->remitente),
+                'fecha_documento'      => $request->fecha_documento,
+                'id_usuario_sistema'   => Auth::user()->id,
+                'fecha_usuario'        => $now,
             ];
 
             LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
@@ -378,16 +374,16 @@ class LetterC extends Controller
             $logC->edit('correspondencia.tbl_correspondencia', $data);
 
             $collectionLetterLogM::create([
-                'estatus' => 'MODIFICAR',
-                'num_documento' => strtoupper($request->num_documento),
-                'folio_gestion' => strtoupper($request->folio_gestion),
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_cat_area' => $request->id_cat_area,
-                'id_cat_estatus' => $request->id_cat_estatus,
+                'estatus'                => 'MODIFICAR',
+                'num_documento'          => strtoupper($request->num_documento),
+                'folio_gestion'          => strtoupper($request->folio_gestion),
+                'asunto'                 => strtoupper($request->asunto),
+                'observaciones'          => strtoupper($request->observaciones),
+                'id_cat_area'            => $request->id_cat_area,
+                'id_cat_estatus'         => $request->id_cat_estatus,
                 'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
-                'fecha_usuario_captura' => $now,
-                'id_usuario_captura' => Auth::user()->id,
+                'fecha_usuario_captura'  => $now,
+                'id_usuario_captura'     => Auth::user()->id,
             ]);
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
@@ -404,10 +400,10 @@ class LetterC extends Controller
         }
 
         $data = [
-            'observaciones' => strtoupper($request->observaciones),
-            'id_cat_estatus' => $request->id_cat_estatus,
+            'observaciones'      => strtoupper($request->observaciones),
+            'id_cat_estatus'     => $request->id_cat_estatus,
             'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now,
+            'fecha_usuario'      => $now,
         ];
 
         LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
@@ -416,16 +412,16 @@ class LetterC extends Controller
         $logC->edit('correspondencia.tbl_correspondencia', $data);
 
         $collectionLetterLogM::create([
-            'estatus' => 'MODIFICAR',
-            'num_documento' => strtoupper($request->num_documento),
-            'folio_gestion' => strtoupper($request->folio_gestion),
-            'asunto' => strtoupper($request->asunto),
-            'observaciones' => strtoupper($request->observaciones),
-            'id_cat_area' => $request->id_cat_area,
-            'id_cat_estatus' => $request->id_cat_estatus,
+            'estatus'                => 'MODIFICAR',
+            'num_documento'          => strtoupper($request->num_documento),
+            'folio_gestion'          => strtoupper($request->folio_gestion),
+            'asunto'                 => strtoupper($request->asunto),
+            'observaciones'          => strtoupper($request->observaciones),
+            'id_cat_area'            => $request->id_cat_area,
+            'id_cat_estatus'         => $request->id_cat_estatus,
             'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
-            'fecha_usuario_captura' => $now,
-            'id_usuario_captura' => Auth::user()->id,
+            'fecha_usuario_captura'  => $now,
+            'id_usuario_captura'     => Auth::user()->id,
         ]);
 
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
@@ -435,29 +431,27 @@ class LetterC extends Controller
     public function collectionArea(Request $request)
     {
         try {
-            $by = $request->input('by');
+            $by    = $request->input('by');    // compat anterior
+            $scope = $request->input('scope'); // nuevo para deps-areas.js
 
-            // 1) Área 2 por Área 1
+            // ===== flujo anterior =====
             if ($by === 'area2_by_area1') {
                 $area1Id = (int) $request->input('id_cat_area_1');
                 $rows = (new LetterM())->getArea2OptionsByArea1($area1Id)
                     ->map(fn($r) => ['id' => $r->id, 'label' => $r->descripcion])
                     ->values();
-
                 return response()->json(['ok' => true, 'value' => $rows]);
             }
 
-            // 2) Área 3 por Área 2 (regla SQL) + filtro de estatus
             if ($by === 'area3_by_area2') {
-                $area2Id          = (int) $request->input('id_cat_area_2');
-                $includeInactive  = filter_var($request->input('include_inactive', false), FILTER_VALIDATE_BOOLEAN);
+                $area2Id         = (int) $request->input('id_cat_area_2');
+                $includeInactive = filter_var($request->input('include_inactive', false), FILTER_VALIDATE_BOOLEAN);
 
                 $q = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
                     ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
                     ->join('correspondencia.cat_area as ca', 'r2.id_cat_area_2', '=', 'ca.id_cat_area')
                     ->where('r1.id_cat_area_2', $area2Id);
 
-                // En CREATE (includeInactive=false) solo activos; en EDIT (true) todos
                 if (!$includeInactive) {
                     $q->where('ca.estatus', true);
                 }
@@ -470,9 +464,146 @@ class LetterC extends Controller
                 return response()->json(['ok' => true, 'value' => $rows]);
             }
 
-            return response()->json(['ok' => false, 'message' => 'Parámetro "by" inválido'], 422);
+            // ===== nuevo flujo por scope =====
+            $buildDependents = function (int $areaId) {
+                $collectionRelUsuarioM   = new CollectionRelUsuarioM();
+                $collectionRelEnlaceM    = new CollectionRelEnlaceM();
+                $collectionUnidadM       = new CollectionUnidadM();
+                $collectionTramiteM      = new CollectionTramiteM();
+
+                $selectUsuario = $collectionRelUsuarioM->idUsuarioByAreaNewX($areaId, null) ?? [];
+                $selectEnlace  = $collectionRelEnlaceM->idUsuarioByAreaNewX($areaId, null) ?? [];
+                $selectUnidad  = $collectionUnidadM->listEdit() ?? [];
+                $selectCoor    = []; // se llena con /collectionUnidad al elegir unidad
+                $selectTramite = $collectionTramiteM->listEdit($areaId) ?? [];
+
+                return [
+                    'ok'            => true,
+                    'selectUsuario' => $selectUsuario,
+                    'selectEnlace'  => $selectEnlace,
+                    'selectUnidad'  => $selectUnidad,
+                    'selectCoor'    => $selectCoor,
+                    'selectTramite' => $selectTramite,
+                    'clave'         => '-', // se resetea cabecera hasta elegir clave
+                ];
+            };
+
+            if ($scope === 'dependents_by_area3') {
+                $areaId = (int) $request->input('id_cat_area');
+                if ($areaId <= 0) return response()->json(['ok' => false, 'message' => 'id_cat_area requerido'], 422);
+                return response()->json($buildDependents($areaId));
+            }
+
+            if ($scope === 'dependents_by_area2') {
+                $area2Id = (int) $request->input('id_cat_area_2');
+                if ($area2Id <= 0) return response()->json(['ok' => false, 'message' => 'id_cat_area_2 requerido'], 422);
+
+                $a3 = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
+                    ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
+                    ->where('r1.id_cat_area_2', $area2Id)
+                    ->pluck('r2.id_cat_area_2')
+                    ->unique()
+                    ->values();
+
+                if ($a3->count() === 1) {
+                    return response()->json($buildDependents((int)$a3[0]));
+                }
+
+                return response()->json([
+                    'ok' => true,
+                    'selectUsuario' => [],
+                    'selectEnlace'  => [],
+                    'selectUnidad'  => (new CollectionUnidadM())->listEdit() ?? [],
+                    'selectCoor'    => [],
+                    'selectTramite' => [],
+                    'clave'         => '-',
+                ]);
+            }
+
+            if ($scope === 'dependents_by_area1') {
+                $area1Id = (int) $request->input('id_cat_area_1');
+                if ($area1Id <= 0) return response()->json(['ok' => false, 'message' => 'id_cat_area_1 requerido'], 422);
+
+                $a2 = DB::table('correspondencia.rel_cat_area_jerarquia_1')
+                    ->where('id_cat_area_1', $area1Id)
+                    ->pluck('id_cat_area_2')
+                    ->unique()
+                    ->values();
+
+                if ($a2->isEmpty()) {
+                    return response()->json([
+                        'ok' => true,
+                        'selectUsuario' => [],
+                        'selectEnlace'  => [],
+                        'selectUnidad'  => (new CollectionUnidadM())->listEdit() ?? [],
+                        'selectCoor'    => [],
+                        'selectTramite' => [],
+                        'clave'         => '-',
+                    ]);
+                }
+
+                $a3 = DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
+                    ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
+                    ->whereIn('r1.id_cat_area_2', $a2)
+                    ->pluck('r2.id_cat_area_2')
+                    ->unique()
+                    ->values();
+
+                if ($a3->count() === 1) {
+                    return response()->json($buildDependents((int)$a3[0]));
+                }
+
+                return response()->json([
+                    'ok' => true,
+                    'selectUsuario' => [],
+                    'selectEnlace'  => [],
+                    'selectUnidad'  => (new CollectionUnidadM())->listEdit() ?? [],
+                    'selectCoor'    => [],
+                    'selectTramite' => [],
+                    'clave'         => '-',
+                ]);
+            }
+
+            return response()->json(['ok' => false, 'message' => 'Parámetro inválido'], 422);
         } catch (\Throwable $e) {
             Log::error('LETTER_COLLECTION_AREA_ERROR: '.$e->getMessage(), ['ex' => $e]);
+            return response()->json(['ok' => false, 'message' => 'Error interno'], 500);
+        }
+    }
+
+    /* ====== Unicidad genérica (folio_gestion / num_documento, etc.) ====== */
+    public function validateUnique(Request $request)
+    {
+        try {
+            $type      = (string) $request->input('type', '');
+            $id        = $request->input('id'); // id_tbl_correspondencia (opcional para excluir)
+            $value     = trim((string)$request->input('value', ''));
+            $attribute = (string) $request->input('attribute', ''); // opcional
+
+            if ($value === '') {
+                return response()->json(['ok' => true, 'exists' => false]);
+            }
+
+            $letterM = new LetterM();
+            $exists  = false;
+
+            // Soportamos dos formas:
+            // - type = 'folio' ⇒ valida folio_gestion
+            // - type = 'num_documento' ⇒ valida num_documento (o el attribute que pases)
+            switch ($type) {
+                case 'folio':
+                    $exists = (bool) $letterM->uniqueNoDocument($id, $value, 'folio_gestion');
+                    break;
+                case 'num_documento':
+                default:
+                    $col    = $attribute ?: 'num_documento';
+                    $exists = (bool) $letterM->uniqueNoDocument($id, $value, $col);
+                    break;
+            }
+
+            return response()->json(['ok' => true, 'exists' => $exists]);
+        } catch (\Throwable $e) {
+            Log::error('LETTER_VALIDATE_UNIQUE_ERROR: '.$e->getMessage(), ['ex' => $e]);
             return response()->json(['ok' => false, 'message' => 'Error interno'], 500);
         }
     }
@@ -564,6 +695,8 @@ class LetterC extends Controller
         ]);
     }
 }
+
+
 
 
 

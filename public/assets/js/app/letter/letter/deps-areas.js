@@ -1,7 +1,7 @@
 // Dependencias: Área 2 (por Área 1) y Área 3 (por Área 2)
-// Reglas:
-// - Área 2 y Área 3 arrancan mostrando solo "SELECCIONE"
-// - Área 3 en CREATE filtra a3.estatus = true; en EDIT permite activos e inactivos
+// Además: cuando cambian Área 1 o Área 2, también actualizamos
+// Usuario, Enlace, Unidad, Coordinación, Trámite y Clave,
+// igual que cuando cambias Área 3 (eso ya lo hace tu select.js).
 
 document.addEventListener('DOMContentLoaded', function () {
   const $area1 = document.getElementById('id_cat_area_1');
@@ -12,12 +12,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const tokenEl = document.querySelector('meta[name="csrf-token"]');
   const token = tokenEl ? tokenEl.getAttribute('content') : '';
 
+  // ===== Helpers de placeholder para selectpicker =====
+  function setPickerEmpty(selector) {
+    $(selector).html('<option value="">SELECCIONE</option>').selectpicker('refresh');
+  }
   function refreshPicker(id) {
-    if (typeof $ !== 'undefined' && typeof $('.selectpicker').selectpicker === 'function') {
+    if (typeof $ !== 'undefined' && $.fn.selectpicker) {
       $(id).selectpicker('refresh');
     }
   }
 
+  // ===== POST JSON a LetterC@collectionArea (Áreas encadenadas) =====
   async function postJSON(url, body) {
     const resp = await fetch(url, {
       method: 'POST',
@@ -32,15 +37,66 @@ document.addEventListener('DOMContentLoaded', function () {
     return resp.json();
   }
 
-  // ===== helpers para limpiar selects =====
-  function resetArea2() {
-    $area2.innerHTML = '<option value="">SELECCIONE</option>';
-    refreshPicker('#id_cat_area_2');
+  // ===== Repoblado de dependientes (Usuario/Enlace/Unidad/Coord/Trámite/Clave) =====
+  // Usa tu endpoint existente: /letter/collection/collectionArea (CollectionAreaC@collection)
+  function actualizarCamposDerivadosPorAreaId(areaId) {
+    if (!areaId) {
+      // dejar todos en "SELECCIONE"
+      setPickerEmpty('#id_usuario_area');
+      setPickerEmpty('#id_usuario_enlace');
+      setPickerEmpty('#id_cat_unidad');
+      setPickerEmpty('#id_cat_coordinacion');
+      setPickerEmpty('#id_cat_tramite');
+      setPickerEmpty('#id_cat_clave');
+      // limpiar encabezado clave
+      if (typeof clearClaveData === 'function') clearClaveData();
+      if (typeof setClaveInNuSystem === 'function') setClaveInNuSystem('-');
+      return;
+    }
+
+    $.ajax({
+      url: URL_DEFAULT.concat('/letter/collection/collectionArea'),
+      type: 'POST',
+      data: { id: areaId, _token: token },
+      success: function (response) {
+        // Estas funciones ya existen en tu proyecto
+        if (typeof foreachSelectNull === 'function') {
+          foreachSelectNull(response.selectEnlace,  '#id_usuario_enlace');
+          foreachSelectNull(response.selectUsuario, '#id_usuario_area');
+          foreachSelectNull(response.selectUnidad,  '#id_cat_unidad');
+          foreachSelectNull(response.selectCoor,    '#id_cat_coordinacion');
+        }
+        if (typeof foreachSelect === 'function') {
+          foreachSelect(response.selectTramite, '#id_cat_tramite');
+        }
+
+        // Si alguno quedó sin opciones, dejar "SELECCIONE"
+        setTimeout(function () {
+          ['#id_usuario_enlace','#id_usuario_area','#id_cat_unidad',
+           '#id_cat_coordinacion','#id_cat_tramite'].forEach(setPickerEmptyIfNoOptions);
+          // Clave depende de Trámite: limpiar y placeholder
+          setPickerEmpty('#id_cat_clave');
+        }, 0);
+
+        // Encabezado/num_turno_sistema
+        if (typeof clearClaveData === 'function') clearClaveData();
+        if (typeof setClaveInNuSystem === 'function') setClaveInNuSystem(response.clave || '-');
+      }
+    });
   }
-  function resetArea3() {
-    $area3.innerHTML = '<option value="">SELECCIONE</option>';
-    refreshPicker('#id_cat_area');
+
+  function setPickerEmptyIfNoOptions(selector) {
+    const $sel = $(selector);
+    if ($sel.find('option').length === 0) {
+      setPickerEmpty(selector);
+    } else {
+      $sel.selectpicker('refresh');
+    }
   }
+
+  // ===== helpers para limpiar selects encadenados =====
+  function resetArea2() { setPickerEmpty('#id_cat_area_2'); }
+  function resetArea3() { setPickerEmpty('#id_cat_area'); }
 
   // ===== Área 2 por Área 1 =====
   async function cargarArea2PorArea1(area1Id, selectedId = null) {
@@ -52,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
         by: 'area2_by_area1',
         id_cat_area_1: area1Id,
       });
-      if (json.ok && Array.isArray(json.value)) {
+
+      if (json.ok && Array.isArray(json.value) && json.value.length) {
         json.value.forEach((opt) => {
           const option = document.createElement('option');
           option.value = String(opt.id ?? '');
@@ -60,11 +117,13 @@ document.addEventListener('DOMContentLoaded', function () {
           if (selectedId && String(selectedId) === String(opt.id)) option.selected = true;
           $area2.appendChild(option);
         });
+        refreshPicker('#id_cat_area_2');
+      } else {
+        resetArea2();
       }
     } catch (e) {
       console.error('AREA2_LOAD_ERROR:', e);
-    } finally {
-      refreshPicker('#id_cat_area_2');
+      resetArea2();
     }
   }
 
@@ -79,7 +138,8 @@ document.addEventListener('DOMContentLoaded', function () {
         id_cat_area_2: area2Id,
         include_inactive: !!(window.LETTER && window.LETTER.includeInactiveArea3),
       });
-      if (json.ok && Array.isArray(json.value)) {
+
+      if (json.ok && Array.isArray(json.value) && json.value.length) {
         json.value.forEach((opt) => {
           const option = document.createElement('option');
           option.value = String(opt.id ?? '');
@@ -87,27 +147,38 @@ document.addEventListener('DOMContentLoaded', function () {
           if (selectedId && String(selectedId) === String(opt.id)) option.selected = true;
           $area3.appendChild(option);
         });
+        refreshPicker('#id_cat_area');
+      } else {
+        resetArea3();
       }
     } catch (e) {
       console.error('AREA3_LOAD_ERROR:', e);
-    } finally {
-      refreshPicker('#id_cat_area');
+      resetArea3();
     }
   }
 
-  // Eventos
+  // ===== Eventos =====
   $area1.addEventListener('change', function (e) {
     const area1Id = e.target.value || '';
     cargarArea2PorArea1(area1Id, null);
-    resetArea3(); // al cambiar área1, limpia área3
+    resetArea3(); // al cambiar Área 1, limpia Área 3
+    // También actualizar dependientes basados en Área 1:
+    actualizarCamposDerivadosPorAreaId(area1Id);
   });
 
   $area2.addEventListener('change', function (e) {
     const area2Id = e.target.value || '';
     cargarArea3PorArea2(area2Id, null);
+    // También actualizar dependientes basados en Área 2:
+    actualizarCamposDerivadosPorAreaId(area2Id);
   });
 
-  // Precarga en edición
+  // Nota: Área 3 ya actualiza dependientes en tu select.js existente.
+  // Si quisieras hacerlo aquí también, podrías escuchar el change de $area3
+  // y llamar a actualizarCamposDerivadosPorAreaId($area3.value), pero no es necesario
+  // para evitar llamadas duplicadas.
+
+  // ===== Precarga en edición =====
   const area1Inicial = window.LETTER?.initials?.area1 || null;
   const area2Inicial = window.LETTER?.initials?.area2 || null;
   const area3Inicial = window.LETTER?.initials?.area3 || null;
@@ -119,11 +190,16 @@ document.addEventListener('DOMContentLoaded', function () {
         cargarArea3PorArea2(a2, area3Inicial);
       }
     });
+    // También precarga dependientes con base en Área 1 inicial
+    actualizarCamposDerivadosPorAreaId(area1Inicial);
   } else {
-    // nuevo (create) -> ambos vacíos
+    // create -> ambos vacíos
     resetArea2();
     resetArea3();
   }
 });
+
+
+
 
 

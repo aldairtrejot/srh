@@ -1,7 +1,11 @@
+// public/assets/js/app/letter/letter/form.js
 var token = $('meta[name="csrf-token"]').attr('content');
 
 $(document).ready(function () {
-    $('select').selectpicker();
+    // Inicializa y fuerza placeholder “SELECCIONE”
+    $('select').attr('data-none-selected-text', 'SELECCIONE').selectpicker();
+    if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
+
     setData();
     getRole();
     setCheckboxArea();
@@ -130,6 +134,7 @@ function setCheckboxArea() {
         hideDiv('mostrar_ocultar_template');
     }
     getRole();
+    if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 }
 
 function setCheckbox() {
@@ -154,6 +159,7 @@ function setValueOfMoreRem() {
         hideDiv('mostrar_ocultar_mas_remitentes');
         $('#remitente').val('');
     }
+    if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 }
 
 $('#es_doc_fisico_box').change(function () {
@@ -184,13 +190,15 @@ function getRole() {
             '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
             '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
             '#id_cat_remitente', '#id_cat_entidad',
-            // Áreas nuevas (solo visual si no es admin)
             '#id_cat_area_1', '#id_cat_area_2'
         ];
         toDisable.forEach(id => $(id).prop('disabled', true));
-        ['#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-         '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-         '#id_cat_remitente', '#id_cat_area_1', '#id_cat_area_2'].forEach(id => $(id).selectpicker('refresh'));
+        [
+            '#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
+            '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
+            '#id_cat_remitente', '#id_cat_area_1', '#id_cat_area_2'
+        ].forEach(id => $(id).attr('data-none-selected-text', 'SELECCIONE').selectpicker('refresh'));
+        if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
     }
 }
 
@@ -223,5 +231,6 @@ function getData() {
         $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
     });
 }
+
 
 
