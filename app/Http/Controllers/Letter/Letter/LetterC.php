@@ -88,8 +88,8 @@ class LetterC extends Controller
         $collectionRemitenteM   = new CollectionRemitenteM();
         $collectionEntidadM     = new CollectionEntidadM();
 
-        // Defaults
-        $item->fecha_captura      = now()->format('d/m/Y');
+        // Defaults (no tocar la columna real fecha_captura: usar virtual para la vista)
+        $item->fecha_captura_dmy  = now()->format('d/m/Y');
         $item->id_cat_anio        = $collectionDateM->idYear();
         $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
             $item->id_cat_anio,
@@ -172,6 +172,13 @@ class LetterC extends Controller
         $collectionEntidadM      = new CollectionEntidadM();
 
         $item = $letterM->edit($id);
+
+        // Valor formateado para el input (d/m/Y) sin tocar la columna real
+        if ($item) {
+            $item->fecha_captura_dmy = !empty($item->fecha_captura)
+                ? Carbon::parse($item->fecha_captura)->format('d/m/Y')
+                : null;
+        }
 
         // Estatus
         $selectStatus     = $collectionStatusM->listEdit();
@@ -318,12 +325,18 @@ class LetterC extends Controller
                 );
             }
 
+            // Normalización de fechas desde el formulario (acepta d/m/Y o Y-m-d)
+            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
             $data = [
                 'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
                 'num_documento'        => strtoupper($request->num_documento),
-                'fecha_captura'        => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
-                'fecha_inicio'         => $request->fecha_inicio,
-                'fecha_fin'            => $request->fecha_fin,
+                'fecha_captura'        => $fechaCaptura,
+                'fecha_inicio'         => $fechaInicio,
+                'fecha_fin'            => $fechaFin,
                 'num_flojas'           => 1,
                 'num_tomos'            => 0,
                 'horas_respuesta'      => $request->horas_respuesta,
@@ -345,7 +358,7 @@ class LetterC extends Controller
                 'es_doc_fisico'        => $es_doc_fisico,
                 'son_mas_remitentes'   => $son_mas_remitentes,
                 'remitente'            => strtoupper($request->remitente),
-                'fecha_documento'      => $request->fecha_documento,
+                'fecha_documento'      => $fechaDocumento,
                 'id_usuario_sistema'   => Auth::user()->id,
                 'fecha_usuario'        => $now,
                 'id_usuario_captura'   => Auth::user()->id,
@@ -380,12 +393,18 @@ class LetterC extends Controller
         // Ramas de permisos: admin/correspondencia-todo = actualización total
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
+            // Normalización de fechas
+            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
             $data = [
                 'num_turno_sistema'    => strtoupper($request->num_turno_sistema),
                 'num_documento'        => strtoupper($request->num_documento),
-                'fecha_captura'        => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
-                'fecha_inicio'         => $request->fecha_inicio,
-                'fecha_fin'            => $request->fecha_fin,
+                'fecha_captura'        => $fechaCaptura,
+                'fecha_inicio'         => $fechaInicio,
+                'fecha_fin'            => $fechaFin,
                 'num_flojas'           => 1,
                 'num_tomos'            => 0,
                 'horas_respuesta'      => $request->horas_respuesta,
@@ -409,7 +428,7 @@ class LetterC extends Controller
                 'es_doc_fisico'        => $es_doc_fisico,
                 'son_mas_remitentes'   => $son_mas_remitentes,
                 'remitente'            => strtoupper($request->remitente),
-                'fecha_documento'      => $request->fecha_documento,
+                'fecha_documento'      => $fechaDocumento,
                 'id_usuario_sistema'   => Auth::user()->id,
                 'fecha_usuario'        => $now,
             ];
@@ -764,6 +783,53 @@ class LetterC extends Controller
         preg_match('/\/(\d+)\//', $param2, $coincidencias2);
         $numeros2 = $coincidencias2[1] ?? '00000';
         return $letras1 . '/' . $numeros2 . '/2025';
+    }
+
+    /**
+     * Normaliza un valor de fecha recibido desde el formulario.
+     * - Acepta: "d/m/Y", "d/m/Y H:i", "Y-m-d", "Y-m-d H:i:s"
+     * - Devuelve: "Y-m-d" o "Y-m-d H:i:s" según traiga hora; null si vacío.
+     */
+    private function parseDateInput(?string $value): ?string
+    {
+        $v = trim((string)$value);
+        if ($v === '') return null;
+
+        // d/m/Y H:i
+        try {
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}$/', $v)) {
+                return Carbon::createFromFormat('d/m/Y H:i', $v)->format('Y-m-d H:i:s');
+            }
+        } catch (\Throwable $e) {}
+
+        // d/m/Y
+        try {
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $v)) {
+                return Carbon::createFromFormat('d/m/Y', $v)->format('Y-m-d');
+            }
+        } catch (\Throwable $e) {}
+
+        // Y-m-d H:i:s
+        try {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/', $v)) {
+                return Carbon::parse($v)->format('Y-m-d H:i:s');
+            }
+        } catch (\Throwable $e) {}
+
+        // Y-m-d
+        try {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $v)) {
+                return Carbon::parse($v)->format('Y-m-d');
+            }
+        } catch (\Throwable $e) {}
+
+        // Intento final (si llega un DateTime serializado por el browser, etc.)
+        try {
+            return Carbon::parse($v)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            Log::warning('[parseDateInput] No se pudo parsear la fecha', ['value' => $value]);
+            return null;
+        }
     }
 
     /* ===== Subidas a Alfresco si vienen campos file_* de entrada ===== */
