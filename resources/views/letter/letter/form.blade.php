@@ -280,6 +280,13 @@
                         value="{{ optional($item)->remitente ?: '' }}" />
                     </div>
                   </div>
+                                    <div class="row">
+                    <x-template-form.template-form-input-required
+                      label="Puesto remitente" type="text" name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
+                      grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
+                      value="{{ optional($item)->puesto_remitente ?? '' }}" />
+                  </div>
+
 
                   {{-- ===== Carga de archivos ===== --}}
                   <x-template-tittle.tittle-caption-secon tittle="Carga de archivos" />
@@ -336,12 +343,6 @@
                     </div>
                   </div>
 
-                  <div class="row">
-                    <x-template-form.template-form-input-required
-                      label="Puesto remitente" type="text" name="puesto_remitente" placeholder="PUESTO DE REMITENTE"
-                      grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" autocomplete=""
-                      value="{{ optional($item)->puesto_remitente ?? '' }}" />
-                  </div>
 
                   <x-template-button.button-form-footer routeBack="{{ route('letter.list') }}" />
 
