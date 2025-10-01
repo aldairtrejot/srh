@@ -1,42 +1,44 @@
 <?php
 
 namespace App\Http\Controllers\Letter\Dashboard;
-use Illuminate\Support\Facades\Log;
+
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Collection\CollectionAreaM;
 use App\Models\Letter\Collection\CollectionDateM;
 use App\Models\Letter\Collection\CollectionStatusM;
 use App\Models\Letter\Dashboard\ReportM;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class DashboardLetterC extends Controller
 {
     // La función trae los catalogos iniciales para poblar los catlagos de informe
     public function getCollection()
     {
-        // Class 
-        $collectionAreaM = new CollectionAreaM();
-        $collectionStatusM = new CollectionStatusM();
-        $collectionDateM = new CollectionDateM();
+        // Class
+        $collectionAreaM = new CollectionAreaM;
+        $collectionStatusM = new CollectionStatusM;
+        $collectionDateM = new CollectionDateM;
 
-        // Se obtienen los catalogos
-        $resultCollectionArea = $collectionAreaM->listLetter();
+        // Se obtiene los catalogos a usar en el reporte
+        $cat_area_j_1 = $collectionAreaM->getAreaBy1();
+
+        // Se pasa como arreglo vacio porque depende de un catalogo
+        $cat_area_j_2 = [];
+
         $resultCollectionStatus = $collectionStatusM->list();
         $resultCollectionDate = $collectionDateM->list();
 
         // Send Data
         return response()->json([
-            'resultCollectionArea' => $resultCollectionArea,
+            'cat_area_j_1' => $cat_area_j_1,
+            'cat_area_j_2' => $cat_area_j_2,
             'resultCollectionStatus' => $resultCollectionStatus,
             'resultCollectionDate' => $resultCollectionDate,
         ]);
@@ -45,9 +47,9 @@ class DashboardLetterC extends Controller
     // Genera reporte de Exel
     public function generate(Request $request)
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
-        $reportM = new ReportM();
+        $reportM = new ReportM;
 
         $query = $reportM->generateReport(
             $request->id_cat_area,
@@ -85,7 +87,7 @@ class DashboardLetterC extends Controller
         }
 
         foreach ($encabezados as $col => $titulo) {
-            $cell = $col . '1';
+            $cell = $col.'1';
             $sheet->setCellValue($cell, $titulo);
 
             // Estilo del encabezado
@@ -112,24 +114,24 @@ class DashboardLetterC extends Controller
         $row = 2;
         $id = 1;
         foreach ($query as $data) {
-            $sheet->setCellValueExplicit('A' . $row, $id, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('B' . $row, $data->folio_gestion, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('C' . $row, $data->estatus, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('D' . $row, $data->num_documento, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('E' . $row, $data->fecha_inicio, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('F' . $row, $data->fecha_fin, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('G' . $row, $data->puesto_remitente, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('H' . $row, $data->asunto, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('I' . $row, $data->clave, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('J' . $row, $data->area, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('K' . $row, $data->area_cc, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('L' . $row, $data->tipo_documento, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('M' . $row, $data->observaciones, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('A'.$row, $id, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('B'.$row, $data->folio_gestion, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C'.$row, $data->estatus, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('D'.$row, $data->num_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('E'.$row, $data->fecha_inicio, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('F'.$row, $data->fecha_fin, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('G'.$row, $data->puesto_remitente, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('H'.$row, $data->asunto, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('I'.$row, $data->clave, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J'.$row, $data->area, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('K'.$row, $data->area_cc, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L'.$row, $data->tipo_documento, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('M'.$row, $data->observaciones, DataType::TYPE_STRING);
 
             if ($request->inlcuir_usuario_capturo) {
-                $sheet->setCellValueExplicit('N' . $row, $data->fecha_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('O' . $row, $data->hora_captura, DataType::TYPE_STRING);
-                $sheet->setCellValueExplicit('P' . $row, $data->usuario_add, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('N'.$row, $data->fecha_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('O'.$row, $data->hora_captura, DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit('P'.$row, $data->usuario_add, DataType::TYPE_STRING);
             }
 
             $row++;
@@ -144,8 +146,9 @@ class DashboardLetterC extends Controller
         $writer = new Xlsx($spreadsheet);
 
         return new StreamedResponse(function () use ($writer) {
-            if (ob_get_contents())
+            if (ob_get_contents()) {
                 ob_end_clean();
+            }
             $writer->save('php://output');
         }, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -158,7 +161,7 @@ class DashboardLetterC extends Controller
     // La función agrega encabezados para las columnas
     private function addStyleValue($sheet, $cell, $value, $background)
     {
-        // Aplicar formato 
+        // Aplicar formato
         $sheet->getStyle($cell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
         $sheet->getStyle($cell)->getFill()->getStartColor()->setARGB($background);
         $sheet->getStyle($cell)->getFont()->setBold(true);
@@ -168,8 +171,7 @@ class DashboardLetterC extends Controller
         $sheet->setCellValue($cell, $value);
     }
 
-
-    // La funcion agrega estilos asi como valor a una celda 
+    // La funcion agrega estilos asi como valor a una celda
     private function addStyleTittle($sheet, $cell, $value, $background, $bold, $alignment)
     {
         // Valu

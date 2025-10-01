@@ -7,8 +7,7 @@
         <div class="col-12 text-center">
             <div
                 style="font-size: 4rem; font-weight: bold; color:#10312b; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                <span id="contador-resultados"><label id="lab_countMin">0</label> de <label
-                        id="lab_countMax">0</label></span>
+                <span id="contador-resultados"><label id="lab_contador"></span>
             </div>
             <small class="text-muted" style="font-size:1rem;">Folios totales</small>
         </div>
@@ -16,16 +15,37 @@
 
     <!-- FILTROS -->
     <div class="row">
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-sm-6 col-lg-4">
             <div class="custom-col">
-                <label class="label-time">Área</label>
+                <label class="label-time">C.R.H.</label>
+                <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
+                    aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados" id="cat_area_j_1">
+                </select>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="custom-col">
+                <label class="label-time">C.R.H. T.</label>
+                <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
+                    aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados" id="cat_area_j_2">
+                </select>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="custom-col">
+                <label class="label-time">ÁREAS / ZONAS</label>
                 <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
                     aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados"
                     id="id_cat_area_informe">
                 </select>
             </div>
         </div>
+    </div>
+    <br>
 
+    <div class="row">
         <div class="col-12 col-md-3">
             <div class="custom-col">
                 <label class="label-time">Estatus</label>
@@ -45,18 +65,15 @@
                 </select>
             </div>
         </div>
-    </div>
-    <br>
 
-    <div class="row">
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-3">
             <div class="custom-col">
                 <label class="label-time">Fecha Inicio de captura</label>
                 <input type="date" id="fecha_inicio_informe" class="form-control" style="font-size: 1rem;" />
             </div>
         </div>
 
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-3">
             <div class="custom-col">
                 <label class="label-time">Fecha Fin de captura</label>
                 <input type="date" id="fecha_fin_informe" class="form-control" style="font-size: 1rem;" />

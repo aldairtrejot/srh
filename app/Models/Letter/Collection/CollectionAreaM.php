@@ -1,55 +1,55 @@
 <?php
 
 namespace App\Models\Letter\Collection;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CollectionAreaM extends Model
 {
-
-    //La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
+    // La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
     public function noDocumentoAux($idAnio, $idTable, $tableName)
     {
         $query = DB::table($tableName)
-            ->join('correspondencia.cat_area', $tableName . '.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
-            ->join('correspondencia.cat_anio', $tableName . '.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+            ->join('correspondencia.cat_area', $tableName.'.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('correspondencia.cat_anio', $tableName.'.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->select(
                 DB::raw("
                         UPPER(correspondencia.cat_area.clave) || '/' || 
-                        TO_CHAR(" . $tableName . ".consecutivo + 1, 'FM00000') || '/' ||
+                        TO_CHAR(".$tableName.".consecutivo + 1, 'FM00000') || '/' ||
                         correspondencia.cat_anio.descripcion AS documento_id
                     ")
             )
-            ->where($tableName . '.id_cat_area', $idTable)
-            ->where($tableName . '.id_cat_anio', $idAnio)
+            ->where($tableName.'.id_cat_area', $idTable)
+            ->where($tableName.'.id_cat_anio', $idAnio)
             ->first(); // Obtener el primer resultado
 
         // Verifica si el resultado tiene la propiedad 'documento_id'
         return $query ? $query->documento_id : null;
     }
 
-    //La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
+    // La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
     public function noDocumentoByAux($idAnio, $idTable, $tableName)
     {
         $query = DB::table($tableName)
-            ->join('correspondencia.cat_area', $tableName . '.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
-            ->join('correspondencia.cat_anio', $tableName . '.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
+            ->join('correspondencia.cat_area', $tableName.'.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->join('correspondencia.cat_anio', $tableName.'.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->select(
                 DB::raw("
                     UPPER(correspondencia.cat_area.clave) || '/' || 
-                    TO_CHAR(" . $tableName . ".consecutivo + 1, 'FM00000') || '/' ||
+                    TO_CHAR(".$tableName.".consecutivo + 1, 'FM00000') || '/' ||
                     correspondencia.cat_anio.descripcion AS documento_id
                 ")
             )
-            ->where($tableName . '.id_cat_area', $idTable)
-            ->where($tableName . '.id_cat_anio', $idAnio)
+            ->where($tableName.'.id_cat_area', $idTable)
+            ->where($tableName.'.id_cat_anio', $idAnio)
             ->first(); // Obtener el primer resultado
 
         // Verifica si el resultado tiene la propiedad 'documento_id'
         return $query ? $query->documento_id : null;
     }
 
-    //La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
+    // La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
     public function noDocumento($idAnio, $idTable)
     {
         $query = DB::table('correspondencia.rel_anio_area')
@@ -70,7 +70,7 @@ class CollectionAreaM extends Model
         return $query ? $query->documento_id : null;
     }
 
-    //LA funcion actualiza el consecutivo de area y año
+    // LA funcion actualiza el consecutivo de area y año
     public function iteratorConsecutivoAux($idYear, $idDoc, $tableName)
     {
         // Usando Query Builder para hacer el UPDATE
@@ -80,7 +80,7 @@ class CollectionAreaM extends Model
             ->increment('consecutivo', 1); // Aumenta el campo 'consecutivo' en 1
     }
 
-    //LA funcion actualiza el consecutivo de area y año
+    // LA funcion actualiza el consecutivo de area y año
     public function iteratorConsecutivo($idYear, $idDoc)
     {
         // Usando Query Builder para hacer el UPDATE
@@ -95,7 +95,7 @@ class CollectionAreaM extends Model
         $query = DB::table('correspondencia.cat_area')
             ->select([
                 'correspondencia.cat_area.id_cat_area AS id',
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion'),
             ])
             ->where('estatus', '=', true)
             ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
@@ -107,20 +107,19 @@ class CollectionAreaM extends Model
         return $results;
     }
 
-
     public function listLetter()
     {
         $query = DB::table('correspondencia.cat_area')
             ->select([
                 'correspondencia.cat_area.id_cat_area AS id',
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion'),
             ])
             ->where('correspondencia.cat_area.estatus', '=', true);
 
         // Si no tiene ni rol 1 ni rol 2
         if (
-            !in_array(1, session('SESSION_ROLE_USER', [])) &&
-            !in_array(2, session('SESSION_ROLE_USER', []))
+            ! in_array(1, session('SESSION_ROLE_USER', [])) &&
+            ! in_array(2, session('SESSION_ROLE_USER', []))
         ) {
             $query->join(
                 'correspondencia.ctrl_rol_usuario_area',
@@ -137,13 +136,12 @@ class CollectionAreaM extends Model
         return $query->get();
     }
 
-
     public function listEdit()
     {
         $query = DB::table('correspondencia.cat_area')
             ->select([
                 'correspondencia.cat_area.id_cat_area AS id',
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion'),
             ])
             ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
 
@@ -159,13 +157,14 @@ class CollectionAreaM extends Model
         $query = DB::table('correspondencia.cat_area')
             ->select([
                 'correspondencia.cat_area.id_cat_area AS id',
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion')
+                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS descripcion'),
             ])
             ->where('correspondencia.cat_area.id_cat_area', '=', $id)
             ->orderBy('correspondencia.cat_area.descripcion', 'ASC');
 
         // Usar first() para obtener un único resultado
         $result = $query->first();
+
         return $result;
     }
 
@@ -203,5 +202,45 @@ class CollectionAreaM extends Model
             ->where('correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia', $id)
             ->pluck('correspondencia.cat_area.descripcion') // Devuelve solo un array de nombres de área
             ->toArray();
+    }
+
+    /**
+     *  CAMBIOS EN NUEVO MODAL
+     */
+
+    // La función lista las areas ligadas a jerarquia 1 de los catalogos, el parametro hace referencia a la jerarquia
+    public function getAreaBy1($idJerarquia = 1)
+    {
+        $query = DB::table('correspondencia.cat_area')
+            ->select(
+                'correspondencia.cat_area.id_cat_area AS id',
+                'correspondencia.cat_area.descripcion AS descripcion'
+            )
+            ->distinct()
+            ->join(
+                'correspondencia.rel_cat_area_jerarquia_1',
+                'correspondencia.cat_area.id_cat_area',
+                '=',
+                'correspondencia.rel_cat_area_jerarquia_1.id_cat_area_1'
+            )
+            ->leftJoin(
+                'correspondencia.ctrl_rol_usuario_area',
+                'correspondencia.rel_cat_area_jerarquia_1.id_cat_area_1',
+                '=',
+                'correspondencia.ctrl_rol_usuario_area.id_cat_area'
+            )
+            ->where('correspondencia.rel_cat_area_jerarquia_1.estatus', true);
+
+        // si el usuario NO tiene rol 1 ni 2, aplicar filtros adicionales
+        if (
+            ! in_array(1, session('SESSION_ROLE_USER', [])) &&
+            ! in_array(2, session('SESSION_ROLE_USER', []))
+        ) {
+            $query->where('correspondencia.ctrl_rol_usuario_area.id_usuario', auth()->id())
+                ->where('correspondencia.ctrl_rol_usuario_area.id_cat_jerarquia', $idJerarquia)
+                ->where('correspondencia.ctrl_rol_usuario_area.estatus', true);
+        }
+
+        return $query->orderBy('correspondencia.cat_area.descripcion', 'ASC')->get();
     }
 }

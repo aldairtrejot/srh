@@ -14,9 +14,13 @@ class CountReportController extends Controller
         $countMax = $countReportModel->countReportModel(); // total de registros
         $countMin = $countMax;
 
+        // variables de resultado
+        // Leyenda de contador
+        $lab_contador = $countMin.' de '.$countMax;
+
         return response()->json([
-            'countMin' => $countMin,
-            'countMax' => $countMax,
+            'lab_contador' => $lab_contador,
+
         ]);
     }
 }
