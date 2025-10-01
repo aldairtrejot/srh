@@ -1,5 +1,3 @@
-// public/assets/js/app/letter/letter/form.js
-
 /* =========================================================
    form.js — LÓGICA GENERAL DEL FORMULARIO
    - Inicialización UI (selectpicker, tooltips, placeholders)
@@ -218,22 +216,19 @@ function clearLocalFileError(inputSel) {
 
 // ——— INIT único ———
 $(document).ready(function () {
-  // Limpieza defensiva por si hubo doble bind antes
   try { $('#carga_archivos, #carga_archivos_box, #id_checkbox_carga_archivos').off(); } catch(e) {}
 
-  // Selectpicker + placeholder ES
   $('select').attr('data-none-selected-text', 'SELECCIONE').selectpicker();
   if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 
-  // UI base
   setData();
   getRole();
   setCheckboxArea();
   setCheckbox();
-  setDateLimits(); // límites visuales a las fechas
-  setCheckboxFiles(); // estado inicial del bloque de archivos
+  setDateLimits();
+  setCheckboxFiles();
 
-  // Tooltips (opcionales, no fallan si no existe tooltip())
+  // Tooltips
   safeTooltip('#id_checkbox_Template_tooltip_fisico','Marcar si el documento es físico');
   safeTooltip('#id_checkbox_Template_tooltip','Añadir un remitente no registrado');
   safeTooltip('#mas_remitentes','Añadir dos o más remitentes');
@@ -249,7 +244,7 @@ $(document).ready(function () {
     if (!validarFechasAntesDeEnviar()) { e.preventDefault(); }
   });
 
-  // Limpia error local al seleccionar archivos (IDs reales)
+  // Limpia error local al seleccionar archivos
   ['#file_oficio_entrada', '#file_anexo_entrada'].forEach(function (id) {
     $(id).on('change', function () { clearLocalFileError(id); });
   });
@@ -260,7 +255,7 @@ $(document).ready(function () {
     setCheckboxFiles();
   });
 
-  // Toggle de checkboxes principales
+  // Checkboxes principales
   $('#es_doc_fisico_box').on('change', function () {
     $('#es_doc_fisico').val($(this).is(':checked') ? true : '');
   });

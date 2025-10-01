@@ -43,7 +43,6 @@ class LetterC extends Controller
     }
 
     /* ======================== TABLA ======================== */
-    // /letter/table
     public function table(Request $request, LetterM $model)
     {
         try {
@@ -88,8 +87,8 @@ class LetterC extends Controller
         $collectionRemitenteM   = new CollectionRemitenteM();
         $collectionEntidadM     = new CollectionEntidadM();
 
-        // Defaults
-        $item->fecha_captura      = now()->format('d/m/Y');
+        // Defaults (usar Carbon/Date, NO strings d/m/Y)
+        $item->fecha_captura      = now(); // <- importante para evitar parseos erróneos
         $item->id_cat_anio        = $collectionDateM->idYear();
         $item->num_turno_sistema  = $collectionConsecutivoM->noDocumento(
             $item->id_cat_anio,
@@ -210,7 +209,7 @@ class LetterC extends Controller
         $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
         $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
 
-        // Trámite / Clave (dependen de Área 3 y trámite)
+        // Trámite / Clave
         $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
         $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
 
@@ -259,7 +258,6 @@ class LetterC extends Controller
         $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
         $ADM_TOTAL = config('custom_config.ADM_TOTAL');
         $COR_TOTAL = config('custom_config.COR_TOTAL');
-        $COR_VISTA = config('custom_config.COR_VISTA');
 
         $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0;
         $es_doc_fisico      = isset($request->es_doc_fisico) ? 1 : 0;
@@ -376,8 +374,7 @@ class LetterC extends Controller
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
         }
 
-        /* ---------- UPDATE ---------- */
-        // Ramas de permisos: admin/correspondencia-todo = actualización total
+        /* ---------- UPDATE (total) ---------- */
         if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
 
             $data = [
@@ -419,7 +416,7 @@ class LetterC extends Controller
             // Guardado de archivos locales (oficio/anexos) si se cargan en edición
             $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
 
-            // También acepta subidas a Alfresco en edición (opcional)
+            // Subidas a Alfresco en edición (si vienen campos *_entrada)
             $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
 
             $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
@@ -441,7 +438,8 @@ class LetterC extends Controller
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
         }
 
-        // UPDATE restringido (solo estatus/observaciones) validando área del usuario
+        /* ---------- UPDATE restringido (estatus/observaciones) ---------- */
+        $collectionRolAreaM = new CollectionRolAreaM();
         if (!in_array($request->id_cat_area, $collectionRolAreaM->getListArea())) {
             return redirect()->back()->with([
                 'value'   => 'error',
@@ -772,11 +770,11 @@ class LetterC extends Controller
         try {
             Log::info('[UPLOAD] init', [
                 'correspondencia' => $idCorrespondencia,
-                'has_oficio' => $request->hasFile('file_oficio_entrada'),
-                'has_anexos' => $request->hasFile('file_anexo_entrada'),
-                'area' => $request->id_cat_area,
-                'entrada_salida' => $request->id_cat_entrada,
-                'tipo_oficio' => $request->id_cat_tipo_oficio,
+                'has_oficio'      => $request->hasFile('file_oficio_entrada'),
+                'has_anexos'      => $request->hasFile('file_anexo_entrada'),
+                'area'            => $request->id_cat_area,
+                'entrada_salida'  => $request->id_cat_entrada,
+                'tipo_oficio'     => $request->id_cat_tipo_oficio,
             ]);
 
             $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
@@ -918,3 +916,4 @@ class LetterC extends Controller
         ]);
     }
 }
+
