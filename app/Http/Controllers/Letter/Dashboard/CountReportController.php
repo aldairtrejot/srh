@@ -12,7 +12,7 @@ class CountReportController extends Controller
     {
         $countReportModel = new CountReportModel;
         $countMax = $countReportModel->countReportModel(); // total de registros
-        $countMin = $countMax;
+        $countMin = $countReportModel->countReportModelFilter($request);
 
         // variables de resultado
         // Leyenda de contador

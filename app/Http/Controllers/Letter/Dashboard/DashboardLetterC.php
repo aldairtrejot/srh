@@ -44,6 +44,20 @@ class DashboardLetterC extends Controller
         ]);
     }
 
+    // La función pobla el 2do catalogo de jerarquia 2 dependiendo de la área que seleccione el usuario
+    public function setAreaJ2(Request $request)
+    {
+        // Class
+        $collectionAreaM = new CollectionAreaM;
+
+        $cat_area_j_2 = $collectionAreaM->getAreaBy2($request->id_cat_area_j_1);
+
+        // Send Data
+        return response()->json([
+            'cat_area_j_2' => $cat_area_j_2,
+        ]);
+    }
+
     // Genera reporte de Exel
     public function generate(Request $request)
     {

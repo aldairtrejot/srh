@@ -104,6 +104,7 @@ Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('let
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
 Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->name('alf.download')->middleware('auth');
 Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
+Route::post('/letter/collection/j2', [DashboardLetterC::class, 'setAreaJ2'])->name('letter.collection.j2')->middleware('auth');
 
 // Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');

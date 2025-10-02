@@ -138,16 +138,18 @@ function getCount() {
         url: URL_DEFAULT.concat('/letter/countReport'),
         type: 'POST',
         data: {
-            id_cat_area: $('#cat_area_j_1').val(),
-            /*
+            cat_area_j_1: $('#cat_area_j_1').val(),
             id_cat_status: $('#id_cat_status_informe').val(),
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            /*
+
             inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
             fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
             incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
             check_copia_a: $('#check_copia_a').prop('checked') ? 1 : 0,
             fecha_inicio_informe: $('#fecha_inicio_informe').val(),
             fecha_fin_informe: $('#fecha_fin_informe').val(),
-            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            
             inicio: getFormattedHourValue('#inicio'),
             fin: getFormattedHourValue('#fin'),
             */
@@ -163,9 +165,28 @@ function getCount() {
 
 // Se detecta el cambio de select de combox C.R.H para actualizar el combo dependiente y el contador
 $("#cat_area_j_1").change(function () {
-
-    let id_cat_area_j_1 = $(this).val();
-    console.log('inicio ' + id_cat_area_j_1)
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/collection/j2'),
+        type: 'POST',
+        data: {
+            id_cat_area_j_1: $(this).val(),
+            _token: token
+        },
+        success: function (response) {
+            allTextForeachSelect(response.cat_area_j_2, '#cat_area_j_2');
+        },
+    });
 
     getCount();
+});
+
+
+// Se detecta el cambio de select para la actualización de contador
+$("#id_cat_status_informe").change(function () {
+    getCount(); // actualización de contador
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$("#id_cat_date_informe").change(function () {
+    getCount(); // actualización de contador
 });
