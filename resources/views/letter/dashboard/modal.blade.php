@@ -37,8 +37,7 @@
             <div class="custom-col">
                 <label class="label-time">ÁREAS / ZONAS</label>
                 <select class="form-control custom-select selectpicker" data-style="input-select-selectpicker"
-                    aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados"
-                    id="id_cat_area_informe">
+                    aria-label="Área" data-live-search="true" data-none-results-text="Sin resultados" id="cat_area_j_3">
                 </select>
             </div>
         </div>

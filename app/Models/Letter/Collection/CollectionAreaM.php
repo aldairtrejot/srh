@@ -263,4 +263,23 @@ class CollectionAreaM extends Model
             ->orderBy('correspondencia.cat_area.descripcion', 'ASC')
             ->get();
     }
+
+    // La función obtiene el 3er catalogo de la tabla de jerarquias de áreas
+    public function getAreaBy3($idJerarquia)
+    {
+        return DB::table('correspondencia.cat_area')
+            ->select(
+                'correspondencia.cat_area.id_cat_area as id',
+                'correspondencia.cat_area.descripcion as descripcion'
+            )
+            ->join(
+                'correspondencia.rel_cat_area_jerarquia_2',
+                'correspondencia.cat_area.id_cat_area',
+                '=',
+                'correspondencia.rel_cat_area_jerarquia_2.id_cat_area_2'
+            )
+            ->where('correspondencia.rel_cat_area_jerarquia_2.id_cat_area_1', $idJerarquia)
+            ->where('correspondencia.rel_cat_area_jerarquia_2.estatus', true)
+            ->get();
+    }
 }
