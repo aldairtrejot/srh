@@ -89,6 +89,15 @@ function searchInit() {
                                         </span>
                                         Email
                                     </button>
+                                    <button class="dropdown-item"
+                                        onclick="openReply(${object.id}, '${object.folio_gestion}')">
+                                        <span style="background:#2986cc" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-retweet item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Responder
+                                    </button>
                                 </div>
                             </div>
                         </td>
