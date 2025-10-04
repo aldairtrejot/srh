@@ -1,33 +1,30 @@
 <!-- MODAL REPLY -->
 <style>
-  /* Centrado y tamaño fijo del modal */
+  /* Centrado y ancho del modal */
   #modalReply .modal-dialog{
-    width: 430px;               /* ancho fijo */
-    max-width: 430px;
-    margin: calc((100vh - 380px)/2) auto; /* centra vertical y horizontal */
+    width: 640px;         /* cámbialo si quieres otro ancho */
+    max-width: 640px;
+    margin: 8vh auto;     /* centrado vertical/horizontal */
   }
+
+  /* Deja que la altura se adapte y NO ocultes contenido */
   #modalReply .modal-content{
-    width: 430px;               /* ancho fijo */
-    height: 380px;              /* alto fijo */
+    width: 100%;
     background:#fff;
     border-radius:12px;
-    overflow:hidden;            /* evita desbordes feos */
+    /* importante: no ocultar nada para que se vea el footer */
+    overflow: visible !important;
   }
-  /* Si el template usa .modal-body, controla el scroll interno */
+
+  /* El body puede scrollear si el contenido crece,
+     pero no recortamos header/footer */
   #modalReply .modal-body{
-    max-height: calc(380px - 120px); /* aprox. descuenta header/footer */
-    overflow:auto;
+    max-height: 70vh;              /* altura visual cómoda */
+    overflow: auto;                /* scroll interno si hace falta */
+    padding-bottom: 8px;           /* espacio para que no “toque” el footer */
   }
 
-  /* Responsive de emergencia en pantallas chicas */
-  @media (max-width: 480px){
-    #modalReply .modal-dialog, #modalReply .modal-content{
-      width: 92vw; max-width: 92vw; height: auto;
-    }
-    #modalReply .modal-body{ max-height: 60vh; }
-  }
-
-  /* Estilos de tus inputs */
+  /* Inputs */
   .custom-input-container { margin-bottom: 12px; }
   .custom-input-label { display:block; font-weight:600; margin-bottom:6px; }
   .custom-input-field {
@@ -39,22 +36,30 @@
 </style>
 
 <x-template-modal.modal-template
-  tittle="Turnar con copia"
+  tittle="Responder"
   idModal="modalReply"
   idCancel="cancel_reply"
   idConfirm="confir_reply"
   functionConfirm="confirmarReply();"
-  width="430px"   {{-- opcional, por si tu componente lo usa --}}
-  height="380px"> {{-- opcional, por si tu componente lo usa --}}
+  width="640px"     {{-- alineado con el CSS arriba --}}
+  height="auto">    {{-- deja que el contenido crezca --}}
 
-  <p style="font-size:16px; margin-bottom:10px;">
+  <p style="font-size:16px; margin-bottom:12px; text-align:center;">
     Respuesta del folio de gestión:
     <label id="name_folio_gestion" style="font-weight:bold;"></label>.
   </p>
 
+  {{-- Fecha a ancho completo para que no se quiebre el label --}}
+  <div class="row">
+    <x-template-form.template-form-input-required
+      label="Fecha" type="date" name="fecha_inicio" placeholder=""
+      grid="col-12" autocomplete=""
+      value="" />
+  </div>
+
   <div class="custom-input-container">
-    <label class="custom-input-label" for="observacion">Nombre</label>
-    <input type="text" id="observacion" class="custom-input-field" maxlength="200" placeholder="Nombre…">
+    <label class="custom-input-label" for="observacion">Observaciones</label>
+    <input type="text" id="observacion" class="custom-input-field" maxlength="200" placeholder="Observaciones…">
   </div>
 
   <div class="custom-input-container">
@@ -64,5 +69,4 @@
 
   <input type="hidden" id="id_correspondencia_x" />
 </x-template-modal.modal-template>
-
 
