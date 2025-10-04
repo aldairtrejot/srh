@@ -43,15 +43,134 @@ class LetterC extends Controller
     }
 
     /* ======================== TABLA ======================== */
+    // Aplica reglas de visibilidad por rol/jerarquía/área; usuarios normales con estatus=TRUE, 5 por página.
     public function table(Request $request, LetterM $model)
     {
         try {
-            $iterator    = (int) $request->get('iterator', 0);
+            $iterator    = max(0, (int) $request->get('iterator', 0));
             $searchValue = (string) $request->get('searchValue', '');
-            $idUser      = []; // si necesitas filtrar por usuario, ajústalo
 
-            $rows = $model->list($iterator, $searchValue, $idUser);
-            return response()->json(['value' => $rows]);
+            // -------- visibilidad de columnas (para front) --------
+            $visibility = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
+
+            // ======== BYPASS: admins ven todo (ADM_TOTAL, COR_TOTAL, COR_VISTA) ========
+            if ($this->isBypassVisibility()) {
+                $q = DB::table('correspondencia.tbl_correspondencia as c')
+                    ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
+                    ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')     // Área
+                    ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')   // CRH
+                    ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');  // CRHTOD
+
+                // SIN filtro de estatus para bypass (acceso total)
+                if ($searchValue !== '') {
+                    $sv = '%'.trim($searchValue).'%';
+                    $q->where(function ($f) use ($sv) {
+                        $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
+                          ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
+                    });
+                }
+
+                $total = (clone $q)->count('c.id_tbl_correspondencia');
+
+                $rows = $q->orderByDesc('c.id_tbl_correspondencia')
+                    ->offset($iterator)->limit(5)
+                    ->get([
+                        'c.id_tbl_correspondencia as id',
+                        DB::raw('UPPER(c.num_documento) as num_documento'),
+                        DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
+                        DB::raw('UPPER(c.asunto)         as asunto'),
+                        DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
+                        DB::raw('UPPER(e.descripcion)    as estatus'),
+                        DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
+                        DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
+                        DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                    ]);
+
+                // Admin ve TODO: columnas totalmente visibles
+                $columns_visibility = ['area' => true, 'crh' => true, 'crhtod' => true];
+
+                return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $columns_visibility]);
+            }
+
+            // ======== USUARIO NORMAL: filtrar por ESTATUS + ÁREAS (y opcional jerarquía/copias) ========
+            $userId = (int) (Auth::id() ?? 0);
+
+            // Feature-flag opcional para construir áreas con jerarquía
+            $useHierarchy = (bool) (config('custom_config.USE_HIERARCHY') ?? false);
+            $userAreas = $useHierarchy
+                ? $this->getAreasByHierarchy($userId)     // incluye descendientes si aplica
+                : $this->getAllowedAreasForUser($userId); // solo áreas asignadas
+
+            if (empty($userAreas)) {
+                return response()->json(['value' => [], 'total' => 0, 'columns_visibility' => $visibility]);
+            }
+
+            // Determinar qué columna(s) de área aplicar (CRH -> id_cat_area_1, CRHTOD -> id_cat_area_2, default -> id_cat_area)
+            $areaColumns = $this->resolveAreaColumnsFromRoles();
+            if (empty($areaColumns)) {
+                $areaColumns = ['id_cat_area']; // fallback
+            }
+
+            $q = DB::table('correspondencia.tbl_correspondencia as c')
+                ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
+                ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')     // Área
+                ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')   // CRH
+                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')   // CRHTOD
+                ->where('e.estatus', true) // estatus obligatorio para usuarios normales
+                ->where(function ($w) use ($userAreas, $areaColumns) {
+                    foreach ($areaColumns as $col) {
+                        $w->orWhereIn("c.$col", $userAreas);
+                    }
+
+                    // Opcional: mostrar también copias asignadas al área del usuario
+                    if ((bool) (config('custom_config.INCLUDE_COPIES_IN_VISIBILITY') ?? true)) {
+                        $w->orWhereExists(function ($ex) use ($userAreas) {
+                            $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
+                              ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
+                              ->whereIn('t.id_cat_area', $userAreas);
+                        });
+                    }
+                });
+
+            if ($searchValue !== '') {
+                $sv = '%'.trim($searchValue).'%';
+                $q->where(function ($f) use ($sv) {
+                    $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
+                      ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
+                });
+            }
+
+            $total = (clone $q)->count('c.id_tbl_correspondencia');
+
+            $rows = $q->orderByDesc('c.id_tbl_correspondencia')
+                ->offset($iterator)->limit(5)
+                ->get([
+                    'c.id_tbl_correspondencia as id',
+                    DB::raw('UPPER(c.num_documento) as num_documento'),
+                    DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
+                    DB::raw('UPPER(c.asunto)         as asunto'),
+                    DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
+                    DB::raw('UPPER(e.descripcion)    as estatus'),
+                    DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
+                    DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
+                    DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                ]);
+
+            // Aplicar reglas: “anular” columnas no visibles
+            $rows = $this->applyVisibilityToRows($rows, $visibility);
+
+            return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $visibility]);
+
         } catch (\Throwable $e) {
             Log::error('LETTER_TABLE_ERROR: '.$e->getMessage(), ['ex' => $e]);
             return response()->json([
@@ -738,6 +857,122 @@ class LetterC extends Controller
 
     /* ======================== HELPERS ======================== */
 
+    // determina si el usuario tiene bypass de visibilidad (ve todo)
+    private function isBypassVisibility(): bool
+    {
+        $ADM_TOTAL = (int) config('custom_config.ADM_TOTAL');
+        $COR_TOTAL = (int) config('custom_config.COR_TOTAL');
+        $COR_VISTA = (int) (config('custom_config.COR_VISTA') ?? 0);
+
+        $roles = array_values(collect(session('SESSION_ROLE_USER'))->toArray());
+
+        return in_array($ADM_TOTAL, $roles, true)
+            || in_array($COR_TOTAL, $roles, true)
+            || ($COR_VISTA && in_array($COR_VISTA, $roles, true));
+    }
+
+    // áreas permitidas para el usuario (desde ctrl_rol_usuario_area, solo estatus=TRUE)
+    private function getAllowedAreasForUser(int $userId): array
+    {
+        $areas = DB::table('correspondencia.ctrl_rol_usuario_area')
+            ->where('id_usuario', $userId)
+            ->where('estatus', true)
+            ->pluck('id_cat_area');
+
+        return $areas->unique()->map(fn($v)=>(int)$v)->values()->all();
+    }
+
+    // (Opcional) obtener áreas visibles incluyendo jerarquía descendente (niveles 1→2→3)
+    private function getAreasByHierarchy(int $userId): array
+    {
+        $baseAreas = collect($this->getAllowedAreasForUser($userId));
+        if ($baseAreas->isEmpty()) return [];
+
+        $a2 = DB::table('correspondencia.rel_cat_area_jerarquia_1')
+            ->whereIn('id_cat_area_1', $baseAreas)
+            ->pluck('id_cat_area_2');
+
+        $a3 = DB::table('correspondencia.rel_cat_area_jerarquia_2')
+            ->whereIn('id_cat_area_1', $a2)
+            ->pluck('id_cat_area_2');
+
+        return $baseAreas->merge($a2)->merge($a3)->unique()->map(fn($v)=>(int)$v)->all();
+    }
+
+    // decide qué columna(es) de área aplicar según roles del usuario
+    private function resolveAreaColumnsFromRoles(): array
+    {
+        $roles = array_values(collect(session('SESSION_ROLE_USER'))->toArray());
+
+        // Si definiste un mapa en config('custom_config.ROLE_AREA_COLUMN') úsalo:
+        // Ej: 'ROLE_AREA_COLUMN' => ['COR_CRH' => 'id_cat_area_1','COR_CRHTOD' => 'id_cat_area_2']
+        $map = (array) (config('custom_config.ROLE_AREA_COLUMN') ?? []);
+
+        $columns = [];
+
+        // COR_CRH → id_cat_area_1 (si existe en tu config y en roles)
+        $roleCorCrhId = (int) (config('custom_config.COR_CRH') ?? 0);
+        $colCorCrh    = $map['COR_CRH'] ?? 'id_cat_area_1';
+        if ($roleCorCrhId && in_array($roleCorCrhId, $roles, true)) {
+            $columns[] = $colCorCrh;
+        }
+
+        // COR_CRHTOD (opcional) → id_cat_area_2
+        $roleCrhTodId = (int) (config('custom_config.COR_CRHTOD') ?? 0); // si más adelante lo agregas
+        $colCrhTod    = $map['COR_CRHTOD'] ?? 'id_cat_area_2';
+        if ($roleCrhTodId && in_array($roleCrhTodId, $roles, true)) {
+            $columns[] = $colCrhTod;
+        }
+
+        // Si no hubo matches, usa área 3 normal
+        if (empty($columns)) {
+            $columns[] = 'id_cat_area';
+        }
+
+        return array_values(array_unique($columns));
+    }
+
+    /**
+     * Reglas de qué columnas son visibles según el ROL del usuario:
+     * - Bypass (admin/admin_corresp/view): todas visibles
+     * - COR_CRH     => solo CRH
+     * - COR_CRHTOD  => solo CRHTOD (si lo defines en config)
+     * - Otros       => solo Área
+     */
+    private function resolveAreaColumnVisibility(): array
+    {
+        if ($this->isBypassVisibility()) {
+            return ['area' => true, 'crh' => true, 'crhtod' => true]; // Admines sin restricciones
+        }
+
+        $roles = array_values(collect(session('SESSION_ROLE_USER'))->toArray());
+        $roleCorCrhId  = (int) (config('custom_config.COR_CRH') ?? 0);
+        $roleCrhTodId  = (int) (config('custom_config.COR_CRHTOD') ?? 0); // si no existe, queda en 0
+
+        if ($roleCorCrhId && in_array($roleCorCrhId, $roles, true)) {
+            return ['area' => false, 'crh' => true,  'crhtod' => false];
+        }
+        if ($roleCrhTodId && in_array($roleCrhTodId, $roles, true)) {
+            return ['area' => false, 'crh' => false, 'crhtod' => true];
+        }
+
+        // default: otras áreas ven solo "Área"
+        return ['area' => true, 'crh' => false, 'crhtod' => false];
+    }
+
+    /**
+     * Anula columnas no visibles para que tampoco viajen datos al front.
+     */
+    private function applyVisibilityToRows($rows, array $visibility)
+    {
+        return collect($rows)->map(function ($r) use ($visibility) {
+            if (!$visibility['area'])   { $r->area   = null; }
+            if (!$visibility['crh'])    { $r->area_1 = null; }
+            if (!$visibility['crhtod']) { $r->area_2 = null; }
+            return $r;
+        })->values();
+    }
+
     // Acepta UUID puro, nodeRef "workspace://SpacesStore/<uuid>" o URL de Share con ?nodeRef=...
     private function normalizeFolderId(?string $value): ?string
     {
@@ -821,7 +1056,7 @@ class LetterC extends Controller
             }
         } catch (\Throwable $e) {}
 
-        // Intento final (si llega un DateTime serializado por el browser, etc.)
+        // Intento final
         try {
             return Carbon::parse($v)->format('Y-m-d');
         } catch (\Throwable $e) {
@@ -982,4 +1217,3 @@ class LetterC extends Controller
         ]);
     }
 }
-

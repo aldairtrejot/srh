@@ -18,6 +18,9 @@ function searchInit() {
         searchValue: searchValue
     }, function (response) {
 
+        // ===== NUEVO: aplicar visibilidad de columnas en encabezados y filas
+        applyColumnVisibility(response.columns_visibility);
+
         const tbody = $('#template-table tbody');
         tbody.empty();
 
@@ -92,14 +95,14 @@ function searchInit() {
                                 </div>
                             </div>
                         </td>
-                        <td><label style="background:${estatusColor}; color:white" class="badge">${object.estatus}</label></td>
-                        <td>${object.fecha_captura}</td>
-                        <td>${object.folio_gestion}</td>
-                        <td>${object.num_documento}</td>
-                        <td style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area || ''}</td>
-                        <td style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area_1 || ''}</td>
-                        <td style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area_2 || ''}</td>
-                        <td style="font-size: 12px; width: 800px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
+                        <td><label style="background:${estatusColor}; color:white" class="badge">${object.estatus || ''}</label></td>
+                        <td>${object.fecha_captura || ''}</td>
+                        <td>${object.folio_gestion || ''}</td>
+                        <td>${object.num_documento || ''}</td>
+                        <td class="col-area"   style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area   || ''}</td>
+                        <td class="col-crh"    style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area_1 || ''}</td>
+                        <td class="col-crhtod" style="font-size: 12px; width: 300px; word-wrap: break-word; white-space: normal;">${object.area_2 || ''}</td>
+                        <td style="font-size: 12px; width: 800px; word-wrap: break-word; white-space: normal;">${object.asunto || ''}</td>
                     </tr>
                 `;
 
@@ -119,8 +122,24 @@ function searchInit() {
         setTimeout(ocultarBarra, tiempoEspera);
 
     });
+}
 
+function applyColumnVisibility(vis) {
+    // vis = { area:bool, crh:bool, crhtod:bool } (puede venir undefined)
+    if (!vis) return;
 
+    // Índices de columnas en el thead (1-based):
+    // 1 Menú | 2 Estatus | 3 Fecha | 4 Folio | 5 Num.Doc | 6 Área | 7 CRH | 8 CRHTOD | 9 Asunto
+    const table = $('#template-table');
+    const hideShow = (index, visible) => {
+        const display = visible ? '' : 'none';
+        table.find(`thead th:nth-child(${index})`).css('display', display);
+        table.find(`tbody tr td:nth-child(${index})`).css('display', display);
+    };
+
+    hideShow(6, !!vis.area);
+    hideShow(7, !!vis.crh);
+    hideShow(8, !!vis.crhtod);
 }
 
 function paginatorMax1() { iterator = emptyContent ? iterator : iterator += 1; setValue(); searchInit(); }

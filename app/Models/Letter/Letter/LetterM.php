@@ -93,7 +93,7 @@ class LetterM extends Model
             ->first() ?? null;
     }
 
-    public function list($iterator, $searchValue, $idUser, $pageSize = 10)
+    public function list($iterator, $searchValue, $idUser, $pageSize = 5)
     {
         $pageSize = max(1, (int)$pageSize);
 
