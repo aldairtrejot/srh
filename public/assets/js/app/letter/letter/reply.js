@@ -1,12 +1,20 @@
-// Token CSRF
+// reply.js (IDs y funciones con prefijo reply*)
+// CSRF + BASE
 var token = $('meta[name="csrf-token"]').attr('content') || (window.CSRF_TOKEN || '');
+var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : '';
 
 (function () {
   'use strict';
 
-  var HAS_BOOTSTRAP = !!$.fn.modal;
+  var HAS_BOOTSTRAP = !!($.fn && $.fn.modal);
   var BACKDROP_ID   = 'modal-backdrop-reply-custom';
+  var MODAL_SEL     = '#replyModal';
 
+  // Estado local
+  var replyOficioFile   = null;   // 1 archivo
+  var replyAnexosFiles  = [];     // hasta 3 archivos
+
+  // ===== Backdrop (fallback) =====
   function ensureBackdrop() {
     if (document.getElementById(BACKDROP_ID)) return;
     var $bd = $('<div>', { id: BACKDROP_ID, class: 'modal-backdrop fade show' })
@@ -18,47 +26,290 @@ var token = $('meta[name="csrf-token"]').attr('content') || (window.CSRF_TOKEN |
     $('body').removeClass('modal-open').css('overflow','');
   }
 
-  function showModal(selector) {
+  // ===== Mostrar/Ocultar modal =====
+  function showReplyModal(selector) {
     var $el = $(selector);
     if (!$el.length) return console.warn('Modal no encontrado:', selector);
-
-    if (HAS_BOOTSTRAP) {
-      $el.modal('show');
-    } else {
-      ensureBackdrop();
-      // Centrado con flex y tamaño fijo como pediste
-      $el.css({
-        display:'flex', position:'fixed', inset:0, zIndex:1050,
-        alignItems:'center', justifyContent:'center'
-      }).fadeIn(120);
-
-      $el.find('.modal-content').css({
-        width:'430px', height:'380px', background:'#fff', borderRadius:'12px', overflow:'hidden'
-      });
-    }
+    if (HAS_BOOTSTRAP) { $el.modal('show'); return; }
+    ensureBackdrop();
+    $el.css({ display:'flex', position:'fixed', inset:0, zIndex:1050, alignItems:'center', justifyContent:'center' }).fadeIn(120);
   }
-
-  function hideModal(selector) {
+  function hideReplyModal(selector) {
     var $el = $(selector);
     if (!$el.length) return;
-    if (HAS_BOOTSTRAP) { $el.modal('hide'); }
-    else { $el.fadeOut(120, removeBackdrop); }
+    if (HAS_BOOTSTRAP) { $el.modal('hide'); return; }
+    $el.fadeOut(120, removeBackdrop);
   }
 
-  window.openReply = function (id, folio) {
+  // ===== Helpers =====
+  function replyValById(id){ return (document.getElementById(id) || {}).value || ''; }
+  function replyValByName(name){
+    var el = document.querySelector('[name="'+name+'"]');
+    return (el && el.value) ? el.value : '';
+  }
+  function fmtSizeKb(bytes){ return Math.ceil(bytes/1024) + ' KB'; }
+
+  // ===== Render Oficio (1) =====
+  function renderReplyOficioPreview(){
+    var $vacio = $('#reply_container_oficio_empty');
+    var $cont  = $('#reply_container_oficio');
+    $cont.empty();
+
+    if (!replyOficioFile) { $vacio.show(); return; }
+    $vacio.hide();
+
+    var $pill = $('<div class="reply-file-pill"></div>');
+    var $icon = $('<i class="fa fa-file"></i>');
+    var $name = $('<span></span>').text(replyOficioFile.name + ' (' + fmtSizeKb(replyOficioFile.size) + ')');
+    var $rm   = $('<button type="button" class="reply-remove-btn" aria-label="Quitar">&times;</button>')
+      .on('click', function(){
+        replyOficioFile = null;
+        $('#reply_file_oficio').val('');
+        renderReplyOficioPreview();
+      });
+
+    $pill.append($icon, $name, $rm);
+    $cont.append($pill);
+  }
+
+  // ===== Render Anexos (hasta 3) =====
+  function renderReplyAnexosPreview(){
+    var $vacio = $('#reply_container_anexos_empty');
+    var $cont  = $('#reply_container_anexos');
+    $cont.empty();
+
+    if (!replyAnexosFiles.length) { $vacio.show(); return; }
+    $vacio.hide();
+
+    replyAnexosFiles.forEach(function(file, idx){
+      var $pill = $('<div class="reply-file-pill"></div>');
+      var $icon = $('<i class="fa fa-file"></i>');
+      var $name = $('<span></span>').text(file.name + ' (' + fmtSizeKb(file.size) + ')');
+      var $rm   = $('<button type="button" class="reply-remove-btn" aria-label="Quitar">&times;</button>')
+        .on('click', function(){
+          replyAnexosFiles.splice(idx, 1);
+          renderReplyAnexosPreview();
+          // sync input file: limpiar para permitir volver a elegir
+          $('#reply_file_anexos').val('');
+        });
+
+      $pill.append($icon, $name, $rm);
+      $cont.append($pill);
+    });
+  }
+
+  // ===== Change: Oficio =====
+  function bindReplyOficioInput(){
+    var $input = $('#reply_file_oficio');
+    if (!$input.length) return;
+    $input.off('change.reply').on('change.reply', function(e){
+      var files = e.target.files || [];
+      replyOficioFile = null;
+
+      if (!files.length){ renderReplyOficioPreview(); return; }
+
+      var file = files[0];
+      var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(file.name);
+      if (!allowed){
+        Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning');
+        $(this).val('');
+        return;
+      }
+      var maxBytes = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxBytes){
+        Swal.fire('Archivo muy grande','Máximo permitido: 10 MB.','warning');
+        $(this).val('');
+        return;
+      }
+
+      replyOficioFile = file;
+      renderReplyOficioPreview();
+      $('#reply_msg_oficio_req').hide();
+    });
+  }
+
+  // ===== Change: Anexos (hasta 3) =====
+  function bindReplyAnexosInput(){
+    var $input = $('#reply_file_anexos');
+    if (!$input.length) return;
+    $input.off('change.reply').on('change.reply', function(e){
+      var files = Array.from(e.target.files || []);
+      if (!files.length){ replyAnexosFiles = []; renderReplyAnexosPreview(); return; }
+
+      // Validar y mezclar con los existentes hasta máx 3
+      var maxFiles = 3;
+      var maxBytes = 10 * 1024 * 1024; // 10MB c/u
+      var next = replyAnexosFiles.slice();
+
+      for (var i=0; i<files.length; i++){
+        if (next.length >= maxFiles) break;
+
+        var f = files[i];
+        var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(f.name);
+        if (!allowed){
+          Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning');
+          continue;
+        }
+        if (f.size > maxBytes){
+          Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning');
+          continue;
+        }
+        // Evitar duplicados por nombre y tamaño
+        var dup = next.some(x => x.name === f.name && x.size === f.size);
+        if (dup) continue;
+
+        next.push(f);
+      }
+
+      if (next.length > maxFiles){
+        next = next.slice(0, maxFiles);
+        Swal.fire('Límite alcanzado','Solo se permiten hasta 3 anexos.','info');
+      }
+
+      replyAnexosFiles = next;
+      renderReplyAnexosPreview();
+
+      // Limpiar input para permitir volver a seleccionar los mismos nombres
+      $(this).val('');
+    });
+  }
+
+  // ===== POST con FormData (incluye Oficio y Anexos) =====
+  async function postReplyForm(formPayload){
+    const url = BASE + '/letter/reply/save';
+    const fd  = new FormData();
+
+    Object.entries(formPayload).forEach(([k,v]) => fd.append(k, v));
+
+    if (replyOficioFile) fd.append('file_oficio_entrada', replyOficioFile);
+
+    if (replyAnexosFiles.length){
+      replyAnexosFiles.forEach(f => fd.append('file_anexo_entrada[]', f));
+    }
+
+    const res = await fetch(url, {
+      method:'POST',
+      headers: { 'X-CSRF-TOKEN': token }, // NO fijar Content-Type manualmente
+      body: fd
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(()=> '');
+      throw new Error('HTTP '+res.status+' → '+txt);
+    }
+    return res.json().catch(()=> ({}));
+  }
+
+  // ===== API global =====
+  window.openReplyModal = function (id, folio) {
     try {
-      $('#name_folio_gestion').text(folio || '');
-      $('#id_correspondencia_x').val(id || '');
-      showModal('#modalReply');
-    } catch (e) { console.error('openReply error:', e); }
+      $('#reply_folio_label').text(folio || '');
+      $('#reply_correspondencia_id').val(id || '');
+
+      // Reset campos
+      $('[name="fecha_inicio"]').val('');
+      $('#reply_observacion').val('');
+      $('#reply_asunto').val('');
+      $('#reply_msg_oficio_req').hide();
+
+      // Reset archivos/preview
+      replyOficioFile  = null;
+      replyAnexosFiles = [];
+      $('#reply_file_oficio').val('');
+      $('#reply_file_anexos').val('');
+      renderReplyOficioPreview();
+      renderReplyAnexosPreview();
+
+      // Vincular change de inputs file
+      bindReplyOficioInput();
+      bindReplyAnexosInput();
+
+      showReplyModal(MODAL_SEL);
+    } catch (e) { console.error('openReplyModal error:', e); }
   };
 
-  window.hiddenReply = function () { hideModal('#modalReply'); };
+  window.hideReplyModal = function () { hideReplyModal(MODAL_SEL); };
 
-  window.confirmarReply = function () {
-    console.log('Confirmar reply (solo visualización). ID:', $('#id_correspondencia_x').val(), 'CSRF:', !!token);
-    hideModal('#modalReply');
+  window.confirmReplyModal = async function () {
+    const id          = replyValById('reply_correspondencia_id');
+    const fecha       = replyValByName('fecha_inicio');  // name conservado para el backend
+    const observacion = replyValById('reply_observacion');
+    const asunto      = replyValById('reply_asunto');
+
+    if(!id){
+      Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning');
+      return;
+    }
+    if(!fecha){
+      Swal.fire('Campo requerido','Selecciona la fecha.','warning');
+      return;
+    }
+    if(!asunto.trim()){
+      Swal.fire('Campo requerido','Escribe el asunto.','warning');
+      return;
+    }
+
+    // Si el oficio fuera obligatorio:
+    // if (!replyOficioFile) {
+    //   $('#reply_msg_oficio_req').show();
+    //   Swal.fire('Archivo requerido','Hace falta cargar un oficio.','warning');
+    //   return;
+    // }
+
+    if (typeof mostrarBarra === 'function') mostrarBarra();
+
+    try{
+      const payload = {
+        id_tbl_correspondencia: id,
+        fecha_inicio: fecha,
+        observacion: observacion,
+        asunto: asunto
+      };
+
+      const data = await postReplyForm(payload);
+
+      hideReplyModal(MODAL_SEL);
+      Swal.fire('Éxito', (data && data.message) || 'Respuesta guardada correctamente.', 'success');
+
+      if (typeof searchInit === 'function') searchInit();
+
+    }catch(err){
+      console.error(err);
+      Swal.fire('Error', 'No fue posible guardar la respuesta.', 'error');
+    }finally{
+      if (typeof ocultarBarra === 'function') ocultarBarra();
+    }
   };
+
+  // ===== Alias para compatibilidad con tu table.js =====
+  // Tu botón actual llama: openReply(id, folio)
+  window.openReply = function(id, folio){
+    return window.openReplyModal(id, folio);
+  };
+
+  // ===== Botón "Cancelar" cierra el modal =====
+  $(document)
+    .off('click.replyCancel')
+    .on('click.replyCancel', '#reply_cancel', function (e) {
+      e.preventDefault();
+      window.hideReplyModal();
+    });
+
+  // (Opcional) cerrar con tecla ESC
+  $(document).off('keydown.replyEsc').on('keydown.replyEsc', function(e){
+    if (e.key === 'Escape') {
+      window.hideReplyModal();
+    }
+  });
+
+  // (Opcional) cerrar al hacer clic en backdrop (fallback sin Bootstrap)
+  $(document).off('click.replyBackdrop').on('click.replyBackdrop', '#modal-backdrop-reply-custom', function(){
+    window.hideReplyModal();
+  });
+
 })();
+
+
+
+
 
 
