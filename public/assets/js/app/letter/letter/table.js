@@ -1,10 +1,47 @@
 var iterator = 1; // Se comienza el iterador en 1
 var emptyContent = false;
 
+// Estado de columnas visibles
+var columnVisibility = {};
+
 $(document).ready(function () {
+    // Inicializar estado (solo CRH y CRHTOD visibles por defecto)
+    $('.toggle-column').each(function () {
+        var idx = $(this).data('column');
+        var visible = (idx === 6 || idx === 7); // Solo CRH y CRHTOD visibles
+        $(this).prop('checked', visible);
+        columnVisibility[idx] = visible;
+    });
+
+    // Evento de checkboxes
+    $(document).on('change', '.toggle-column', function () {
+        var colIndex = parseInt($(this).data('column')) + 1;
+        var visible = $(this).is(':checked');
+        columnVisibility[$(this).data('column')] = visible;
+
+        $('#template-table thead tr th:nth-child(' + colIndex + ')').css('display', visible ? '' : 'none');
+        $('#template-table tbody tr').each(function () {
+            $(this).find('td:nth-child(' + colIndex + ')').css('display', visible ? '' : 'none');
+        });
+    });
+
     searchInit();
     setValue();
 });
+
+function applySavedColumnVisibility() {
+    for (var idx in columnVisibility) {
+        var visible = columnVisibility[idx];
+        var colIndex = parseInt(idx) + 1;
+
+        $('#template-table thead tr th:nth-child(' + colIndex + ')').css('display', visible ? '' : 'none');
+        $('#template-table tbody tr').each(function () {
+            $(this).find('td:nth-child(' + colIndex + ')').css('display', visible ? '' : 'none');
+        });
+
+        $('.toggle-column[data-column="' + idx + '"]').prop('checked', visible);
+    }
+}
 
 function searchInit() {
     mostrarBarra();
@@ -17,9 +54,6 @@ function searchInit() {
         iterator: iteradorAux,
         searchValue: searchValue
     }, function (response) {
-
-        // ===== NUEVO: aplicar visibilidad de columnas en encabezados y filas
-        applyColumnVisibility(response.columns_visibility);
 
         const tbody = $('#template-table tbody');
         tbody.empty();
@@ -116,30 +150,14 @@ function searchInit() {
             setValue();
         }
 
+        // Reaplicar visibilidad guardada después de llenar la tabla
+        applySavedColumnVisibility();
+
         const tiempoTranscurrido = Date.now() - startTime;
         const tiempoEspera = Math.max(0, 2000 - tiempoTranscurrido);
-
         setTimeout(ocultarBarra, tiempoEspera);
 
     });
-}
-
-function applyColumnVisibility(vis) {
-    // vis = { area:bool, crh:bool, crhtod:bool } (puede venir undefined)
-    if (!vis) return;
-
-    // Índices de columnas en el thead (1-based):
-    // 1 Menú | 2 Estatus | 3 Fecha | 4 Folio | 5 Num.Doc | 6 Área | 7 CRH | 8 CRHTOD | 9 Asunto
-    const table = $('#template-table');
-    const hideShow = (index, visible) => {
-        const display = visible ? '' : 'none';
-        table.find(`thead th:nth-child(${index})`).css('display', display);
-        table.find(`tbody tr td:nth-child(${index})`).css('display', display);
-    };
-
-    hideShow(6, !!vis.area);
-    hideShow(7, !!vis.crh);
-    hideShow(8, !!vis.crhtod);
 }
 
 function paginatorMax1() { iterator = emptyContent ? iterator : iterator += 1; setValue(); searchInit(); }

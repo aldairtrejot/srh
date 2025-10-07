@@ -3,7 +3,32 @@
 <x-template-app.app-layout>
 
     <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
-    <style></style>
+    <style>
+        #dropdownColumnToggle {
+            background-color: #10312b;
+            color: white;
+            border: none;
+        }
+
+        #dropdownColumnToggle:hover {
+            background-color: #15504e;
+            color: white;
+        }
+
+        #columnToggleMenu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #columnToggleMenu label {
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #columnToggleMenu input {
+            margin-right: 6px;
+        }
+    </style>
 
     <div class="main-panel">
         <div class="content-wrapper">
@@ -30,21 +55,46 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 class="card-title">Correspondencia</h4>
+
+                        <!-- Título arriba -->
+                        <div class="mb-3">
+                            <h4 class="card-title">Correspondencia</h4>
+                        </div>
+
+                        <!-- Fila con "¿Deseas agregar...?" + Buscador + Botón columnas -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                            <!-- Texto y botón agregar -->
+                            <div class="card-description" style="margin-bottom: 0;">
                                 @if ($letterAdminMatch)
-                                    <p class="card-description">
-                                        ¿Deseas agregar un registro?
-                                        <a href="{{ route('letter.create') }}" class="text-danger" style="margin-left: 10px;">
-                                            <i class="fa fa-arrow-up"></i> Agregar Registro
-                                        </a>
-                                    </p>
+                                    ¿Deseas agregar un registro?
+                                    <a href="{{ route('letter.create') }}" class="text-danger ml-2">
+                                        <i class="fa fa-arrow-up"></i> Agregar Registro
+                                    </a>
                                 @endif
                             </div>
 
-                            <div class="input-group" style="max-width: 300px;">
-                                <x-template-table.template-search />
+                            <!-- Buscador y botón columnas -->
+                            <div class="d-flex align-items-center" style="gap: 10px;">
+                                <!-- Buscador -->
+                                <div class="input-group" style="max-width: 300px;">
+                                    <x-template-table.template-search />
+                                </div>
+
+                                <!-- Botón columnas (solo CRH y CRHTOD) -->
+                                <div class="dropdown">
+                                    <button class="btn btn-sm dropdown-toggle shadow-sm" type="button"
+                                            id="dropdownColumnToggle" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-columns mr-1"></i> Mostrar columnas
+                                    </button>
+                                    <div class="dropdown-menu p-2 border shadow" id="columnToggleMenu" style="min-width: 250px;">
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" class="toggle-column" data-column="6" checked> CRH
+                                        </label>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" class="toggle-column" data-column="7" checked> CRHTOD
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -92,5 +142,3 @@
     <script src="{{ asset('assets/js/app/letter/dashboard/validate.js') }}"></script>
 
 </x-template-app.app-layout>
-
-
