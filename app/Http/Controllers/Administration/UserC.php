@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Admin\MessagesC;
-use App\Models\Administration\UserM;
 use App\Http\Controllers\Controller;
+use App\Models\Administration\UserM;
 use App\Models\Administration\UserRoleM;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
 class UserC extends Controller
 {
@@ -20,31 +20,34 @@ class UserC extends Controller
 
     public function create()
     {
-        $userM = new UserM();
-        $userRoleM = new UserRoleM();
+        $userM = new UserM;
+        $userRoleM = new UserRoleM;
         $roleOptions = collect($userRoleM->catRolList()); // Hacer que los roles sean una colección
         $item = $userM->getFillable();
         $userRoles = []; // Inicializar como arreglo vacío para crear usuario sin roles
+
         return view('administration.form', compact('item', 'roleOptions', 'userRoles'));
     }
 
     public function edit(string $id)
     {
-        $userM = new UserM();
-        $userRoleM = new UserRoleM();
+        $userM = new UserM;
+        $userRoleM = new UserRoleM;
         $item = $userM->edit($id);
         $roleOptions = $userRoleM->catRolList();
         $userRoles = $userRoleM->catRolEdit($id);
+
         return view('administration.form', compact('item', 'roleOptions', 'userRoles'));
     }
+
     public function list(Request $request)
     {
         try {
 
-            $iterator = $request->input('iterator'); //OFSET valor de paginador
+            $iterator = $request->input('iterator'); // OFSET valor de paginador
             $searchValue = $request->input('searchValue');
 
-            $userM = new UserM();
+            $userM = new UserM;
             $value = $userM->list($iterator, $searchValue);
 
             return response()->json([ // Lógica para procesar la solicitud+
@@ -52,7 +55,7 @@ class UserC extends Controller
                 'status' => true,
             ]);
 
-        } catch (\Exception $e) { // Manejo de errores  
+        } catch (\Exception $e) { // Manejo de errores
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -62,8 +65,8 @@ class UserC extends Controller
 
     public function save(Request $request)
     {
-        $messagesC = new MessagesC();
-        $userM = new UserM();
+        $messagesC = new MessagesC;
+        $userM = new UserM;
         $now = Carbon::now(); // Usando Carbon para la fecha actual
         $checkbox = $request->has('userEsPorNomina'); // Verifica si el checkbox está marcado
 
@@ -75,7 +78,7 @@ class UserC extends Controller
         ]);
 
         // Verifica si estamos creando o actualizando un usuario
-        if (!isset($request->userId)) { // Creación de nuevo usuario
+        if (! isset($request->userId)) { // Creación de nuevo usuario
             $request->validate([
                 'userPassword' => 'required',
                 'userConfirmPassword' => 'required',
@@ -86,19 +89,20 @@ class UserC extends Controller
             }
 
             // Validación del correo
-            if (!$userM->validateEmail($request->userEmail, $request->userId)) {
+            if (! $userM->validateEmail($request->userEmail, $request->userId)) {
                 return $messagesC->messageErrorBack('Ya existe una cuenta asociada a este correo electrónico.');
             }
 
             // Crear usuario
             $user = $userM::create([
-                'name' => $request->userName,
-                'email' => $request->userEmail,
+                'name' => strtoupper($request->userName),
+                'email' => strtolower($request->userEmail),
                 'password' => Hash::make($request->userPassword),
                 'es_por_nomina' => $checkbox,
                 'estatus' => true, // Activo
                 'id_usuario' => Auth::user()->id,
                 'fecha_usuario' => $now,
+                'password_update' => false,
             ]);
 
             // Asignar roles
@@ -112,7 +116,7 @@ class UserC extends Controller
             return $messagesC->messageSuccessRedirect('user.list', 'Usuario añadido exitosamente.');
         } else { // Actualización de usuario
             // Validación del correo
-            if (!$userM->validateEmail($request->userEmail, $request->userId)) {
+            if (! $userM->validateEmail($request->userEmail, $request->userId)) {
                 return $messagesC->messageErrorBack('Ya existe una cuenta asociada a este correo electrónico.');
             }
 
@@ -141,10 +145,10 @@ class UserC extends Controller
         }
     }
 
-    //La funcion valida que la contraseña anterior exista
+    // La funcion valida que la contraseña anterior exista
     public function validatePassword(Request $request)
     {
-        $userM = new UserM();
+        $userM = new UserM;
         $value = $userM->validatePassword(Auth::user()->id, $request->value);
 
         return response()->json([
@@ -153,10 +157,10 @@ class UserC extends Controller
         ]);
     }
 
-    //La funcion valida que la contraseña anterior exista
+    // La funcion valida que la contraseña anterior exista
     public function changePassword(Request $request)
     {
-        $userM = new UserM();
+        $userM = new UserM;
         $now = Carbon::now();
 
         // Encriptar la nueva contraseña
