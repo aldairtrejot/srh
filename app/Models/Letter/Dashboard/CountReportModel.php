@@ -18,11 +18,29 @@ class CountReportModel extends Model
             ! in_array(1, session('SESSION_ROLE_USER', [])) &&
             ! in_array(2, session('SESSION_ROLE_USER', []))
         ) {
-            $query->join('correspondencia.ctrl_rol_usuario_area',
-                'correspondencia.tbl_correspondencia.id_cat_area',
-                '=',
-                'correspondencia.ctrl_rol_usuario_area.id_cat_area'
-            )->where('correspondencia.ctrl_rol_usuario_area.id_usuario', Auth::id());
+            $query->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_1', function ($join) {
+                $join->on('tbl_correspondencia.id_cat_area_1', '=', 'j_area_1.id_cat_area')
+                    ->where('j_area_1.id_cat_jerarquia', 1)
+                    ->where('j_area_1.estatus', true)
+                    ->where('j_area_1.id_usuario', auth()->id());
+            })
+                ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_2', function ($join) {
+                    $join->on('tbl_correspondencia.id_cat_area_2', '=', 'j_area_2.id_cat_area')
+                        ->where('j_area_2.id_cat_jerarquia', 2)
+                        ->where('j_area_2.estatus', true)
+                        ->where('j_area_2.id_usuario', auth()->id());
+                })
+                ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_3', function ($join) {
+                    $join->on('tbl_correspondencia.id_cat_area', '=', 'j_area_3.id_cat_area')
+                        ->where('j_area_3.id_cat_jerarquia', 3)
+                        ->where('j_area_3.estatus', true)
+                        ->where('j_area_3.id_usuario', auth()->id());
+                })
+                ->where(function ($q) {
+                    $q->whereNotNull('j_area_1.id_cat_area')
+                        ->orWhereNotNull('j_area_2.id_cat_area')
+                        ->orWhereNotNull('j_area_3.id_cat_area');
+                });
         }
 
         return $query->count();
@@ -34,16 +52,34 @@ class CountReportModel extends Model
         $query = DB::table('correspondencia.tbl_correspondencia');
 
         // Código para no administradores
-        if (
-            ! in_array(1, session('SESSION_ROLE_USER', [])) &&
-            ! in_array(2, session('SESSION_ROLE_USER', []))
-        ) {
-            $query->join('correspondencia.ctrl_rol_usuario_area',
-                'correspondencia.tbl_correspondencia.id_cat_area',
-                '=',
-                'correspondencia.ctrl_rol_usuario_area.id_cat_area'
-            )->where('correspondencia.ctrl_rol_usuario_area.id_usuario', Auth::id());
-        }
+    if (
+        !in_array(1, session('SESSION_ROLE_USER', [])) &&
+        !in_array(2, session('SESSION_ROLE_USER', []))
+    ) {
+        $query->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_1', function($join) {
+            $join->on('tbl_correspondencia.id_cat_area_1', '=', 'j_area_1.id_cat_area')
+                 ->where('j_area_1.id_cat_jerarquia', 1)
+                 ->where('j_area_1.estatus', true)
+                 ->where('j_area_1.id_usuario', auth()->id());
+        })
+        ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_2', function($join) {
+            $join->on('tbl_correspondencia.id_cat_area_2', '=', 'j_area_2.id_cat_area')
+                 ->where('j_area_2.id_cat_jerarquia', 2)
+                 ->where('j_area_2.estatus', true)
+                 ->where('j_area_2.id_usuario', auth()->id());
+        })
+        ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_3', function($join) {
+            $join->on('tbl_correspondencia.id_cat_area', '=', 'j_area_3.id_cat_area')
+                 ->where('j_area_3.id_cat_jerarquia', 3)
+                 ->where('j_area_3.estatus', true)
+                 ->where('j_area_3.id_usuario', auth()->id());
+        })
+        ->where(function($q) {
+            $q->whereNotNull('j_area_1.id_cat_area')
+              ->orWhereNotNull('j_area_2.id_cat_area')
+              ->orWhereNotNull('j_area_3.id_cat_area');
+        });
+    }
 
         // Integración de filtrado de información de jerarquia de área 1
         if (! empty($request->cat_area_j_1)) {

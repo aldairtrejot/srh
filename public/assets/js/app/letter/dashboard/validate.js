@@ -7,7 +7,7 @@ function initData() {
     // limpieza de combox
     cleanSelectMoreSelect('#cat_area_j_1');
     cleanSelectMoreSelect('#cat_area_j_2');
-    cleanSelectMoreSelect('#cat_area_j_3');
+    allTextForeachSelect([], '#cat_area_j_3');
     cleanSelectMoreSelect('#id_cat_status_informe');
     cleanSelectMoreSelect('#id_cat_date_informe');
     $('#fecha_inicio_informe').val('');
@@ -21,7 +21,8 @@ function initData() {
     activeRange(true); // Activar Range
 
     $('#incluir_horas').prop('checked', true); //desmarcar el check
-    $('#inlcuir_usuario_capturo').prop('checked', false); //desmarcar el check
+    $('#inlcuir_usuario_capturo').prop('checked', true); //desmarcar el check
+    $('#check_copia_a').prop('checked', false); //desmarcar el check
     $('#fecha_inicio_fecha_fin').prop('checked', false); //desmarcar el check
     getCount(); // inicia contador de correspondencia
 }
@@ -171,7 +172,6 @@ function getCount() {
             _token: token
         },
         success: function (response) {
-            console.log(response);
 
             $('#lab_contador').text(response.lab_contador);
         },
@@ -180,17 +180,24 @@ function getCount() {
 
 // Se detecta el cambio de select de combox C.R.H para actualizar el combo dependiente y el contador
 $("#cat_area_j_1").change(function () {
-    $.ajax({
-        url: URL_DEFAULT.concat('/letter/collection/j2'),
-        type: 'POST',
-        data: {
-            id_cat_area_j_1: $(this).val(),
-            _token: token
-        },
-        success: function (response) {
-            allTextForeachSelect(response.cat_area_j_2, '#cat_area_j_2');
-        },
-    });
+    if ($(this).val()) {
+        $.ajax({
+            url: URL_DEFAULT.concat('/letter/collection/j2'),
+            type: 'POST',
+            data: {
+                id_cat_area_j_1: $(this).val(),
+                _token: token
+            },
+            success: function (response) {
+                allTextForeachSelect(response.cat_area_j_2, '#cat_area_j_2');
+                allTextForeachSelect([], '#cat_area_j_3');
+            },
+        });
+    } else {
+        allTextForeachSelect([], '#cat_area_j_2');
+        allTextForeachSelect([], '#cat_area_j_3');
+
+    }
 
     getCount();
 });
