@@ -37,24 +37,24 @@
 
   <div class="row">
     <x-template-form.template-form-input-required
-      label="Fecha inicio" type="date" name="fecha_inicio" placeholder=""
+      label="Fecha del documento" type="date" name="fecha_inicio" placeholder=""
       grid="col-12" autocomplete="" value="" id="reply_fecha" />
   </div>
 
   <div class="row">
     <x-template-form.template-form-input-required
-      label="Fecha fin" type="date" name="fecha_fin" placeholder=""
+      label="Fecha de captura" type="date" name="fecha_fin" placeholder=""
       grid="col-12" autocomplete="" value="" id="reply_fechafin" />
-  </div>
-
-  <div class="reply-input-container">
-    <label class="reply-input-label" for="reply_observacion">Observaciones</label>
-    <input type="text" id="reply_observacion" class="reply-input-field" maxlength="200" placeholder="Observaciones…">
   </div>
 
   <div class="reply-input-container">
     <label class="reply-input-label" for="reply_asunto">Asunto</label>
     <input type="text" id="reply_asunto" class="reply-input-field" maxlength="250" placeholder="Asunto…">
+  </div>
+
+  <div class="reply-input-container">
+    <label class="reply-input-label" for="reply_observacion">Observaciones</label>
+    <input type="text" id="reply_observacion" class="reply-input-field" maxlength="200" placeholder="Observaciones…">
   </div>
 
   <!-- ====== SUBIDA DE ARCHIVOS (opcionales) ====== -->

@@ -699,93 +699,128 @@ class LetterC extends Controller
     }
 
     /* ======================== REPLY (CREAR OFICIO SIN ARCHIVOS) ======================== */
-    public function replySave(Request $request)
-    {
-        try {
-            $request->validate([
-                'id_tbl_correspondencia' => 'required|integer',
-                'fecha_inicio'           => 'required|string',
-                'fecha_fin'              => 'nullable|string',
-                'asunto'                 => 'required|string|max:250',
-                'observaciones'          => 'nullable|string|max:500',
-            ]);
+   /* ======================== REPLY (CREAR OFICIO SIN ARCHIVOS) ======================== */
+public function replySave(Request $request)
+{
+    try {
+        $request->validate([
+            'id_tbl_correspondencia' => 'required|integer',
+            'fecha_inicio'           => 'required|string',
+            'fecha_fin'              => 'nullable|string',
+            'asunto'                 => 'required|string|max:250',
+            'observaciones'          => 'nullable|string|max:500',
+        ]);
 
-            $idCorr = (int) $request->input('id_tbl_correspondencia');
+        $idCorr = (int) $request->input('id_tbl_correspondencia');
 
-            // Traer datos base desde correspondencia
-            $corr = DB::table('correspondencia.tbl_correspondencia')
-                ->select(
-                    'id_tbl_correspondencia',
-                    'id_cat_anio',
-                    'id_cat_area',
-                    'id_usuario_area',
-                    'id_usuario_enlace'
-                )
-                ->where('id_tbl_correspondencia', $idCorr)
-                ->first();
+        // Traer datos base desde correspondencia (incluye observaciones y folio para el log)
+        $corr = DB::table('correspondencia.tbl_correspondencia')
+            ->select(
+                'id_tbl_correspondencia',
+                'id_cat_anio',
+                'id_cat_area',
+                'id_usuario_area',
+                'id_usuario_enlace',
+                'observaciones',
+                'folio_gestion'
+            )
+            ->where('id_tbl_correspondencia', $idCorr)
+            ->first();
 
-            if (!$corr) {
-                return response()->json(['ok' => false, 'message' => 'Correspondencia no encontrada.'], 404);
-            }
-
-            // Normalización de fechas del modal
-            $fechaInicio = $this->parseDateInput($request->input('fecha_inicio'));
-            $fechaFin    = $this->parseDateInput($request->input('fecha_fin'));
-
-            if (!$fechaInicio) {
-                return response()->json(['ok' => false, 'message' => 'Fecha inicio inválida.'], 422);
-            }
-
-            // Consecutivo para num_turno_sistema del OFICIO (por año de la correspondencia)
-            $consec = new CollectionConsecutivoM();
-            $numTurnoOficio = $consec->noDocumento($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-
-            DB::beginTransaction();
-
-            $oficioData = [
-                'num_turno_sistema'      => strtoupper($numTurnoOficio),
-                'fecha_captura'          => now()->format('Y-m-d'),
-                'fecha_inicio'           => $fechaInicio,
-                'fecha_fin'              => $fechaFin,
-                'asunto'                 => strtoupper((string)$request->input('asunto')),
-                'observaciones'          => strtoupper((string)$request->input('observaciones', '')),
-                'id_tbl_correspondencia' => $corr->id_tbl_correspondencia,
-                'id_cat_anio'            => $corr->id_cat_anio,
-
-                // Se liga a la correspondencia (no es por área)
-                'es_por_area'            => 0,
-                'num_documento_area'     => null,
-                'id_cat_area_documento'  => null,
-                'id_usuario_area'        => $corr->id_usuario_area,
-                'id_usuario_enlace'      => $corr->id_usuario_enlace,
-                'id_cat_area'            => $corr->id_cat_area,
-
-                // Auditoría
-                'id_usuario_sistema'     => Auth::user()->id,
-                'id_usuario_captura'     => Auth::user()->id,
-                'fecha_usuario'          => now(),
-            ];
-
-            $created = OfficeM::create($oficioData);
-
-            // Log y consecutivo
-            (new LogC())->add('correspondencia.tbl_oficio', $oficioData);
-            $consec->iteratorConsecutivo($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-
-            DB::commit();
-
-            return response()->json([
-                'ok'        => true,
-                'message'   => 'Oficio creado y ligado a la correspondencia.',
-                'id_oficio' => $created->id_tbl_oficio,
-            ]);
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
-            return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
+        if (!$corr) {
+            return response()->json(['ok' => false, 'message' => 'Correspondencia no encontrada.'], 404);
         }
+
+        // Normalización de fechas del modal
+        $fechaInicio = $this->parseDateInput($request->input('fecha_inicio'));
+        $fechaFin    = $this->parseDateInput($request->input('fecha_fin'));
+
+        if (!$fechaInicio) {
+            return response()->json(['ok' => false, 'message' => 'Fecha inicio inválida.'], 422);
+        }
+
+        // Consecutivo para num_turno_sistema del OFICIO (por año de la correspondencia)
+        $consec = new CollectionConsecutivoM();
+        $numTurnoOficio = $consec->noDocumento($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+
+        DB::beginTransaction();
+
+        // ========= 1) Crear registro en tbl_oficio =========
+        $oficioObs = strtoupper((string)$request->input('observaciones', ''));
+        $oficioData = [
+            'num_turno_sistema'      => strtoupper($numTurnoOficio),
+            'fecha_captura'          => now()->format('Y-m-d'),
+            'fecha_inicio'           => $fechaInicio,
+            'fecha_fin'              => $fechaFin,
+            'asunto'                 => strtoupper((string)$request->input('asunto')),
+            'observaciones'          => $oficioObs,
+            'id_tbl_correspondencia' => $corr->id_tbl_correspondencia,
+            'id_cat_anio'            => $corr->id_cat_anio,
+
+            // Se liga a la correspondencia (no es por área)
+            'es_por_area'            => 0,
+            'num_documento_area'     => null,
+            'id_cat_area_documento'  => null,
+            'id_usuario_area'        => $corr->id_usuario_area,
+            'id_usuario_enlace'      => $corr->id_usuario_enlace,
+            'id_cat_area'            => $corr->id_cat_area,
+
+            // Auditoría
+            'id_usuario_sistema'     => Auth::user()->id,
+            'id_usuario_captura'     => Auth::user()->id,
+            'fecha_usuario'          => now(),
+        ];
+
+        $created = OfficeM::create($oficioData);
+
+        // Iterar consecutivo del oficio
+        $consec->iteratorConsecutivo($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+
+        // ========= 2) Actualizar tbl_correspondencia =========
+        // - estatus = 4
+        // - observaciones = observaciones_previas  + "  //  " + observaciones_del_modal (si vienen)
+        $newObs = $corr->observaciones ?? '';
+        if ($oficioObs !== '') {
+            $newObs = trim($newObs) === '' ? $oficioObs : ($newObs . '  //  ' . $oficioObs);
+        }
+
+        $updateCorr = [
+            'id_cat_estatus'     => 4,
+            'observaciones'      => $newObs,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario'      => now(),
+        ];
+
+        DB::table('correspondencia.tbl_correspondencia')
+            ->where('id_tbl_correspondencia', $idCorr)
+            ->update($updateCorr);
+
+        // ========= Logs =========
+        $logC = new LogC();
+        $logC->add('correspondencia.tbl_oficio', $oficioData);
+
+        $logC->edit('correspondencia.tbl_correspondencia', [
+            'id_tbl_correspondencia' => $idCorr,
+            'folio_gestion'          => $corr->folio_gestion,
+            'id_cat_estatus'         => 4,
+            'observaciones'          => $newObs,
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'ok'        => true,
+            'message'   => 'Oficio creado; estatus de la correspondencia actualizado y observaciones concatenadas.',
+            'id_oficio' => $created->id_tbl_oficio,
+        ]);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
+        return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
     }
+}
+
 
     /* ======================== CRUD AUX ======================== */
     public function delete($id)
