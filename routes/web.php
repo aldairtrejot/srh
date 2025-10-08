@@ -122,6 +122,13 @@ Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->
 Route::post('/guest/generate', [GuestReportC::class, 'generate'])->name('guest.generate')->middleware('auth');
 
 // //Cloud
+
+// 1) Alias GET usado por tu lista: /letter/cloud/view?uid=...
+Route::get('/letter/cloud/view',[AlfrescoC::class, 'see'])->name('letter.cloud.view')->middleware('auth');   // usa el mismo método see que ya tienes mapeado como POST
+
+// 2) Página Cloud por ID numérico (evita que "view" haga match como {id})
+Route::get('/letter/cloud/{id}',[LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth')->whereNumber('id');
+
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
 Route::post('/letter/cloud/data', [CloudLetterC::class, 'cloudData'])->name('letter.cloud.data')->middleware('auth');
 Route::post('/letter/cloud/anexos', [CloudLetterC::class, 'cloudAnexos'])->name('letter.cloud.anexos')->middleware('auth');
