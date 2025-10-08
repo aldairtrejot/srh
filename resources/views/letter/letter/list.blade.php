@@ -86,7 +86,14 @@
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
+
+    {{-- === IMPORTANTE: URL de la ruta + CSRF para reply.js === --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+      window.REPLY_SAVE_URL = "{{ route('letter.reply.save') }}";
+    </script>
     <script src="{{ asset('assets/js/app/letter/letter/reply.js') }}"></script>
+
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

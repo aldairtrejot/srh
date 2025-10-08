@@ -111,6 +111,8 @@ Route::post('/letter/countReport', [CountReportController::class, 'countReportCo
 // === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
 Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
+Route::post('/letter/reply/save', [LetterC::class, 'replySave'])->name('letter.reply.save')->middleware('auth');
+
 
 
 //Guest

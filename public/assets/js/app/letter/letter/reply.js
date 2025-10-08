@@ -11,8 +11,20 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   var MODAL_SEL     = '#replyModal';
 
   // Estado local
-  var replyOficioFile   = null;   // 1 archivo
-  var replyAnexosFiles  = [];     // hasta 3 archivos
+  var replyOficioFile   = null;   // 1 archivo (opcional)
+  var replyAnexosFiles  = [];     // hasta 3 archivos (opcionales)
+
+  // ===== URL para POST (evita 404 en subcarpetas) =====
+  function getReplyUrl(){
+    if (typeof window.REPLY_SAVE_URL === 'string' && window.REPLY_SAVE_URL.length > 0) {
+      return window.REPLY_SAVE_URL;
+    }
+    // Fallback: calcula prefijo desde la ruta actual
+    var path = window.location.pathname;
+    var i = path.indexOf('/letter/');
+    var prefix = (i >= 0) ? path.slice(0, i) : '';
+    return prefix + '/letter/reply/save';
+  }
 
   // ===== Backdrop (fallback) =====
   function ensureBackdrop() {
@@ -89,7 +101,6 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
         .on('click', function(){
           replyAnexosFiles.splice(idx, 1);
           renderReplyAnexosPreview();
-          // sync input file: limpiar para permitir volver a elegir
           $('#reply_file_anexos').val('');
         });
 
@@ -112,14 +123,12 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(file.name);
       if (!allowed){
         Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning');
-        $(this).val('');
-        return;
+        $(this).val(''); return;
       }
       var maxBytes = 10 * 1024 * 1024; // 10MB
       if (file.size > maxBytes){
         Swal.fire('Archivo muy grande','Máximo permitido: 10 MB.','warning');
-        $(this).val('');
-        return;
+        $(this).val(''); return;
       }
 
       replyOficioFile = file;
@@ -136,7 +145,6 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       var files = Array.from(e.target.files || []);
       if (!files.length){ replyAnexosFiles = []; renderReplyAnexosPreview(); return; }
 
-      // Validar y mezclar con los existentes hasta máx 3
       var maxFiles = 3;
       var maxBytes = 10 * 1024 * 1024; // 10MB c/u
       var next = replyAnexosFiles.slice();
@@ -146,15 +154,9 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
         var f = files[i];
         var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(f.name);
-        if (!allowed){
-          Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning');
-          continue;
-        }
-        if (f.size > maxBytes){
-          Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning');
-          continue;
-        }
-        // Evitar duplicados por nombre y tamaño
+        if (!allowed){ Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning'); continue; }
+        if (f.size > maxBytes){ Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning'); continue; }
+
         var dup = next.some(x => x.name === f.name && x.size === f.size);
         if (dup) continue;
 
@@ -168,24 +170,19 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
       replyAnexosFiles = next;
       renderReplyAnexosPreview();
-
-      // Limpiar input para permitir volver a seleccionar los mismos nombres
       $(this).val('');
     });
   }
 
-  // ===== POST con FormData (incluye Oficio y Anexos) =====
+  // ===== POST con FormData (adjuntos opcionales) =====
   async function postReplyForm(formPayload){
-    const url = BASE + '/letter/reply/save';
+    const url = getReplyUrl();
     const fd  = new FormData();
 
     Object.entries(formPayload).forEach(([k,v]) => fd.append(k, v));
 
     if (replyOficioFile) fd.append('file_oficio_entrada', replyOficioFile);
-
-    if (replyAnexosFiles.length){
-      replyAnexosFiles.forEach(f => fd.append('file_anexo_entrada[]', f));
-    }
+    if (replyAnexosFiles.length){ replyAnexosFiles.forEach(f => fd.append('file_anexo_entrada[]', f)); }
 
     const res = await fetch(url, {
       method:'POST',
@@ -207,6 +204,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
       // Reset campos
       $('[name="fecha_inicio"]').val('');
+      $('[name="fecha_fin"]').val('');
       $('#reply_observacion').val('');
       $('#reply_asunto').val('');
       $('#reply_msg_oficio_req').hide();
@@ -230,38 +228,30 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   window.hideReplyModal = function () { hideReplyModal(MODAL_SEL); };
 
   window.confirmReplyModal = async function () {
-    const id          = replyValById('reply_correspondencia_id');
-    const fecha       = replyValByName('fecha_inicio');  // name conservado para el backend
-    const observacion = replyValById('reply_observacion');
-    const asunto      = replyValById('reply_asunto');
+    const id           = replyValById('reply_correspondencia_id');
+    const fechaInicio  = replyValByName('fecha_inicio');
+    const fechaFin     = replyValByName('fecha_fin');
+    const observacion  = replyValById('reply_observacion');
+    const asunto       = replyValById('reply_asunto');
 
     if(!id){
-      Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning');
-      return;
+      Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning'); return;
     }
-    if(!fecha){
-      Swal.fire('Campo requerido','Selecciona la fecha.','warning');
-      return;
+    if(!fechaInicio){
+      Swal.fire('Campo requerido','Selecciona la fecha de inicio.','warning'); return;
     }
     if(!asunto.trim()){
-      Swal.fire('Campo requerido','Escribe el asunto.','warning');
-      return;
+      Swal.fire('Campo requerido','Escribe el asunto.','warning'); return;
     }
-
-    // Si el oficio fuera obligatorio:
-    // if (!replyOficioFile) {
-    //   $('#reply_msg_oficio_req').show();
-    //   Swal.fire('Archivo requerido','Hace falta cargar un oficio.','warning');
-    //   return;
-    // }
 
     if (typeof mostrarBarra === 'function') mostrarBarra();
 
     try{
       const payload = {
         id_tbl_correspondencia: id,
-        fecha_inicio: fecha,
-        observacion: observacion,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin || '',
+        observaciones: observacion,  // << clave que espera el backend
         asunto: asunto
       };
 
@@ -280,33 +270,28 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     }
   };
 
-  // ===== Alias para compatibilidad con tu table.js =====
-  // Tu botón actual llama: openReply(id, folio)
-  window.openReply = function(id, folio){
-    return window.openReplyModal(id, folio);
-  };
+  // Alias para compat con table.js
+  window.openReply = function(id, folio){ return window.openReplyModal(id, folio); };
 
-  // ===== Botón "Cancelar" cierra el modal =====
+  // Botón "Cancelar"
   $(document)
     .off('click.replyCancel')
     .on('click.replyCancel', '#reply_cancel', function (e) {
-      e.preventDefault();
-      window.hideReplyModal();
+      e.preventDefault(); window.hideReplyModal();
     });
 
-  // (Opcional) cerrar con tecla ESC
+  // ESC
   $(document).off('keydown.replyEsc').on('keydown.replyEsc', function(e){
-    if (e.key === 'Escape') {
-      window.hideReplyModal();
-    }
+    if (e.key === 'Escape') window.hideReplyModal();
   });
 
-  // (Opcional) cerrar al hacer clic en backdrop (fallback sin Bootstrap)
+  // Click en backdrop (fallback)
   $(document).off('click.replyBackdrop').on('click.replyBackdrop', '#modal-backdrop-reply-custom', function(){
     window.hideReplyModal();
   });
 
 })();
+
 
 
 

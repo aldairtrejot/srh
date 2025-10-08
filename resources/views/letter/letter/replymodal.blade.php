@@ -1,20 +1,12 @@
 <!-- MODAL REPLY -->
 <style>
-  /* Layout general del modal */
   #replyModal .modal-dialog{ width:640px; max-width:640px; margin:8vh auto; }
   #replyModal .modal-content{ width:100%; background:#fff; border-radius:12px; overflow:visible!important; }
   #replyModal .modal-body{ max-height:70vh; overflow:auto; padding-bottom:8px; }
-
-  /* Inputs */
   .reply-input-container{ margin-bottom:12px; }
-  .reply-input-label{
-    display:block; font-weight:600; margin-bottom:6px;
-    text-align:left; /* <--- aseguramos título alineado a la izquierda */
-  }
+  .reply-input-label{ display:block; font-weight:600; margin-bottom:6px; text-align:left; }
   .reply-input-field{ width:100%; border:1px solid #ddd; border-radius:6px; padding:8px 10px; }
   .reply-input-field:focus{ outline:none; border-color:#10312b; box-shadow:0 0 0 2px rgba(16,49,43,.15); }
-
-  /* Subida de archivos */
   .reply-upload-row{ display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; }
   .reply-upload-col{ flex:1 1 320px; background:#fff; border:1px solid #eee; border-radius:10px; padding:12px; }
   .reply-file-pill{
@@ -22,9 +14,7 @@
     border:1px solid #ddd; border-radius:999px; padding:6px 10px; margin-top:8px;
     font-size:.95rem; background:#fafafa;
   }
-  .reply-file-pill .reply-remove-btn{
-    border:none; background:transparent; cursor:pointer; font-weight:700; font-size:1rem; line-height:1;
-  }
+  .reply-file-pill .reply-remove-btn{ border:none; background:transparent; cursor:pointer; font-weight:700; font-size:1rem; line-height:1; }
   .reply-rectangulo{
     width:100%; min-height:60px; border:1px dashed #cfd3d7; border-radius:8px;
     display:flex; align-items:center; justify-content:center; color:#9aa0a6; padding:8px;
@@ -45,11 +35,16 @@
     <label id="reply_folio_label" style="font-weight:bold;"></label>.
   </p>
 
-  {{-- Fecha (mantengo name="fecha_inicio" para el backend) --}}
   <div class="row">
     <x-template-form.template-form-input-required
-      label="Fecha" type="date" name="fecha_inicio" placeholder=""
+      label="Fecha inicio" type="date" name="fecha_inicio" placeholder=""
       grid="col-12" autocomplete="" value="" id="reply_fecha" />
+  </div>
+
+  <div class="row">
+    <x-template-form.template-form-input-required
+      label="Fecha fin" type="date" name="fecha_fin" placeholder=""
+      grid="col-12" autocomplete="" value="" id="reply_fechafin" />
   </div>
 
   <div class="reply-input-container">
@@ -62,9 +57,8 @@
     <input type="text" id="reply_asunto" class="reply-input-field" maxlength="250" placeholder="Asunto…">
   </div>
 
-  <!-- ====== SUBIDA DE ARCHIVOS ====== -->
+  <!-- ====== SUBIDA DE ARCHIVOS (opcionales) ====== -->
   <div class="reply-upload-row">
-    <!-- IZQUIERDA: OFICIO (Max 1) -->
     <div class="reply-upload-col">
       <div style="display:flex; align-items:center; gap:10px;">
         <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
@@ -85,7 +79,6 @@
       </div>
     </div>
 
-    <!-- DERECHA: ANEXOS (Max 3) -->
     <div class="reply-upload-col">
       <div style="display:flex; align-items:center; gap:10px;">
         <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
@@ -105,6 +98,7 @@
 
   <input type="hidden" id="reply_correspondencia_id" />
 </x-template-modal.modal-template>
+
 
 
 
