@@ -44,99 +44,24 @@ class LetterC extends Controller
 
     /* ======================== TABLA ======================== */
     // Aplica reglas de visibilidad por rol/jerarquía/área; usuarios normales con estatus=TRUE, 5 por página.
-    public function table(Request $request, LetterM $model)
-    {
-        try {
-            $iterator    = max(0, (int) $request->get('iterator', 0));
-            $searchValue = (string) $request->get('searchValue', '');
+public function table(Request $request, LetterM $model)
+{
+    try {
+        $iterator    = max(0, (int) $request->get('iterator', 0));
+        $searchValue = (string) $request->get('searchValue', '');
 
-            // -------- visibilidad de columnas (para front) --------
-            $visibility = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
+        // -------- visibilidad de columnas (para front) --------
+        $visibility = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
 
-            // ======== BYPASS: admins ven todo (ADM_TOTAL, COR_TOTAL, COR_VISTA) ========
-            if ($this->isBypassVisibility()) {
-                $q = DB::table('correspondencia.tbl_correspondencia as c')
-                    ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
-                    ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')     // Área
-                    ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')   // CRH
-                    ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');  // CRHTOD
-
-                // SIN filtro de estatus para bypass (acceso total)
-                if ($searchValue !== '') {
-                    $sv = '%'.trim($searchValue).'%';
-                    $q->where(function ($f) use ($sv) {
-                        $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
-                    });
-                }
-
-                $total = (clone $q)->count('c.id_tbl_correspondencia');
-
-                $rows = $q->orderByDesc('c.id_tbl_correspondencia')
-                    ->offset($iterator)->limit(5)
-                    ->get([
-                        'c.id_tbl_correspondencia as id',
-                        DB::raw('UPPER(c.num_documento) as num_documento'),
-                        DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
-                        DB::raw('UPPER(c.asunto)         as asunto'),
-                        DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
-                        DB::raw('UPPER(e.descripcion)    as estatus'),
-                        DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
-                        DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
-                        DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
-                    ]);
-
-                // Admin ve TODO: columnas totalmente visibles
-                $columns_visibility = ['area' => true, 'crh' => true, 'crhtod' => true];
-
-                return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $columns_visibility]);
-            }
-
-            // ======== USUARIO NORMAL: filtrar por ESTATUS + ÁREAS (y opcional jerarquía/copias) ========
-            $userId = (int) (Auth::id() ?? 0);
-
-            // Feature-flag opcional para construir áreas con jerarquía
-            $useHierarchy = (bool) (config('custom_config.USE_HIERARCHY') ?? false);
-            $userAreas = $useHierarchy
-                ? $this->getAreasByHierarchy($userId)     // incluye descendientes si aplica
-                : $this->getAllowedAreasForUser($userId); // solo áreas asignadas
-
-            if (empty($userAreas)) {
-                return response()->json(['value' => [], 'total' => 0, 'columns_visibility' => $visibility]);
-            }
-
-            // Determinar qué columna(s) de área aplicar (CRH -> id_cat_area_1, CRHTOD -> id_cat_area_2, default -> id_cat_area)
-            $areaColumns = $this->resolveAreaColumnsFromRoles();
-            if (empty($areaColumns)) {
-                $areaColumns = ['id_cat_area']; // fallback
-            }
-
+        // ======== BYPASS: admins ven todo (ADM_TOTAL, COR_TOTAL, COR_VISTA) ========
+        if ($this->isBypassVisibility()) {
             $q = DB::table('correspondencia.tbl_correspondencia as c')
                 ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
                 ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')     // Área
                 ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')   // CRH
-                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')   // CRHTOD
-                ->where('e.estatus', true) // estatus obligatorio para usuarios normales
-                ->where(function ($w) use ($userAreas, $areaColumns) {
-                    foreach ($areaColumns as $col) {
-                        $w->orWhereIn("c.$col", $userAreas);
-                    }
+                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');  // CRHTOD
 
-                    // Opcional: mostrar también copias asignadas al área del usuario
-                    if ((bool) (config('custom_config.INCLUDE_COPIES_IN_VISIBILITY') ?? true)) {
-                        $w->orWhereExists(function ($ex) use ($userAreas) {
-                            $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
-                              ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
-                              ->whereIn('t.id_cat_area', $userAreas);
-                        });
-                    }
-                });
-
+            // SIN filtro de estatus para bypass (acceso total)
             if ($searchValue !== '') {
                 $sv = '%'.trim($searchValue).'%';
                 $q->where(function ($f) use ($sv) {
@@ -164,22 +89,108 @@ class LetterC extends Controller
                     DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
                     DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
                     DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                    // >>> RESTAURADO: último UID de oficio (para columna Cloud)
+                    DB::raw("(
+                        SELECT co.uid
+                        FROM correspondencia.ctrl_correspondencia_oficio co
+                        WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
+                        ORDER BY co.fecha_usuario DESC
+                        LIMIT 1
+                    ) AS uuid_oficio"),
                 ]);
 
-            // Aplicar reglas: “anular” columnas no visibles
-            $rows = $this->applyVisibilityToRows($rows, $visibility);
+            // Admin ve TODO: columnas totalmente visibles
+            $columns_visibility = ['area' => true, 'crh' => true, 'crhtod' => true];
 
-            return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $visibility]);
-
-        } catch (\Throwable $e) {
-            Log::error('LETTER_TABLE_ERROR: '.$e->getMessage(), ['ex' => $e]);
-            return response()->json([
-                'value' => [],
-                'error' => true,
-                'message' => 'Error al cargar la tabla',
-            ], 500);
+            return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $columns_visibility]);
         }
+
+        // ======== USUARIO NORMAL ========
+        $userId = (int) (Auth::id() ?? 0);
+
+        $useHierarchy = (bool) (config('custom_config.USE_HIERARCHY') ?? false);
+        $userAreas = $useHierarchy
+            ? $this->getAreasByHierarchy($userId)
+            : $this->getAllowedAreasForUser($userId);
+
+        if (empty($userAreas)) {
+            return response()->json(['value' => [], 'total' => 0, 'columns_visibility' => $visibility]);
+        }
+
+        $areaColumns = $this->resolveAreaColumnsFromRoles();
+        if (empty($areaColumns)) { $areaColumns = ['id_cat_area']; }
+
+        $q = DB::table('correspondencia.tbl_correspondencia as c')
+            ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
+            ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')     // Área
+            ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')   // CRH
+            ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')   // CRHTOD
+            ->where('e.estatus', true)
+            ->where(function ($w) use ($userAreas, $areaColumns) {
+                foreach ($areaColumns as $col) {
+                    $w->orWhereIn("c.$col", $userAreas);
+                }
+                if ((bool) (config('custom_config.INCLUDE_COPIES_IN_VISIBILITY') ?? true)) {
+                    $w->orWhereExists(function ($ex) use ($userAreas) {
+                        $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
+                          ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
+                          ->whereIn('t.id_cat_area', $userAreas);
+                    });
+                }
+            });
+
+        if ($searchValue !== '') {
+            $sv = '%'.trim($searchValue).'%';
+            $q->where(function ($f) use ($sv) {
+                $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
+            });
+        }
+
+        $total = (clone $q)->count('c.id_tbl_correspondencia');
+
+        $rows = $q->orderByDesc('c.id_tbl_correspondencia')
+            ->offset($iterator)->limit(5)
+            ->get([
+                'c.id_tbl_correspondencia as id',
+                DB::raw('UPPER(c.num_documento) as num_documento'),
+                DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
+                DB::raw('UPPER(c.asunto)         as asunto'),
+                DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
+                DB::raw('UPPER(e.descripcion)    as estatus'),
+                DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
+                DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
+                DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                // >>> RESTAURADO: último UID de oficio (para columna Cloud)
+                DB::raw("(
+                    SELECT co.uid
+                    FROM correspondencia.ctrl_correspondencia_oficio co
+                    WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
+                    ORDER BY co.fecha_usuario DESC
+                    LIMIT 1
+                ) AS uuid_oficio"),
+            ]);
+
+        // Aplica reglas de visibilidad a los datos enviados
+        $rows = $this->applyVisibilityToRows($rows, $visibility);
+
+        return response()->json(['value' => $rows, 'total' => $total, 'columns_visibility' => $visibility]);
+
+    } catch (\Throwable $e) {
+        Log::error('LETTER_TABLE_ERROR: '.$e->getMessage(), ['ex' => $e]);
+        return response()->json([
+            'value' => [],
+            'error' => true,
+            'message' => 'Error al cargar la tabla',
+        ], 500);
     }
+}
+
 
     public function dashboard()
     {

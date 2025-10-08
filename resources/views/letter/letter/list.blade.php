@@ -3,31 +3,45 @@
 <x-template-app.app-layout>
 
     <x-template-form.template-form-input-hidden name="bool_user_role" value="{{ $letterAdminMatch }}" />
+
     <style>
         #dropdownColumnToggle {
             background-color: #10312b;
             color: white;
             border: none;
         }
-
         #dropdownColumnToggle:hover {
             background-color: #15504e;
             color: white;
         }
-
         #columnToggleMenu {
             max-height: 300px;
             overflow-y: auto;
         }
-
         #columnToggleMenu label {
             font-size: 14px;
             cursor: pointer;
         }
-
         #columnToggleMenu input {
             margin-right: 6px;
         }
+
+        /* Presentación simple para Cloud */
+        .cloud-cell {
+            white-space: nowrap;
+            text-align: center;
+        }
+        .cloud-cell .icon-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            vertical-align: middle;
+        }
+        .cloud-cell i.fa-file { color: #707070; font-size: 18px; }
+        .cloud-cell .btn-eye {
+            border: none; border-radius: 6px; background: #10312b; padding: 6px 10px; cursor: pointer;
+        }
+        .cloud-cell .btn-eye i { color: #fff; font-size: 14px; }
     </style>
 
     <div class="main-panel">
@@ -80,21 +94,30 @@
                                     <x-template-table.template-search />
                                 </div>
 
-                                <!-- Botón columnas (solo CRH y CRHTOD) -->
-                                <div class="dropdown">
-                                    <button class="btn btn-sm dropdown-toggle shadow-sm" type="button"
-                                            id="dropdownColumnToggle" data-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa fa-columns mr-1"></i> Mostrar columnas
-                                    </button>
-                                    <div class="dropdown-menu p-2 border shadow" id="columnToggleMenu" style="min-width: 250px;">
-                                        <label class="dropdown-item">
-                                            <input type="checkbox" class="toggle-column" data-column="6" checked> CRH
-                                        </label>
-                                        <label class="dropdown-item">
-                                            <input type="checkbox" class="toggle-column" data-column="7" checked> CRHTOD
-                                        </label>
-                                    </div>
-                                </div>
+                                <!-- Botón columnas -->
+<!-- Botón columnas -->
+<div class="dropdown">
+  <button class="btn btn-sm dropdown-toggle shadow-sm" type="button"
+          id="dropdownColumnToggle" data-toggle="dropdown" aria-expanded="false">
+    <i class="fa fa-columns mr-1"></i> Mostrar columnas
+  </button>
+  <div class="dropdown-menu p-2 border shadow" id="columnToggleMenu" style="min-width: 250px;">
+    <!-- AHORA TODAS DESMARCADAS POR DEFECTO -->
+    <label class="dropdown-item">
+      <input type="checkbox" class="toggle-column" data-column="6"> CRH
+    </label>
+    <label class="dropdown-item">
+      <input type="checkbox" class="toggle-column" data-column="7"> CRHTOD
+    </label>
+    <label class="dropdown-item">
+      <input type="checkbox" class="toggle-column" data-column="9"> Cloud
+    </label>
+    <label class="dropdown-item">
+      <input type="checkbox" class="toggle-column" data-column="10"> Respuesta
+    </label>
+  </div>
+</div>
+
                             </div>
                         </div>
 
@@ -115,6 +138,9 @@
                                     <th>CRH</th>
                                     <th>CRHTOD</th>
                                     <th>Asunto</th>
+                                    <!-- NUEVAS -->
+                                    <th>Cloud</th>
+                                    <th>Respuesta</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
@@ -132,7 +158,10 @@
     <!-- CODE SCRIPT-->
     <script src="{{ asset('assets/js/app/letter/function/email.js') }}"></script>
     <script src="{{ asset('assets/js/app/template/template-dropdown.js') }}"></script>
+
+    <!-- Tu archivo de la tabla -->
     <script src="{{ asset('assets/js/app/letter/letter/table.js') }}"></script>
+
     <script src="{{ asset('assets/js/app/letter/letter/tableCopy.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/modal.js') }}"></script>
     <!-- SweetAlert2 CDN -->
