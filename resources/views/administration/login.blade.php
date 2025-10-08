@@ -22,7 +22,7 @@
                                 <img src="assets/images/imss/imss-bienestar-2025.png" alt="logo"
                                     style="width: 200px; height: auto;" />
                             </div>
-                            <h4>Sistema Integral para Recursos Humanos</h4>
+                            <h4>Control de Gestión</h4>
                             <h6 class="font-weight-light">Iniciar sesión</h6>
 
                             <form class="pt-3" method="POST" action="{{ route('login') }}">
