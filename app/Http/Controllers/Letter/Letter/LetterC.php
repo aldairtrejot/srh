@@ -700,6 +700,7 @@ class LetterC extends Controller
 
     /* ======================== REPLY (CREAR OFICIO SIN ARCHIVOS) ======================== */
    /* ======================== REPLY (CREAR OFICIO SIN ARCHIVOS) ======================== */
+/* ======================== REPLY (CREAR OFICIO + subida opcional a Alfresco) ======================== */
 public function replySave(Request $request)
 {
     try {
@@ -709,6 +710,9 @@ public function replySave(Request $request)
             'fecha_fin'              => 'nullable|string',
             'asunto'                 => 'required|string|max:250',
             'observaciones'          => 'nullable|string|max:500',
+            // archivos SON OPCIONALES en el reply
+            'file_oficio_entrada'    => 'nullable|file|max:20480',
+            'file_anexo_entrada.*'   => 'nullable|file|max:20480',
         ]);
 
         $idCorr = (int) $request->input('id_tbl_correspondencia');
@@ -734,7 +738,6 @@ public function replySave(Request $request)
         // Normalización de fechas del modal
         $fechaInicio = $this->parseDateInput($request->input('fecha_inicio'));
         $fechaFin    = $this->parseDateInput($request->input('fecha_fin'));
-
         if (!$fechaInicio) {
             return response()->json(['ok' => false, 'message' => 'Fecha inicio inválida.'], 422);
         }
@@ -777,28 +780,23 @@ public function replySave(Request $request)
         $consec->iteratorConsecutivo($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
 
         // ========= 2) Actualizar tbl_correspondencia =========
-        // - estatus = 4
-        // - observaciones = observaciones_previas  + "  //  " + observaciones_del_modal (si vienen)
         $newObs = $corr->observaciones ?? '';
         if ($oficioObs !== '') {
             $newObs = trim($newObs) === '' ? $oficioObs : ($newObs . '  //  ' . $oficioObs);
         }
 
-        $updateCorr = [
-            'id_cat_estatus'     => 4,
-            'observaciones'      => $newObs,
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario'      => now(),
-        ];
-
         DB::table('correspondencia.tbl_correspondencia')
             ->where('id_tbl_correspondencia', $idCorr)
-            ->update($updateCorr);
+            ->update([
+                'id_cat_estatus'     => 4,
+                'observaciones'      => $newObs,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario'      => now(),
+            ]);
 
         // ========= Logs =========
         $logC = new LogC();
         $logC->add('correspondencia.tbl_oficio', $oficioData);
-
         $logC->edit('correspondencia.tbl_correspondencia', [
             'id_tbl_correspondencia' => $idCorr,
             'folio_gestion'          => $corr->folio_gestion,
@@ -808,18 +806,116 @@ public function replySave(Request $request)
 
         DB::commit();
 
+        /* ========== 3) Subida a Alfresco (OPCIONAL) ========== */
+        try {
+            $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
+            $hasAnexos = $request->hasFile('file_anexo_entrada') && is_array($request->file('file_anexo_entrada'));
+
+            if ($hasOficio || $hasAnexos) {
+                $alfrescoC    = new \App\Http\Controllers\Cloud\AlfrescoC();
+                $cloudConfigM = new \App\Models\Letter\Cloud\CloudConfigM();
+
+                // 3.1) Intento “completo” (area, entrada, tipo) — por si algún día el modal los manda
+                $uidRow = $cloudConfigM->getUid(
+                    $corr->id_cat_area,
+                    $request->input('id_cat_entrada'),      // puede venir null
+                    $request->input('id_cat_tipo_oficio')   // puede venir null
+                );
+
+                // 3.2) Fallback: por área solamente (primer registro activo)
+                if (!$uidRow) {
+                    $uidRow = DB::table('correspondencia.cat_config_cloud')
+                        ->where('id_cat_area', $corr->id_cat_area)
+                        ->where('estatus', true)
+                        ->orderBy('id_cat_config_cloud')
+                        ->first();
+                }
+
+                $folderId = $uidRow && !empty($uidRow->uid) ? $this->normalizeFolderId($uidRow->uid) : null;
+
+                \Log::info('[REPLY_UPLOAD] folderId', [
+                    'area'     => $corr->id_cat_area,
+                    'uid'      => $uidRow->uid ?? null,
+                    'folderId' => $folderId
+                ]);
+
+                if ($folderId) {
+                    // Oficio
+                    if ($hasOficio) {
+                        $file = $request->file('file_oficio_entrada');
+                        \Log::info('[REPLY_UPLOAD] oficio file', [
+                            'name' => $file->getClientOriginalName(),
+                            'size' => $file->getSize(),
+                            'mime' => $file->getMimeType()
+                        ]);
+
+                        $uploadedUid = $alfrescoC->addFile($file, $folderId, 1); // 1 => prefijo OFICIO_
+                        \Log::info('[REPLY_UPLOAD] oficio uploaded UID', ['uid' => $uploadedUid]);
+
+                        if ($uploadedUid) {
+                            \App\Models\Letter\Letter\CloudOficiosM::create([
+                                'uid'                   => $uploadedUid,
+                                'nombre'                => 'OFICIO_' . $file->getClientOriginalName(),
+                                'estatus'               => true,
+                                'fecha_usuario'         => now(),
+                                'id_tbl_correspondencia'=> $idCorr,
+                                'id_usuario_sistema'    => Auth::user()->id,
+                                'id_cat_tipo_doc_cloud' => $request->input('id_cat_entrada'), // si no viene, quedará null
+                            ]);
+                        }
+                    }
+
+                    // Anexos
+                    if ($hasAnexos) {
+                        foreach ($request->file('file_anexo_entrada') as $file) {
+                            if (!$file || !$file->isValid()) { continue; }
+
+                            \Log::info('[REPLY_UPLOAD] anexo file', [
+                                'name' => $file->getClientOriginalName(),
+                                'size' => $file->getSize(),
+                                'mime' => $file->getMimeType()
+                            ]);
+
+                            $uploadedUid = $alfrescoC->addFile($file, $folderId, 0); // 0 => prefijo ANEXO_
+                            \Log::info('[REPLY_UPLOAD] anexo uploaded UID', ['uid' => $uploadedUid]);
+
+                            if ($uploadedUid) {
+                                \App\Models\Letter\Letter\CloudAnexosM::create([
+                                    'uid'                   => $uploadedUid,
+                                    'nombre'                => 'ANEXO_' . $file->getClientOriginalName(),
+                                    'estatus'               => true,
+                                    'fecha_usuario'         => now(),
+                                    'id_tbl_correspondencia'=> $idCorr,
+                                    'id_usuario_sistema'    => Auth::user()->id,
+                                    'id_cat_tipo_doc_cloud' => $request->input('id_cat_entrada'),
+                                ]);
+                            }
+                        }
+                    }
+                } else {
+                    \Log::error('[REPLY_UPLOAD] No se encontró carpeta Alfresco para el área', [
+                        'area' => $corr->id_cat_area
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::error('[REPLY_UPLOAD] error: ' . $e->getMessage(), ['ex' => $e]);
+            // no interrumpimos la respuesta de éxito del reply
+        }
+
         return response()->json([
             'ok'        => true,
-            'message'   => 'Oficio creado; estatus de la correspondencia actualizado y observaciones concatenadas.',
+            'message'   => 'Oficio creado; estatus actualizado, observaciones concatenadas y archivos subidos (si hubo).',
             'id_oficio' => $created->id_tbl_oficio,
         ]);
 
     } catch (\Throwable $e) {
         DB::rollBack();
-        Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
+        \Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
         return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
     }
 }
+
 
 
     /* ======================== CRUD AUX ======================== */
