@@ -8,7 +8,6 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Redirect;
 
 class LoginC extends Controller
 {
@@ -54,17 +53,26 @@ class LoginC extends Controller
         }
 
         if (Auth::attempt($credentials)) {
-            // Si la autenticación es exitosa, regeneramos la sesión y redirigimos al dashboard
+            $request->session()->regenerate();
+
+            $userId = Auth::id();
+
+            // Eliminar otras sesiones activas del mismo usuario
+            \DB::table('sessions')
+                ->where('user_id', $userId)
+                ->where('id', '!=', session()->getId())
+                ->delete();
+
             Log::info('LOGIN_RECORD: ', [
-                'id_user' => Auth::id(),
+                'id_user' => $userId,
                 'ip_user' => $request->ip(),
                 'time_user' => now(),
-            ]); // Log de inicio de sesion
+            ]);
 
-            $request->session()->regenerate();
-            $userId = Auth::id();
+            // Roles
             $roleUser = $loginM->validate($userId);
             session()->put('SESSION_ROLE_USER', $roleUser);
+
             $user = Auth::user();
 
             if ($user->password_update) {
@@ -72,8 +80,6 @@ class LoginC extends Controller
             } else {
                 return redirect('changePassword');
             }
-
-            // return redirect()->intended('dashboard');
         }
 
         // Redirección a login con mensaje de error
@@ -87,13 +93,13 @@ class LoginC extends Controller
     }
 
     // Cierre de sesión
-    public function logout(Request $request, Redirect $redirect)
+    public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         session()->forget('SESSION_ROLE_USER');
 
-        return Redirect::to('/login');
+        return redirect('/login');
     }
 }
