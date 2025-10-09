@@ -123,7 +123,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       // SOLO: pdf, jpg, jpeg, png
       var allowed = /\.(pdf|jpg|jpeg|png)$/i.test(file.name);
       if (!allowed){
-        Swal.fire('Archivo no permitido','Solo se permiten: PDF, JPG, JPEG, PNG.','warning');
+        Swal.fire('Archivo no permitido','warning');
         $(this).val(''); return;
       }
       var maxBytes = 10 * 1024 * 1024; // 10MB
