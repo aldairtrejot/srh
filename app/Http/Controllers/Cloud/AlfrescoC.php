@@ -13,11 +13,13 @@ class AlfrescoC extends Controller
      * @param \Illuminate\Http\UploadedFile $archivo
      * @param string $folderId  UUID de la carpeta destino
      * @param int $esOficio     1 = prefijo OFICIO_, 0 = ANEXO_
+     * @param string|null $customName  Nombre de archivo a usar (si se pasa, se respeta tal cual)
      * @return string|false     nodeId creado o false
      */
-    public function addFile($archivo, $folderId, $esOficio)
+    public function addFile($archivo, $folderId, $esOficio, ?string $customName = null)
     {
-        $fileName = ($esOficio == 1 ? 'OFICIO_' : 'ANEXO_') . $archivo->getClientOriginalName();
+        // Si no viene nombre custom, usar el patrón antiguo
+        $fileName = $customName ?: (($esOficio == 1 ? 'OFICIO_' : 'ANEXO_') . $archivo->getClientOriginalName());
         $filePath = $archivo->getRealPath();
 
         $username = env('ALFRESCO_USER');
@@ -31,7 +33,7 @@ class AlfrescoC extends Controller
             "Accept: application/json",
         ];
 
-        // Enviar también name/nodeType/autoRename — recomendado por la API
+        // Enviar name/nodeType/autoRename — recomendado por la API
         $postFields = [
             'filedata'   => new \CURLFile($filePath, $archivo->getMimeType(), $fileName),
             'name'       => $fileName,
@@ -142,7 +144,7 @@ class AlfrescoC extends Controller
             ->header('Expires', '0');
     }
 
-    // Visualización inline por UUID legacy (service/api/node/content/...)
+    // Visualización inline por UUID legacy (service/api/node/content/…)
     public function see(Request $request)
     {
         $uuid = $request->uid;
@@ -260,3 +262,5 @@ class AlfrescoC extends Controller
         return $data['entry']['id'] ?? false;
     }
 }
+
+

@@ -6,6 +6,7 @@ use App\Http\Controllers\Administration\LoginC;
 use App\Http\Controllers\Administration\RecoverC;
 use App\Http\Controllers\Administration\RegisterC;
 use App\Http\Controllers\Administration\UserC;
+use App\Http\Controllers\Auth\LogoutAuthController;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Cloud\DescargaController;
 use App\Http\Controllers\Courses\Courses\CoursesC;
@@ -74,6 +75,7 @@ Route::get('/about', AboutC::class)->name('about')->middleware('auth'); // ROUTE
 Route::post('/logout', [LoginC::class, 'logout'])->name(name: 'logout')->middleware('auth'); // ROUTE_LOGOUT
 Route::get('/changePassword', [ChangePasswordC::class, 'changePassword'])->name('changePassword')->middleware('auth'); // ROUTE_DASH BOARD
 Route::post('/savePassword', [ChangePasswordC::class, 'savePassword'])->name('savePassword')->middleware('auth'); // ROUTE_DASH BOARD
+Route::post('/session-lifetime-logout', [LogoutAuthController::class, 'logout'])->middleware('auth');
 
 // ROUTE_USER
 Route::get('/user', UserC::class)->name('user.list')->middleware('auth'); // ROUTE_USER
@@ -107,10 +109,14 @@ Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('let
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
 Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->name('alf.download')->middleware('auth');
 Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
+Route::post('/letter/collection/j2', [DashboardLetterC::class, 'setAreaJ2'])->name('letter.collection.j2')->middleware('auth');
+Route::post('/letter/collection/j3', [DashboardLetterC::class, 'setAreaJ3'])->name('letter.collection.j3')->middleware('auth');
 
 // === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
 Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
+Route::post('/letter/reply/save', [LetterC::class, 'replySave'])->name('letter.reply.save')->middleware('auth');
+
 
 
 //Guest

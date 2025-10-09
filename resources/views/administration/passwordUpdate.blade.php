@@ -46,7 +46,7 @@
                                 @csrf
 
                                 <div class="form-group">
-                                    <input type="text" name="new_value" class="form-control form-control-lg"
+                                    <input type="password" name="new_value" class="form-control form-control-lg"
                                         placeholder="Contraseña" value="{{ old('new_value') }}" />
                                     @error('new_value')
                                         <x-template-message-required>
@@ -55,7 +55,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" name="confirm_password" class="form-control form-control-lg"
+                                    <input type="password" name="confirm_password" class="form-control form-control-lg"
                                         placeholder="Confirmar contraseña" value="{{ old('confirm_password') }}">
                                     @error('confirm_password')
                                         <x-template-message-required>

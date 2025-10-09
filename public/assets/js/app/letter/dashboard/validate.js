@@ -4,6 +4,16 @@ var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
 
 // La función inicia las variable e inactiva las que no
 function initData() {
+    // limpieza de combox
+    cleanSelectMoreSelect('#cat_area_j_1');
+    cleanSelectMoreSelect('#cat_area_j_2');
+    allTextForeachSelect([], '#cat_area_j_3');
+    cleanSelectMoreSelect('#id_cat_status_informe');
+    cleanSelectMoreSelect('#id_cat_date_informe');
+    $('#fecha_inicio_informe').val('');
+    $('#fecha_fin_informe').val('');
+
+    // Funciones inciales
     getCollection(); // La función obtiene los catalgos iniciales
     activeDate(true); // Desactiva campo fechas
     cleanTime(); // Limpia las horas de input
@@ -11,7 +21,8 @@ function initData() {
     activeRange(true); // Activar Range
 
     $('#incluir_horas').prop('checked', true); //desmarcar el check
-    $('#inlcuir_usuario_capturo').prop('checked', false); //desmarcar el check
+    $('#inlcuir_usuario_capturo').prop('checked', true); //desmarcar el check
+    $('#check_copia_a').prop('checked', false); //desmarcar el check
     $('#fecha_inicio_fecha_fin').prop('checked', false); //desmarcar el check
     getCount(); // inicia contador de correspondencia
 }
@@ -65,7 +76,16 @@ $('#incluir_horas').change(function () {
         activeRange(true); //Desctivar range Range
     } else {
         activeRange(false); // Activar Range
+        // Establecer valores por defecto a range
+        $('#inicio').val(9);
+        $('#fin').val(19);
+
+        // Establecer valores por defecto a leyendas de horario
+        $('#inicio-hour-right').text('09:00');
+        $('#fin-hour-right').text('19:00');
     }
+
+    getCount();
 });
 
 // Activar o desactivar Range
@@ -83,6 +103,7 @@ $('#fecha_inicio_fecha_fin').change(function () {
         activeDate(true); // Habilita la fechas
         cleanSelectDate(false); //
     }
+    getCount();
 });
 
 // Limpia el select
@@ -112,6 +133,9 @@ function cleanTime() {
 
 // La función obtiene los catalgoos inciales para mostrarlos
 function getCollection() {
+    // Limpieza de combox 
+    cleanSelectMoreSelect('#cat_area_j_1');
+
     $.ajax({
         url: URL_DEFAULT.concat('/letter/dashboard/getCollection/let'),
         type: 'POST',
@@ -119,38 +143,109 @@ function getCollection() {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            allTextForeachSelect(response.resultCollectionArea, '#id_cat_area_informe');
+            allTextForeachSelect(response.cat_area_j_1, '#cat_area_j_1');
+            allTextForeachSelect(response.cat_area_j_2, '#cat_area_j_2');
+
             allTextForeachSelect(response.resultCollectionStatus, '#id_cat_status_informe');
             allTextForeachSelect(response.resultCollectionDate, '#id_cat_date_informe');
         },
     });
 }
 
+// La función refresca el contador similar a 0 de 100
 function getCount() {
+    $('#lab_contador').text('Cargando ...');
     $.ajax({
         url: URL_DEFAULT.concat('/letter/countReport'),
         type: 'POST',
         data: {
-            id_cat_area: $('#id_cat_area_informe').val(),
+            cat_area_j_1: $('#cat_area_j_1').val(),
+            cat_area_j_2: $('#cat_area_j_2').val(),
+            cat_area_j_3: $('#cat_area_j_3').val(),
             id_cat_status: $('#id_cat_status_informe').val(),
-            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
-            fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
-            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
-            check_copia_a: $('#check_copia_a').prop('checked') ? 1 : 0,
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
             fecha_inicio_informe: $('#fecha_inicio_informe').val(),
             fecha_fin_informe: $('#fecha_fin_informe').val(),
-            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
             inicio: getFormattedHourValue('#inicio'),
             fin: getFormattedHourValue('#fin'),
             _token: token
         },
         success: function (response) {
-            console.log(response);
 
-            $('#lab_countMin').text(response.countMin);
-            $('#lab_countMax').text(response.countMax);
-
-
+            $('#lab_contador').text(response.lab_contador);
         },
     });
 }
+
+// Se detecta el cambio de select de combox C.R.H para actualizar el combo dependiente y el contador
+$("#cat_area_j_1").change(function () {
+    if ($(this).val()) {
+        $.ajax({
+            url: URL_DEFAULT.concat('/letter/collection/j2'),
+            type: 'POST',
+            data: {
+                id_cat_area_j_1: $(this).val(),
+                _token: token
+            },
+            success: function (response) {
+                allTextForeachSelect(response.cat_area_j_2, '#cat_area_j_2');
+                allTextForeachSelect([], '#cat_area_j_3');
+            },
+        });
+    } else {
+        allTextForeachSelect([], '#cat_area_j_2');
+        allTextForeachSelect([], '#cat_area_j_3');
+
+    }
+
+    getCount();
+});
+
+// Se detecta el cambio de select de combox C.R.H T. para actualizar el combo dependiente y el contador
+$("#cat_area_j_2").change(function () {
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/collection/j3'),
+        type: 'POST',
+        data: {
+            cat_area_j_2: $(this).val(),
+            _token: token
+        },
+        success: function (response) {
+            allTextForeachSelect(response.cat_area_j_3, '#cat_area_j_3');
+        },
+    });
+
+    getCount();
+});
+
+
+// Se detecta el cambio de select para la actualización de contador
+$("#id_cat_status_informe").change(function () {
+    getCount(); // actualización de contador
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$("#id_cat_date_informe").change(function () {
+    getCount(); // actualización de contador
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$("#cat_area_j_3").change(function () {
+    getCount(); // actualización de contador
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$('#fecha_inicio_informe').on('change input', function () {
+    getCount();
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$('#fecha_fin_informe').on('change input', function () {
+    getCount();
+});
+
+// Se detecta el cambio de select para la actualización de contador
+$('#inicio, #fin').on('input', function () {
+    getCount();
+});

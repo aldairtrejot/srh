@@ -22,16 +22,18 @@ function generateReport() {
         url: URL_DEFAULT.concat('/letter/dashboard/generate'),
         type: 'POST',
         data: {
-            id_cat_area: $('#id_cat_area_informe').val(),
+            cat_area_j_1: $('#cat_area_j_1').val(),
+            cat_area_j_2: $('#cat_area_j_2').val(),
+            cat_area_j_3: $('#cat_area_j_3').val(),
             id_cat_status: $('#id_cat_status_informe').val(),
-            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
-            fecha_inicio_fecha_fin: $('#fecha_inicio_fecha_fin').prop('checked') ? 1 : 0,
-            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
             fecha_inicio_informe: $('#fecha_inicio_informe').val(),
             fecha_fin_informe: $('#fecha_fin_informe').val(),
-            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
+            check_copia_a: $('#check_copia_a').prop('checked') ? 1 : 0,
             inicio: getFormattedHourValue('#inicio'),
             fin: getFormattedHourValue('#fin'),
+            inlcuir_usuario_capturo: $('#inlcuir_usuario_capturo').prop('checked') ? 1 : 0,
             _token: token
         },
         xhrFields: {
@@ -70,7 +72,7 @@ function getFormattedHourValue(inputId) {
 
 /*
 function generateReport() {
-    let id_cat_area_informe = $('#id_cat_area_informe').val();
+    let cat_area_j_1 = $('#cat_area_j_1').val();
 
     let incluir_horas = $('#incluir_horas').prop('checked') ? true : false;
 
