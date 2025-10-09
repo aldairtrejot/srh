@@ -710,6 +710,7 @@ public function replySave(Request $request)
             'fecha_fin'              => 'nullable|string',
             'asunto'                 => 'required|string|max:250',
             'observaciones'          => 'nullable|string|max:500',
+
             // archivos OPCIONALES en el reply
             'file_oficio_entrada'    => 'nullable|file|max:20480',
             'file_anexo_entrada.*'   => 'nullable|file|max:20480',
@@ -837,7 +838,7 @@ public function replySave(Request $request)
 
                 $folderId = $uidRow && !empty($uidRow->uid) ? $this->normalizeFolderId($uidRow->uid) : null;
 
-                // <<< AQUÍ LO FIJAMOS EN 1 COMO PEDISTE >>>
+                // Fijamos tipo de documento en 1 como pediste
                 $tipoDocCloudBase = 1;
 
                 \Log::info('[REPLY_UPLOAD] folderId/tipoDocCloud', [
@@ -848,26 +849,35 @@ public function replySave(Request $request)
                 ]);
 
                 if ($folderId) {
+
+                    // Helpers para nombres
+                    $folioRaw  = (string)($corr->folio_gestion ?? 'SIN_FOLIO');
+                    $folioSafe = preg_replace('/[^A-Za-z0-9_-]+/', '_', strtoupper($folioRaw));
+
                     // ===== OFICIO (1 archivo) =====
                     if ($hasOficio) {
                         $file = $request->file('file_oficio_entrada');
 
+                        $ts  = now()->format('YmdHis'); // fecha+hora sin guion bajo entre fecha y hora
+                        $ext = strtolower($file->getClientOriginalExtension());
+
+                        $customName = "OFICIO_{$folioSafe}_{$ts}.{$ext}";
+
                         \Log::info('[REPLY_UPLOAD] oficio file', [
-                            'name' => $file->getClientOriginalName(),
-                            'size' => $file->getSize(),
-                            'mime' => $file->getMimeType()
+                            'customName' => $customName,
+                            'size'       => $file->getSize(),
+                            'mime'       => $file->getMimeType()
                         ]);
 
-                        $uploadedUid = $alfrescoC->addFile($file, $folderId, 1); // 1 => prefijo OFICIO_
+                        // <-- pasamos el nombre custom como 4º parámetro
+                        $uploadedUid = $alfrescoC->addFile($file, $folderId, 1, $customName);
                         \Log::info('[REPLY_UPLOAD] oficio uploaded UID', ['uid' => $uploadedUid]);
 
                         if ($uploadedUid) {
-                            $nombre = 'OFICIO_' . $file->getClientOriginalName();
-
                             // a) ctrl_correspondencia_oficio (modelo existente)
                             \App\Models\Letter\Letter\CloudOficiosM::create([
                                 'uid'                   => $uploadedUid,
-                                'nombre'                => $nombre,
+                                'nombre'                => $customName,
                                 'estatus'               => true,
                                 'fecha_usuario'         => now(),
                                 'id_tbl_correspondencia'=> $idCorr,
@@ -879,7 +889,7 @@ public function replySave(Request $request)
                             try {
                                 DB::table('correspondencia.ctrl_oficio_oficio')->insert([
                                     'uid'                  => $uploadedUid,
-                                    'nombre'               => $nombre,
+                                    'nombre'               => $customName,
                                     'estatus'              => true,
                                     'fecha_usuario'        => now(),
                                     'id_tbl_oficio'        => $created->id_tbl_oficio,
@@ -908,23 +918,25 @@ public function replySave(Request $request)
                                 continue;
                             }
 
+                            $ts  = now()->format('YmdHis');
+                            $ext = strtolower($file->getClientOriginalExtension());
+                            $customName = "ANEXO_{$folioSafe}_{$ts}.{$ext}";
+
                             \Log::info('[REPLY_UPLOAD] anexo file', [
-                                'idx'  => $idx,
-                                'name' => $file->getClientOriginalName(),
-                                'size' => $file->getSize(),
-                                'mime' => $file->getMimeType()
+                                'idx'        => $idx,
+                                'customName' => $customName,
+                                'size'       => $file->getSize(),
+                                'mime'       => $file->getMimeType()
                             ]);
 
-                            $uploadedUid = $alfrescoC->addFile($file, $folderId, 0); // 0 => prefijo ANEXO_
+                            $uploadedUid = $alfrescoC->addFile($file, $folderId, 0, $customName);
                             \Log::info('[REPLY_UPLOAD] anexo uploaded UID', ['uid' => $uploadedUid]);
 
                             if ($uploadedUid) {
-                                $nombre = 'ANEXO_' . $file->getClientOriginalName();
-
-                                // a) ctrl_correspondencia_anexo (modelo existente)
+                                // a) ctrl_correspondencia_anexo
                                 \App\Models\Letter\Letter\CloudAnexosM::create([
                                     'uid'                   => $uploadedUid,
-                                    'nombre'                => $nombre,
+                                    'nombre'                => $customName,
                                     'estatus'               => true,
                                     'fecha_usuario'         => now(),
                                     'id_tbl_correspondencia'=> $idCorr,
@@ -932,11 +944,11 @@ public function replySave(Request $request)
                                     'id_cat_tipo_doc_cloud' => $tipoDocCloudBase, // 1
                                 ]);
 
-                                // b) ctrl_oficio_anexo (con FK id_tbl_oficio)
+                                // b) ctrl_oficio_anexo
                                 try {
                                     DB::table('correspondencia.ctrl_oficio_anexo')->insert([
                                         'uid'                  => $uploadedUid,
-                                        'nombre'               => $nombre,
+                                        'nombre'               => $customName,
                                         'estatus'              => true,
                                         'fecha_usuario'        => now(),
                                         'id_tbl_oficio'        => $created->id_tbl_oficio,
@@ -980,10 +992,6 @@ public function replySave(Request $request)
         return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
     }
 }
-
-
-
-
 
     /* ======================== CRUD AUX ======================== */
     public function delete($id)

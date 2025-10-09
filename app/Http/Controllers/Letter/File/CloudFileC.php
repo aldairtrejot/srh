@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Letter\File;
+
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Letter\File\CloudAnexosM;
 use App\Models\Letter\Cloud\CloudConfigM;
@@ -12,11 +13,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;       // ⬅️ NUEVO (para leer folio)
+use Illuminate\Support\Str;             // ⬅️ NUEVO (sanear nombre)
 use App\Http\Controllers\Letter\Log\LogC;
 
 class CloudFileC extends Controller
 {
-    //La funcion obtiene datos para el ebcabezado de la vista cloud
+    // Encabezado de la vista cloud
     public function cloudData(Request $request)
     {
         $id = $request->id;
@@ -28,111 +31,131 @@ class CloudFileC extends Controller
         ]);
     }
 
-    //La funcion lista los documentos y trae la informacion para el cloud
+    // Lista documentos/info para cloud
     public function cloudAnexos(Request $request)
     {
         $cloudM = new CloudM();
         $collectionConfigCloudM = new CollectionConfigCloudM();
-        //Constantes
-        $CAT_TIPO_DOC_ENTRADA = config('custom_config.CAT_TIPO_DOC_ENTRADA');
-        $CAT_TIPO_DOC_SALIDA = config('custom_config.CAT_TIPO_DOC_SALIDA');
-        $MAX_OFICIOS_ENTRADA = config('custom_config.MAX_OFICIOS_ENTRADA');
-        $MAX_ANEXOS_ENTRADA = config('custom_config.MAX_ANEXOS_ENTRADA');
-        $MAX_OFICIOS_SALIDA = config('custom_config.MAX_OFICIOS_SALIDA');
-        $MAX_ANEXOS_SALIDA = config('custom_config.MAX_ANEXOS_SALIDA');
 
-        $anexosEntrada = $cloudM->listAnexos($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_ANEXOS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
-        $oficosEntrada = $cloudM->listOficios($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_OFICIOS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
-        $anexoSalida = $cloudM->listAnexos($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_ANEXOS_SALIDA), $CAT_TIPO_DOC_SALIDA);
-        $oficosSalida = $cloudM->listOficios($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_OFICIOS_SALIDA), $CAT_TIPO_DOC_SALIDA);
-        $resultOficioEntrada = $cloudM->conditionOficios($collectionConfigCloudM->getValue($MAX_OFICIOS_ENTRADA), $request->id_tbl_oficio, $CAT_TIPO_DOC_ENTRADA);
-        $resultOficioSalida = $cloudM->conditionOficios($collectionConfigCloudM->getValue($MAX_OFICIOS_SALIDA), $request->id_tbl_oficio, $CAT_TIPO_DOC_SALIDA);
-        $resultAnexosEntrada = $cloudM->conditioAnexos($collectionConfigCloudM->getValue($MAX_ANEXOS_ENTRADA), $request->id_tbl_oficio, $CAT_TIPO_DOC_ENTRADA);
-        $resultAnexosSalida = $cloudM->conditioAnexos($collectionConfigCloudM->getValue($MAX_ANEXOS_SALIDA), $request->id_tbl_oficio, $CAT_TIPO_DOC_SALIDA);
+        $CAT_TIPO_DOC_ENTRADA = config('custom_config.CAT_TIPO_DOC_ENTRADA');
+        $CAT_TIPO_DOC_SALIDA  = config('custom_config.CAT_TIPO_DOC_SALIDA');
+        $MAX_OFICIOS_ENTRADA  = config('custom_config.MAX_OFICIOS_ENTRADA');
+        $MAX_ANEXOS_ENTRADA   = config('custom_config.MAX_ANEXOS_ENTRADA');
+        $MAX_OFICIOS_SALIDA   = config('custom_config.MAX_OFICIOS_SALIDA');
+        $MAX_ANEXOS_SALIDA    = config('custom_config.MAX_ANEXOS_SALIDA');
+
+        $anexosEntrada        = $cloudM->listAnexos($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_ANEXOS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
+        $oficosEntrada        = $cloudM->listOficios($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_OFICIOS_ENTRADA), $CAT_TIPO_DOC_ENTRADA);
+        $anexoSalida          = $cloudM->listAnexos($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_ANEXOS_SALIDA), $CAT_TIPO_DOC_SALIDA);
+        $oficosSalida         = $cloudM->listOficios($request->id_tbl_oficio, $collectionConfigCloudM->getValue($MAX_OFICIOS_SALIDA), $CAT_TIPO_DOC_SALIDA);
+        $resultOficioEntrada  = $cloudM->conditionOficios($collectionConfigCloudM->getValue($MAX_OFICIOS_ENTRADA), $request->id_tbl_oficio, $CAT_TIPO_DOC_ENTRADA);
+        $resultOficioSalida   = $cloudM->conditionOficios($collectionConfigCloudM->getValue($MAX_OFICIOS_SALIDA), $request->id_tbl_oficio, $CAT_TIPO_DOC_SALIDA);
+        $resultAnexosEntrada  = $cloudM->conditioAnexos($collectionConfigCloudM->getValue($MAX_ANEXOS_ENTRADA), $request->id_tbl_oficio, $CAT_TIPO_DOC_ENTRADA);
+        $resultAnexosSalida   = $cloudM->conditioAnexos($collectionConfigCloudM->getValue($MAX_ANEXOS_SALIDA), $request->id_tbl_oficio, $CAT_TIPO_DOC_SALIDA);
 
         return response()->json([
-            'anexosEntrada' => $anexosEntrada,
-            'oficosEntrada' => $oficosEntrada,
-            'anexoSalida' => $anexoSalida,
-            'oficosSalida' => $oficosSalida,
+            'anexosEntrada'       => $anexosEntrada,
+            'oficosEntrada'       => $oficosEntrada,
+            'anexoSalida'         => $anexoSalida,
+            'oficosSalida'        => $oficosSalida,
             'resultOficioEntrada' => $resultOficioEntrada->valor,
-            'resultOficioSalida' => $resultOficioSalida->valor,
+            'resultOficioSalida'  => $resultOficioSalida->valor,
             'resultAnexosEntrada' => $resultAnexosEntrada->valor,
-            'resultAnexosSalida' => $resultAnexosSalida->valor,
-            'status' => true,
+            'resultAnexosSalida'  => $resultAnexosSalida->valor,
+            'status'              => true,
         ]);
     }
 
     public function upload(Request $request)
     {
-        $logC = new LogC();
-        $alfrescoC = new AlfrescoC();
+        $logC         = new LogC();
+        $alfrescoC    = new AlfrescoC();
         $cloudConfigM = new CloudConfigM();
-        $status = false;
-        $messages = 'ok';
-        $now = Carbon::now(); //Hora y fecha actual
+        $status       = false;
+        $messages     = 'ok';
+        $now          = Carbon::now();
 
-        if ($request->hasFile('file') && $request->file('file')->isValid()) { // Verificar si el archivo ha sido cargado correctamente
-            $file = $request->file('file');// Obtener el archivo cargado
+        if ($request->hasFile('file') && $request->file('file')->isValid()) {
+            $file = $request->file('file');
 
-            $fileName = 'ANEXO_' . $file->getClientOriginalName(); // Nombre del archivo
-            if ($request->esOficio == 1) { //Validacion de archivo donde 1 se cambia el nombre por oficio si no es anexo
-                $fileName = 'OFICIO_' . $file->getClientOriginalName(); // Nombre del archivo
-            }
+            // ===== Validaciones tamaño/extensiones
+            $extensionArchivo = strtolower($file->getClientOriginalExtension());
+            $tamanoArchivoMB  = $file->getSize() / 1024 / 1024;
 
-            $nameFile = $file->getClientOriginalName();
-            $extensionArchivo = $file->getClientOriginalExtension();// Obtener la extensión del archivo
-            $tamanoArchivoMB = $file->getSize() / 1024 / 1024; // Convertir a MB
+            $maxSize        = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension  = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $validExtensions = array_map('strtolower', explode(',', $fileExtension->valor));
 
-            $maxSize = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
-            $fileExtension = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
-            $validExtensions = explode(',', $fileExtension->valor);// Convertimos la cadena de extensiones válidas en un array
-
-            if ($tamanoArchivoMB > $maxSize->valor) { //Validacion por tamaño maximo de archivo
-                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';//. $maxSize . ' MB.';
-            } else if (!in_array($extensionArchivo, $validExtensions)) { //Validacion de extensiones
-                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+            if ($tamanoArchivoMB > (float) $maxSize->valor) {
+                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';
+            } elseif (!in_array($extensionArchivo, $validExtensions, true)) {
+                $messages = 'Las extensiones permitidas son: ' . $fileExtension->valor;
             } else {
-
-                //La funcion obtiene el id de la carpeta donde se almacenara el archivo
+                // ===== Carpeta destino en Alfresco
                 $uid = $cloudConfigM->getUid(
                     $request->id_cat_area,
                     $request->id_entrada_salida,
                     $request->id_cat_tipo_oficio
                 );
 
-                //Se carga el archivo a alfresco
-                $result = $alfrescoC->addFile($file, $uid->uid, $request->esOficio);
+                // ===== Construir NOMBRE deseado:
+                // Prefijo
+                $prefix = ((int)$request->esOficio === 1) ? 'OFICIO_' : 'ANEXO_';
 
-                if (!$result) { //Validacion de exito, se cargan las tablas 
+                // 1) obtenemos el folio_gestion a partir del id_tbl_oficio (o id fallback)
+                $oficioId = $request->id_tbl_oficio ?? $request->id; // admite ambas llaves
+                $folioGestion = DB::table('correspondencia.tbl_oficio as o')
+                    ->join('correspondencia.tbl_correspondencia as c', 'c.id_tbl_correspondencia', '=', 'o.id_tbl_correspondencia')
+                    ->where('o.id_tbl_oficio', $oficioId)
+                    ->value('c.folio_gestion');
+
+                if (!$folioGestion) { $folioGestion = 'SIN_FOLIO'; }
+
+                // 2) saneamos el folio para nombre de archivo (evitar caracteres raros)
+                //    (permitimos letras/numeros/guion-bajo/guion; reemplazamos lo demás por "_")
+                $folioSafe = preg_replace('/[^\w\-]+/u', '_', $folioGestion);
+
+                // 3) timestamp
+                $stamp = now()->format('Ymd_His');
+
+                // 4) nombre final
+                $fileName = "{$prefix}{$folioSafe}_{$stamp}.{$extensionArchivo}";
+
+                // ===== Subir a Alfresco con nombre personalizado
+                // IMPORTANTE: ver nota al final para que AlfrescoC::addFile acepte $fileName
+                $result = $alfrescoC->addFile($file, $uid->uid, (int)$request->esOficio, $fileName);
+
+                if (!$result) {
                     $messages = "Se produjo un error inesperado al intentar subir el archivo: " . $result;
-                } else {//Validacion de mensaje de error
-                    if ($request->esOficio == 1) { //Validacion para agregar en la tabla de oficios
+                } else {
+                    // Guardados en tus tablas (esta versión mantiene las mismas tablas que ya usabas aquí)
+                    if ((int)$request->esOficio === 1) {
                         $data = [
-                            'uid' => $result,
-                            'nombre' => $fileName,
-                            'estatus' => true,
-                            'fecha_usuario' => $now,
-                            'id_tbl_expediente' => $request->id,
-                            'id_usuario_sistema' => Auth::user()->id,
+                            'uid'                   => $result,
+                            'nombre'                => $fileName,           // <-- usamos el nombre nuevo
+                            'estatus'               => true,
+                            'fecha_usuario'         => $now,
+                            'id_tbl_expediente'     => $request->id,        // (mismo campo que ya tenías en este controller)
+                            'id_usuario_sistema'    => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ];
 
                         CloudOficiosM::create($data);
                         $logC->add('correspondencia.ctrl_expediente_oficio', $data);
-                    } else { //agregar en la tabla de anexos
+                    } else {
                         $data = [
-                            'uid' => $result,
-                            'nombre' => $fileName,
-                            'estatus' => true,
-                            'fecha_usuario' => $now,
-                            'id_tbl_expediente' => $request->id,
-                            'id_usuario_sistema' => Auth::user()->id,
+                            'uid'                   => $result,
+                            'nombre'                => $fileName,           // <-- usamos el nombre nuevo
+                            'estatus'               => true,
+                            'fecha_usuario'         => $now,
+                            'id_tbl_expediente'     => $request->id,
+                            'id_usuario_sistema'    => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ];
                         CloudAnexosM::create($data);
                         $logC->add('correspondencia.ctrl_expediente_anexo', $data);
                     }
+
                     $status = true;
                 }
             }
@@ -140,48 +163,42 @@ class CloudFileC extends Controller
 
         return response()->json([
             'messages' => $messages,
-            'status' => $status,
+            'status'   => $status,
         ]);
     }
 
-    //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
+    // Ocultar registros en la vista (delete lógico)
     public function delete(Request $request)
     {
         $logC = new LogC();
-        $now = Carbon::now(); //Hora y fecha actual
-        $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
+        $now = Carbon::now();
+        $cloudAnexosM  = new CloudAnexosM();
         $cloudOficiosM = new CloudOficiosM();
         $estatus = false;
 
         $data = [
-            'estatus' => false,
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now,
+            'estatus'           => false,
+            'id_usuario_sistema'=> Auth::user()->id,
+            'fecha_usuario'     => $now,
         ];
-        //update en base
-        $resultAnexos = $cloudAnexosM::where('uid', $request->uid)
-            ->update($data);
 
-        $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update($data);
+        $resultAnexos = $cloudAnexosM::where('uid', $request->uid)->update($data);
+        $resultOficio = $cloudOficiosM::where('uid', $request->uid)->update($data);
 
-        //UPDATE EN LOG
         $data['uid'] = $request->uid;
 
         if ($resultAnexos > 0) {
             $logC->edit('correspondencia.ctrl_expediente_anexo', $data);
-        } else if ($resultOficio > 0) {
+        } elseif ($resultOficio > 0) {
             $logC->edit('correspondencia.ctrl_expediente_oficio', $data);
         }
 
-        $estatus = ($resultAnexos > 0 || $resultOficio > 0) ? true : false;
-
+        $estatus = ($resultAnexos > 0 || $resultOficio > 0);
 
         return response()->json([
             'messages' => $estatus,
-            'status' => true,
+            'status'   => true,
         ]);
     }
-
-
 }
+
