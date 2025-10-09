@@ -151,7 +151,7 @@ function validateEstatus() {
   if ([2,5,7].includes(val)) {
     $sel.prop('disabled', true);
   } else {
-    $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"]').remove();
+    $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"]').remove();
   }
   $sel.selectpicker('refresh');
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Administration\LoginC;
 use App\Http\Controllers\Administration\RecoverC;
 use App\Http\Controllers\Administration\RegisterC;
 use App\Http\Controllers\Administration\UserC;
+use App\Http\Controllers\Auth\LogoutAuthController;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Cloud\DescargaController;
 use App\Http\Controllers\Courses\Courses\CoursesC;
@@ -74,6 +75,7 @@ Route::get('/about', AboutC::class)->name('about')->middleware('auth'); // ROUTE
 Route::post('/logout', [LoginC::class, 'logout'])->name(name: 'logout')->middleware('auth'); // ROUTE_LOGOUT
 Route::get('/changePassword', [ChangePasswordC::class, 'changePassword'])->name('changePassword')->middleware('auth'); // ROUTE_DASH BOARD
 Route::post('/savePassword', [ChangePasswordC::class, 'savePassword'])->name('savePassword')->middleware('auth'); // ROUTE_DASH BOARD
+Route::post('/session-lifetime-logout', [LogoutAuthController::class, 'logout'])->middleware('auth');
 
 // ROUTE_USER
 Route::get('/user', UserC::class)->name('user.list')->middleware('auth'); // ROUTE_USER
@@ -107,6 +109,8 @@ Route::post('/letter/validateCopy', [LetterC::class, 'validateCopy'])->name('let
 Route::get('/letter/dashboard/getCollection', [DashboardOfficeC::class, 'getCollection'])->name('dashboard.getCollection');
 Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->name('alf.download')->middleware('auth');
 Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
+Route::post('/letter/collection/j2', [DashboardLetterC::class, 'setAreaJ2'])->name('letter.collection.j2')->middleware('auth');
+Route::post('/letter/collection/j3', [DashboardLetterC::class, 'setAreaJ3'])->name('letter.collection.j3')->middleware('auth');
 
 // === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
@@ -125,6 +129,13 @@ Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->
 Route::post('/guest/generate', [GuestReportC::class, 'generate'])->name('guest.generate')->middleware('auth');
 
 // //Cloud
+
+// 1) Alias GET usado por tu lista: /letter/cloud/view?uid=...
+Route::get('/letter/cloud/view',[AlfrescoC::class, 'see'])->name('letter.cloud.view')->middleware('auth');   // usa el mismo método see que ya tienes mapeado como POST
+
+// 2) Página Cloud por ID numérico (evita que "view" haga match como {id})
+Route::get('/letter/cloud/{id}',[LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth')->whereNumber('id');
+
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
 Route::post('/letter/cloud/data', [CloudLetterC::class, 'cloudData'])->name('letter.cloud.data')->middleware('auth');
 Route::post('/letter/cloud/anexos', [CloudLetterC::class, 'cloudAnexos'])->name('letter.cloud.anexos')->middleware('auth');
