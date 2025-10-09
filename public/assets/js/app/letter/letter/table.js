@@ -89,11 +89,11 @@ function renderCloudCell(uid) {
   if (!uid) return '';
   return (
     '<div style="display:flex; flex-direction:column; align-items:center; gap:6px;">' +
-      '<button type="button" class="custom-button-x custom-button" ' +
-              'style="background-color:#338CD4; padding:10px; border-radius:50%; border:none; cursor:pointer;" ' +
-              'title="Ver oficio" onclick="seeDocumentUid(\'' + uid + '\')">' +
-        '<i class="fa fa-file-alt" style="color:#fff; font-size:18px;"></i>' +
-      '</button>' +
+    '<button type="button" class="custom-button-x custom-button" ' +
+    'style="background-color:#338CD4; padding:10px; border-radius:50%; border:none; cursor:pointer;" ' +
+    'title="Ver oficio" onclick="seeDocumentUid(\'' + uid + '\')">' +
+    '<i class="fa fa-file-alt" style="color:#fff; font-size:18px;"></i>' +
+    '</button>' +
     '</div>'
   );
 }
@@ -116,18 +116,18 @@ function searchInit() {
 
     if (response && response.value && response.value.length > 0) {
       response.value.forEach(function (object) {
-        var finalUrl   = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
+        var finalUrl = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
         var finalCloud = URL_DEFAULT.concat('/letter/cloud/').concat(object.id);
-        var urlReport  = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
+        var urlReport = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
 
         var estatusColors = {
-          'TURNADO':    '#FFA82E',
-          'CANCELADO':  '#660000',
+          'TURNADO': '#FFA82E',
+          'CANCELADO': '#660000',
           'EN PROCESO': '#0077B6',
-          'CONCLUIDO':  '#26874A',
-          'VENCIDO':    '#FF0000',
-          'RECHAZADO':  '#b30000',
-          'CONOCIMIENTO':'#6fc5f4ff'
+          'CONCLUIDO': '#26874A',
+          'VENCIDO': '#FF0000',
+          'RECHAZADO': '#b30000',
+          'CONOCIMIENTO': '#6fc5f4ff'
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
 
@@ -139,82 +139,87 @@ function searchInit() {
 
         var rowHTML =
           '<tr>' +
-            // 0: Menú
-            '<td style="text-align:center;">' +
-              '<div class="dropdown">' +
-                '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
-                        'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
-                        'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
-                  '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
-                '</button>' +
-                '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
-                  '<h6 class="dropdown-header">Acciones</h6>' +
-                  '<a class="dropdown-item" href="' + finalUrl + '">' +
-                    '<span style="background:#1D5B3B" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
-                    '</span>Modificar' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + finalCloud + '">' +
-                    '<span style="background:#8a6f19" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
-                    '</span>Cloud' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + urlReport + '">' +
-                    '<span style="background:#707070" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
-                    '</span>Reporte' +
-                  '</a>' +
-                  '<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + (object.folio_gestion || '') + '\')">' +
-                    '<span style="background:#691C32" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-share-square item-icon-menu"></i></div>' +
-                    '</span>Copia' +
-                  '</button>' +
-                  '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + (object.folio_gestion || '') + '\')">' +
-                    '<span style="background:#462c95" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-location-arrow item-icon-menu"></i></div>' +
-                    '</span>Email' +
-                  '</button>' +
-                '</div>' +
-              '</div>' +
-            '</td>' +
+          // 0: Menú
+          '<td style="text-align:center;">' +
+          '<div class="dropdown">' +
+          '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
+          'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
+          'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
+          '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
+          '</button>' +
+          '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
+          '<h6 class="dropdown-header">Acciones</h6>' +
+          '<a class="dropdown-item" href="' + finalUrl + '">' +
+          '<span style="background:#1D5B3B" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
+          '</span>Modificar' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + finalCloud + '">' +
+          '<span style="background:#8a6f19" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
+          '</span>Cloud' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + urlReport + '">' +
+          '<span style="background:#707070" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
+          '</span>Reporte' +
+          '</a>' +
+          /* '<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + (object.folio_gestion || '') + '\')">' +
+          '<span style="background:#691C32" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-share-square item-icon-menu"></i></div>' +
+          '</span>Copia' +
+          '</button>' +
+          '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + (object.folio_gestion || '') + '\')">' +
+          '<span style="background:#462c95" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-location-arrow item-icon-menu"></i></div>' +
+          '</span>Email' +
+          '</button>' +*/
+          '<button class="dropdown-item" onclick="openReturnado(' + object.id + ', \'' + (object.folio_gestion || '').replace(/'/g, "\\'") + '\')">' +
+          '<span style="background:#2a848c" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
+          '</span>Returnado' +
+          '</button>'+
+        '</div>' +
+          '</div>' +
+          '</td>' +
 
-            // 1: Estatus
-            '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
+          // 1: Estatus
+          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
 
-            // 2: Fecha de captura
-            '<td>' + (object.fecha_captura || '') + '</td>' +
+          // 2: Fecha de captura
+          '<td>' + (object.fecha_captura || '') + '</td>' +
 
-            // 3: Folio de gestión
-            '<td>' + (object.folio_gestion || '') + '</td>' +
+          // 3: Folio de gestión
+          '<td>' + (object.folio_gestion || '') + '</td>' +
 
-            // 4: No. Documento
-            '<td>' + (object.num_documento || '') + '</td>' +
+          // 4: No. Documento
+          '<td>' + (object.num_documento || '') + '</td>' +
 
-            // 5: Área
-            '<td class="col-area" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area || '') +
-            '</td>' +
+          // 5: Área
+          '<td class="col-area" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area || '') +
+          '</td>' +
 
-            // 6: CRH
-            '<td class="col-crh" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area_1 || '') +
-            '</td>' +
+          // 6: CRH
+          '<td class="col-crh" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area_1 || '') +
+          '</td>' +
 
-            // 7: CRHTOD
-            '<td class="col-crhtod" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area_2 || '') +
-            '</td>' +
+          // 7: CRHTOD
+          '<td class="col-crhtod" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area_2 || '') +
+          '</td>' +
 
-            // 8: Asunto
-            '<td style="font-size:12px; width:800px; word-wrap:break-word; white-space:normal;">' +
-              (object.asunto || '') +
-            '</td>' +
+          // 8: Asunto
+          '<td style="font-size:12px; width:800px; word-wrap:break-word; white-space:normal;">' +
+          (object.asunto || '') +
+          '</td>' +
 
-            // 9: Cloud (solo “ojo” + UUID)
-            '<td>' + renderCloudCell(uuid) + '</td>' +
+          // 9: Cloud (solo “ojo” + UUID)
+          '<td>' + renderCloudCell(uuid) + '</td>' +
 
-            // 10: Respuesta (placeholder, sin lógica aún)
-            '<td>' + (respuestaHtml || '') + '</td>' +
+          // 10: Respuesta (placeholder, sin lógica aún)
+          '<td>' + (respuestaHtml || '') + '</td>' +
           '</tr>';
 
         tbody.append(rowHTML);
