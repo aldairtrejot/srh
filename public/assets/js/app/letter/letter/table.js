@@ -123,7 +123,7 @@ function renderCloudCell(uid) {
         'title="Ver oficio" onclick="seeDocumentUid(\'' + uid + '\')">' +
         '<i class="fa fa-eye" style="color:#fff; font-size:18px;"></i>' +
       '</button>' +
-      '<code style="font-size:11px; word-break:break-all; text-align:center; max-width:160px;">' + uid + '</code>' +
+      /*'<code style="font-size:11px; word-break:break-all; text-align:center; max-width:160px;">' + uid + '</code>' +*/
     '</div>'
   );
 }
