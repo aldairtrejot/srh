@@ -6,6 +6,7 @@ use App\Http\Controllers\Administration\LoginC;
 use App\Http\Controllers\Administration\RecoverC;
 use App\Http\Controllers\Administration\RegisterC;
 use App\Http\Controllers\Administration\UserC;
+use App\Http\Controllers\Auth\LogoutAuthController;
 use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Http\Controllers\Cloud\DescargaController;
 use App\Http\Controllers\Courses\Courses\CoursesC;
@@ -71,6 +72,7 @@ Route::get('/about', AboutC::class)->name('about')->middleware('auth'); // ROUTE
 Route::post('/logout', [LoginC::class, 'logout'])->name(name: 'logout')->middleware('auth'); // ROUTE_LOGOUT
 Route::get('/changePassword', [ChangePasswordC::class, 'changePassword'])->name('changePassword')->middleware('auth'); // ROUTE_DASH BOARD
 Route::post('/savePassword', [ChangePasswordC::class, 'savePassword'])->name('savePassword')->middleware('auth'); // ROUTE_DASH BOARD
+Route::post('/session-lifetime-logout', [LogoutAuthController::class, 'logout'])->middleware('auth');
 
 // ROUTE_USER
 Route::get('/user', UserC::class)->name('user.list')->middleware('auth'); // ROUTE_USER

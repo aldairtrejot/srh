@@ -11,7 +11,7 @@
             </header>
             <x-template-app.app-menu />
             <x-template-other.app-spinner />
-            {{$slot}}
+            {{ $slot }}
             <footer />
         </div>
     </div>

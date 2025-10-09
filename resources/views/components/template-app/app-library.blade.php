@@ -22,3 +22,8 @@
 <script src="{{ asset('assets/other/tippy/tippy.umd.min.js') }}"></script>
 <script src="{{ asset('assets/vendors/chart.js/Chart.min.js') }}"></script>
 
+<script>
+    window.SESSION_LIFETIME = {{ config('session.lifetime') }};
+</script>
+
+<script src="{{ asset('assets/js/app/template/exit.js') }}"></script>
