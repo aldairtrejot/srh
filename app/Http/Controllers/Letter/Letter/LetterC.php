@@ -710,14 +710,14 @@ public function replySave(Request $request)
             'fecha_fin'              => 'nullable|string',
             'asunto'                 => 'required|string|max:250',
             'observaciones'          => 'nullable|string|max:500',
-            // archivos SON OPCIONALES en el reply
+            // archivos OPCIONALES en el reply
             'file_oficio_entrada'    => 'nullable|file|max:20480',
             'file_anexo_entrada.*'   => 'nullable|file|max:20480',
         ]);
 
         $idCorr = (int) $request->input('id_tbl_correspondencia');
 
-        // Traer datos base desde correspondencia (incluye observaciones y folio para el log)
+        // Traer datos base desde correspondencia
         $corr = DB::table('correspondencia.tbl_correspondencia')
             ->select(
                 'id_tbl_correspondencia',
@@ -749,7 +749,7 @@ public function replySave(Request $request)
         DB::beginTransaction();
 
         // ========= 1) Crear registro en tbl_oficio =========
-        $oficioObs = strtoupper((string)$request->input('observaciones', ''));
+        $oficioObs  = strtoupper((string)$request->input('observaciones', ''));
         $oficioData = [
             'num_turno_sistema'      => strtoupper($numTurnoOficio),
             'fecha_captura'          => now()->format('Y-m-d'),
@@ -806,43 +806,52 @@ public function replySave(Request $request)
 
         DB::commit();
 
-        /* ========== 3) Subida a Alfresco (OPCIONAL) ========== */
+        /* ========== 3) Subida a Alfresco (OPCIONAL) + INSERTS EN 4 TABLAS ========== */
         try {
             $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
-            $hasAnexos = $request->hasFile('file_anexo_entrada') && is_array($request->file('file_anexo_entrada'));
+
+            // Manejo robusto de anexos (name="file_anexo_entrada[]")
+            $anexoInput = $request->file('file_anexo_entrada');
+            $hasAnexos  = is_array($anexoInput) && count(array_filter($anexoInput)) > 0;
 
             if ($hasOficio || $hasAnexos) {
                 $alfrescoC    = new \App\Http\Controllers\Cloud\AlfrescoC();
                 $cloudConfigM = new \App\Models\Letter\Cloud\CloudConfigM();
 
-                // 3.1) Intento “completo” (area, entrada, tipo) — por si algún día el modal los manda
+                // Intento “completo” (area, entrada, tipo)
                 $uidRow = $cloudConfigM->getUid(
                     $corr->id_cat_area,
-                    $request->input('id_cat_entrada'),      // puede venir null
-                    $request->input('id_cat_tipo_oficio')   // puede venir null
+                    $request->input('id_cat_entrada'),
+                    $request->input('id_cat_tipo_oficio')
                 );
 
-                // 3.2) Fallback: por área solamente (primer registro activo)
+                // Fallback: por área (primer registro activo con uid)
                 if (!$uidRow) {
                     $uidRow = DB::table('correspondencia.cat_config_cloud')
                         ->where('id_cat_area', $corr->id_cat_area)
                         ->where('estatus', true)
+                        ->whereNotNull('uid')
                         ->orderBy('id_cat_config_cloud')
                         ->first();
                 }
 
                 $folderId = $uidRow && !empty($uidRow->uid) ? $this->normalizeFolderId($uidRow->uid) : null;
 
-                \Log::info('[REPLY_UPLOAD] folderId', [
-                    'area'     => $corr->id_cat_area,
-                    'uid'      => $uidRow->uid ?? null,
-                    'folderId' => $folderId
+                // <<< AQUÍ LO FIJAMOS EN 1 COMO PEDISTE >>>
+                $tipoDocCloudBase = 1;
+
+                \Log::info('[REPLY_UPLOAD] folderId/tipoDocCloud', [
+                    'area'         => $corr->id_cat_area,
+                    'uid'          => $uidRow->uid ?? null,
+                    'folderId'     => $folderId,
+                    'tipoDocCloud' => $tipoDocCloudBase
                 ]);
 
                 if ($folderId) {
-                    // Oficio
+                    // ===== OFICIO (1 archivo) =====
                     if ($hasOficio) {
                         $file = $request->file('file_oficio_entrada');
+
                         \Log::info('[REPLY_UPLOAD] oficio file', [
                             'name' => $file->getClientOriginalName(),
                             'size' => $file->getSize(),
@@ -853,24 +862,54 @@ public function replySave(Request $request)
                         \Log::info('[REPLY_UPLOAD] oficio uploaded UID', ['uid' => $uploadedUid]);
 
                         if ($uploadedUid) {
+                            $nombre = 'OFICIO_' . $file->getClientOriginalName();
+
+                            // a) ctrl_correspondencia_oficio (modelo existente)
                             \App\Models\Letter\Letter\CloudOficiosM::create([
                                 'uid'                   => $uploadedUid,
-                                'nombre'                => 'OFICIO_' . $file->getClientOriginalName(),
+                                'nombre'                => $nombre,
                                 'estatus'               => true,
                                 'fecha_usuario'         => now(),
                                 'id_tbl_correspondencia'=> $idCorr,
                                 'id_usuario_sistema'    => Auth::user()->id,
-                                'id_cat_tipo_doc_cloud' => $request->input('id_cat_entrada'), // si no viene, quedará null
+                                'id_cat_tipo_doc_cloud' => $tipoDocCloudBase, // 1
                             ]);
+
+                            // b) ctrl_oficio_oficio (con FK id_tbl_oficio)
+                            try {
+                                DB::table('correspondencia.ctrl_oficio_oficio')->insert([
+                                    'uid'                  => $uploadedUid,
+                                    'nombre'               => $nombre,
+                                    'estatus'              => true,
+                                    'fecha_usuario'        => now(),
+                                    'id_tbl_oficio'        => $created->id_tbl_oficio,
+                                    'id_usuario_sistema'   => Auth::user()->id,
+                                    'id_cat_tipo_doc_cloud'=> $tipoDocCloudBase, // 1
+                                ]);
+                                \Log::info('[REPLY_UPLOAD] ctrl_oficio_oficio insert OK', [
+                                    'uid'    => $uploadedUid,
+                                    'oficio' => $created->id_tbl_oficio,
+                                    'tipo'   => $tipoDocCloudBase
+                                ]);
+                            } catch (\Throwable $e) {
+                                \Log::error('[REPLY_UPLOAD] ctrl_oficio_oficio insert ERROR: '.$e->getMessage(), [
+                                    'uid' => $uploadedUid,
+                                    'oficio' => $created->id_tbl_oficio
+                                ]);
+                            }
                         }
                     }
 
-                    // Anexos
+                    // ===== ANEXOS (0..n) =====
                     if ($hasAnexos) {
-                        foreach ($request->file('file_anexo_entrada') as $file) {
-                            if (!$file || !$file->isValid()) { continue; }
+                        foreach ($anexoInput as $idx => $file) {
+                            if (!$file instanceof \Illuminate\Http\UploadedFile || !$file->isValid()) {
+                                \Log::warning('[REPLY_UPLOAD] anexo inválido', ['idx'=>$idx]);
+                                continue;
+                            }
 
                             \Log::info('[REPLY_UPLOAD] anexo file', [
+                                'idx'  => $idx,
                                 'name' => $file->getClientOriginalName(),
                                 'size' => $file->getSize(),
                                 'mime' => $file->getMimeType()
@@ -880,15 +919,41 @@ public function replySave(Request $request)
                             \Log::info('[REPLY_UPLOAD] anexo uploaded UID', ['uid' => $uploadedUid]);
 
                             if ($uploadedUid) {
+                                $nombre = 'ANEXO_' . $file->getClientOriginalName();
+
+                                // a) ctrl_correspondencia_anexo (modelo existente)
                                 \App\Models\Letter\Letter\CloudAnexosM::create([
                                     'uid'                   => $uploadedUid,
-                                    'nombre'                => 'ANEXO_' . $file->getClientOriginalName(),
+                                    'nombre'                => $nombre,
                                     'estatus'               => true,
                                     'fecha_usuario'         => now(),
                                     'id_tbl_correspondencia'=> $idCorr,
                                     'id_usuario_sistema'    => Auth::user()->id,
-                                    'id_cat_tipo_doc_cloud' => $request->input('id_cat_entrada'),
+                                    'id_cat_tipo_doc_cloud' => $tipoDocCloudBase, // 1
                                 ]);
+
+                                // b) ctrl_oficio_anexo (con FK id_tbl_oficio)
+                                try {
+                                    DB::table('correspondencia.ctrl_oficio_anexo')->insert([
+                                        'uid'                  => $uploadedUid,
+                                        'nombre'               => $nombre,
+                                        'estatus'              => true,
+                                        'fecha_usuario'        => now(),
+                                        'id_tbl_oficio'        => $created->id_tbl_oficio,
+                                        'id_usuario_sistema'   => Auth::user()->id,
+                                        'id_cat_tipo_doc_cloud'=> $tipoDocCloudBase, // 1
+                                    ]);
+                                    \Log::info('[REPLY_UPLOAD] ctrl_oficio_anexo insert OK', [
+                                        'uid'    => $uploadedUid,
+                                        'oficio' => $created->id_tbl_oficio,
+                                        'tipo'   => $tipoDocCloudBase
+                                    ]);
+                                } catch (\Throwable $e) {
+                                    \Log::error('[REPLY_UPLOAD] ctrl_oficio_anexo insert ERROR: '.$e->getMessage(), [
+                                        'uid' => $uploadedUid,
+                                        'oficio' => $created->id_tbl_oficio
+                                    ]);
+                                }
                             }
                         }
                     }
@@ -900,7 +965,7 @@ public function replySave(Request $request)
             }
         } catch (\Throwable $e) {
             \Log::error('[REPLY_UPLOAD] error: ' . $e->getMessage(), ['ex' => $e]);
-            // no interrumpimos la respuesta de éxito del reply
+            // No interrumpimos la respuesta si la subida falla
         }
 
         return response()->json([
@@ -915,6 +980,8 @@ public function replySave(Request $request)
         return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
     }
 }
+
+
 
 
 
