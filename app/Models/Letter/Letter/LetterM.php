@@ -93,97 +93,93 @@ class LetterM extends Model
             ->first() ?? null;
     }
 
-public function list($iterator, $searchValue, $idUser, $pageSize = 5)
-{
-    $pageSize = max(1, (int)$pageSize);
+    public function list($iterator, $searchValue, $idUser, $pageSize = 5)
+    {
+        $pageSize = max(1, (int)$pageSize);
 
-    $query = DB::table('correspondencia.tbl_correspondencia')
-        ->select([
-            'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
-            DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
-            DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
-            DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
-            DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
-            DB::raw('UPPER(area_main.descripcion) AS area'),
-            DB::raw('UPPER(area1.descripcion) AS area_1'),
-            DB::raw('UPPER(area2.descripcion) AS area_2'),
-            DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
-            DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura::date, 'DD/MM/YYYY') AS fecha_captura"),
-            DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
-            // === ⬇️ UID del último oficio asociado (para mostrar icono + ojo) ===
-            DB::raw("(
-                SELECT co.uid
-                FROM correspondencia.ctrl_correspondencia_oficio co
-                WHERE co.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
-                ORDER BY co.fecha_usuario DESC
-                LIMIT 1
-            ) AS uid"),
-        ])
-        ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
-        // LEFT JOIN para que aparezcan registros con Área 3 NULL
-        ->leftJoin('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
-        ->leftJoin('correspondencia.cat_area AS area1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area1.id_cat_area')
-        ->leftJoin('correspondencia.cat_area AS area2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area2.id_cat_area')
-        ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
-        ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
-        ->groupBy(
-            'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
-            'correspondencia.tbl_correspondencia.num_documento',
-            'correspondencia.tbl_correspondencia.folio_gestion',
-            'correspondencia.cat_estatus.descripcion',
-            'correspondencia.cat_tramite.descripcion',
-            'area_main.descripcion',
-            'area1.descripcion',
-            'area2.descripcion',
-            'correspondencia.tbl_correspondencia.asunto',
-            'correspondencia.tbl_correspondencia.fecha_captura',
-            'correspondencia.tbl_correspondencia.fecha_fin'
-        );
+        $query = DB::table('correspondencia.tbl_correspondencia')
+            ->select([
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
+                DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
+                DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
+                DB::raw('UPPER(area_main.descripcion) AS area'),
+                DB::raw('UPPER(area1.descripcion) AS area_1'),
+                DB::raw('UPPER(area2.descripcion) AS area_2'),
+                DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura::date, 'DD/MM/YYYY') AS fecha_captura"),
+                DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
+                DB::raw("(
+                    SELECT co.uid
+                    FROM correspondencia.ctrl_correspondencia_oficio co
+                    WHERE co.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
+                    ORDER BY co.fecha_usuario DESC
+                    LIMIT 1
+                ) AS uid"),
+            ])
+            ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
+            ->leftJoin('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS area1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area1.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS area2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area2.id_cat_area')
+            ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+            ->groupBy(
+                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+                'correspondencia.tbl_correspondencia.num_documento',
+                'correspondencia.tbl_correspondencia.folio_gestion',
+                'correspondencia.cat_estatus.descripcion',
+                'correspondencia.cat_tramite.descripcion',
+                'area_main.descripcion',
+                'area1.descripcion',
+                'area2.descripcion',
+                'correspondencia.tbl_correspondencia.asunto',
+                'correspondencia.tbl_correspondencia.fecha_captura',
+                'correspondencia.tbl_correspondencia.fecha_fin'
+            );
 
-    if (!empty($idUser)) {
-        $query->where(function ($q) use ($idUser) {
-            $q->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-              ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_1', $idUser)
-              ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_2', $idUser)
-              ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-        });
+        if (!empty($idUser)) {
+            $query->where(function ($q) use ($idUser) {
+                $q->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                  ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_1', $idUser)
+                  ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_2', $idUser)
+                  ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+            });
 
-        $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+            $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+        }
+
+        if (!empty($searchValue)) {
+            $sv = '%'.trim($searchValue).'%';
+            $query->where(function ($q) use ($sv) {
+                $q->whereRaw("TRIM(correspondencia.tbl_correspondencia.num_documento) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.asunto) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.cat_estatus.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.folio_gestion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area_main.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area1.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area2.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') ILIKE ?", [$sv]);
+            });
+        }
+
+        if (!empty($idUser)) {
+            $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
+                                WHEN 1 THEN 1
+                                WHEN 2 THEN 2
+                                WHEN 3 THEN 3
+                                WHEN 4 THEN 4
+                                WHEN 5 THEN 5
+                                WHEN 6 THEN 6
+                                ELSE 7 END ASC');
+        } else {
+            $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
+        }
+
+        $query->offset($iterator)->limit($pageSize);
+        return $query->get();
     }
 
-    if (!empty($searchValue)) {
-        $sv = '%'.trim($searchValue).'%';
-        $query->where(function ($q) use ($sv) {
-            $q->whereRaw("TRIM(correspondencia.tbl_correspondencia.num_documento) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.asunto) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.cat_estatus.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.folio_gestion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area_main.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area1.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area2.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') ILIKE ?", [$sv]);
-        });
-    }
-
-    if (!empty($idUser)) {
-        $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
-                            WHEN 1 THEN 1
-                            WHEN 2 THEN 2
-                            WHEN 3 THEN 3
-                            WHEN 4 THEN 4
-                            WHEN 5 THEN 5
-                            WHEN 6 THEN 6
-                            ELSE 7 END ASC');
-    } else {
-        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
-    }
-
-    $query->offset($iterator)->limit($pageSize);
-    return $query->get();
-}
-
-
-    // ===== SELECTS ESPECIALES (ÁREA 1 y 2) =====
     public function getArea2OptionsByArea1(int $area1Id)
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
@@ -243,8 +239,6 @@ public function list($iterator, $searchValue, $idUser, $pageSize = 5)
             ->where('id_cat_area', $id)
             ->first();
     }
-
-    // ==== Otros métodos (únicos, reportes, etc.) ====
 
     public function validateNoDocument($id, $value)
     {
@@ -443,14 +437,59 @@ public function list($iterator, $searchValue, $idUser, $pageSize = 5)
             ->limit(20)
             ->get();
     }
+
+    /* =========================================================
+     *  NUEVO — helpers para "RETORNADO"
+     * ========================================================= */
+public function getReturnadoId(): int
+{
+    // Resuelve por nombre; si no encuentra, usa 8 como fallback
+    try {
+        $named = DB::table('correspondencia.cat_estatus')
+            ->whereRaw('UPPER(TRIM(descripcion)) = ?', ['RETURNADO'])
+            ->value('id_cat_estatus');
+        if ($named) {
+            return (int)$named;
+        }
+    } catch (\Throwable $e) {
+        // noop
+    }
+    return 8;
 }
 
+public function areaHasReturnado(?int $areaId): bool
+{
+    if (!$areaId) return false;
+    $returnadoId = $this->getReturnadoId();
 
+    return DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('id_cat_estatus', $returnadoId)
+        ->where('estatus', true)
+        ->exists();
+}
 
+public function areaOnlyReturnado(?int $areaId): bool
+{
+    if (!$areaId) return false;
+    $returnadoId = $this->getReturnadoId();
 
+    // Tiene Returnado activo...
+    $hasReturnado = DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('estatus', true)
+        ->where('id_cat_estatus', $returnadoId)
+        ->exists();
 
+    if (!$hasReturnado) return false;
 
+    // ...y NO tiene ningún otro estatus activo
+    $hasOther = DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('estatus', true)
+        ->where('id_cat_estatus', '<>', $returnadoId)
+        ->exists();
 
-
-
-
+    return !$hasOther;
+}
+}

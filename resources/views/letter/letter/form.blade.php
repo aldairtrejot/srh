@@ -5,41 +5,29 @@
 
   {{-- ======= ESTILOS LOCALES (solo presentación, sin alterar lógica) ======= --}}
   <style>
-    /* Contenedor de “marco” vacío para archivos */
     .rectangulo{
       width:120px; height:150px; border:1px solid #ddd; border-radius:8px;
       display:flex; align-items:center; justify-content:center;
       color:#9aa0a6; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.06);
       user-select:none; padding:6px;
     }
-
     .icon-row{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:100%; }
     .doc-icon{ font-size:42px; line-height:1; color:#9aa0a6; }
-
     .file-pills-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
     .file-pill{
       display:inline-block; padding:6px 10px; border:1px solid #e5e7eb; border-radius:16px;
       background:#f9fafb; font-size:.875rem; color:#374151; max-width:280px;
       white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
     }
-
     .upload-row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
     .upload-col{ flex:1 1 420px; min-width:300px; }
-
-    /* Botón “Cargar” usado en oficios/anexos (sustituye estilos inline) */
     .btn-upload{
       background:#fff; color:#f00; font-weight:normal; font-size:1rem;
       padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;
     }
     .btn-upload i{ margin-right:5px; }
-
-    /* Notas y alertas visuales */
-    .section-note{
-      font-size:1rem; font-weight:bold; color:#BC955C; font-style:italic; margin:0;
-    }
-    .warn-msg{
-      display:none; color:#c0392b; font-weight:600; margin-top:6px;
-    }
+    .section-note{ font-size:1rem; font-weight:bold; color:#BC955C; font-style:italic; margin:0; }
+    .warn-msg{ display:none; color:#c0392b; font-weight:600; margin-top:6px; }
   </style>
 
   <div class="main-panel">
@@ -68,6 +56,7 @@
                   window.LETTER = {
                     collectionAreaUrl: "{{ route('letter.collectionArea') }}",
                     includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
+                    isEdit: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
                     initials: {
                       area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
                       area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
@@ -230,6 +219,7 @@
                 {{-- ===== Documento de entrada ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                 <div class="row">
+                  {{-- *** ESTATUS vuelve a TU COMPONENTE (mantiene diseño) *** --}}
                   <x-template-form.template-form-select-required
                     :selectValue="$selectStatus" :selectEdit="$selectStatusEdit"
                     name="id_cat_estatus" tittle="Estatus"
@@ -318,45 +308,27 @@
                   <p class="card-description section-note">Documentos de Entrada</p>
 
                   <div class="upload-row">
-                    {{-- IZQUIERDA: OFICIO --}}
                     <div class="upload-col">
                       <div style="display:flex; align-items:center;">
                         <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
                         <label for="file_oficio_entrada" id="label_oficio_entrada" class="btn-upload">
                           <i class="fa fa-arrow-up" id="icon_oficio_entrada"></i> Cargar
                         </label>
-                        <input
-                          type="file"
-                          id="file_oficio_entrada"
-                          name="file_oficio_entrada"
-                          style="display:none;"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        >
+                        <input type="file" id="file_oficio_entrada" name="file_oficio_entrada" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                       </div>
-
                       <div id="container_oficio_entrada_vacio" class="rectangulo">Sin contenido</div>
                       <div id="container_oficio_entrada"></div>
-
                       <div id="msg_oficio_req" class="warn-msg">Hace falta cargar un oficio.</div>
                     </div>
 
-                    {{-- DERECHA: ANEXOS --}}
                     <div class="upload-col">
                       <div style="display:flex; align-items:center;">
                         <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
                         <label for="file_anexo_entrada" id="label_anexo_entrada" class="btn-upload">
                           <i class="fa fa-arrow-up" id="icon_anexo_entrada"></i> Cargar
                         </label>
-                        <input
-                          type="file"
-                          id="file_anexo_entrada"
-                          name="file_anexo_entrada[]"
-                          multiple
-                          style="display:none;"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        >
+                        <input type="file" id="file_anexo_entrada" name="file_anexo_entrada[]" multiple style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                       </div>
-
                       <div id="container_anexo_entrada_vacio" class="rectangulo">Sin contenido</div>
                       <div id="container_anexo_entrada"></div>
                     </div>

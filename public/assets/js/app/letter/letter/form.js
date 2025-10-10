@@ -1,15 +1,10 @@
 /* =========================================================
    form.js — LÓGICA GENERAL DEL FORMULARIO
-   - Inicialización UI (selectpicker, tooltips, placeholders)
-   - Fechas (límites y validación)
-   - Roles/permisos y bloqueo de campos
-   - Remitentes (uno o varios)
-   - Carga de archivos (UI) con IDs reales del Blade
    ========================================================= */
 
 var token = $('meta[name="csrf-token"]').attr('content');
 
-// ——— Helpers seguros para tooltips/placeholders ———
+/* ========================= Helpers UI ========================= */
 function safeTooltip(selector, text) {
   if (typeof tooltip === 'function') { tooltip(selector, text); }
 }
@@ -17,8 +12,11 @@ function refreshSelect(sel) {
   $(sel).attr('data-none-selected-text', 'SELECCIONE').selectpicker('refresh');
   if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 }
+function showDiv(id)  { $('#'+id).show(); }
+function hideDiv(id)  { $('#'+id).hide(); }
+function cleanSelect(sel) { $(sel).val('').selectpicker('refresh'); }
 
-// ——— Fechas ———
+/* ========================= Fechas ========================= */
 function setDateLimits() {
   var today   = new Date();
   var maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + 3);
@@ -32,6 +30,20 @@ function setDateLimits() {
     var val = $(id).val();
     if (val && (val < minStr || val > maxStr)) { $(id).val(''); }
   });
+}
+
+function showFieldError(selector, message) {
+  var $inp = $(selector);
+  if ($inp.next('.invalid-feedback').length === 0) {
+    $inp.after('<div class="invalid-feedback"></div>');
+  }
+  $inp.addClass('is-invalid');
+  $inp.next('.invalid-feedback').text(message).show();
+}
+function clearFieldError(selector) {
+  var $inp = $(selector);
+  $inp.removeClass('is-invalid');
+  $inp.next('.invalid-feedback').hide().text('');
 }
 
 function validarFechasAntesDeEnviar() {
@@ -65,21 +77,7 @@ function validarFechasAntesDeEnviar() {
   return ok;
 }
 
-function showFieldError(selector, message) {
-  var $inp = $(selector);
-  if ($inp.next('.invalid-feedback').length === 0) {
-    $inp.after('<div class="invalid-feedback"></div>');
-  }
-  $inp.addClass('is-invalid');
-  $inp.next('.invalid-feedback').text(message).show();
-}
-function clearFieldError(selector) {
-  var $inp = $(selector);
-  $inp.removeClass('is-invalid');
-  $inp.next('.invalid-feedback').hide().text('');
-}
-
-// ——— Remitentes ———
+/* ========================= Remitentes ========================= */
 function setCheckboxArea() {
   if ($('#rfc_remitente_bool').val()) {
     $('#idcheckboxTemplate').prop('checked', true);
@@ -120,7 +118,7 @@ function setValueOfMoreRem() {
   if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 }
 
-// ——— Roles / permisos ———
+/* ========================= Roles / permisos ========================= */
 function getRole() {
   var bool_user_role = $('#bool_user_role').val();
   var isPriv = !!(bool_user_role && bool_user_role.trim() !== '');
@@ -156,7 +154,7 @@ function validateEstatus() {
   $sel.selectpicker('refresh');
 }
 
-// ——— Encabezado dinámico (Año / Clave) ———
+/* ========================= Encabezado dinámico ========================= */
 function setData() {
   $('#_labFechaCaptura').text($('#fecha_captura').val());
   $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
@@ -179,7 +177,36 @@ function getData() {
   });
 }
 
-// ——— Carga de archivos (UI) ———
+/* ========================= Carga de archivos ========================= */
+function enableFile(inputSel, labelSel, iconSel) {
+  $(inputSel).prop('disabled', false);
+  $(labelSel).css({ opacity: 1, cursor: 'pointer' });
+  if (iconSel) { $(iconSel).removeClass('text-muted').css('opacity', 1); }
+}
+function resetFile(inputSel, labelSel, iconSel) {
+  $(inputSel).val('').prop('disabled', true);
+  $(labelSel).css({ opacity: .5, cursor: 'not-allowed' });
+  if (iconSel) { $(iconSel).addClass('text-muted').css('opacity', .5); }
+  // Limpia previews locales si usas contenedores
+  if (inputSel === '#file_oficio_entrada') {
+    $('#container_oficio_entrada').empty();
+    $('#container_oficio_entrada_vacio').show();
+    $('#msg_oficio_req').hide();
+  }
+  if (inputSel === '#file_anexo_entrada') {
+    $('#container_anexo_entrada').empty();
+    $('#container_anexo_entrada_vacio').show();
+  }
+  clearLocalFileError(inputSel);
+}
+function clearLocalFileError(inputSel) {
+  var id  = inputSel.replace('#', '');
+  var $er = $('#error_' + id);
+  if ($er.length) {
+    $er.hide().text('');
+    $(inputSel).removeClass('is-invalid');
+  }
+}
 function setCheckboxFiles() {
   var activo = !!$('#habilitar_carga').val();
   if (activo) {
@@ -194,33 +221,71 @@ function setCheckboxFiles() {
     $('#habilitar_carga_box').prop('checked', false);
   }
 }
-function enableFile(inputSel, labelSel, iconSel) {
-  $(inputSel).prop('disabled', false);
-  $(labelSel).css({ opacity: 1, cursor: 'pointer' });
-  if (iconSel) { $(iconSel).css('opacity', 1); }
+
+/* ========================= Modo RETURNADO ========================= */
+function setTurnarBlocked(on) {
+  var ids = [
+    '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+    '#id_usuario_area', '#id_usuario_enlace',
+    '#id_cat_unidad', '#id_cat_coordinacion',
+    '#id_cat_tramite', '#id_cat_clave'
+  ];
+  ids.forEach(function(sel){
+    $(sel).prop('disabled', !!on);
+    if ($.fn.selectpicker) { $(sel).selectpicker('refresh'); }
+  });
 }
-function resetFile(inputSel, labelSel, iconSel) {
-  $(inputSel).val('').prop('disabled', true);
-  $(labelSel).css({ opacity: 0.5, cursor: 'not-allowed' });
-  if (iconSel) { $(iconSel).css('opacity', 0.5); }
-  clearLocalFileError(inputSel);
+
+function applyReturnadoMode(on, idReturnado) {
+  var $st = $('#id_cat_estatus');
+  if (on) {
+    $st.val(String(idReturnado || 8));
+    $('#force_returnado').val('1');
+    setTurnarBlocked(true);
+    $st.prop('disabled', true);
+  } else {
+    $('#force_returnado').val('');
+    setTurnarBlocked(false);
+    $st.prop('disabled', false);
+  }
+  if ($.fn.selectpicker) { $st.selectpicker('refresh'); }
 }
-function clearLocalFileError(inputSel) {
-  var id  = inputSel.replace('#', '');
-  var $er = $('#error_' + id);
-  if ($er.length) {
-    $er.hide().text('');
-    $(inputSel).removeClass('is-invalid');
+
+async function checkReturnadoForArea(areaId) {
+  if (!areaId) { applyReturnadoMode(false); return; }
+  try {
+    var resp = await fetch(URL_DEFAULT.concat('/letter/collection/collectionArea'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': token,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        scope: 'returnado_flag_by_area',
+        id_cat_area: areaId
+      })
+    });
+    var json = await resp.json();
+    if (json && json.ok) {
+      applyReturnadoMode(!!json.hasReturnado, json.idReturnado);
+    } else {
+      applyReturnadoMode(false);
+    }
+  } catch(e) {
+    applyReturnadoMode(false);
   }
 }
 
-// ——— INIT único ———
+/* ========================= INIT ========================= */
 $(document).ready(function () {
   try { $('#carga_archivos, #carga_archivos_box, #id_checkbox_carga_archivos').off(); } catch(e) {}
 
+  // Selectpicker + placeholder
   $('select').attr('data-none-selected-text', 'SELECCIONE').selectpicker();
   if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 
+  // Estado inicial
   setData();
   getRole();
   setCheckboxArea();
@@ -267,4 +332,13 @@ $(document).ready(function () {
     $('#rfc_remitente_bool').val($(this).is(':checked') ? true : '');
     setCheckboxArea();
   });
+
+  // Verificación Returnado cuando cambia Área 3
+  $('#id_cat_area').on('change', function(){
+    checkReturnadoForArea(this.value || '');
+  });
+
+  // Precarga (edición): si ya viene un área seleccionada, verificar
+  var precargaArea3 = $('#id_cat_area').val();
+  if (precargaArea3) { checkReturnadoForArea(precargaArea3); }
 });

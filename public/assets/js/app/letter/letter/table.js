@@ -4,13 +4,14 @@
    - Paginación y búsqueda (sin tocar endpoints ni helpers existentes)
    - Columnas togglables: CRH (6), CRHTOD (7), Cloud (9), Respuesta (10)
    - Estado inicial: TODAS desmarcadas → ocultas hasta que el usuario elija
-   - Cloud: SOLO botón "ojo" (ver) + UUID debajo
+   - Cloud: SOLO botón "ojo" (ver)
    ========================================================================= */
 
 var iterator = 1;            // Se comienza el iterador en 1
 var emptyContent = false;    // Flag para paginadores
 var columnVisibility = {};   // Mapa de visibilidad por índice (base 0)
 var LOCAL_KEY = 'letter_table_column_visibility';
+var __serverColumnsAppliedOnce = false;
 
 /* =========================== INIT =========================== */
 $(document).ready(function () {
@@ -46,10 +47,6 @@ $(document).ready(function () {
 });
 
 /* ===================== VISIBILIDAD DE COLUMNAS ===================== */
-/**
- * Aplica la visibilidad a THEAD y TBODY según `columnVisibility`.
- * @param {boolean} headersOnly - si true, solo afecta encabezados (para evitar parpadeo antes del primer render)
- */
 function applySavedColumnVisibility(headersOnly) {
   for (var idx in columnVisibility) {
     if (!columnVisibility.hasOwnProperty(idx)) continue;
@@ -70,6 +67,25 @@ function applySavedColumnVisibility(headersOnly) {
 
     // Refleja estado en checkbox (si existe)
     $('.toggle-column[data-column="' + idx + '"]').prop('checked', visible);
+  }
+}
+
+/* Aplica columnas del server UNA SOLA VEZ y sólo si no hay preferencias guardadas */
+function applyServerColumnsOnce(serverVis) {
+  if (__serverColumnsAppliedOnce) return;
+  var hasLocal = false;
+  try { hasLocal = !!JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_){}
+  if (hasLocal) return;
+
+  if (serverVis && typeof serverVis === 'object') {
+    // Back mapea: {area:bool, crh:bool, crhtod:bool}
+    // En tabla: Área=5(índice 5), CRH=6(índice 6), CRHTOD=7(índice 7)
+    if (typeof serverVis.area   !== 'undefined') columnVisibility[5] = !!serverVis.area;
+    if (typeof serverVis.crh    !== 'undefined') columnVisibility[6] = !!serverVis.crh;
+    if (typeof serverVis.crhtod !== 'undefined') columnVisibility[7] = !!serverVis.crhtod;
+
+    applySavedColumnVisibility(false);
+    __serverColumnsAppliedOnce = true;
   }
 }
 
@@ -102,7 +118,6 @@ function bindToggleMenu() {
 }
 
 /* =========================== CLOUD =========================== */
-/** Abre el visor por UID conservando el endpoint actual */
 function seeDocumentUid(uid) {
   if (!uid) return;
   try {
@@ -113,7 +128,6 @@ function seeDocumentUid(uid) {
   }
 }
 
-/** Render: SOLO botón “ojo” + UUID debajo en monoespacio */
 function renderCloudCell(uid) {
   if (!uid) return '';
   return (
@@ -123,7 +137,6 @@ function renderCloudCell(uid) {
         'title="Ver oficio" onclick="seeDocumentUid(\'' + uid + '\')">' +
         '<i class="fa fa-eye" style="color:#fff; font-size:18px;"></i>' +
       '</button>' +
-      /*'<code style="font-size:11px; word-break:break-all; text-align:center; max-width:160px;">' + uid + '</code>' +*/
     '</div>'
   );
 }
@@ -157,14 +170,12 @@ function searchInit() {
           'CONCLUIDO': '#26874A',
           'VENCIDO': '#FF0000',
           'RECHAZADO': '#b30000',
-          'CONOCIMIENTO': '#6fc5f4ff'
+          'CONOCIMIENTO': '#6fc5f4ff',
+          'RETURNADO': '#872ebbff'
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
 
-        // UUID del último oficio (según backend)
         var uuid = object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
-
-        // Columna “Respuesta”: placeholder, sin lógica aún (puedes inyectar HTML desde backend en respuesta_html)
         var respuestaHtml = object.respuesta_html || '';
 
         var rowHTML =
@@ -235,7 +246,7 @@ function searchInit() {
               (object.asunto || '') +
             '</td>' +
 
-            // 9: Cloud → solo “ojo” + UUID debajo
+            // 9: Cloud → solo “ojo”
             '<td>' + renderCloudCell(uuid) + '</td>' +
 
             // 10: Respuesta (placeholder)
@@ -252,6 +263,9 @@ function searchInit() {
       emptyContent = true;
       setValue();
     }
+
+    // Aplica visibilidad del server si viene y no hay preferencias locales
+    applyServerColumnsOnce(response && response.columns_visibility);
 
     // Re-aplicar visibilidad tras render (ya con filas)
     applySavedColumnVisibility(false);
