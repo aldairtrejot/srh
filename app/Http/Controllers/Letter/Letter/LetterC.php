@@ -384,230 +384,200 @@ public function table(Request $request, LetterM $model)
     }
 
     /* ======================== SAVE (CREATE/UPDATE) ======================== */
-    public function save(Request $request)
-    {
-        $logC = new LogC();
-        $collectionRemitenteM   = new CollectionRemitenteM();
-        $letterM                = new LetterM();
-        $messagesC              = new MessagesC();
-        $collectionConsecutivoM = new CollectionConsecutivoM();
-        $collectionRolAreaM     = new CollectionRolAreaM();
-        $collectionLetterLogM   = new CollectionLetterLogM();
-        $now = Carbon::now();
+   public function save(Request $request)
+{
+    $logC = new LogC();
+    $collectionRemitenteM   = new CollectionRemitenteM();
+    $letterM                = new LetterM();
+    $messagesC              = new MessagesC();
+    $collectionConsecutivoM = new CollectionConsecutivoM();
+    $collectionRolAreaM     = new CollectionRolAreaM();
+    $collectionLetterLogM   = new CollectionLetterLogM();
+    $now = Carbon::now();
 
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
-        $ADM_TOTAL = config('custom_config.ADM_TOTAL');
-        $COR_TOTAL = config('custom_config.COR_TOTAL');
+    $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
+    $ADM_TOTAL = config('custom_config.ADM_TOTAL');
+    $COR_TOTAL = config('custom_config.COR_TOTAL');
 
-        $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0;
-        $es_doc_fisico      = isset($request->es_doc_fisico) ? 1 : 0;
-        $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0;
+    $rfc_remitente_bool = isset($request->rfc_remitente_bool) ? 1 : 0;
+    $es_doc_fisico      = isset($request->es_doc_fisico) ? 1 : 0;
+    $son_mas_remitentes = isset($request->son_mas_remitentes) ? 1 : 0;
 
-        // Alta rápida de remitente por RFC
-        if ($rfc_remitente_bool) {
-            $collectionRemitenteM::create([
-                'nombre'             => strtoupper($request->remitente_nombre),
-                'primer_apellido'    => strtoupper($request->remitente_apellido_paterno),
-                'segundo_apellido'   => strtoupper($request->remitente_apellido_materno),
-                'rfc'                => strtoupper($request->remitente_rfc),
-                'estatus'            => true,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario'      => $now,
-            ]);
-            $request->id_cat_remitente = $collectionRemitenteM->getRfc(
-                strtoupper($request->remitente_nombre),
-                strtoupper($request->remitente_apellido_paterno),
-                strtoupper($request->remitente_apellido_materno)
-            );
-        }
+    // Alta rápida de remitente por RFC
+    if ($rfc_remitente_bool) {
+        $collectionRemitenteM::create([
+            'nombre'             => strtoupper($request->remitente_nombre),
+            'primer_apellido'    => strtoupper($request->remitente_apellido_paterno),
+            'segundo_apellido'   => strtoupper($request->remitente_apellido_materno),
+            'rfc'                => strtoupper($request->remitente_rfc),
+            'estatus'            => true,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario'      => $now,
+        ]);
+        $request->id_cat_remitente = $collectionRemitenteM->getRfc(
+            strtoupper($request->remitente_nombre),
+            strtoupper($request->remitente_apellido_paterno),
+            strtoupper($request->remitente_apellido_materno)
+        );
+    }
 
-        /* ---------- CREATE ---------- */
-        if (!isset($request->id_tbl_correspondencia)) {
+    /* ---------- CREATE ---------- */
+    if (!isset($request->id_tbl_correspondencia)) {
 
-            // Oficio obligatorio al crear
-            if (
-                !$request->hasFile('file_oficio_entrada') ||
-                !$request->file('file_oficio_entrada')->isValid()
-            ) {
-                return redirect()->back()->withInput()->with([
-                    'value'   => 'error',
-                    'message' => 'Hace falta cargar un oficio (PDF/DOC/IMG).',
-                    'estatus' => 'true'
-                ]);
-            }
-
-            // Validar extensión
-            $allowed = ['pdf','doc','docx','jpg','jpeg','png'];
-            $ext = strtolower($request->file('file_oficio_entrada')->getClientOriginalExtension());
-            if (!in_array($ext, $allowed)) {
-                return redirect()->back()->withInput()->with([
-                    'value'   => 'error',
-                    'message' => 'El oficio debe ser PDF, DOC, DOCX, JPG o PNG.',
-                    'estatus' => 'true'
-                ]);
-            }
-
-            // Num. Turno (regla de máximo/iterator)
-            $numTurnoSistemaAux = $request->num_turno_sistema;
-            if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
-                $numTurnoSistemaAux = $this->procesarParametros(
-                    $request->num_turno_sistema,
-                    $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'))
-                );
-            }
-
-            // Normalización de fechas desde el formulario (acepta d/m/Y o Y-m-d)
-            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
-            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
-            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
-            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
-
-            $data = [
-                'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
-                'num_documento'        => strtoupper($request->num_documento),
-                'fecha_captura'        => $fechaCaptura,
-                'fecha_inicio'         => $fechaInicio,
-                'fecha_fin'            => $fechaFin,
-                'num_flojas'           => 1,
-                'num_tomos'            => 0,
-                'horas_respuesta'      => $request->horas_respuesta,
-                'id_cat_entidad'       => $request->id_cat_entidad,
-                'asunto'               => strtoupper($request->asunto),
-                'observaciones'        => strtoupper($request->observaciones),
-                'id_cat_area'          => $request->id_cat_area,
-                'id_usuario_area'      => $request->id_usuario_area,
-                'id_usuario_enlace'    => $request->id_usuario_enlace,
-                'id_cat_estatus'       => $request->id_cat_estatus,
-                'id_cat_remitente'     => $request->id_cat_remitente,
-                'id_cat_anio'          => $request->id_cat_anio,
-                'id_cat_tramite'       => $request->id_cat_tramite,
-                'id_cat_clave'         => $request->id_cat_clave,
-                'id_cat_unidad'        => $request->id_cat_unidad,
-                'id_cat_coordinacion'  => $request->id_cat_coordinacion,
-                'puesto_remitente'     => strtoupper($request->puesto_remitente),
-                'folio_gestion'        => strtoupper($request->folio_gestion),
-                'es_doc_fisico'        => $es_doc_fisico,
-                'son_mas_remitentes'   => $son_mas_remitentes,
-                'remitente'            => strtoupper($request->remitente),
-                'fecha_documento'      => $fechaDocumento,
-                'id_usuario_sistema'   => Auth::user()->id,
-                'fecha_usuario'        => $now,
-                'id_usuario_captura'   => Auth::user()->id,
-                'fecha_usuario_captura'=> $now,
-            ];
-
-            $created = LetterM::create($data);
-
-            $logC->add('correspondencia.tbl_correspondencia', $data);
-            $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
-
-            $collectionLetterLogM::create([
-                'estatus'                => 'AGREGAR',
-                'num_documento'          => strtoupper($request->num_documento),
-                'folio_gestion'          => strtoupper($request->folio_gestion),
-                'asunto'                 => strtoupper($request->asunto),
-                'observaciones'          => strtoupper($request->observaciones),
-                'id_cat_area'            => $request->id_cat_area,
-                'id_cat_estatus'         => $request->id_cat_estatus,
-                'id_tbl_correspondencia' => $created->id_tbl_correspondencia,
-                'fecha_usuario_captura'  => $now,
-                'id_usuario_captura'     => Auth::user()->id,
-            ]);
-
-            // Subir a Alfresco si vienen archivos
-            $this->uploadFilesIfAny($request, $created->id_tbl_correspondencia);
-
-            return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
-        }
-
-        /* ---------- UPDATE (total) ---------- */
-        if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
-
-            // Normalización de fechas
-            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
-            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
-            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
-            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
-
-            $data = [
-                'num_turno_sistema'    => strtoupper($request->num_turno_sistema),
-                'num_documento'        => strtoupper($request->num_documento),
-                'fecha_captura'        => $fechaCaptura,
-                'fecha_inicio'         => $fechaInicio,
-                'fecha_fin'            => $fechaFin,
-                'num_flojas'           => 1,
-                'num_tomos'            => 0,
-                'horas_respuesta'      => $request->horas_respuesta,
-                'id_cat_entidad'       => $request->id_cat_entidad,
-                'asunto'               => strtoupper($request->asunto),
-                'observaciones'        => strtoupper($request->observaciones),
-                'id_cat_area'          => $request->id_cat_area,
-                'id_cat_area_1'        => $request->id_cat_area_1,
-                'id_cat_area_2'        => $request->id_cat_area_2,
-                'id_usuario_area'      => $request->id_usuario_area,
-                'id_usuario_enlace'    => $request->id_usuario_enlace,
-                'id_cat_estatus'       => $request->id_cat_estatus,
-                'id_cat_remitente'     => $request->id_cat_remitente,
-                'id_cat_anio'          => $request->id_cat_anio,
-                'id_cat_tramite'       => $request->id_cat_tramite,
-                'id_cat_clave'         => $request->id_cat_clave,
-                'id_cat_unidad'        => $request->id_cat_unidad,
-                'id_cat_coordinacion'  => $request->id_cat_coordinacion,
-                'puesto_remitente'     => strtoupper($request->puesto_remitente),
-                'folio_gestion'        => strtoupper($request->folio_gestion),
-                'es_doc_fisico'        => $es_doc_fisico,
-                'son_mas_remitentes'   => $son_mas_remitentes,
-                'remitente'            => strtoupper($request->remitente),
-                'fecha_documento'      => $fechaDocumento,
-                'id_usuario_sistema'   => Auth::user()->id,
-                'fecha_usuario'        => $now,
-            ];
-
-            LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
-
-            // Guardado de archivos locales (oficio/anexos) si se cargan en edición
-            $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
-
-            // Subidas a Alfresco en edición (si vienen campos *_entrada)
-            $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
-
-            $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
-            $logC->edit('correspondencia.tbl_correspondencia', $data);
-
-            $collectionLetterLogM::create([
-                'estatus'                => 'MODIFICAR',
-                'num_documento'          => strtoupper($request->num_documento),
-                'folio_gestion'          => strtoupper($request->folio_gestion),
-                'asunto'                 => strtoupper($request->asunto),
-                'observaciones'          => strtoupper($request->observaciones),
-                'id_cat_area'            => $request->id_cat_area,
-                'id_cat_estatus'         => $request->id_cat_estatus,
-                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
-                'fecha_usuario_captura'  => $now,
-                'id_usuario_captura'     => Auth::user()->id,
-            ]);
-
-            return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
-        }
-
-        /* ---------- UPDATE restringido (estatus/observaciones) ---------- */
-        $collectionRolAreaM = new CollectionRolAreaM();
-        if (!in_array($request->id_cat_area, $collectionRolAreaM->getListArea())) {
-            return redirect()->back()->with([
+        // Oficio obligatorio al crear
+        if (
+            !$request->hasFile('file_oficio_entrada') ||
+            !$request->file('file_oficio_entrada')->isValid()
+        ) {
+            return redirect()->back()->withInput()->with([
                 'value'   => 'error',
-                'message' => 'No se han configurado permisos para este usuario.',
+                'message' => 'Hace falta cargar un oficio (PDF/DOC/IMG).',
                 'estatus' => 'true'
             ]);
         }
 
+        // Validar extensión
+        $allowed = ['pdf','doc','docx','jpg','jpeg','png'];
+        $ext = strtolower($request->file('file_oficio_entrada')->getClientOriginalExtension());
+        if (!in_array($ext, $allowed)) {
+            return redirect()->back()->withInput()->with([
+                'value'   => 'error',
+                'message' => 'El oficio debe ser PDF, DOC, DOCX, JPG o PNG.',
+                'estatus' => 'true'
+            ]);
+        }
+
+        // Num. Turno (regla de máximo/iterator)
+        $numTurnoSistemaAux = $request->num_turno_sistema;
+        if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
+            $numTurnoSistemaAux = $this->procesarParametros(
+                $request->num_turno_sistema,
+                $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'))
+            );
+        }
+
+        // Normalización de fechas desde el formulario (acepta d/m/Y o Y-m-d)
+        $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+        $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+        $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+        $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
+        // ================== FIX AQUÍ: agregar id_cat_area_1 y id_cat_area_2 ==================
         $data = [
-            'observaciones'      => strtoupper($request->observaciones),
-            'id_cat_estatus'     => $request->id_cat_estatus,
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario'      => $now,
+            'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
+            'num_documento'        => strtoupper($request->num_documento),
+            'fecha_captura'        => $fechaCaptura,
+            'fecha_inicio'         => $fechaInicio,
+            'fecha_fin'            => $fechaFin,
+            'num_flojas'           => 1,
+            'num_tomos'            => 0,
+            'horas_respuesta'      => $request->horas_respuesta,
+            'id_cat_entidad'       => $request->id_cat_entidad,
+            'asunto'               => strtoupper($request->asunto),
+            'observaciones'        => strtoupper($request->observaciones),
+
+            // Área 3 (ya lo tenías)
+            'id_cat_area'          => $request->id_cat_area,
+            // 👉 NUEVO: CRH / CRHTOD
+            'id_cat_area_1'        => $request->id_cat_area_1,   // CRH
+            'id_cat_area_2'        => $request->id_cat_area_2,   // CRHTOD
+
+            'id_usuario_area'      => $request->id_usuario_area,
+            'id_usuario_enlace'    => $request->id_usuario_enlace,
+            'id_cat_estatus'       => $request->id_cat_estatus,
+            'id_cat_remitente'     => $request->id_cat_remitente,
+            'id_cat_anio'          => $request->id_cat_anio,
+            'id_cat_tramite'       => $request->id_cat_tramite,
+            'id_cat_clave'         => $request->id_cat_clave,
+            'id_cat_unidad'        => $request->id_cat_unidad,
+            'id_cat_coordinacion'  => $request->id_cat_coordinacion,
+            'puesto_remitente'     => strtoupper($request->puesto_remitente),
+            'folio_gestion'        => strtoupper($request->folio_gestion),
+            'es_doc_fisico'        => $es_doc_fisico,
+            'son_mas_remitentes'   => $son_mas_remitentes,
+            'remitente'            => strtoupper($request->remitente),
+            'fecha_documento'      => $fechaDocumento,
+            'id_usuario_sistema'   => Auth::user()->id,
+            'fecha_usuario'        => $now,
+            'id_usuario_captura'   => Auth::user()->id,
+            'fecha_usuario_captura'=> $now,
+        ];
+        // =======================================================================================
+
+        $created = LetterM::create($data);
+
+        $logC->add('correspondencia.tbl_correspondencia', $data);
+        $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
+
+        $collectionLetterLogM::create([
+            'estatus'                => 'AGREGAR',
+            'num_documento'          => strtoupper($request->num_documento),
+            'folio_gestion'          => strtoupper($request->folio_gestion),
+            'asunto'                 => strtoupper($request->asunto),
+            'observaciones'          => strtoupper($request->observaciones),
+            'id_cat_area'            => $request->id_cat_area,
+            'id_cat_estatus'         => $request->id_cat_estatus,
+            'id_tbl_correspondencia' => $created->id_tbl_correspondencia,
+            'fecha_usuario_captura'  => $now,
+            'id_usuario_captura'     => Auth::user()->id,
+        ]);
+
+        // Subir a Alfresco si vienen archivos
+        $this->uploadFilesIfAny($request, $created->id_tbl_correspondencia);
+
+        return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
+    }
+
+    /* ---------- UPDATE (total) ---------- */
+    if (in_array($ADM_TOTAL, $roleUserArray) || in_array($COR_TOTAL, $roleUserArray)) {
+
+        // Normalización de fechas
+        $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+        $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+        $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+        $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
+        $data = [
+            'num_turno_sistema'    => strtoupper($request->num_turno_sistema),
+            'num_documento'        => strtoupper($request->num_documento),
+            'fecha_captura'        => $fechaCaptura,
+            'fecha_inicio'         => $fechaInicio,
+            'fecha_fin'            => $fechaFin,
+            'num_flojas'           => 1,
+            'num_tomos'            => 0,
+            'horas_respuesta'      => $request->horas_respuesta,
+            'id_cat_entidad'       => $request->id_cat_entidad,
+            'asunto'               => strtoupper($request->asunto),
+            'observaciones'        => strtoupper($request->observaciones),
+            'id_cat_area'          => $request->id_cat_area,
+            'id_cat_area_1'        => $request->id_cat_area_1,
+            'id_cat_area_2'        => $request->id_cat_area_2,
+            'id_usuario_area'      => $request->id_usuario_area,
+            'id_usuario_enlace'    => $request->id_usuario_enlace,
+            'id_cat_estatus'       => $request->id_cat_estatus,
+            'id_cat_remitente'     => $request->id_cat_remitente,
+            'id_cat_anio'          => $request->id_cat_anio,
+            'id_cat_tramite'       => $request->id_cat_tramite,
+            'id_cat_clave'         => $request->id_cat_clave,
+            'id_cat_unidad'        => $request->id_cat_unidad,
+            'id_cat_coordinacion'  => $request->id_cat_coordinacion,
+            'puesto_remitente'     => strtoupper($request->puesto_remitente),
+            'folio_gestion'        => strtoupper($request->folio_gestion),
+            'es_doc_fisico'        => $es_doc_fisico,
+            'son_mas_remitentes'   => $son_mas_remitentes,
+            'remitente'            => strtoupper($request->remitente),
+            'fecha_documento'      => $fechaDocumento,
+            'id_usuario_sistema'   => Auth::user()->id,
+            'fecha_usuario'        => $now,
         ];
 
         LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
+
+        // Guardado de archivos locales (oficio/anexos) si se cargan en edición
+        $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
+
+        // Subidas a Alfresco en edición (si vienen campos *_entrada)
+        $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
 
         $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
         $logC->edit('correspondencia.tbl_correspondencia', $data);
@@ -627,6 +597,43 @@ public function table(Request $request, LetterM $model)
 
         return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
     }
+
+    /* ---------- UPDATE restringido (estatus/observaciones) ---------- */
+    if (!in_array($request->id_cat_area, $collectionRolAreaM->getListArea())) {
+        return redirect()->back()->with([
+            'value'   => 'error',
+            'message' => 'No se han configurado permisos para este usuario.',
+            'estatus' => 'true'
+        ]);
+    }
+
+    $data = [
+        'observaciones'      => strtoupper($request->observaciones),
+        'id_cat_estatus'     => $request->id_cat_estatus,
+        'id_usuario_sistema' => Auth::user()->id,
+        'fecha_usuario'      => $now,
+    ];
+
+    LetterM::where('id_tbl_correspondencia', $request->id_tbl_correspondencia)->update($data);
+
+    $data['id_tbl_correspondencia'] = $request->id_tbl_correspondencia;
+    $logC->edit('correspondencia.tbl_correspondencia', $data);
+
+    $collectionLetterLogM::create([
+        'estatus'                => 'MODIFICAR',
+        'num_documento'          => strtoupper($request->num_documento),
+        'folio_gestion'          => strtoupper($request->folio_gestion),
+        'asunto'                 => strtoupper($request->asunto),
+        'observaciones'          => strtoupper($request->observaciones),
+        'id_cat_area'            => $request->id_cat_area,
+        'id_cat_estatus'         => $request->id_cat_estatus,
+        'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+        'fecha_usuario_captura'  => $now,
+        'id_usuario_captura'     => Auth::user()->id,
+    ]);
+
+    return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
+}
 
     /* ======================== ÁREAS DEPENDIENTES (AJAX) ======================== */
     public function collectionArea(Request $request)
