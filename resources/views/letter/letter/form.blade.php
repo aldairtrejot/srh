@@ -3,7 +3,7 @@
   <?php include(resource_path('views/config.php')); ?>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  {{-- ======= ESTILOS LOCALES (solo presentación, sin alterar lógica) ======= --}}
+  {{-- ======= ESTILOS ======= --}}
   <style>
     .rectangulo{
       width:120px; height:150px; border:1px solid #ddd; border-radius:8px;
@@ -30,6 +30,21 @@
     .warn-msg{ display:none; color:#c0392b; font-weight:600; margin-top:6px; }
   </style>
 
+  {{-- ======= CONFIG JS (única vez) ======= --}}
+  <script>
+    window.URL_DEFAULT = window.URL_DEFAULT || @json(url(''));
+    window.LETTER = {
+      collectionAreaUrl: "{{ route('letter.collectionArea') }}",
+      includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
+      isEdit: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
+      initials: {
+        area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
+        area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
+        area3: "{{ old('id_cat_area',   optional($item)->id_cat_area) }}"
+      }
+    };
+  </script>
+
   <div class="main-panel">
     <div class="content-wrapper">
       <div class="row">
@@ -51,25 +66,10 @@
               <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample" enctype="multipart/form-data">
                 @csrf
 
-                {{-- ===== Config accesible para JS ===== --}}
-                <script>
-                  window.LETTER = {
-                    collectionAreaUrl: "{{ route('letter.collectionArea') }}",
-                    includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
-                    isEdit: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
-                    initials: {
-                      area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
-                      area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
-                      area3: "{{ old('id_cat_area',   optional($item)->id_cat_area) }}"
-                    }
-                  };
-                </script>
-
-                {{-- ===== HIDDEN FIELDS ===== --}}
+                {{-- ===== HIDDEN ===== --}}
                 <x-template-form.template-form-input-hidden id="bool_user_role" name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
                 <x-template-form.template-form-input-hidden id="id_tbl_correspondencia" name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
-                {{-- fecha_captura: backend espera d/m/Y; formateo seguro aquí --}}
                 @php
                   $fc     = $item->fecha_captura ?? null;
                   try { $fc_fmt = \Carbon\Carbon::parse($fc)->format('d/m/Y'); }
@@ -88,10 +88,10 @@
                 <x-template-form.template-form-input-hidden name="id_cat_entrada" value="{{ config('custom_config.CONFIG_CLOUD_ENTRADA') }}" />
                 <x-template-form.template-form-input-hidden name="id_cat_tipo_oficio" value="{{ config('custom_config.CLOUD_ALFRESCO_CORRESPONDENCIA') }}" />
 
-                {{-- Estado del bloque de archivos (checkbox UI) --}}
+                {{-- Estado del bloque de archivos --}}
                 <x-template-form.template-form-input-hidden id="habilitar_carga" name="habilitar_carga" value="{{ old('habilitar_carga','') }}" />
 
-                {{-- ===== Encabezado de resumen ===== --}}
+                {{-- ===== Resumen ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
                 <div class="contenedor">
                   <div class="item">
@@ -219,7 +219,6 @@
                 {{-- ===== Documento de entrada ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                 <div class="row">
-                  {{-- *** ESTATUS vuelve a TU COMPONENTE (mantiene diseño) *** --}}
                   <x-template-form.template-form-select-required
                     :selectValue="$selectStatus" :selectEdit="$selectStatusEdit"
                     name="id_cat_estatus" tittle="Estatus"
@@ -345,30 +344,106 @@
   </div>
 </x-template-app.app-layout>
 
-<!-- === Quitar obligatoriedad de Área 2 y Área 3 sin tocar componentes === -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var $a2 = document.querySelector("select[name='id_cat_area_2']");
-    var $a3 = document.querySelector("select[name='id_cat_area']");
-    [$a2, $a3].forEach(function (el) {
-      if (!el) return;
-      el.required = false;
-      el.removeAttribute('required');
-      el.removeAttribute('aria-required');
-      el.removeAttribute('data-rule-required');
-      if (el.setCustomValidity) el.setCustomValidity('');
-      if (typeof $ !== 'undefined' && $.fn.selectpicker) {
-        $(el).prop('required', false).selectpicker('refresh');
-      }
-    });
-  });
-</script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- JS existentes --}}
-<script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/function/function.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/validate.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/form.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/select.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/deps-areas.js') }}"></script>
-<script src="{{ asset('assets/js/app/letter/letter/upload_form_cloud.js') }}"></script>
+<!-- Quitar obligatoriedad de Área 2 y Área 3 (sin tocar componentes) -->
+<!-- ====== RETURNADO: detección + aplicación (bloquea Turnar A y estatus) ====== -->
+<script>
+(function () {
+  const TOKEN = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
+  // Helpers
+  function spRefresh(sel){ if (window.$ && $.fn.selectpicker) $(sel).selectpicker('refresh'); }
+  function ensureReturnadoOption(id){
+    const $st = $('#id_cat_estatus'); const val = String(id || 8);
+    if ($st.find('option[value="'+val+'"]').length === 0){
+      $st.append('<option value="'+val+'">RETORNADO</option>');
+      spRefresh('#id_cat_estatus');
+    }
+  }
+  function setTurnarBlocked(on){
+    [
+      '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+      '#id_usuario_area', '#id_usuario_enlace',
+      '#id_cat_unidad', '#id_cat_coordinacion',
+      '#id_cat_tramite', '#id_cat_clave'
+    ].forEach(function (s) {
+      $(s).prop('disabled', !!on);
+      spRefresh(s);
+    });
+  }
+
+  // Aplicar / quitar modo Returnado
+  window.applyReturnadoMode = function (on, idReturnadoFromApi) {
+    const id = String(idReturnadoFromApi || window.__RETURNADO_ID__ || 8);
+    if (on) {
+      ensureReturnadoOption(id);
+      $('#id_cat_estatus').val(id).prop('disabled', true).trigger('change');
+      setTurnarBlocked(true);
+      window.__RETURNADO_LOCK__ = true;
+      window.__RETURNADO_ID__   = id;
+    } else {
+      $('#id_cat_estatus').prop('disabled', false);
+      setTurnarBlocked(false);
+      window.__RETURNADO_LOCK__ = false;
+    }
+  };
+
+  // Chequeo: bloquear si CUALQUIERA de A1/A2/A3 tiene vínculo con "RETORNADO"
+  async function checkReturnadoForAny(){
+    const a1 = Number($('#id_cat_area_1').val() || 0);
+    const a2 = Number($('#id_cat_area_2').val() || 0);
+    const a3 = Number($('#id_cat_area').val()   || 0);
+
+    const url = (window.LETTER && window.LETTER.collectionAreaUrl)
+              ? window.LETTER.collectionAreaUrl
+              : ((window.URL_DEFAULT || '') + '/letter/collection/collectionArea');
+
+    try{
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': TOKEN, 'Accept':'application/json' },
+        body: JSON.stringify({
+          scope: 'returnado_flag_by_any',
+          id_cat_area_1: a1,
+          id_cat_area_2: a2,
+          id_cat_area:   a3
+        })
+      });
+
+      const txt = await resp.text();
+      let json; try { json = JSON.parse(txt); } catch(e){ applyReturnadoMode(false); return; }
+
+      // 🔴 Clave del cambio: usar any_has_returnado (NO "only")
+      if (json && json.ok && json.any_has_returnado === true) {
+        applyReturnadoMode(true, json.idReturnado);
+      } else {
+        applyReturnadoMode(false, (json && json.idReturnado) || 8);
+      }
+    } catch(e){
+      applyReturnadoMode(false);
+    }
+  }
+
+  // Disparadores
+  $(document).on('change loaded.bs.select', '#id_cat_area_1, #id_cat_area_2, #id_cat_area', checkReturnadoForAny);
+  $(document).ready(checkReturnadoForAny);
+
+  // Forzar estatus correcto al enviar si está bloqueado
+  $('#myForm').on('submit', function(){
+    if (window.__RETURNADO_LOCK__ === true) {
+      $('#id_cat_estatus').val(String(window.__RETURNADO_ID__ || 8));
+    }
+  });
+
+  // Impedir cambio de estatus si está en modo Returnado
+  $('#id_cat_estatus').on('change loaded.bs.select', function(e){
+    if (window.__RETURNADO_LOCK__ === true) {
+      $(this).val(String(window.__RETURNADO_ID__ || 8)).prop('disabled', true);
+      spRefresh('#id_cat_estatus');
+      e.preventDefault(); e.stopImmediatePropagation();
+      return false;
+    }
+  });
+})();
+</script>

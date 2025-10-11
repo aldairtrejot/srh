@@ -79,266 +79,150 @@ function validarFechasAntesDeEnviar() {
 
 /* ========================= Remitentes ========================= */
 function setCheckboxArea() {
-  if ($('#rfc_remitente_bool').val()) {
-    $('#idcheckboxTemplate').prop('checked', true);
-    cleanSelect('#id_cat_remitente');
-    $('#id_cat_remitente').prop('disabled', true).selectpicker('refresh');
-    showDiv('mostrar_ocultar_template');
+  // “Agregar remitente” (alta por RFC)
+  var addRem = $('#rfc_remitente_bool').val() === '1' || $('#rfc_remitente_bool').val() === 'true';
+  $('#idcheckboxTemplate').prop('checked', !!addRem);
+
+  if (addRem) {
+    showDiv('mostrar_ocultar_template');    // formulario de nombre/apellidos/RFC
+    hideDiv('_hidden_select');              // oculta select de remitente
   } else {
-    $('#remitente_nombre, #remitente_apellido_paterno, #remitente_apellido_materno, #remitente_rfc').val('');
-    $('#id_cat_remitente').prop('disabled', false).selectpicker('refresh');
     hideDiv('mostrar_ocultar_template');
+    showDiv('_hidden_select');
   }
-  getRole();
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-}
 
-function setCheckbox() {
-  var es_doc_fisico      = $('#es_doc_fisico').val();
-  var son_mas_remitentes = $('#son_mas_remitentes').val();
-
-  $('#es_doc_fisico_box').prop('checked', !!es_doc_fisico);
-  $('#son_mas_remitentes_box').prop('checked', !!son_mas_remitentes);
-  setValueOfMoreRem();
-}
-
-function setValueOfMoreRem() {
-  var son_mas_remitentes = $('#son_mas_remitentes').val();
-  if (son_mas_remitentes) {
+  // “Varios remitentes”
+  var mas = $('#son_mas_remitentes').val() === '1' || $('#son_mas_remitentes').val() === 'true';
+  if (mas) {
+    showDiv('mostrar_ocultar_mas_remitentes');
     hideDiv('_hidden_select');
     hideDiv('mostrar_ocultar_template');
-    showDiv('mostrar_ocultar_mas_remitentes');
-    cleanSelect('#id_cat_remitente');
   } else {
-    showDiv('_hidden_select');
-    hideDiv('mostrar_ocultar_template');
     hideDiv('mostrar_ocultar_mas_remitentes');
-    $('#remitente').val('');
-  }
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-}
-
-/* ========================= Roles / permisos ========================= */
-function getRole() {
-  var bool_user_role = $('#bool_user_role').val();
-  var isPriv = !!(bool_user_role && bool_user_role.trim() !== '');
-  if (!isPriv) {
-    validateEstatus();
-    var toDisable = [
-      '#num_documento', '#num_copias', '#fecha_inicio', '#fecha_fin',
-      '#num_flojas', '#num_tomos', '#asunto', '#remitente_nombre',
-      '#remitente_apellido_paterno', '#remitente_apellido_materno', '#remitente_rfc',
-      '#horas_respuesta', '#puesto_remitente', '#id_cat_remitente', '#folio_gestion',
-      '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
-      '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-      '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-      '#id_cat_remitente', '#id_cat_entidad', '#id_cat_area_1', '#id_cat_area_2'
-    ];
-    toDisable.forEach(function (id) { $(id).prop('disabled', true); });
-    [
-      '#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-      '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-      '#id_cat_remitente', '#id_cat_area_1', '#id_cat_area_2'
-    ].forEach(refreshSelect);
   }
 }
 
-function validateEstatus() {
-  var $sel = $('#id_cat_estatus');
-  var val  = Number($sel.val());
-  if ([2,5,7].includes(val)) {
-    $sel.prop('disabled', true);
-  } else {
-    $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"]').remove();
-  }
-  $sel.selectpicker('refresh');
-}
+/* ========================= Archivos (UI) ========================= */
+function updateOficioUI() {
+  var $inp = $('#file_oficio_entrada');
+  var files = $inp[0].files;
+  var $empty = $('#container_oficio_entrada_vacio');
+  var $cont  = $('#container_oficio_entrada');
+  var $label = $('#label_oficio_entrada');
+  var $icon  = $('#icon_oficio_entrada');
 
-/* ========================= Encabezado dinámico ========================= */
-function setData() {
-  $('#_labFechaCaptura').text($('#fecha_captura').val());
-  $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
-  getData();
-}
-function getData() {
-  var id_cat_anio  = $('#id_cat_anio').val();
-  var id_cat_clave = $('#id_cat_clave_aux').val();
-  $.post(URL_DEFAULT + '/letter/collection/dataClave', {
-    id_cat_anio: id_cat_anio,
-    id_cat_clave: id_cat_clave,
-    _token: token
-  }, function (response) {
-    var item      = response.nameYear || {};
-    var itemClave = response.dataClave || {};
-    $('#_labAño').text(item.name || '');
-    $('#_labClave').text(itemClave._labClave || '');
-    $('#_labClaveCodigo').text(itemClave._labClaveCodigo || '');
-    $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion || '');
-  });
-}
-
-/* ========================= Carga de archivos ========================= */
-function enableFile(inputSel, labelSel, iconSel) {
-  $(inputSel).prop('disabled', false);
-  $(labelSel).css({ opacity: 1, cursor: 'pointer' });
-  if (iconSel) { $(iconSel).removeClass('text-muted').css('opacity', 1); }
-}
-function resetFile(inputSel, labelSel, iconSel) {
-  $(inputSel).val('').prop('disabled', true);
-  $(labelSel).css({ opacity: .5, cursor: 'not-allowed' });
-  if (iconSel) { $(iconSel).addClass('text-muted').css('opacity', .5); }
-  // Limpia previews locales si usas contenedores
-  if (inputSel === '#file_oficio_entrada') {
-    $('#container_oficio_entrada').empty();
-    $('#container_oficio_entrada_vacio').show();
+  $cont.empty();
+  if (files && files.length > 0) {
+    $empty.hide();
+    var f = files[0];
+    var pill = $('<div class="file-pills-row"><span class="file-pill"></span></div>');
+    pill.find('.file-pill').text(f.name + ' (' + Math.ceil(f.size/1024) + ' KB)');
+    $cont.append(pill);
+    $label.text('Cambiar');
+    $icon.removeClass('fa-arrow-up').addClass('fa-refresh');
     $('#msg_oficio_req').hide();
-  }
-  if (inputSel === '#file_anexo_entrada') {
-    $('#container_anexo_entrada').empty();
-    $('#container_anexo_entrada_vacio').show();
-  }
-  clearLocalFileError(inputSel);
-}
-function clearLocalFileError(inputSel) {
-  var id  = inputSel.replace('#', '');
-  var $er = $('#error_' + id);
-  if ($er.length) {
-    $er.hide().text('');
-    $(inputSel).removeClass('is-invalid');
-  }
-}
-function setCheckboxFiles() {
-  var activo = !!$('#habilitar_carga').val();
-  if (activo) {
-    showDiv('contenedor_carga_archivos');
-    enableFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
-    enableFile('#file_anexo_entrada',  '#label_anexo_entrada',  '#icon_anexo_entrada');
-    $('#habilitar_carga_box').prop('checked', true);
   } else {
-    hideDiv('contenedor_carga_archivos');
-    resetFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
-    resetFile('#file_anexo_entrada',  '#label_anexo_entrada',  '#icon_anexo_entrada');
-    $('#habilitar_carga_box').prop('checked', false);
+    $empty.show();
+    $label.text('Cargar');
+    $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
   }
 }
 
-/* ========================= Modo RETURNADO ========================= */
-function setTurnarBlocked(on) {
-  var ids = [
-    '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
-    '#id_usuario_area', '#id_usuario_enlace',
-    '#id_cat_unidad', '#id_cat_coordinacion',
-    '#id_cat_tramite', '#id_cat_clave'
-  ];
-  ids.forEach(function(sel){
-    $(sel).prop('disabled', !!on);
-    if ($.fn.selectpicker) { $(sel).selectpicker('refresh'); }
-  });
-}
+function updateAnexosUI() {
+  var $inp = $('#file_anexo_entrada');
+  var files = $inp[0].files || [];
+  var $empty = $('#container_anexo_entrada_vacio');
+  var $cont  = $('#container_anexo_entrada');
+  var $label = $('#label_anexo_entrada');
+  var $icon  = $('#icon_anexo_entrada');
 
-function applyReturnadoMode(on, idReturnado) {
-  var $st = $('#id_cat_estatus');
-  if (on) {
-    $st.val(String(idReturnado || 8));
-    $('#force_returnado').val('1');
-    setTurnarBlocked(true);
-    $st.prop('disabled', true);
-  } else {
-    $('#force_returnado').val('');
-    setTurnarBlocked(false);
-    $st.prop('disabled', false);
-  }
-  if ($.fn.selectpicker) { $st.selectpicker('refresh'); }
-}
-
-async function checkReturnadoForArea(areaId) {
-  if (!areaId) { applyReturnadoMode(false); return; }
-  try {
-    var resp = await fetch(URL_DEFAULT.concat('/letter/collection/collectionArea'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': token,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        scope: 'returnado_flag_by_area',
-        id_cat_area: areaId
-      })
+  $cont.empty();
+  if (files.length > 0) {
+    $empty.hide();
+    var row = $('<div class="file-pills-row"></div>');
+    Array.prototype.slice.call(files).forEach(function (f) {
+      row.append('<span class="file-pill" title="'+ f.name +'">' +
+                  f.name + ' (' + Math.ceil(f.size/1024) + ' KB)' +
+                 '</span>');
     });
-    var json = await resp.json();
-    if (json && json.ok) {
-      applyReturnadoMode(!!json.hasReturnado, json.idReturnado);
-    } else {
-      applyReturnadoMode(false);
-    }
-  } catch(e) {
-    applyReturnadoMode(false);
+    $cont.append(row);
+    $label.text('Cambiar');
+    $icon.removeClass('fa-arrow-up').addClass('fa-refresh');
+  } else {
+    $empty.show();
+    $label.text('Cargar');
+    $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
   }
 }
 
-/* ========================= INIT ========================= */
-$(document).ready(function () {
-  try { $('#carga_archivos, #carga_archivos_box, #id_checkbox_carga_archivos').off(); } catch(e) {}
-
-  // Selectpicker + placeholder
-  $('select').attr('data-none-selected-text', 'SELECCIONE').selectpicker();
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-
-  // Estado inicial
-  setData();
-  getRole();
-  setCheckboxArea();
-  setCheckbox();
+/* ========================= Ready ========================= */
+$(function () {
   setDateLimits();
-  setCheckboxFiles();
+  setCheckboxArea();
 
-  // Tooltips
-  safeTooltip('#id_checkbox_Template_tooltip_fisico','Marcar si el documento es físico');
-  safeTooltip('#id_checkbox_Template_tooltip','Añadir un remitente no registrado');
-  safeTooltip('#mas_remitentes','Añadir dos o más remitentes');
-  safeTooltip('#habilitar_carga_archivos','Mostrar/ocultar la sección de carga de Oficio y Anexos');
-
-  // Validación visual de fechas
-  $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
-    clearFieldError('#' + this.id);
-  });
-
-  // Validación en submit
-  $('#myForm').on('submit', function (e) {
-    if (!validarFechasAntesDeEnviar()) { e.preventDefault(); }
-  });
-
-  // Limpia error local al seleccionar archivos
-  ['#file_oficio_entrada', '#file_anexo_entrada'].forEach(function (id) {
-    $(id).on('change', function () { clearLocalFileError(id); });
-  });
-
-  // Sincroniza hidden ↔ checkbox de carga
-  $('#habilitar_carga_box').on('change', function () {
-    $('#habilitar_carga').val($(this).is(':checked') ? true : '');
-    setCheckboxFiles();
-  });
-
-  // Checkboxes principales
-  $('#es_doc_fisico_box').on('change', function () {
-    $('#es_doc_fisico').val($(this).is(':checked') ? true : '');
-  });
-  $('#son_mas_remitentes_box').on('change', function () {
-    $('#son_mas_remitentes').val($(this).is(':checked') ? true : '');
-    setCheckbox();
-  });
-  $('#idcheckboxTemplate').on('change', function () {
-    $('#rfc_remitente_bool').val($(this).is(':checked') ? true : '');
+  // Toggle “Agregar remitente”
+  $(document).on('change', '#idcheckboxTemplate', function () {
+    var checked = $(this).is(':checked');
+    $('#rfc_remitente_bool').val(checked ? '1' : '');
     setCheckboxArea();
+    if (checked) cleanSelect('#id_cat_remitente');
   });
 
-  // Verificación Returnado cuando cambia Área 3
-  $('#id_cat_area').on('change', function(){
-    checkReturnadoForArea(this.value || '');
+  // Toggle “Varios remitentes”
+  $(document).on('change', 'input[name="son_mas_remitentes_box"]', function () {
+    var checked = $(this).is(':checked');
+    $('#son_mas_remitentes').val(checked ? '1' : '');
+    setCheckboxArea();
+    if (checked) {
+      cleanSelect('#id_cat_remitente');
+      $('#rfc_remitente_bool').val('');
+      $('#idcheckboxTemplate').prop('checked', false);
+    }
   });
 
-  // Precarga (edición): si ya viene un área seleccionada, verificar
-  var precargaArea3 = $('#id_cat_area').val();
-  if (precargaArea3) { checkReturnadoForArea(precargaArea3); }
+  // Toggle “¿Adjuntar oficio y/o anexos?”
+  $(document).on('change', 'input[name="habilitar_carga_box"]', function () {
+    var checked = $(this).is(':checked');
+    $('#habilitar_carga').val(checked ? '1' : '');
+    if (checked) {
+      $('#contenedor_carga_archivos').slideDown(150);
+    } else {
+      $('#contenedor_carga_archivos').slideUp(150);
+      // limpiar UI
+      $('#file_oficio_entrada').val('');
+      $('#file_anexo_entrada').val('');
+      updateOficioUI();
+      updateAnexosUI();
+    }
+  });
+
+  // Files
+  $('#file_oficio_entrada').on('change', updateOficioUI);
+  $('#file_anexo_entrada').on('change', updateAnexosUI);
+
+  // Submit
+  $('#myForm').on('submit', function (e) {
+    if (!validarFechasAntesDeEnviar()) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return false;
+    }
+
+    // Si el usuario habilitó la carga de archivos, sugerimos que agregue el oficio
+    // (el backend ya lo valida como obligatorio en CREATE).
+    if ($('#habilitar_carga').val() === '1') {
+      var files = ($('#file_oficio_entrada')[0].files || []).length;
+      if (files === 0) {
+        $('#msg_oficio_req').show();
+        safeTooltip('#label_oficio_entrada', 'Hace falta cargar un oficio.');
+        // no bloqueamos el submit si está editando; solo aviso visual
+      }
+    }
+  });
+
+  // Placeholder y refresh de selects por si llegan vacíos
+  ['#id_cat_area_1','#id_cat_area_2','#id_cat_area','#id_cat_tramite',
+   '#id_usuario_area','#id_usuario_enlace','#id_cat_unidad','#id_cat_coordinacion',
+   '#id_cat_clave'
+  ].forEach(refreshSelect);
 });
