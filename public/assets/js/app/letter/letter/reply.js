@@ -11,8 +11,8 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   var MODAL_SEL     = '#replyModal';
 
   // Estado local
-  var replyOficioFile   = null;   // 1 archivo (opcional)
-  var replyAnexosFiles  = [];     // hasta 3 archivos (opcionales)
+  var replyOficioFile   = null;   // 1 archivo (REQUERIDO)
+  var replyAnexosFiles  = [];     // hasta 3 archivos (OPCIONALES)
 
   // ===== URL para POST (evita 404 en subcarpetas) =====
   function getReplyUrl(){
@@ -120,9 +120,10 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       if (!files.length){ renderReplyOficioPreview(); return; }
 
       var file = files[0];
-      var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(file.name);
+      // SOLO: pdf, jpg, jpeg, png
+      var allowed = /\.(pdf|jpg|jpeg|png)$/i.test(file.name);
       if (!allowed){
-        Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning');
+        Swal.fire('Archivo no permitido','warning');
         $(this).val(''); return;
       }
       var maxBytes = 10 * 1024 * 1024; // 10MB
@@ -153,11 +154,12 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
         if (next.length >= maxFiles) break;
 
         var f = files[i];
-        var allowed = /\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(f.name);
-        if (!allowed){ Swal.fire('Archivo no permitido','Formatos: PDF, DOC, DOCX, JPG, JPEG, PNG.','warning'); continue; }
+        // SOLO: pdf, jpg, jpeg, png
+        var allowed = /\.(pdf|jpg|jpeg|png)$/i.test(f.name);
+        if (!allowed){ Swal.fire('Archivo no permitido','warning'); continue; }
         if (f.size > maxBytes){ Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning'); continue; }
 
-        var dup = next.some(x => x.name === f.name && x.size === f.size);
+        var dup = next.some(function(x){ return x.name === f.name && x.size === f.size; });
         if (dup) continue;
 
         next.push(f);
@@ -174,15 +176,21 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     });
   }
 
-  // ===== POST con FormData (adjuntos opcionales) =====
+  // ===== POST con FormData =====
   async function postReplyForm(formPayload){
     const url = getReplyUrl();
     const fd  = new FormData();
 
-    Object.entries(formPayload).forEach(([k,v]) => fd.append(k, v));
+    Object.entries(formPayload).forEach(function(entry){
+      var k = entry[0], v = entry[1];
+      fd.append(k, v);
+    });
 
+    // Oficio (REQUERIDO) + Anexos (opcionales)
     if (replyOficioFile) fd.append('file_oficio_entrada', replyOficioFile);
-    if (replyAnexosFiles.length){ replyAnexosFiles.forEach(f => fd.append('file_anexo_entrada[]', f)); }
+    if (replyAnexosFiles.length){
+      replyAnexosFiles.forEach(function(f){ fd.append('file_anexo_entrada[]', f); });
+    }
 
     const res = await fetch(url, {
       method:'POST',
@@ -190,10 +198,10 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       body: fd
     });
     if (!res.ok) {
-      const txt = await res.text().catch(()=> '');
+      const txt = await res.text().catch(function(){ return ''; });
       throw new Error('HTTP '+res.status+' → '+txt);
     }
-    return res.json().catch(()=> ({}));
+    return res.json().catch(function(){ return {}; });
   }
 
   // ===== API global =====
@@ -229,19 +237,35 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
   window.confirmReplyModal = async function () {
     const id           = replyValById('reply_correspondencia_id');
-    const fechaInicio  = replyValByName('fecha_inicio');
-    const fechaFin     = replyValByName('fecha_fin');
+    const fechaInicio  = replyValByName('fecha_inicio'); // Fecha del documento (REQ)
+    const fechaFin     = replyValByName('fecha_fin');    // Fecha de captura (REQ)
     const observacion  = replyValById('reply_observacion');
     const asunto       = replyValById('reply_asunto');
 
     if(!id){
-      Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning'); return;
+      Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning'); 
+      return;
     }
     if(!fechaInicio){
-      Swal.fire('Campo requerido','Selecciona la fecha de inicio.','warning'); return;
+      Swal.fire('Campo requerido','Selecciona la fecha del documento.','warning'); 
+      return;
+    }
+    if(!fechaFin){
+      Swal.fire('Campo requerido','Selecciona la fecha de captura.','warning'); 
+      return;
     }
     if(!asunto.trim()){
-      Swal.fire('Campo requerido','Escribe el asunto.','warning'); return;
+      Swal.fire('Campo requerido','Escribe el asunto.','warning'); 
+      return;
+    }
+    if(!observacion.trim()){
+      Swal.fire('Campo requerido','Escribe las observaciones.','warning'); 
+      return;
+    }
+    if(!replyOficioFile){
+      $('#reply_msg_oficio_req').show();
+      Swal.fire('Archivo requerido','Debes cargar el Oficio (1).','warning');
+      return;
     }
 
     if (typeof mostrarBarra === 'function') mostrarBarra();
@@ -250,8 +274,8 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       const payload = {
         id_tbl_correspondencia: id,
         fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin || '',
-        observaciones: observacion,  // << clave que espera el backend
+        fecha_fin: fechaFin,
+        observaciones: observacion,  // requerido
         asunto: asunto
       };
 
@@ -260,7 +284,9 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       hideReplyModal(MODAL_SEL);
       Swal.fire('Éxito', (data && data.message) || 'Respuesta guardada correctamente.', 'success');
 
+      // Si tienes funciones para refrescar listado/tablas, llámalas aquí
       if (typeof searchInit === 'function') searchInit();
+      if (typeof getDataDocument === 'function') getDataDocument();
 
     }catch(err){
       console.error(err);
@@ -291,6 +317,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   });
 
 })();
+
 
 
 

@@ -1,8 +1,7 @@
-
 //Scrip que se ejecuta con el formulario, para funciones u herramientas extras
 //Ejecucion cuando carga el formulario
 var token = $('meta[name="csrf-token"]').attr('content'); //Token for form
-var id = $('#id').val();//Obtener elemento
+var id = $('#id').val();//Obtener elemento  (id_tbl_correspondencia)
 var id_cat_area = $('#id_cat_area').val(); //Se obtiene el id de la area
 var id_cat_entrada = $('#id_cat_entrada').val(); //Se obtiene el id de la area
 var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de la area
@@ -13,6 +12,7 @@ var es_anexo = 0;//Identifca si es un anexo
 $(document).ready(function () {
     getDataCloud();
     getDataDocument();
+    getReplySummary(); // <-- llena el panel "Documento de Respuesta"
 
     $(window).click(function (event) {//El evento se utiliza para oculatar el modal de eliminar cuando se da click en cualquier parte distinta
         if ($(event.target).is('#modalBackdrop')) {
@@ -47,7 +47,7 @@ function getDataDocument() {
         url: URL_DEFAULT.concat('/letter/cloud/anexos'),
         type: 'POST',
         data: {
-            id_tbl_oficio: id,
+            id_tbl_oficio: id, // <- tu endpoint actual lo espera así
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
@@ -60,8 +60,6 @@ function getDataDocument() {
 
             templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
             templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
-
-
         },
     });
 }
@@ -83,6 +81,50 @@ function getDataCloud() {
             $('#_fechaInicio').text(item.fecha_inicio); // establecer los valores
             $('#_fechaFin').text(item.fecha_fin); // establecer los valores
         },
+    });
+}
+
+// ========= NUEVO: Lado derecho (solo lectura) =========
+function getReplySummary() {
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/cloud/reply'),
+        type: 'POST',
+        data: {
+            id: id,      // id_tbl_correspondencia
+            _token: token
+        },
+        success: function (r) {
+            // Texto
+            $('#resp_asunto').text(r.asunto || '—');
+            $('#resp_observaciones').text(r.observaciones || '—');
+
+            // Oficio de salida
+            const ofiVacio = $('#container_oficio_salida_vacio');
+            const ofiCont  = $('#container_oficio_salida');
+            ofiCont.empty();
+            if (Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
+                ofiVacio.hide();
+                r.oficiosSalida.forEach(function (v) {
+                    // generateFileHTML(boolPermitirEliminar, template)
+                    ofiCont.append(generateFileHTML(false, v)); // false => sin botón de eliminar
+                });
+            } else {
+                ofiVacio.show();
+            }
+
+            // Anexos de salida
+            const aneVacio = $('#container_anexo_salida_vacio');
+            const aneCont  = $('#container_anexo_salida');
+            aneCont.empty();
+            if (Array.isArray(r.anexosSalida) && r.anexosSalida.length > 0) {
+                aneVacio.hide();
+                r.anexosSalida.forEach(function (v) {
+                    aneCont.append(generateFileHTML(false, v));
+                });
+            } else {
+                aneVacio.show();
+            }
+        }
     });
 }
 
@@ -115,12 +157,11 @@ function sendFile(file, id_entrada_salida, esOficio) {
         $.ajax({
             url: URL_DEFAULT.concat("/letter/cloud/upload"),
             type: 'POST',
-            data:
-                data, // Enviar directamente el FormData
-            processData: false,  // No procesar los datos, jQuery no debe intentar convertir los datos en una cadena
-            contentType: false,  // No establecer un Content-Type porque el navegador lo hará automáticamente
+            data: data, // Enviar directamente el FormData
+            processData: false,  // No procesar los datos
+            contentType: false,  // El navegador define el boundary
             headers: {
-                'X-CSRF-TOKEN': token  // Usar el token CSRF para proteger la solicitud
+                'X-CSRF-TOKEN': token
             },
             success: function (response) {
                 hideSpinner(); // Se oculta el spinner
@@ -129,7 +170,8 @@ function sendFile(file, id_entrada_salida, esOficio) {
                 } else {
                     notyfEM.error(response.messages);
                 }
-                getDataDocument(); //Lista de nuevo e directorio
+                getDataDocument(); //Lista de nuevo el directorio (entrada)
+                // getReplySummary(); // <- normalmente no cambia la respuesta, por eso lo dejo comentado
             },
         });
     }
@@ -165,6 +207,8 @@ function deleteDocumenServer(uid) {
                 notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
             getDataDocument(); //Lista de nuevo e directorio
+            // getReplySummary(); // <- si algún día permites borrar en el panel derecho, descomenta
         },
     });
 }
+

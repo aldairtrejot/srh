@@ -13,25 +13,25 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;       // ⬅️ NUEVO (para leer folio)
-use Illuminate\Support\Str;             // ⬅️ NUEVO (sanear nombre)
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Letter\Log\LogC;
 
 class CloudFileC extends Controller
 {
-    // Encabezado de la vista cloud
+    // ===== Encabezado de la vista cloud =====
     public function cloudData(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id; // id_tbl_correspondencia
         $item = new FileM();
         $value = $item->dataCloud($id);
+
         return response()->json([
-            'value' => $value,
+            'value'  => $value,
             'status' => true,
         ]);
     }
 
-    // Lista documentos/info para cloud
+    // ===== Lista documentos/info "Entrada" para cloud =====
     public function cloudAnexos(Request $request)
     {
         $cloudM = new CloudM();
@@ -66,6 +66,54 @@ class CloudFileC extends Controller
         ]);
     }
 
+    // ===== NUEVO: Datos para "Documento de Respuesta" (solo lectura) =====
+    public function cloudReply(Request $request)
+    {
+        $idCorr = (int) $request->id; // id_tbl_correspondencia
+
+        // Último oficio ligado a esta correspondencia
+        $oficio = DB::table('correspondencia.tbl_oficio')
+            ->where('id_tbl_correspondencia', $idCorr)
+            ->orderByDesc('id_tbl_oficio')
+            ->first();
+
+        if (!$oficio) {
+            return response()->json([
+                'asunto'         => null,
+                'observaciones'  => null,
+                'oficiosSalida'  => [],
+                'anexosSalida'   => [],
+            ]);
+        }
+
+        // Texto principal
+        $asunto = $oficio->asunto ?? null;
+        $observaciones = $oficio->observaciones ?? null;
+
+        // Archivos de salida (ligados a id_tbl_oficio)
+        $oficiosSalida = DB::table('correspondencia.ctrl_oficio_oficio')
+            ->select('uid', 'nombre')
+            ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
+            ->where('estatus', true)
+            ->orderBy('id_ctrl_oficio_oficio', 'asc')
+            ->get();
+
+        $anexosSalida = DB::table('correspondencia.ctrl_oficio_anexo')
+            ->select('uid', 'nombre')
+            ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
+            ->where('estatus', true)
+            ->orderBy('id_ctrl_oficio_anexo', 'asc')
+            ->get();
+
+        return response()->json([
+            'asunto'         => $asunto,
+            'observaciones'  => $observaciones,
+            'oficiosSalida'  => $oficiosSalida,
+            'anexosSalida'   => $anexosSalida,
+        ]);
+    }
+
+    // ===== Subida con nombre personalizado (folio + fechaHora sin guion bajo) =====
     public function upload(Request $request)
     {
         $logC         = new LogC();
@@ -76,76 +124,68 @@ class CloudFileC extends Controller
         $now          = Carbon::now();
 
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
+
             $file = $request->file('file');
 
-            // ===== Validaciones tamaño/extensiones
+            // Validaciones tamaño/extensiones
             $extensionArchivo = strtolower($file->getClientOriginalExtension());
             $tamanoArchivoMB  = $file->getSize() / 1024 / 1024;
 
-            $maxSize        = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
-            $fileExtension  = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+            $maxSize         = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+            $fileExtension   = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
             $validExtensions = array_map('strtolower', explode(',', $fileExtension->valor));
 
-            if ($tamanoArchivoMB > (float) $maxSize->valor) {
+            if ($tamanoArchivoMB > (float)$maxSize->valor) {
                 $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';
             } elseif (!in_array($extensionArchivo, $validExtensions, true)) {
-                $messages = 'Las extensiones permitidas son: ' . $fileExtension->valor;
+                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
             } else {
-                // ===== Carpeta destino en Alfresco
+
+                // Carpeta destino
                 $uid = $cloudConfigM->getUid(
                     $request->id_cat_area,
                     $request->id_entrada_salida,
                     $request->id_cat_tipo_oficio
                 );
 
-                // ===== Construir NOMBRE deseado:
-                // Prefijo
-                $prefix = ((int)$request->esOficio === 1) ? 'OFICIO_' : 'ANEXO_';
+                // === Nombre final: PREFIX + folio + _ + YYYYMMDDHHmmss + .ext ===
+                // folio_gestion desde correspondencia
+                $folioGestion = DB::table('correspondencia.tbl_correspondencia')
+                    ->where('id_tbl_correspondencia', (int)$request->id) // hidden "id" en la vista
+                    ->value('folio_gestion');
 
-                // 1) obtenemos el folio_gestion a partir del id_tbl_oficio (o id fallback)
-                $oficioId = $request->id_tbl_oficio ?? $request->id; // admite ambas llaves
-                $folioGestion = DB::table('correspondencia.tbl_oficio as o')
-                    ->join('correspondencia.tbl_correspondencia as c', 'c.id_tbl_correspondencia', '=', 'o.id_tbl_correspondencia')
-                    ->where('o.id_tbl_oficio', $oficioId)
-                    ->value('c.folio_gestion');
+                if (!$folioGestion) {
+                    $folioGestion = 'SIN_FOLIO';
+                }
 
-                if (!$folioGestion) { $folioGestion = 'SIN_FOLIO'; }
-
-                // 2) saneamos el folio para nombre de archivo (evitar caracteres raros)
-                //    (permitimos letras/numeros/guion-bajo/guion; reemplazamos lo demás por "_")
+                // limpiar folio para nombre
                 $folioSafe = preg_replace('/[^\w\-]+/u', '_', $folioGestion);
-
-                // 3) timestamp
-                $stamp = now()->format('Ymd_His');
-
-                // 4) nombre final
+                $prefix = ((int)$request->esOficio === 1) ? 'OFICIO_' : 'ANEXO_';
+                $stamp  = now()->format('YmdHis'); // << sin guion bajo entre fecha y hora
                 $fileName = "{$prefix}{$folioSafe}_{$stamp}.{$extensionArchivo}";
 
-                // ===== Subir a Alfresco con nombre personalizado
-                // IMPORTANTE: ver nota al final para que AlfrescoC::addFile acepte $fileName
-                $result = $alfrescoC->addFile($file, $uid->uid, (int)$request->esOficio, $fileName);
+                // Subir a Alfresco con nombre personalizado
+                $nodeId = $alfrescoC->addFile($file, $uid->uid, (int)$request->esOficio, $fileName);
 
-                if (!$result) {
-                    $messages = "Se produjo un error inesperado al intentar subir el archivo: " . $result;
+                if (!$nodeId) {
+                    $messages = "Se produjo un error inesperado al intentar subir el archivo.";
                 } else {
-                    // Guardados en tus tablas (esta versión mantiene las mismas tablas que ya usabas aquí)
                     if ((int)$request->esOficio === 1) {
                         $data = [
-                            'uid'                   => $result,
-                            'nombre'                => $fileName,           // <-- usamos el nombre nuevo
+                            'uid'                   => $nodeId,
+                            'nombre'                => $fileName,
                             'estatus'               => true,
                             'fecha_usuario'         => $now,
-                            'id_tbl_expediente'     => $request->id,        // (mismo campo que ya tenías en este controller)
+                            'id_tbl_expediente'     => $request->id, // se mantiene tu campo
                             'id_usuario_sistema'    => Auth::user()->id,
                             'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
                         ];
-
                         CloudOficiosM::create($data);
                         $logC->add('correspondencia.ctrl_expediente_oficio', $data);
                     } else {
                         $data = [
-                            'uid'                   => $result,
-                            'nombre'                => $fileName,           // <-- usamos el nombre nuevo
+                            'uid'                   => $nodeId,
+                            'nombre'                => $fileName,
                             'estatus'               => true,
                             'fecha_usuario'         => $now,
                             'id_tbl_expediente'     => $request->id,
@@ -167,19 +207,18 @@ class CloudFileC extends Controller
         ]);
     }
 
-    // Ocultar registros en la vista (delete lógico)
+    // ===== Ocultar registros en UI (eliminación lógica) =====
     public function delete(Request $request)
     {
         $logC = new LogC();
         $now = Carbon::now();
         $cloudAnexosM  = new CloudAnexosM();
         $cloudOficiosM = new CloudOficiosM();
-        $estatus = false;
 
         $data = [
-            'estatus'           => false,
-            'id_usuario_sistema'=> Auth::user()->id,
-            'fecha_usuario'     => $now,
+            'estatus'            => false,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario'      => $now,
         ];
 
         $resultAnexos = $cloudAnexosM::where('uid', $request->uid)->update($data);
@@ -193,12 +232,12 @@ class CloudFileC extends Controller
             $logC->edit('correspondencia.ctrl_expediente_oficio', $data);
         }
 
-        $estatus = ($resultAnexos > 0 || $resultOficio > 0);
-
         return response()->json([
-            'messages' => $estatus,
+            'messages' => ($resultAnexos > 0 || $resultOficio > 0),
             'status'   => true,
         ]);
     }
 }
+
+
 

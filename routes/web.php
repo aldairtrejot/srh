@@ -117,6 +117,7 @@ Route::post('/letter/collection/j3', [DashboardLetterC::class, 'setAreaJ3'])->na
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
 Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
 Route::post('/letter/reply/save', [LetterC::class, 'replySave'])->name('letter.reply.save')->middleware('auth');
+Route::post('/letter/cloud/reply', [CloudFileC::class, 'cloudReply'])->name('letter.cloud.reply')->middleware('auth');
 
 
 
