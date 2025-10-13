@@ -114,98 +114,100 @@ class CloudFileC extends Controller
     }
 
     // ===== Subida con nombre personalizado (folio + fechaHora sin guion bajo) =====
-    public function upload(Request $request)
-    {
-        $logC         = new LogC();
-        $alfrescoC    = new AlfrescoC();
-        $cloudConfigM = new CloudConfigM();
-        $status       = false;
-        $messages     = 'ok';
-        $now          = Carbon::now();
+public function upload(Request $request)
+{
+    $logC         = new LogC();
+    $alfrescoC    = new AlfrescoC();
+    $cloudConfigM = new CloudConfigM();
+    $status       = false;
+    $messages     = 'ok';
+    $now          = Carbon::now();
 
-        if ($request->hasFile('file') && $request->file('file')->isValid()) {
+    if ($request->hasFile('file') && $request->file('file')->isValid()) {
 
-            $file = $request->file('file');
+        $file = $request->file('file');
 
-            // Validaciones tamaño/extensiones
-            $extensionArchivo = strtolower($file->getClientOriginalExtension());
-            $tamanoArchivoMB  = $file->getSize() / 1024 / 1024;
+        // Validaciones tamaño/extensiones
+        $extensionArchivo = strtolower($file->getClientOriginalExtension());
+        $tamanoArchivoMB  = $file->getSize() / 1024 / 1024;
 
-            $maxSize         = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
-            $fileExtension   = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
-            $validExtensions = array_map('strtolower', explode(',', $fileExtension->valor));
+        $maxSize         = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+        $fileExtension   = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+        $validExtensions = array_map('strtolower', explode(',', $fileExtension->valor));
 
-            if ($tamanoArchivoMB > (float)$maxSize->valor) {
-                $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';
-            } elseif (!in_array($extensionArchivo, $validExtensions, true)) {
-                $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+        if ($tamanoArchivoMB > (float)$maxSize->valor) {
+            $messages = 'Tamaño máximo de archivo admitido: ' . $maxSize->valor . ' MB';
+        } elseif (!in_array($extensionArchivo, $validExtensions, true)) {
+            $messages = 'Las extensiones permitidas son : ' . $fileExtension->valor;
+        } else {
+
+            // Carpeta destino
+            $uid = $cloudConfigM->getUid(
+                $request->id_cat_area,
+                $request->id_entrada_salida,
+                $request->id_cat_tipo_oficio
+            );
+
+            // folio_gestion desde correspondencia
+            $folioGestion = DB::table('correspondencia.tbl_correspondencia')
+                ->where('id_tbl_correspondencia', (int)$request->id) // hidden "id" en la vista
+                ->value('folio_gestion');
+
+            if (!$folioGestion) {
+                $folioGestion = 'SIN_FOLIO';
+            }
+
+            // limpiar folio para nombre
+            $folioSafe = preg_replace('/[^\w\-]+/u', '_', $folioGestion);
+            $prefix    = ((int)$request->esOficio === 1) ? 'OFICIO_' : 'ANEXO_';
+            $stamp     = now()->format('YmdHis'); // << sin guion bajo entre fecha y hora
+
+            // *** ENTRADA => sufijo E ***
+            $fileName = "{$prefix}{$folioSafe}_{$stamp}E.{$extensionArchivo}";
+
+            // Subir a Alfresco con nombre personalizado
+            $nodeId = $alfrescoC->addFile($file, $uid->uid, (int)$request->esOficio, $fileName);
+
+            if (!$nodeId) {
+                $messages = "Se produjo un error inesperado al intentar subir el archivo.";
             } else {
-
-                // Carpeta destino
-                $uid = $cloudConfigM->getUid(
-                    $request->id_cat_area,
-                    $request->id_entrada_salida,
-                    $request->id_cat_tipo_oficio
-                );
-
-                // === Nombre final: PREFIX + folio + _ + YYYYMMDDHHmmss + .ext ===
-                // folio_gestion desde correspondencia
-                $folioGestion = DB::table('correspondencia.tbl_correspondencia')
-                    ->where('id_tbl_correspondencia', (int)$request->id) // hidden "id" en la vista
-                    ->value('folio_gestion');
-
-                if (!$folioGestion) {
-                    $folioGestion = 'SIN_FOLIO';
-                }
-
-                // limpiar folio para nombre
-                $folioSafe = preg_replace('/[^\w\-]+/u', '_', $folioGestion);
-                $prefix = ((int)$request->esOficio === 1) ? 'OFICIO_' : 'ANEXO_';
-                $stamp  = now()->format('YmdHis'); // << sin guion bajo entre fecha y hora
-                $fileName = "{$prefix}{$folioSafe}_{$stamp}.{$extensionArchivo}";
-
-                // Subir a Alfresco con nombre personalizado
-                $nodeId = $alfrescoC->addFile($file, $uid->uid, (int)$request->esOficio, $fileName);
-
-                if (!$nodeId) {
-                    $messages = "Se produjo un error inesperado al intentar subir el archivo.";
+                if ((int)$request->esOficio === 1) {
+                    $data = [
+                        'uid'                   => $nodeId,
+                        'nombre'                => $fileName,
+                        'estatus'               => true,
+                        'fecha_usuario'         => $now,
+                        'id_tbl_expediente'     => $request->id,
+                        'id_usuario_sistema'    => Auth::user()->id,
+                        'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
+                    ];
+                    CloudOficiosM::create($data);
+                    $logC->add('correspondencia.ctrl_expediente_oficio', $data);
                 } else {
-                    if ((int)$request->esOficio === 1) {
-                        $data = [
-                            'uid'                   => $nodeId,
-                            'nombre'                => $fileName,
-                            'estatus'               => true,
-                            'fecha_usuario'         => $now,
-                            'id_tbl_expediente'     => $request->id, // se mantiene tu campo
-                            'id_usuario_sistema'    => Auth::user()->id,
-                            'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ];
-                        CloudOficiosM::create($data);
-                        $logC->add('correspondencia.ctrl_expediente_oficio', $data);
-                    } else {
-                        $data = [
-                            'uid'                   => $nodeId,
-                            'nombre'                => $fileName,
-                            'estatus'               => true,
-                            'fecha_usuario'         => $now,
-                            'id_tbl_expediente'     => $request->id,
-                            'id_usuario_sistema'    => Auth::user()->id,
-                            'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
-                        ];
-                        CloudAnexosM::create($data);
-                        $logC->add('correspondencia.ctrl_expediente_anexo', $data);
-                    }
-
-                    $status = true;
+                    $data = [
+                        'uid'                   => $nodeId,
+                        'nombre'                => $fileName,
+                        'estatus'               => true,
+                        'fecha_usuario'         => $now,
+                        'id_tbl_expediente'     => $request->id,
+                        'id_usuario_sistema'    => Auth::user()->id,
+                        'id_cat_tipo_doc_cloud' => $request->id_entrada_salida,
+                    ];
+                    CloudAnexosM::create($data);
+                    $logC->add('correspondencia.ctrl_expediente_anexo', $data);
                 }
+
+                $status = true;
             }
         }
-
-        return response()->json([
-            'messages' => $messages,
-            'status'   => $status,
-        ]);
     }
+
+    return response()->json([
+        'messages' => $messages,
+        'status'   => $status,
+    ]);
+}
+
 
     // ===== Ocultar registros en UI (eliminación lógica) =====
     public function delete(Request $request)

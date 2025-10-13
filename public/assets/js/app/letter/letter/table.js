@@ -4,7 +4,8 @@
    - Paginación y búsqueda (sin tocar endpoints ni helpers existentes)
    - Columnas togglables: CRH (6), CRHTOD (7), Cloud (9), Respuesta (10)
    - Estado inicial: TODAS desmarcadas → ocultas hasta que el usuario elija
-   - Cloud: SOLO botón "ojo" (ver) + UUID debajo
+   - Cloud: SOLO botón "ojo" (ver)
+   - Respuesta: botón “responder” (columna 10) + opción en el menú dropdown
    ========================================================================= */
 
 var iterator = 1;            // Se comienza el iterador en 1
@@ -113,7 +114,7 @@ function seeDocumentUid(uid) {
   }
 }
 
-/** Render: SOLO botón “ojo” + UUID debajo en monoespacio */
+/** Render: SOLO botón “ojo” */
 function renderCloudCell(uid) {
   if (!uid) return '';
   return (
@@ -123,7 +124,21 @@ function renderCloudCell(uid) {
         'title="Ver oficio" onclick="seeDocumentUid(\'' + uid + '\')">' +
         '<i class="fa fa-eye" style="color:#fff; font-size:18px;"></i>' +
       '</button>' +
-      /*'<code style="font-size:11px; word-break:break-all; text-align:center; max-width:160px;">' + uid + '</code>' +*/
+    '</div>'
+  );
+}
+
+/* =========================== RESPUESTA =========================== */
+/** Crea el botón de “responder” (columna 10) que abre tu modal (openReply) */
+function renderReplyCell(id, folioGestion) {
+  var folioSafe = String(folioGestion || '').replace(/'/g, "\\'");
+  return (
+    '<div style="display:flex; justify-content:center; align-items:center;">' +
+      '<button type="button" class="custom-button-x custom-button" ' +
+        'style="background-color:#10312b; padding:10px; border-radius:50%; border:none; cursor:pointer;" ' +
+        'title="Responder" onclick="openReply(' + id + ', \'' + folioSafe + '\')">' +
+        '<i class="fa fa-reply" style="color:#fff; font-size:18px;"></i>' +
+      '</button>' +
     '</div>'
   );
 }
@@ -164,8 +179,11 @@ function searchInit() {
         // UUID del último oficio (según backend)
         var uuid = object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
 
-        // Columna “Respuesta”: placeholder, sin lógica aún (puedes inyectar HTML desde backend en respuesta_html)
-        var respuestaHtml = object.respuesta_html || '';
+        // HTML del botón “Responder” (columna 10)
+        var respuestaHtml = renderReplyCell(object.id, object.folio_gestion);
+
+        // Escapar folio para usar en onclick del dropdown
+        var folioSafe = String(object.folio_gestion || '').replace(/'/g, "\\'");
 
         var rowHTML =
           '<tr>' +
@@ -194,6 +212,18 @@ function searchInit() {
                       '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
                     '</span>Reporte' +
                   '</a>' +
+
+                  // ===== AQUI va el botón "Responder" en el dropdown =====
+                  '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
+                    '<span style="background:#2986cc" class="icon-container-template">' +
+                      '<div style="text-align: center;">' +
+                        '<i class="fa fa-retweet item-icon-menu"></i>' +
+                      '</div>' +
+                    '</span>' +
+                    'Responder' +
+                  '</button>' +
+                  // ========================================================
+
                   '<button class="dropdown-item" onclick="openReturnado(' + object.id + ', \'' + (String(object.folio_gestion || '').replace(/'/g, "\\'")) + '\')">' +
                     '<span style="background:#2a848c" class="icon-container-template">' +
                       '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
@@ -235,11 +265,11 @@ function searchInit() {
               (object.asunto || '') +
             '</td>' +
 
-            // 9: Cloud → solo “ojo” + UUID debajo
+            // 9: Cloud → solo “ojo”
             '<td>' + renderCloudCell(uuid) + '</td>' +
 
-            // 10: Respuesta (placeholder)
-            '<td>' + (respuestaHtml || '') + '</td>' +
+            // 10: Respuesta → botón “responder” (columna)
+            '<td>' + respuestaHtml + '</td>' +
           '</tr>';
 
         tbody.append(rowHTML);
@@ -281,3 +311,4 @@ function searchValue() {
   setValue();
   searchInit();
 }
+
