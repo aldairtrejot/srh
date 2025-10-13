@@ -93,7 +93,7 @@ class LetterM extends Model
             ->first() ?? null;
     }
 
-public function list($iterator, $searchValue, $idUser, $pageSize = 5)
+  public function list($iterator, $searchValue, $idUser, $pageSize = 5)
 {
     $pageSize = max(1, (int)$pageSize);
 
@@ -110,17 +110,34 @@ public function list($iterator, $searchValue, $idUser, $pageSize = 5)
             DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
             DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura::date, 'DD/MM/YYYY') AS fecha_captura"),
             DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
-            // === ⬇️ UID del último oficio asociado (para mostrar icono + ojo) ===
+
+            // UID del último oficio de ENTRADA (para columna Cloud)
             DB::raw("(
                 SELECT co.uid
                 FROM correspondencia.ctrl_correspondencia_oficio co
                 WHERE co.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
+                      AND co.estatus = TRUE
                 ORDER BY co.fecha_usuario DESC
                 LIMIT 1
-            ) AS uid"),
+            ) AS uid_entrada"),
+
+            // UID del último oficio de RESPUESTA (para columna Respuesta)
+            DB::raw("(
+                SELECT oof.uid
+                FROM correspondencia.ctrl_oficio_oficio oof
+                WHERE oof.id_tbl_oficio = (
+                    SELECT ofi.id_tbl_oficio
+                    FROM correspondencia.tbl_oficio ofi
+                    WHERE ofi.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
+                    ORDER BY ofi.id_tbl_oficio DESC
+                    LIMIT 1
+                )
+                AND oof.estatus = TRUE
+                ORDER BY oof.id_ctrl_oficio_oficio DESC
+                LIMIT 1
+            ) AS uid_respuesta"),
         ])
         ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
-        // LEFT JOIN para que aparezcan registros con Área 3 NULL
         ->leftJoin('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
         ->leftJoin('correspondencia.cat_area AS area1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area1.id_cat_area')
         ->leftJoin('correspondencia.cat_area AS area2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area2.id_cat_area')
