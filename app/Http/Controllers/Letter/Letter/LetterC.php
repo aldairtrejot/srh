@@ -704,15 +704,19 @@ public function collectionArea(Request $request)
                 'clave'         => '-',
             ]);
         }
+if ($scope === 'returnado_flag_by_area') {
+    $areaId = (int) $request->input('id_cat_area');
+    $m = new LetterM();
+    $returnadoId   = $m->getReturnadoId();
+    $hasReturnado  = $m->areaHasReturnado($areaId);
+    $onlyReturnado = $m->areaOnlyReturnado($areaId); // <- NUEVO
 
-        if ($scope === 'returnado_flag_by_area') {
-            $areaId = (int) $request->input('id_cat_area');
-            $m = new LetterM();
-            return response()->json([
-                'ok'           => true,
-                'hasReturnado' => $m->areaHasReturnado($areaId),
-                'idReturnado'  => $m->getReturnadoId(),
-            ]);
+    return response()->json([
+        'ok'            => true,
+        'hasReturnado'  => $hasReturnado,
+        'onlyReturnado' => $onlyReturnado,           // <- NUEVO
+        'idReturnado'   => $returnadoId,
+    ]);
         }
 
         if ($scope === 'returnado_flag_by_any') {

@@ -492,4 +492,16 @@ public function areaOnlyReturnado(?int $areaId): bool
 
     return !$hasOther;
 }
+
+public function getTurnadoId(): int
+{
+    try {
+        $row = \DB::table('correspondencia.cat_estatus')
+            ->whereRaw('UPPER(descripcion) = ?', ['TURNADO'])
+            ->select('id_cat_estatus as id')->first();
+        return $row ? (int)$row->id : 6; // fallback si no existe
+    } catch (\Throwable $e) {
+        return 6;
+    }
+}
 }

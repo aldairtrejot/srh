@@ -1,9 +1,19 @@
-<!-- resources/views/letter/returnedmodal.blade.php -->
-<!-- MODAL RETURNADO (clon visual del de Copia) -->
+{{-- resources/views/letter/returnedmodal.blade.php --}}
 
 <style>
-  .table th, .table td { font-size: 15px; padding: 5px 10px; height: 45px; }
-  .table thead th { font-size: 16px; height: 35px; }
+  /* Apariencia consistente con el sistema */
+  .modal-turnarA { padding-top: 2px; }
+  .modal-turnarA .title { font-weight: 700; color:#10312b; margin-bottom: 10px; font-size: 22px; }
+  .modal-turnarA .subtitle { font-weight: 700; color:#0f2b26; margin: 6px 0 4px; text-align:center }
+  .modal-turnarA .note { text-align:center; margin-bottom: 8px; font-size: 14px; }
+  .modal-turnarA .divider { height:1px; background:#e6ecec; margin:14px 0; }
+  .modal-turnarA label { color:#5a6a6a; font-weight:600; }
+  /* Evitar acciones del formulario cuando el modal está visible */
+  body.modal-open-returnado .form-actions,
+  body.modal-open-returnado .app-sticky-footer,
+  body.modal-open-returnado .sticky-actions {
+    display:none !important;
+  }
 </style>
 
 <x-template-modal.modal-template
@@ -11,81 +21,76 @@
   idModal="modalReturnado"
   idCancel="cancel_returnado"
   idConfirm="confir_returnado"
-  functionConfirm="confirmarReturnado();"
-  width="1400px"
-  height="700px">
+  functionConfirm="saveReturnado();"
+  width="1100px"
+  height="680px">
 
-  <p style="font-size: 16px;">
-    Preparar returnado para el folio de gestión:
-    <label id="name_folio_gestion_returnado" style="font-weight: bold;"></label>.
-    Por ahora es una vista previa sin persistencia.
-  </p>
+  <div class="modal-turnarA">
+    <div class="title">Turnar A</div>
+    <p class="note">
+      Turnar el folio de gestión: <strong id="name_folio_gestion_returnado"></strong>
+    </p>
 
-  @if($letterAdminMatch)
-    <button onclick="addReturnado();"
-      style="background-color: white; color: red; border: none; padding: 10px 20px; font-size: 16px; display: flex; align-items: center; justify-content: center; text-align: left; position: absolute; left: 0;">
-      <i class="fa fa-arrow-up" style="margin-right: 8px;"></i> Agregar Registro
-    </button>
-    <br><br>
-  @endif
-
-  <div id="mostrar_ocultar_returnado">
+    {{-- Bloque Turnar A (idéntico al form) --}}
+    <div class="subtitle">Turnar A</div>
     <div class="row">
+      {{-- CRH (Área 1) --}}
+      <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+        name="id_cat_area_1_ret" tittle="CRH"
+        grid="col-12 col-sm-6 col-md-4" />
+
+      {{-- CRHTOD (Área 2) --}}
+      <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+        name="id_cat_area_2_ret" tittle="CRHTOD"
+        grid="col-12 col-sm-6 col-md-4" />
+
+      {{-- Área (Área 3) --}}
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_cat_area_ret" tittle="Área"
-        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+        grid="col-12 col-sm-6 col-md-4" />
+    </div>
 
+    <div class="divider"></div>
+
+    <div class="subtitle">Detalle</div>
+    <div class="row">
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_usuario_area_ret" tittle="Usuario"
-        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+        grid="col-12 col-sm-6 col-md-4" />
 
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_usuario_enlace_ret" tittle="Enlace"
-        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+        grid="col-12 col-sm-6 col-md-4" />
+
+      <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+        name="id_cat_unidad_ret" tittle="Unidad"
+        grid="col-12 col-sm-6 col-md-4" />
     </div>
 
     <div class="row">
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
+        name="id_cat_coordinacion_ret" tittle="Coordinación"
+        grid="col-12 col-sm-6 col-md-4" />
+
+      <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_cat_tramite_ret" tittle="Trámite"
-        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+        grid="col-12 col-sm-6 col-md-4" />
 
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_cat_clave_ret" tittle="Clave"
-        grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-    </div>
-
-    <div class="modal-buttons custom-modal-buttons">
-      <button style="font-weight: bold;" onclick="hiddenReturnado();">Cancelar</button>
-      <button style="font-weight: bold;color: #10312b" onclick="saveReturnado();">Confirmar</button>
+        grid="col-12 col-sm-6 col-md-4" />
     </div>
   </div>
 
-  <div class="table-responsive pt-3">
-    <table id="template-table-returnado" class="table table-bordered">
-      <thead>
-      <tr>
-        <th>Menú</th>
-        <th>Área / Zona</th>
-        <th>Trámite</th>
-        <th>Clave</th>
-      </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- VALUE OF INPUT -->
+  {{-- ID de correspondencia a turnar --}}
   <input type="hidden" id="id_correspondencia_ret" />
 
 </x-template-modal.modal-template>
 
-{{-- (Opcional) Modal de borrar para Returnado, igual al de Copia pero con IDs distintos
-<x-template-modal.modal-delete
-  tittleModal="id_modal_delete_returnado"
-  idInput="id_uuid_returnado"
-  valueInput=""
-  cancelModal="id_modal_cancel_returnado"
-  confirmButton=""
-  functionConfirm="confirmModalDeleteReturnado();" />
-<input type="text" id="id_delete_returnado" style="display:none;" />
---}}
+{{-- (Opcional) ayudas de URL para JS; el JS también tiene fallback si no están --}}
+<script>
+  window.LETTER = window.LETTER || {};
+  window.LETTER.returnadoTurnarUrl = "{{ route('letter.returnado.turnar') }}";
+  // Base para /seed/{id}
+  window.LETTER.returnadoSeedBase = "{{ url('/letter/returnado/seed') }}/";
+</script>

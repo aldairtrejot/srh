@@ -16,6 +16,77 @@ function showDiv(id)  { $('#'+id).show(); }
 function hideDiv(id)  { $('#'+id).hide(); }
 function cleanSelect(sel) { $(sel).val('').selectpicker('refresh'); }
 
+/* ========================= Helpers FORM & Mirrors ========================= */
+// Obtiene el formulario correcto (por defecto #myForm)
+function getForm$() {
+  return $('#myForm').length ? $('#myForm') : $('form').first();
+}
+
+// Crea/recupera un input hidden dentro del form
+function ensureHidden(id, name) {
+  var $form = getForm$();
+  var $hid = $form.find('#' + id);
+  if ($hid.length === 0) {
+    $hid = $('<input type="hidden">').attr({ id: id, name: name });
+    $form.append($hid);
+  }
+  return $hid;
+}
+
+// Si el select está vacío pero hay opciones, toma la primera no-vacía
+function ensureFirstIfEmpty(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  if (!$s.val()) {
+    var v = $s.find('option[value!=""]').first().val();
+    if (v) {
+      $s.val(v);
+      if ($.fn.selectpicker) $s.selectpicker('refresh');
+      $s.trigger('change');
+    }
+  }
+}
+
+// Congela un select y crea su “espejo” hidden para que viaje en el POST
+function freezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  // Garantiza que tenga algún valor razonable
+  var val = $s.val();
+  if (!val) {
+    var first = $s.find('option[value!=""]').first().val();
+    if (first) {
+      val = first;
+      $s.val(first);
+      if ($.fn.selectpicker) $s.selectpicker('refresh');
+    }
+  }
+
+  var hidId = name + '__mirror';
+  var $hid = ensureHidden(hidId, name);
+  $hid.val(val || '');
+
+  $s.prop('disabled', true);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}
+
+// Descongela y elimina el espejo
+function unfreezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  var hidId = name + '__mirror';
+  getForm$().find('#' + hidId).remove();
+
+  $s.prop('disabled', false);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}
+
 /* ========================= Fechas ========================= */
 function setDateLimits() {
   var today   = new Date();
@@ -155,10 +226,69 @@ function updateAnexosUI() {
   }
 }
 
+/* ========================= Bloqueo Turnar A & Returnado ========================= */
+// Congela/descongela todo el bloque "Turnar A" con espejos para el POST
+function setTurnarBlocked(on) {
+  var sels = [
+    '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+    '#id_usuario_area', '#id_usuario_enlace',
+    '#id_cat_unidad', '#id_cat_coordinacion',
+    '#id_cat_tramite', '#id_cat_clave'
+  ];
+
+  if (on) {
+    // Evita que algo viaje vacío al backend
+    sels.forEach(ensureFirstIfEmpty);
+    sels.forEach(freezeWithMirror);
+  } else {
+    sels.forEach(unfreezeWithMirror);
+  }
+}
+
+// API pública que usa deps-areas.js al detectar Returnado
+function applyReturnadoMode(on, idReturnado) {
+  var $form = getForm$();
+  var $force = $form.find('#force_returnado');
+  if ($force.length === 0) {
+    $force = $('<input type="hidden" id="force_returnado" name="force_returnado">').appendTo($form);
+  }
+
+  var $st = $('#id_cat_estatus');
+  if (on) {
+    var idRet = String(idReturnado || 8);
+    $st.val(idRet);
+    freezeWithMirror('#id_cat_estatus');
+    $force.val('1');
+
+    setTurnarBlocked(true);
+
+    $st.prop('disabled', true);
+    if ($.fn.selectpicker) $st.selectpicker('refresh');
+  } else {
+    $force.val('');
+    setTurnarBlocked(false);
+
+    unfreezeWithMirror('#id_cat_estatus');
+    $st.prop('disabled', false);
+    if ($.fn.selectpicker) $st.selectpicker('refresh');
+  }
+}
+
 /* ========================= Ready ========================= */
 $(function () {
   setDateLimits();
   setCheckboxArea();
+
+  // Tooltips
+  safeTooltip('#id_checkbox_Template_tooltip_fisico','Marcar si el documento es físico');
+  safeTooltip('#id_checkbox_Template_tooltip','Añadir un remitente no registrado');
+  safeTooltip('#mas_remitentes','Añadir dos o más remitentes');
+  safeTooltip('#habilitar_carga_archivos','Mostrar/ocultar la sección de carga de Oficio y Anexos');
+
+  // Limpiar errores de fechas al escribir/cambiar
+  $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
+    clearFieldError('#' + this.id);
+  });
 
   // Toggle “Agregar remitente”
   $(document).on('change', '#idcheckboxTemplate', function () {
@@ -200,7 +330,7 @@ $(function () {
   $('#file_oficio_entrada').on('change', updateOficioUI);
   $('#file_anexo_entrada').on('change', updateAnexosUI);
 
-  // Submit
+  // Submit: validaciones y sincronización de espejos
   $('#myForm').on('submit', function (e) {
     if (!validarFechasAntesDeEnviar()) {
       e.preventDefault();
@@ -208,21 +338,43 @@ $(function () {
       return false;
     }
 
-    // Si el usuario habilitó la carga de archivos, sugerimos que agregue el oficio
-    // (el backend ya lo valida como obligatorio en CREATE).
+    // Si está activo el modo Returnado, resincroniza mirrors por seguridad
+    if ($('#force_returnado').val() === '1') {
+      [
+        '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+        '#id_usuario_area', '#id_usuario_enlace',
+        '#id_cat_unidad', '#id_cat_coordinacion',
+        '#id_cat_tramite', '#id_cat_clave', '#id_cat_estatus'
+      ].forEach(function(sel){
+        var $s = $(sel);
+        if ($s.length) {
+          var name = $s.attr('name');
+          if (name) {
+            var hidId = name + '__mirror';
+            var $hid = ensureHidden(hidId, name);
+            $hid.val($s.val() || '');
+          }
+        }
+      });
+    }
+
+    // Sugerencia visual si habilitó carga y no adjuntó oficio (no bloquea)
     if ($('#habilitar_carga').val() === '1') {
       var files = ($('#file_oficio_entrada')[0].files || []).length;
       if (files === 0) {
         $('#msg_oficio_req').show();
         safeTooltip('#label_oficio_entrada', 'Hace falta cargar un oficio.');
-        // no bloqueamos el submit si está editando; solo aviso visual
       }
     }
   });
 
   // Placeholder y refresh de selects por si llegan vacíos
-  ['#id_cat_area_1','#id_cat_area_2','#id_cat_area','#id_cat_tramite',
-   '#id_usuario_area','#id_usuario_enlace','#id_cat_unidad','#id_cat_coordinacion',
-   '#id_cat_clave'
+  [
+    '#id_cat_area_1','#id_cat_area_2','#id_cat_area','#id_cat_tramite',
+    '#id_usuario_area','#id_usuario_enlace','#id_cat_unidad','#id_cat_coordinacion',
+    '#id_cat_clave'
   ].forEach(refreshSelect);
+
+  // Estado inicial: NO bloqueado (hasta que deps-areas.js llame applyReturnadoMode(true))
+  applyReturnadoMode(false);
 });
