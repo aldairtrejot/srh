@@ -93,21 +93,20 @@
 
                 {{-- ===== Encabezado de resumen ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
-                <div class="contenedor">
-                  <div class="item">
-                    <label class="etiqueta">No. Turno:</label>
-                    <label id="_labNoCorrespondencia" class="valor"></label>
-                  </div>
-                  <div class="item">
-                    <label class="etiqueta">Fecha de captura:</label>
-                    <label id="_labFechaCaptura" class="valor"></label>
-                  </div>
-                  <div class="item">
-                    <label class="etiqueta">Año:</label>
-                    <label id="_labAño" class="valor"></label>
-                  </div>
-                </div>
-
+                                <div class="contenedor">
+                                    <div class="item">
+                                        <label class="etiqueta">No. Turno:</label>
+                                        <label id="_labNoCorrespondencia" class="valor"></label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Fecha de captura:</label>
+                                        <label id="_labFechaCaptura" class="valor"></label>
+                                    </div>
+                                    <div class="item">
+                                        <label class="etiqueta">Año:</label>
+                                        <label id="_labAño" class="valor"></label>
+                                    </div>
+                                </div>
                 <br>
 
                 {{-- ===== Información general ===== --}}

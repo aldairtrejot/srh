@@ -273,6 +273,46 @@ function applyReturnadoMode(on, idReturnado) {
     if ($.fn.selectpicker) $st.selectpicker('refresh');
   }
 }
+// ——— Encabezado dinámico (Año / Clave) ———
+function setData() {
+  $('#_labFechaCaptura').text($('#fecha_captura').val());
+  $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
+  getData();
+}
+function getData() {
+  var id_cat_anio  = $('#id_cat_anio').val();
+  var id_cat_clave = $('#id_cat_clave_aux').val();
+  $.post(URL_DEFAULT + '/letter/collection/dataClave', {
+    id_cat_anio: id_cat_anio,
+    id_cat_clave: id_cat_clave,
+    _token: token
+  }, function (response) {
+    var item      = response.nameYear || {};
+    var itemClave = response.dataClave || {};
+    $('#_labAño').text(item.name || '');
+    $('#_labClave').text(itemClave._labClave || '');
+    $('#_labClaveCodigo').text(itemClave._labClaveCodigo || '');
+    $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion || '');
+  });
+}
+/* ========================= Encabezado de resumen ========================= */
+/** Copia los valores de los hidden a los labels del encabezado */
+function fillHeaderSummary() {
+  // Si además tienes un hidden con el texto del año, úsalo como preferente
+  var anioText = ($('#id_cat_anio_text').val && $('#id_cat_anio_text').val()) || '';
+
+  var noTurno = $('#num_turno_sistema').val() || '—';
+  var fecha   = $('#fecha_captura').val()     || '—';
+  var anio    = anioText || $('#id_cat_anio').val() || '—';
+
+  var labNo   = document.getElementById('_labNoCorrespondencia');
+  var labFec  = document.getElementById('_labFechaCaptura');
+  var labAnio = document.getElementById('_labAño'); // usar getElementById por el caracter ñ
+
+  if (labNo)   labNo.textContent   = noTurno;
+  if (labFec)  labFec.textContent  = fecha;
+  if (labAnio) labAnio.textContent = anio;
+}
 
 /* ========================= Ready ========================= */
 $(function () {
@@ -377,4 +417,7 @@ $(function () {
 
   // Estado inicial: NO bloqueado (hasta que deps-areas.js llame applyReturnadoMode(true))
   applyReturnadoMode(false);
+
+  // >>> FIX: llenar el encabezado de resumen
+  fillHeaderSummary();
 });

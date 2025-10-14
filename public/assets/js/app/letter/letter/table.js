@@ -4,7 +4,6 @@
    - Paginación y búsqueda (sin tocar endpoints ni helpers existentes)
    - Columnas togglables: CRH (6), CRHTOD (7), Cloud (9), Respuesta (10)
    - Estado inicial: TODAS desmarcadas → ocultas hasta que el usuario elija
-   - Cloud: SOLO botón "ojo" (ver)
    - Cloud: SOLO botón "ojo" (entrada)
    - Respuesta: SOLO "ojo" si existe documento de respuesta (sin botón Responder)
    ========================================================================= */
@@ -27,7 +26,7 @@ $(document).ready(function () {
     $('.toggle-column').each(function () {
       var idx = parseInt($(this).data('column'), 10);
       var visible = $(this).is(':checked'); // por Blade: sin checked → false
-      if (saved && typeof saved[idx] !== 'undefined') visible = !!saved[idx]; // estado guardado tiene prioridad
+      if (saved && typeof saved[idx] !== 'undefined') visible = !!saved[idx]; // prioridad localStorage
       columnVisibility[idx] = !!visible;
       $(this).prop('checked', visible);
     });
@@ -117,8 +116,7 @@ function bindToggleMenu() {
   });
 }
 
-/* =========================== CLOUD =========================== */
-/* =========================== UTIL: OJITO =========================== */
+/* =========================== CLOUD / RESPUESTA =========================== */
 function seeDocumentUid(uid) {
   if (!uid) return;
   try {
@@ -129,7 +127,6 @@ function seeDocumentUid(uid) {
   }
 }
 
-function renderCloudCell(uid) {
 function renderEye(uid, title) {
   if (!uid) return '';
   return (
@@ -143,18 +140,17 @@ function renderEye(uid, title) {
   );
 }
 
-/* =========================== CLOUD (col 9) =========================== */
-function renderCloudCell(uid) {
-  return renderEye(uid, 'Ver documento de entrada');
+/* CLOUD (col 9): SOLO “ojo” de ENTRADA */
+function renderCloudCell(uidEntrada) {
+  return renderEye(uidEntrada, 'Ver documento de entrada');
 }
 
-/* =========================== RESPUESTA (col 10) =========================== */
-/** Slot vacío que luego se llena con el ojito si hay respuesta */
+/* RESPUESTA (col 10): slot que luego se llena con el “ojo” si existe */
 function renderReplyEyeSlot(idCorr) {
   return '<div id="resp-eye-' + idCorr + '" style="display:flex; justify-content:center; align-items:center;"></div>';
 }
 
-/** Trae UID de respuesta por fila y pinta el ojo si existe */
+/* Trae UID de respuesta por fila y pinta el ojo si existe */
 function fetchReplyUid(idCorr) {
   var token = $('meta[name="csrf-token"]').attr('content');
   $.post(URL_DEFAULT.concat('/letter/cloud/reply'), { id: idCorr, _token: token })
@@ -170,7 +166,6 @@ function fetchReplyUid(idCorr) {
      }
    })
    .fail(function () {
-     // en caso de error, no mostramos nada
      $('#resp-eye-' + idCorr).html('');
    });
 }
@@ -209,9 +204,7 @@ function searchInit() {
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
 
-        var uuid = object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
-        var respuestaHtml = object.respuesta_html || '';
-        // UID de entrada (si tu backend lo provee en la lista).
+        // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
 
         // Para dropdown
@@ -294,9 +287,7 @@ function searchInit() {
               (object.asunto || '') +
             '</td>' +
 
-            // 9: Cloud → solo “ojo”
-            '<td>' + renderCloudCell(uuid) + '</td>' +
-            // 9: Cloud → ojo (entrada)
+            // 9: Cloud → solo “ojo” (entrada)
             '<td>' + renderCloudCell(uidEntrada) + '</td>' +
 
             // 10: Respuesta → SOLO slot para el ojo (sin botón Responder)
@@ -348,6 +339,3 @@ function searchValue() {
   setValue();
   searchInit();
 }
-
-
-
