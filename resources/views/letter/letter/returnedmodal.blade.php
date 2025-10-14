@@ -1,14 +1,85 @@
-{{-- resources/views/letter/returnedmodal.blade.php --}}
 <style>
-  .modal-turnarA { padding-top: 2px; }
-  .modal-turnarA .title { font-weight: 700; color:#10312b; margin-bottom: 10px; font-size: 22px; }
-  .modal-turnarA .subtitle { font-weight: 700; color:#0f2b26; margin: 6px 0 4px; text-align:center }
-  .modal-turnarA .note { text-align:center; margin-bottom: 8px; font-size: 14px; }
-  .modal-turnarA .divider { height:1px; background:#e6ecec; margin:14px 0; }
-  .modal-turnarA label { color:#5a6a6a; font-weight:600; }
+  .modal-turnarA {
+    padding: 10px 20px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #10312b;
+  }
+
+  .modal-turnarA .title {
+    font-weight: 700;
+    color: #10312b;
+    margin-bottom: 12px;
+    font-size: 24px;
+    text-align: center;
+    border-bottom: 2px solid #e6ecec;
+    padding-bottom: 8px;
+  }
+
+  .modal-turnarA .subtitle {
+    font-weight: 600;
+    color: #0f2b26;
+    margin: 16px 0 8px;
+    text-align: left;
+    font-size: 18px;
+    border-left: 4px solid #10312b;
+    padding-left: 8px;
+  }
+
+  .modal-turnarA .note {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #5a6a6a;
+  }
+
+  .modal-turnarA .divider {
+    height: 1px;
+    background: #e6ecec;
+    margin: 20px 0;
+  }
+
+  .modal-turnarA label {
+    color: #5a6a6a;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .modal-turnarA .row {
+    margin-bottom: 12px;
+  }
+
+  /* Botones del modal */
+  .modal-footer button {
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  .modal-footer .btn-primary {
+    background-color: #10312b;
+    color: #fff;
+  }
+
+  .modal-footer .btn-primary:hover {
+    background-color: #145c4a;
+  }
+
+  .modal-footer .btn-secondary {
+    background-color: #e6ecec;
+    color: #10312b;
+  }
+
+  .modal-footer .btn-secondary:hover {
+    background-color: #d1d8d8;
+  }
+
+  /* Ocultar acciones externas */
   body.modal-open-returnado .form-actions,
   body.modal-open-returnado .app-sticky-footer,
-  body.modal-open-returnado .sticky-actions { display:none !important; }
+  body.modal-open-returnado .sticky-actions {
+    display: none !important;
+  }
 </style>
 
 <x-template-modal.modal-template

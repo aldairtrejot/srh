@@ -19,22 +19,24 @@ class ReturnadoC extends Controller
     /**
      * Edita el registro desde el modal (mantengo el nombre "turnar"
      * por compatibilidad; si envías force_turnado=true, coloca estatus TURNADO).
+     * Validación con reglas tipo string, como pediste.
      */
     public function turnar(Request $r)
     {
         $r->validate([
-            'id_tbl_correspondencia' => 'required|integer|min:1',
-            'id_cat_area'            => 'required|integer|min:1',
-            'id_cat_tramite'         => 'required|integer|min:1',
-            'id_cat_clave'           => 'required|integer|min:1',
-            'id_usuario_area'        => 'required|integer|min:1',
+            'id_tbl_correspondencia' => 'required|string',
+            'id_cat_area'            => 'required|string',
+            'id_cat_tramite'         => 'required|string',
+            'id_cat_clave'           => 'required|string',
+            'id_usuario_area'        => 'required|string',
+
             // opcionales
-            'id_cat_area_1'          => 'nullable|integer|min:1',
-            'id_cat_area_2'          => 'nullable|integer|min:1',
-            'id_usuario_enlace'      => 'nullable|integer|min:1',
-            'id_cat_unidad'          => 'nullable|integer|min:1',
-            'id_cat_coordinacion'    => 'nullable|integer|min:1',
-            'force_turnado'          => 'nullable|boolean',
+            'id_cat_area_1'          => 'nullable|string',
+            'id_cat_area_2'          => 'nullable|string',
+            'id_usuario_enlace'      => 'nullable|string',
+            'id_cat_unidad'          => 'nullable|string',
+            'id_cat_coordinacion'    => 'nullable|string',
+            'force_turnado'          => 'nullable',
         ], [], [
             'id_cat_area'     => 'Área',
             'id_usuario_area' => 'Usuario',
@@ -48,20 +50,20 @@ class ReturnadoC extends Controller
             /** @var LetterM $letter */
             $letter = LetterM::lockForUpdate()->findOrFail((int)$r->id_tbl_correspondencia);
 
-            // Actualizar campos del "Turnar A"
-            $letter->id_cat_area_1       = $r->input('id_cat_area_1');
-            $letter->id_cat_area_2       = $r->input('id_cat_area_2');
-            $letter->id_cat_area         = $r->input('id_cat_area');
+            // Actualiza cadena de Turnar A (solo cambio de área/usuario/trámite/clave)
+            $letter->id_cat_area_1       = $r->input('id_cat_area_1') ?: null;
+            $letter->id_cat_area_2       = $r->input('id_cat_area_2') ?: null;
+            $letter->id_cat_area         = $r->input('id_cat_area');          // destino final (A3 || A2 || A1)
             $letter->id_usuario_area     = $r->input('id_usuario_area');
-            $letter->id_usuario_enlace   = $r->input('id_usuario_enlace');
-            $letter->id_cat_unidad       = $r->input('id_cat_unidad');
-            $letter->id_cat_coordinacion = $r->input('id_cat_coordinacion');
+            $letter->id_usuario_enlace   = $r->input('id_usuario_enlace') ?: null;
+            $letter->id_cat_unidad       = $r->input('id_cat_unidad') ?: null;
+            $letter->id_cat_coordinacion = $r->input('id_cat_coordinacion') ?: null;
             $letter->id_cat_tramite      = $r->input('id_cat_tramite');
             $letter->id_cat_clave        = $r->input('id_cat_clave');
 
-            // Si se pide, colocar estatus TURNADO (mismo comportamiento que antes)
+            // Si se solicita, forzar estatus TURNADO (sin “encontrar returnado”)
             $idTurnado = $letter->getTurnadoId();
-            if ($r->boolean('force_turnado')) {
+            if (filter_var($r->input('force_turnado'), FILTER_VALIDATE_BOOLEAN)) {
                 $letter->id_cat_estatus = $idTurnado;
             }
 
@@ -110,13 +112,12 @@ class ReturnadoC extends Controller
 
         // ================== Áreas ==================
         // A1 (CRH): DEVOLVER TODAS LAS OPCIONES (sin filtrar por el área del usuario)
-        // Si quieres mantener un modo restringido, acepta scope=user por querystring.
         $scope = $request->string('scope')->toString(); // '', 'user'
         if ($scope === 'user') {
             $miAreaId = Auth::user()->id_cat_area ?? null;
             $a1Rows = $miAreaId ? $m->getArea1OptionsByArea((int)$miAreaId) : $m->getArea1Options();
         } else {
-            $a1Rows = $m->getArea1Options(); // <-- cambio clave
+            $a1Rows = $m->getArea1Options(); // <-- clave: todas
         }
         $a1 = collect($a1Rows)->map(fn($r)=>['id'=>(int)$r->id,'label'=>strtoupper($r->descripcion)])->values();
 
