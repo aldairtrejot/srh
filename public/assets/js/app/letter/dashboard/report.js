@@ -95,7 +95,7 @@ $('#cancel_copy').click(function () { //Se pulsa el boton de cancelar
 
 
 
-function descargarTodosLosArchivos() {
+function downloadFile() {
     $('#modalReport').fadeOut(); // Ocultar modal
     showSpinner(); // Mostrar spinner
 
@@ -103,6 +103,16 @@ function descargarTodosLosArchivos() {
         url: URL_DEFAULT.concat('/alf/download'),
         method: 'POST',
         data: {
+            cat_area_j_1: $('#cat_area_j_1').val(),
+            cat_area_j_2: $('#cat_area_j_2').val(),
+            cat_area_j_3: $('#cat_area_j_3').val(),
+            id_cat_status: $('#id_cat_status_informe').val(),
+            id_cat_date_informe: $('#id_cat_date_informe').val(),
+            fecha_inicio_informe: $('#fecha_inicio_informe').val(),
+            fecha_fin_informe: $('#fecha_fin_informe').val(),
+            incluir_horas: $('#incluir_horas').prop('checked') ? 1 : 0,
+            inicio: getFormattedHourValue('#inicio'),
+            fin: getFormattedHourValue('#fin'),
             _token: token
         },
         xhrFields: {
@@ -120,7 +130,7 @@ function descargarTodosLosArchivos() {
             document.body.removeChild(a);
         },
         error: function (xhr) {
-            alert('Error al descargar archivos');
+            notyfEM.error('No se pudo completar la acción. Por favor, vuelve a intentarlo.');
         },
         complete: function () {
             hideSpinner();

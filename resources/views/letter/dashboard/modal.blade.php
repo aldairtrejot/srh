@@ -1,8 +1,7 @@
-<x-template-modal.modal-template tittle="Exportar datos o archivos" idModal="modalReport" idCancel="cancel_copy"
-    idConfirm="confir_copy" functionConfirm="validateDate();" width="1200px" height="700px">
+<x-template-modal.modal-template-report tittle="Exportar datos o archivos" idModal="modalReport" idCancel="cancel_copy"
+    idConfirm="confir_copy" functionConfirm="validateDate();" functionConfirm2="downloadFile();" width="1200px" height="700px">
 
     <!-- CONTADOR EN EL CENTRO -->
-
     <div class="row mb-4">
         <div class="col-12 text-center">
             <div
@@ -135,7 +134,7 @@
         </div>
     </div>
 
-</x-template-modal.modal-template>
+</x-template-modal.modal-template-report>
 <style>
     /* Estilo para los inputs de tipo range deshabilitados */
     input[type="range"]:disabled {

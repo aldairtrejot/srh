@@ -82,10 +82,10 @@ class AlfrescoService extends Controller
 
         // Construir nombre final
         if ($customName) {
-            $filename = "{$customName}_{$randomNumber}";
+            $filename = "{$customName}_x{$randomNumber}";
         } else {
             $baseName = pathinfo($originalFilename, PATHINFO_FILENAME);
-            $filename = "{$baseName}_{$randomNumber}";
+            $filename = "{$baseName}_x{$randomNumber}";
         }
 
         // Agregar extensión si no está vacía
@@ -177,6 +177,8 @@ class AlfrescoService extends Controller
         }
 
         $archivosAgregados = 0;
+        $tamañoTotal = 0;
+        $limiteTamaño = 50 * 1024 * 1024; // 100 MB
 
         if ($zip->open($zipFilename, \ZipArchive::CREATE) === true) {
             foreach ($uuidsWithNames as $fileData) {
@@ -186,22 +188,87 @@ class AlfrescoService extends Controller
                 $result = $this->downloadFile($uuid, $customName);
 
                 if ($result['success']) {
+                    $tamañoArchivo = strlen($result['content']);
+                    $tamañoTotal += $tamañoArchivo;
+
+                    // ✅ PRIMERA VALIDACIÓN: Tamaño en memoria ANTES de agregar al ZIP
+                    if ($tamañoTotal > $limiteTamaño) {
+                        $zip->close();
+                        if (file_exists($zipFilename)) {
+                            unlink($zipFilename);
+                        }
+
+                        // \Log::info("Límite excedido durante descarga - Archivos: {$archivosAgregados}, Tamaño: ".round($tamañoTotal / (1024 * 1024), 2).' MB');
+
+                        return [
+                            'success' => false,
+                            'error' => 'El tamaño total de los archivos supera el límite de 100 MB. '.
+                                      'Archivos agregados: '.$archivosAgregados.'. '.
+                                      'Tamaño actual: '.round($tamañoTotal / (1024 * 1024), 2).' MB',
+                        ];
+                    }
+
                     $zip->addFromString($result['filename'], $result['content']);
                     $archivosAgregados++;
+
+                    // ✅ SEGUNDA VALIDACIÓN: Tamaño real del ZIP DESPUÉS de agregar archivo
+                    $zip->close(); // Cerrar temporalmente para medir tamaño real
+                    $tamañoActualZip = file_exists($zipFilename) ? filesize($zipFilename) : 0;
+
+                    // \Log::info("Después de archivo {$archivosAgregados} - ZIP: ".round($tamañoActualZip / (1024 * 1024), 2).' MB, Memoria: '.round($tamañoTotal / (1024 * 1024), 2).' MB');
+
+                    if ($tamañoActualZip > $limiteTamaño) {
+                        if (file_exists($zipFilename)) {
+                            unlink($zipFilename);
+                        }
+
+                        // \Log::info("Límite excedido en ZIP real - Archivos: {$archivosAgregados}, Tamaño ZIP: ".round($tamañoActualZip / (1024 * 1024), 2).' MB');
+
+                        return [
+                            'success' => false,
+                            'error' => 'El archivo ZIP generado supera el límite de 100 MB. '.
+                                      'Tamaño: '.round($tamañoActualZip / (1024 * 1024), 2).' MB',
+                        ];
+                    }
+
+                    // Reabrir el ZIP para continuar
+                    $zip->open($zipFilename, \ZipArchive::CREATE);
                 }
             }
             $zip->close();
 
+            // ✅ VALIDACIÓN FINAL
+            if (file_exists($zipFilename)) {
+                $tamañoFinal = filesize($zipFilename);
+                // \Log::info('Tamaño final del ZIP: '.round($tamañoFinal / (1024 * 1024), 2).' MB');
+
+                if ($tamañoFinal > $limiteTamaño) {
+                    unlink($zipFilename);
+                    // \Log::info('❌ SUPERÓ 100 MB - ZIP eliminado');
+
+                    return [
+                        'success' => false,
+                        'error' => 'El archivo ZIP generado supera el límite de 100 MB. '.
+                                  'Tamaño: '.round($tamañoFinal / (1024 * 1024), 2).' MB',
+                    ];
+                }
+            }
+
             if (file_exists($zipFilename) && filesize($zipFilename) > 0) {
+                // \Log::info('✅ ZIP creado exitosamente - Tamaño: '.round(filesize($zipFilename) / (1024 * 1024), 2).' MB');
+
                 return ['success' => true, 'zip_path' => $zipFilename];
             } else {
                 if (file_exists($zipFilename)) {
                     unlink($zipFilename);
                 }
+                // \Log::error('ZIP vacío o no creado');
 
                 return ['success' => false, 'error' => 'ZIP vacío'];
             }
         }
+
+        // \Log::error('No se pudo crear el ZIP');
 
         return ['success' => false, 'error' => 'No se pudo crear el ZIP'];
     }

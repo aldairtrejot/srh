@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Cloud;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cloud\FileModelAlf;
+use Illuminate\Http\Request;
 
 class DescargaController extends Controller
 {
-    public function descargarArchivos()
+    public function descargarArchivos(Request $request)
     {
         try {
             $fileModelAlf = new FileModelAlf;
 
             // Obtener archivos con UUID y nombre
-            $archivos = $fileModelAlf->fileModelAlf();
+            $archivos = $fileModelAlf->fileModelAlf($request);
 
             if ($archivos->isEmpty()) {
                 return response()->json(['error' => 'No hay archivos'], 404);
@@ -42,7 +43,7 @@ class DescargaController extends Controller
             return response()->json(['error' => 'Error al descargar: '.$resultado['error']], 500);
 
         } catch (\Exception $e) {
-
+            \Log::info($e);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
