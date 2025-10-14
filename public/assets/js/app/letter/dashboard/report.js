@@ -92,7 +92,9 @@ $('#cancel_copy').click(function () { //Se pulsa el boton de cancelar
     $('#modalReport').fadeOut(); // Cerrar la ventana modal
 });
 
-
+function hiddenModal() {
+    $('#modalReport').fadeOut();
+}
 
 
 function downloadFile() {

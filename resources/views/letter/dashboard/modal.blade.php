@@ -1,5 +1,6 @@
 <x-template-modal.modal-template-report tittle="Exportar datos o archivos" idModal="modalReport" idCancel="cancel_copy"
-    idConfirm="confir_copy" functionConfirm="validateDate();" functionConfirm2="downloadFile();" width="1200px" height="700px">
+    idConfirm="confir_copy" functionConfirm="validateDate();" functionConfirm2="downloadFile();"
+    fucntionCancel="hiddenModal();" width="1200px" height="700px">
 
     <!-- CONTADOR EN EL CENTRO -->
     <div class="row mb-4">
@@ -102,7 +103,8 @@
             style="margin-bottom: 30px;">
             <label class="form-check-label" style="display: flex; align-items: center;">
                 ¿Filtrar por fecha de inicio y fin?
-                <input type="checkbox" class="form-check-input" id="fecha_inicio_fecha_fin" style="margin-left: 10px;">
+                <input type="checkbox" class="form-check-input" id="fecha_inicio_fecha_fin"
+                    style="margin-left: 10px;">
             </label>
         </div>
 

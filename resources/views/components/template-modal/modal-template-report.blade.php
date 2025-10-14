@@ -11,7 +11,7 @@
         </div>
 
         <div class="modal-buttons custom-modal-buttons">
-            <button style="font-weight: bold;" id="{{ $idCancel }}">Cancelar</button>
+            <button style="font-weight: bold;" id="{{ $idCancel }}" onclick="{{ $fucntionCancel }}">Cancelar</button>
             <button style="font-weight: bold;color: #10312b" onclick="{{ $functionConfirm2 }}"
                 id="{{ $idConfirm }}">Exportar (.zip)</button>
             <button style="font-weight: bold;color: #10312b" onclick="{{ $functionConfirm }}"
