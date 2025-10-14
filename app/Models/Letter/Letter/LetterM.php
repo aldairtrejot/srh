@@ -137,6 +137,69 @@ class LetterM extends Model
                 'correspondencia.tbl_correspondencia.fecha_captura',
                 'correspondencia.tbl_correspondencia.fecha_fin'
             );
+  public function list($iterator, $searchValue, $idUser, $pageSize = 5)
+{
+    $pageSize = max(1, (int)$pageSize);
+
+    $query = DB::table('correspondencia.tbl_correspondencia')
+        ->select([
+            'correspondencia.tbl_correspondencia.id_tbl_correspondencia AS id',
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
+            DB::raw('UPPER(correspondencia.cat_estatus.descripcion) AS estatus'),
+            DB::raw('UPPER(correspondencia.cat_tramite.descripcion) AS tramite'),
+            DB::raw('UPPER(area_main.descripcion) AS area'),
+            DB::raw('UPPER(area1.descripcion) AS area_1'),
+            DB::raw('UPPER(area2.descripcion) AS area_2'),
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
+            DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura::date, 'DD/MM/YYYY') AS fecha_captura"),
+            DB::raw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin::date, 'DD/MM/YYYY') AS fecha_fin"),
+
+            // UID del último oficio de ENTRADA (para columna Cloud)
+            DB::raw("(
+                SELECT co.uid
+                FROM correspondencia.ctrl_correspondencia_oficio co
+                WHERE co.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
+                      AND co.estatus = TRUE
+                ORDER BY co.fecha_usuario DESC
+                LIMIT 1
+            ) AS uid_entrada"),
+
+            // UID del último oficio de RESPUESTA (para columna Respuesta)
+            DB::raw("(
+                SELECT oof.uid
+                FROM correspondencia.ctrl_oficio_oficio oof
+                WHERE oof.id_tbl_oficio = (
+                    SELECT ofi.id_tbl_oficio
+                    FROM correspondencia.tbl_oficio ofi
+                    WHERE ofi.id_tbl_correspondencia = correspondencia.tbl_correspondencia.id_tbl_correspondencia
+                    ORDER BY ofi.id_tbl_oficio DESC
+                    LIMIT 1
+                )
+                AND oof.estatus = TRUE
+                ORDER BY oof.id_ctrl_oficio_oficio DESC
+                LIMIT 1
+            ) AS uid_respuesta"),
+        ])
+        ->join('correspondencia.cat_estatus', 'correspondencia.tbl_correspondencia.id_cat_estatus', '=', 'correspondencia.cat_estatus.id_cat_estatus')
+        ->leftJoin('correspondencia.cat_area AS area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
+        ->leftJoin('correspondencia.cat_area AS area1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area1.id_cat_area')
+        ->leftJoin('correspondencia.cat_area AS area2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area2.id_cat_area')
+        ->join('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
+        ->leftJoin('correspondencia.ctrl_transcribir_correspondencia', 'correspondencia.tbl_correspondencia.id_tbl_correspondencia', '=', 'correspondencia.ctrl_transcribir_correspondencia.id_tbl_correspondencia')
+        ->groupBy(
+            'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+            'correspondencia.tbl_correspondencia.num_documento',
+            'correspondencia.tbl_correspondencia.folio_gestion',
+            'correspondencia.cat_estatus.descripcion',
+            'correspondencia.cat_tramite.descripcion',
+            'area_main.descripcion',
+            'area1.descripcion',
+            'area2.descripcion',
+            'correspondencia.tbl_correspondencia.asunto',
+            'correspondencia.tbl_correspondencia.fecha_captura',
+            'correspondencia.tbl_correspondencia.fecha_fin'
+        );
 
         if (!empty($idUser)) {
             $query->where(function ($q) use ($idUser) {
