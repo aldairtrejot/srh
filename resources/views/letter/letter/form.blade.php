@@ -344,24 +344,23 @@
   </div>
 </x-template-app.app-layout>
 
-<!-- === Quitar obligatoriedad de Área 2 y Área 3 sin tocar componentes === -->
+<!-- === Quitar obligatoriedad de Área 2 sin tocar Área (id_cat_area) === -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var $a2 = document.querySelector("select[name='id_cat_area_2']");
-    var $a3 = document.querySelector("select[name='id_cat_area']");
-    [$a2, $a3].forEach(function (el) {
-      if (!el) return;
-      el.required = false;
-      el.removeAttribute('required');
-      el.removeAttribute('aria-required');
-      el.removeAttribute('data-rule-required');
-      if (el.setCustomValidity) el.setCustomValidity('');
+    var a2 = document.querySelector("select[name='id_cat_area_2']");
+    if (a2) {
+      a2.required = false;
+      a2.removeAttribute('required');
+      a2.removeAttribute('aria-required');
+      a2.removeAttribute('data-rule-required');
+      if (a2.setCustomValidity) a2.setCustomValidity('');
       if (typeof $ !== 'undefined' && $.fn.selectpicker) {
-        $(el).prop('required', false).selectpicker('refresh');
+        $(a2).prop('required', false).selectpicker('refresh');
       }
-    });
+    }
   });
 </script>
+
 
 {{-- JS existentes --}}
 <script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>

@@ -273,15 +273,19 @@ function applyReturnadoMode(on, idReturnado) {
     if ($.fn.selectpicker) $st.selectpicker('refresh');
   }
 }
-// ——— Encabezado dinámico (Año / Clave) ———
+
+/* ========================= Encabezado dinámico (Año / Clave) ========================= */
+// Pinta fecha y turno rápidos desde los hidden y luego resuelve año/clave desde backend
 function setData() {
   $('#_labFechaCaptura').text($('#fecha_captura').val());
   $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
   getData();
 }
+
 function getData() {
   var id_cat_anio  = $('#id_cat_anio').val();
   var id_cat_clave = $('#id_cat_clave_aux').val();
+
   $.post(URL_DEFAULT + '/letter/collection/dataClave', {
     id_cat_anio: id_cat_anio,
     id_cat_clave: id_cat_clave,
@@ -289,21 +293,28 @@ function getData() {
   }, function (response) {
     var item      = response.nameYear || {};
     var itemClave = response.dataClave || {};
-    $('#_labAño').text(item.name || '');
+
+    // nameYear.name debe traer "2025", etc.
+    $('#_labAño').text(item.name || $('#_labAño').text());
     $('#_labClave').text(itemClave._labClave || '');
     $('#_labClaveCodigo').text(itemClave._labClaveCodigo || '');
     $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion || '');
   });
 }
+
 /* ========================= Encabezado de resumen ========================= */
-/** Copia los valores de los hidden a los labels del encabezado */
+/** Copia los valores de los hidden a los labels del encabezado.
+ *  Si el "año" no es de 4 dígitos (p.ej. "2"), usa el año actual como fallback.
+ */
 function fillHeaderSummary() {
-  // Si además tienes un hidden con el texto del año, úsalo como preferente
   var anioText = ($('#id_cat_anio_text').val && $('#id_cat_anio_text').val()) || '';
 
   var noTurno = $('#num_turno_sistema').val() || '—';
   var fecha   = $('#fecha_captura').val()     || '—';
-  var anio    = anioText || $('#id_cat_anio').val() || '—';
+
+  var anioRaw  = anioText || $('#id_cat_anio').val() || '';
+  var currentY = (new Date()).getFullYear().toString();
+  var anio     = (/^\d{4}$/.test(anioRaw) ? anioRaw : currentY);  // si viene "2", usa el año actual
 
   var labNo   = document.getElementById('_labNoCorrespondencia');
   var labFec  = document.getElementById('_labFechaCaptura');
@@ -372,6 +383,9 @@ $(function () {
 
   // Submit: validaciones y sincronización de espejos
   $('#myForm').on('submit', function (e) {
+    // 🔴 Asegurar que Área (id_cat_area) no vaya vacío
+    ensureFirstIfEmpty('#id_cat_area');
+
     if (!validarFechasAntesDeEnviar()) {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -418,6 +432,7 @@ $(function () {
   // Estado inicial: NO bloqueado (hasta que deps-areas.js llame applyReturnadoMode(true))
   applyReturnadoMode(false);
 
-  // >>> FIX: llenar el encabezado de resumen
-  fillHeaderSummary();
+  // >>> Encabezado: pinta algo inmediato y luego resuelve el nombre real del año
+  fillHeaderSummary(); // si id_cat_anio trae "2", mostramos año actual mientras
+  setData();           // sobreescribe con el texto correcto del catálogo (p.ej. "2025")
 });
