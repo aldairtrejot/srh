@@ -1495,7 +1495,7 @@ private function uploadFilesIfAny(Request $request, int $idCorrespondencia): voi
                 'fecha_usuario'          => now(),
             ];
 
-            /** @var \App\Models\Letter\Letter\OfficeM $created */
+            /** @var OfficeM $created */
             $created = OfficeM::create($oficioData);
 
             // Iterar consecutivo
