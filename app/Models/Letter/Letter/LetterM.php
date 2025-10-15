@@ -157,50 +157,48 @@ class LetterM extends Model
             'correspondencia.tbl_correspondencia.fecha_fin'
         );
 
-    if (!empty($idUser)) {
-        $query->where(function ($q) use ($idUser) {
-            $q->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
-              ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_1', $idUser)
-              ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_2', $idUser)
-              ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
-        });
+        if (!empty($idUser)) {
+            $query->where(function ($q) use ($idUser) {
+                $q->whereIn('correspondencia.tbl_correspondencia.id_cat_area', $idUser)
+                  ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_1', $idUser)
+                  ->orWhereIn('correspondencia.tbl_correspondencia.id_cat_area_2', $idUser)
+                  ->orWhereIn('correspondencia.ctrl_transcribir_correspondencia.id_cat_area', $idUser);
+            });
 
-        $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+            $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2);
+        }
+
+        if (!empty($searchValue)) {
+            $sv = '%'.trim($searchValue).'%';
+            $query->where(function ($q) use ($sv) {
+                $q->whereRaw("TRIM(correspondencia.tbl_correspondencia.num_documento) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.asunto) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.cat_estatus.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.folio_gestion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area_main.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area1.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TRIM(area2.descripcion) ILIKE ?", [$sv])
+                  ->orWhereRaw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') ILIKE ?", [$sv]);
+            });
+        }
+
+        if (!empty($idUser)) {
+            $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
+                                WHEN 1 THEN 1
+                                WHEN 2 THEN 2
+                                WHEN 3 THEN 3
+                                WHEN 4 THEN 4
+                                WHEN 5 THEN 5
+                                WHEN 6 THEN 6
+                                ELSE 7 END ASC');
+        } else {
+            $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
+        }
+
+        $query->offset($iterator)->limit($pageSize);
+        return $query->get();
     }
 
-    if (!empty($searchValue)) {
-        $sv = '%'.trim($searchValue).'%';
-        $query->where(function ($q) use ($sv) {
-            $q->whereRaw("TRIM(correspondencia.tbl_correspondencia.num_documento) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.asunto) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.cat_estatus.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(correspondencia.tbl_correspondencia.folio_gestion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area_main.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area1.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TRIM(area2.descripcion) ILIKE ?", [$sv])
-              ->orWhereRaw("TO_CHAR(correspondencia.tbl_correspondencia.fecha_captura, 'DD/MM/YYYY') ILIKE ?", [$sv]);
-        });
-    }
-
-    if (!empty($idUser)) {
-        $query->orderByRaw('CASE correspondencia.tbl_correspondencia.id_cat_estatus
-                            WHEN 1 THEN 1
-                            WHEN 2 THEN 2
-                            WHEN 3 THEN 3
-                            WHEN 4 THEN 4
-                            WHEN 5 THEN 5
-                            WHEN 6 THEN 6
-                            ELSE 7 END ASC');
-    } else {
-        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'DESC');
-    }
-
-    $query->offset($iterator)->limit($pageSize);
-    return $query->get();
-}
-
-
-    // ===== SELECTS ESPECIALES (ÁREA 1 y 2) =====
     public function getArea2OptionsByArea1(int $area1Id)
     {
         return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
@@ -260,8 +258,6 @@ class LetterM extends Model
             ->where('id_cat_area', $id)
             ->first();
     }
-
-    // ==== Otros métodos (únicos, reportes, etc.) ====
 
     public function validateNoDocument($id, $value)
     {
@@ -460,14 +456,71 @@ class LetterM extends Model
             ->limit(20)
             ->get();
     }
+
+    /* =========================================================
+     *  NUEVO — helpers para "RETORNADO"
+     * ========================================================= */
+public function getReturnadoId(): int
+{
+    // Resuelve por nombre; si no encuentra, usa 8 como fallback
+    try {
+        $named = DB::table('correspondencia.cat_estatus')
+            ->whereRaw('UPPER(TRIM(descripcion)) = ?', ['RETURNADO'])
+            ->value('id_cat_estatus');
+        if ($named) {
+            return (int)$named;
+        }
+    } catch (\Throwable $e) {
+        // noop
+    }
+    return 8;
 }
 
+public function areaHasReturnado(?int $areaId): bool
+{
+    if (!$areaId) return false;
+    $returnadoId = $this->getReturnadoId();
 
+    return DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('id_cat_estatus', $returnadoId)
+        ->where('estatus', true)
+        ->exists();
+}
 
+public function areaOnlyReturnado(?int $areaId): bool
+{
+    if (!$areaId) return false;
+    $returnadoId = $this->getReturnadoId();
 
+    // Tiene Returnado activo...
+    $hasReturnado = DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('estatus', true)
+        ->where('id_cat_estatus', $returnadoId)
+        ->exists();
 
+    if (!$hasReturnado) return false;
 
+    // ...y NO tiene ningún otro estatus activo
+    $hasOther = DB::table('correspondencia.rel_area_estatus')
+        ->where('id_cat_area', $areaId)
+        ->where('estatus', true)
+        ->where('id_cat_estatus', '<>', $returnadoId)
+        ->exists();
 
+    return !$hasOther;
+}
 
-
-
+public function getTurnadoId(): int
+{
+    try {
+        $row = \DB::table('correspondencia.cat_estatus')
+            ->whereRaw('UPPER(descripcion) = ?', ['TURNADO'])
+            ->select('id_cat_estatus as id')->first();
+        return $row ? (int)$row->id : 6; // fallback si no existe
+    } catch (\Throwable $e) {
+        return 6;
+    }
+}
+}

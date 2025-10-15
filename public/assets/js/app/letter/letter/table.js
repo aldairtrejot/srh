@@ -12,6 +12,7 @@ var iterator = 1;            // Se comienza el iterador en 1
 var emptyContent = false;    // Flag para paginadores
 var columnVisibility = {};   // Mapa de visibilidad por índice (base 0)
 var LOCAL_KEY = 'letter_table_column_visibility';
+var __serverColumnsAppliedOnce = false;
 
 /* =========================== INIT =========================== */
 $(document).ready(function () {
@@ -25,7 +26,7 @@ $(document).ready(function () {
     $('.toggle-column').each(function () {
       var idx = parseInt($(this).data('column'), 10);
       var visible = $(this).is(':checked'); // por Blade: sin checked → false
-      if (saved && typeof saved[idx] !== 'undefined') visible = !!saved[idx]; // estado guardado tiene prioridad
+      if (saved && typeof saved[idx] !== 'undefined') visible = !!saved[idx]; // prioridad localStorage
       columnVisibility[idx] = !!visible;
       $(this).prop('checked', visible);
     });
@@ -69,6 +70,26 @@ function applySavedColumnVisibility(headersOnly) {
   }
 }
 
+/* Aplica columnas del server UNA SOLA VEZ y sólo si no hay preferencias guardadas */
+function applyServerColumnsOnce(serverVis) {
+  if (__serverColumnsAppliedOnce) return;
+  var hasLocal = false;
+  try { hasLocal = !!JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_){}
+  if (hasLocal) return;
+
+  if (serverVis && typeof serverVis === 'object') {
+    // Back mapea: {area:bool, crh:bool, crhtod:bool}
+    // En tabla: Área=5(índice 5), CRH=6(índice 6), CRHTOD=7(índice 7)
+    if (typeof serverVis.area   !== 'undefined') columnVisibility[5] = !!serverVis.area;
+    if (typeof serverVis.crh    !== 'undefined') columnVisibility[6] = !!serverVis.crh;
+    if (typeof serverVis.crhtod !== 'undefined') columnVisibility[7] = !!serverVis.crhtod;
+
+    applySavedColumnVisibility(false);
+    __serverColumnsAppliedOnce = true;
+  }
+}
+
+/* Guarda estado en localStorage (opcional) */
 function persistVisibility() {
   try { localStorage.setItem(LOCAL_KEY, JSON.stringify(columnVisibility)); } catch (_) {}
 }
@@ -95,7 +116,7 @@ function bindToggleMenu() {
   });
 }
 
-/* =========================== UTIL: OJITO =========================== */
+/* =========================== CLOUD / RESPUESTA =========================== */
 function seeDocumentUid(uid) {
   if (!uid) return;
   try {
@@ -119,18 +140,17 @@ function renderEye(uid, title) {
   );
 }
 
-/* =========================== CLOUD (col 9) =========================== */
-function renderCloudCell(uid) {
-  return renderEye(uid, 'Ver documento de entrada');
+/* CLOUD (col 9): SOLO “ojo” de ENTRADA */
+function renderCloudCell(uidEntrada) {
+  return renderEye(uidEntrada, 'Ver documento de entrada');
 }
 
-/* =========================== RESPUESTA (col 10) =========================== */
-/** Slot vacío que luego se llena con el ojito si hay respuesta */
+/* RESPUESTA (col 10): slot que luego se llena con el “ojo” si existe */
 function renderReplyEyeSlot(idCorr) {
   return '<div id="resp-eye-' + idCorr + '" style="display:flex; justify-content:center; align-items:center;"></div>';
 }
 
-/** Trae UID de respuesta por fila y pinta el ojo si existe */
+/* Trae UID de respuesta por fila y pinta el ojo si existe */
 function fetchReplyUid(idCorr) {
   var token = $('meta[name="csrf-token"]').attr('content');
   $.post(URL_DEFAULT.concat('/letter/cloud/reply'), { id: idCorr, _token: token })
@@ -146,7 +166,6 @@ function fetchReplyUid(idCorr) {
      }
    })
    .fail(function () {
-     // en caso de error, no mostramos nada
      $('#resp-eye-' + idCorr).html('');
    });
 }
@@ -180,11 +199,12 @@ function searchInit() {
           'CONCLUIDO': '#26874A',
           'VENCIDO': '#FF0000',
           'RECHAZADO': '#b30000',
-          'CONOCIMIENTO': '#6fc5f4ff'
+          'CONOCIMIENTO': '#6fc5f4ff',
+          'RETURNADO': '#872ebbff'
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
 
-        // UID de entrada (si tu backend lo provee en la lista).
+        // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
 
         // Para dropdown
@@ -267,7 +287,7 @@ function searchInit() {
               (object.asunto || '') +
             '</td>' +
 
-            // 9: Cloud → ojo (entrada)
+            // 9: Cloud → solo “ojo” (entrada)
             '<td>' + renderCloudCell(uidEntrada) + '</td>' +
 
             // 10: Respuesta → SOLO slot para el ojo (sin botón Responder)
@@ -287,6 +307,9 @@ function searchInit() {
       emptyContent = true;
       setValue();
     }
+
+    // Aplica visibilidad del server si viene y no hay preferencias locales
+    applyServerColumnsOnce(response && response.columns_visibility);
 
     // Re-aplicar visibilidad tras render (ya con filas)
     applySavedColumnVisibility(false);
@@ -316,6 +339,3 @@ function searchValue() {
   setValue();
   searchInit();
 }
-
-
-

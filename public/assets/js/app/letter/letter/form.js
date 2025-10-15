@@ -1,15 +1,10 @@
 /* =========================================================
    form.js — LÓGICA GENERAL DEL FORMULARIO
-   - Inicialización UI (selectpicker, tooltips, placeholders)
-   - Fechas (límites y validación)
-   - Roles/permisos y bloqueo de campos
-   - Remitentes (uno o varios)
-   - Carga de archivos (UI) con IDs reales del Blade
    ========================================================= */
 
 var token = $('meta[name="csrf-token"]').attr('content');
 
-// ——— Helpers seguros para tooltips/placeholders ———
+/* ========================= Helpers UI ========================= */
 function safeTooltip(selector, text) {
   if (typeof tooltip === 'function') { tooltip(selector, text); }
 }
@@ -17,8 +12,82 @@ function refreshSelect(sel) {
   $(sel).attr('data-none-selected-text', 'SELECCIONE').selectpicker('refresh');
   if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
 }
+function showDiv(id)  { $('#'+id).show(); }
+function hideDiv(id)  { $('#'+id).hide(); }
+function cleanSelect(sel) { $(sel).val('').selectpicker('refresh'); }
 
-// ——— Fechas ———
+/* ========================= Helpers FORM & Mirrors ========================= */
+// Obtiene el formulario correcto (por defecto #myForm)
+function getForm$() {
+  return $('#myForm').length ? $('#myForm') : $('form').first();
+}
+
+// Crea/recupera un input hidden dentro del form
+function ensureHidden(id, name) {
+  var $form = getForm$();
+  var $hid = $form.find('#' + id);
+  if ($hid.length === 0) {
+    $hid = $('<input type="hidden">').attr({ id: id, name: name });
+    $form.append($hid);
+  }
+  return $hid;
+}
+
+// Si el select está vacío pero hay opciones, toma la primera no-vacía
+function ensureFirstIfEmpty(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  if (!$s.val()) {
+    var v = $s.find('option[value!=""]').first().val();
+    if (v) {
+      $s.val(v);
+      if ($.fn.selectpicker) $s.selectpicker('refresh');
+      $s.trigger('change');
+    }
+  }
+}
+
+// Congela un select y crea su “espejo” hidden para que viaje en el POST
+function freezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  // Garantiza que tenga algún valor razonable
+  var val = $s.val();
+  if (!val) {
+    var first = $s.find('option[value!=""]').first().val();
+    if (first) {
+      val = first;
+      $s.val(first);
+      if ($.fn.selectpicker) $s.selectpicker('refresh');
+    }
+  }
+
+  var hidId = name + '__mirror';
+  var $hid = ensureHidden(hidId, name);
+  $hid.val(val || '');
+
+  $s.prop('disabled', true);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}
+
+// Descongela y elimina el espejo
+function unfreezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  var hidId = name + '__mirror';
+  getForm$().find('#' + hidId).remove();
+
+  $s.prop('disabled', false);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}
+
+/* ========================= Fechas ========================= */
 function setDateLimits() {
   var today   = new Date();
   var maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + 3);
@@ -32,6 +101,20 @@ function setDateLimits() {
     var val = $(id).val();
     if (val && (val < minStr || val > maxStr)) { $(id).val(''); }
   });
+}
+
+function showFieldError(selector, message) {
+  var $inp = $(selector);
+  if ($inp.next('.invalid-feedback').length === 0) {
+    $inp.after('<div class="invalid-feedback"></div>');
+  }
+  $inp.addClass('is-invalid');
+  $inp.next('.invalid-feedback').text(message).show();
+}
+function clearFieldError(selector) {
+  var $inp = $(selector);
+  $inp.removeClass('is-invalid');
+  $inp.next('.invalid-feedback').hide().text('');
 }
 
 function validarFechasAntesDeEnviar() {
@@ -65,106 +148,144 @@ function validarFechasAntesDeEnviar() {
   return ok;
 }
 
-function showFieldError(selector, message) {
-  var $inp = $(selector);
-  if ($inp.next('.invalid-feedback').length === 0) {
-    $inp.after('<div class="invalid-feedback"></div>');
-  }
-  $inp.addClass('is-invalid');
-  $inp.next('.invalid-feedback').text(message).show();
-}
-function clearFieldError(selector) {
-  var $inp = $(selector);
-  $inp.removeClass('is-invalid');
-  $inp.next('.invalid-feedback').hide().text('');
-}
-
-// ——— Remitentes ———
+/* ========================= Remitentes ========================= */
 function setCheckboxArea() {
-  if ($('#rfc_remitente_bool').val()) {
-    $('#idcheckboxTemplate').prop('checked', true);
-    cleanSelect('#id_cat_remitente');
-    $('#id_cat_remitente').prop('disabled', true).selectpicker('refresh');
-    showDiv('mostrar_ocultar_template');
+  // “Agregar remitente” (alta por RFC)
+  var addRem = $('#rfc_remitente_bool').val() === '1' || $('#rfc_remitente_bool').val() === 'true';
+  $('#idcheckboxTemplate').prop('checked', !!addRem);
+
+  if (addRem) {
+    showDiv('mostrar_ocultar_template');    // formulario de nombre/apellidos/RFC
+    hideDiv('_hidden_select');              // oculta select de remitente
   } else {
-    $('#remitente_nombre, #remitente_apellido_paterno, #remitente_apellido_materno, #remitente_rfc').val('');
-    $('#id_cat_remitente').prop('disabled', false).selectpicker('refresh');
     hideDiv('mostrar_ocultar_template');
+    showDiv('_hidden_select');
   }
-  getRole();
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-}
 
-function setCheckbox() {
-  var es_doc_fisico      = $('#es_doc_fisico').val();
-  var son_mas_remitentes = $('#son_mas_remitentes').val();
-
-  $('#es_doc_fisico_box').prop('checked', !!es_doc_fisico);
-  $('#son_mas_remitentes_box').prop('checked', !!son_mas_remitentes);
-  setValueOfMoreRem();
-}
-
-function setValueOfMoreRem() {
-  var son_mas_remitentes = $('#son_mas_remitentes').val();
-  if (son_mas_remitentes) {
+  // “Varios remitentes”
+  var mas = $('#son_mas_remitentes').val() === '1' || $('#son_mas_remitentes').val() === 'true';
+  if (mas) {
+    showDiv('mostrar_ocultar_mas_remitentes');
     hideDiv('_hidden_select');
     hideDiv('mostrar_ocultar_template');
-    showDiv('mostrar_ocultar_mas_remitentes');
-    cleanSelect('#id_cat_remitente');
   } else {
-    showDiv('_hidden_select');
-    hideDiv('mostrar_ocultar_template');
     hideDiv('mostrar_ocultar_mas_remitentes');
-    $('#remitente').val('');
-  }
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-}
-
-// ——— Roles / permisos ———
-function getRole() {
-  var bool_user_role = $('#bool_user_role').val();
-  var isPriv = !!(bool_user_role && bool_user_role.trim() !== '');
-  if (!isPriv) {
-    validateEstatus();
-    var toDisable = [
-      '#num_documento', '#num_copias', '#fecha_inicio', '#fecha_fin',
-      '#num_flojas', '#num_tomos', '#asunto', '#remitente_nombre',
-      '#remitente_apellido_paterno', '#remitente_apellido_materno', '#remitente_rfc',
-      '#horas_respuesta', '#puesto_remitente', '#id_cat_remitente', '#folio_gestion',
-      '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
-      '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-      '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-      '#id_cat_remitente', '#id_cat_entidad', '#id_cat_area_1', '#id_cat_area_2'
-    ];
-    toDisable.forEach(function (id) { $(id).prop('disabled', true); });
-    [
-      '#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-      '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-      '#id_cat_remitente', '#id_cat_area_1', '#id_cat_area_2'
-    ].forEach(refreshSelect);
   }
 }
 
-function validateEstatus() {
-  var $sel = $('#id_cat_estatus');
-  var val  = Number($sel.val());
-  if ([2,5,7].includes(val)) {
-    $sel.prop('disabled', true);
+/* ========================= Archivos (UI) ========================= */
+function updateOficioUI() {
+  var $inp = $('#file_oficio_entrada');
+  var files = $inp[0].files;
+  var $empty = $('#container_oficio_entrada_vacio');
+  var $cont  = $('#container_oficio_entrada');
+  var $label = $('#label_oficio_entrada');
+  var $icon  = $('#icon_oficio_entrada');
+
+  $cont.empty();
+  if (files && files.length > 0) {
+    $empty.hide();
+    var f = files[0];
+    var pill = $('<div class="file-pills-row"><span class="file-pill"></span></div>');
+    pill.find('.file-pill').text(f.name + ' (' + Math.ceil(f.size/1024) + ' KB)');
+    $cont.append(pill);
+    $label.text('Cambiar');
+    $icon.removeClass('fa-arrow-up').addClass('fa-refresh');
+    $('#msg_oficio_req').hide();
   } else {
-    $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"]').remove();
+    $empty.show();
+    $label.text('Cargar');
+    $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
   }
-  $sel.selectpicker('refresh');
 }
 
-// ——— Encabezado dinámico (Año / Clave) ———
+function updateAnexosUI() {
+  var $inp = $('#file_anexo_entrada');
+  var files = $inp[0].files || [];
+  var $empty = $('#container_anexo_entrada_vacio');
+  var $cont  = $('#container_anexo_entrada');
+  var $label = $('#label_anexo_entrada');
+  var $icon  = $('#icon_anexo_entrada');
+
+  $cont.empty();
+  if (files.length > 0) {
+    $empty.hide();
+    var row = $('<div class="file-pills-row"></div>');
+    Array.prototype.slice.call(files).forEach(function (f) {
+      row.append('<span class="file-pill" title="'+ f.name +'">' +
+                  f.name + ' (' + Math.ceil(f.size/1024) + ' KB)' +
+                 '</span>');
+    });
+    $cont.append(row);
+    $label.text('Cambiar');
+    $icon.removeClass('fa-arrow-up').addClass('fa-refresh');
+  } else {
+    $empty.show();
+    $label.text('Cargar');
+    $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
+  }
+}
+
+/* ========================= Bloqueo Turnar A & Returnado ========================= */
+// Congela/descongela todo el bloque "Turnar A" con espejos para el POST
+function setTurnarBlocked(on) {
+  var sels = [
+    '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+    '#id_usuario_area', '#id_usuario_enlace',
+    '#id_cat_unidad', '#id_cat_coordinacion',
+    '#id_cat_tramite', '#id_cat_clave'
+  ];
+
+  if (on) {
+    // Evita que algo viaje vacío al backend
+    sels.forEach(ensureFirstIfEmpty);
+    sels.forEach(freezeWithMirror);
+  } else {
+    sels.forEach(unfreezeWithMirror);
+  }
+}
+
+// API pública que usa deps-areas.js al detectar Returnado
+function applyReturnadoMode(on, idReturnado) {
+  var $form = getForm$();
+  var $force = $form.find('#force_returnado');
+  if ($force.length === 0) {
+    $force = $('<input type="hidden" id="force_returnado" name="force_returnado">').appendTo($form);
+  }
+
+  var $st = $('#id_cat_estatus');
+  if (on) {
+    var idRet = String(idReturnado || 8);
+    $st.val(idRet);
+    freezeWithMirror('#id_cat_estatus');
+    $force.val('1');
+
+    setTurnarBlocked(true);
+
+    $st.prop('disabled', true);
+    if ($.fn.selectpicker) $st.selectpicker('refresh');
+  } else {
+    $force.val('');
+    setTurnarBlocked(false);
+
+    unfreezeWithMirror('#id_cat_estatus');
+    $st.prop('disabled', false);
+    if ($.fn.selectpicker) $st.selectpicker('refresh');
+  }
+}
+
+/* ========================= Encabezado dinámico (Año / Clave) ========================= */
+// Pinta fecha y turno rápidos desde los hidden y luego resuelve año/clave desde backend
 function setData() {
   $('#_labFechaCaptura').text($('#fecha_captura').val());
   $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
   getData();
 }
+
 function getData() {
   var id_cat_anio  = $('#id_cat_anio').val();
   var id_cat_clave = $('#id_cat_clave_aux').val();
+
   $.post(URL_DEFAULT + '/letter/collection/dataClave', {
     id_cat_anio: id_cat_anio,
     id_cat_clave: id_cat_clave,
@@ -172,61 +293,42 @@ function getData() {
   }, function (response) {
     var item      = response.nameYear || {};
     var itemClave = response.dataClave || {};
-    $('#_labAño').text(item.name || '');
+
+    // nameYear.name debe traer "2025", etc.
+    $('#_labAño').text(item.name || $('#_labAño').text());
     $('#_labClave').text(itemClave._labClave || '');
     $('#_labClaveCodigo').text(itemClave._labClaveCodigo || '');
     $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion || '');
   });
 }
 
-// ——— Carga de archivos (UI) ———
-function setCheckboxFiles() {
-  var activo = !!$('#habilitar_carga').val();
-  if (activo) {
-    showDiv('contenedor_carga_archivos');
-    enableFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
-    enableFile('#file_anexo_entrada',  '#label_anexo_entrada',  '#icon_anexo_entrada');
-    $('#habilitar_carga_box').prop('checked', true);
-  } else {
-    hideDiv('contenedor_carga_archivos');
-    resetFile('#file_oficio_entrada', '#label_oficio_entrada', '#icon_oficio_entrada');
-    resetFile('#file_anexo_entrada',  '#label_anexo_entrada',  '#icon_anexo_entrada');
-    $('#habilitar_carga_box').prop('checked', false);
-  }
-}
-function enableFile(inputSel, labelSel, iconSel) {
-  $(inputSel).prop('disabled', false);
-  $(labelSel).css({ opacity: 1, cursor: 'pointer' });
-  if (iconSel) { $(iconSel).css('opacity', 1); }
-}
-function resetFile(inputSel, labelSel, iconSel) {
-  $(inputSel).val('').prop('disabled', true);
-  $(labelSel).css({ opacity: 0.5, cursor: 'not-allowed' });
-  if (iconSel) { $(iconSel).css('opacity', 0.5); }
-  clearLocalFileError(inputSel);
-}
-function clearLocalFileError(inputSel) {
-  var id  = inputSel.replace('#', '');
-  var $er = $('#error_' + id);
-  if ($er.length) {
-    $er.hide().text('');
-    $(inputSel).removeClass('is-invalid');
-  }
+/* ========================= Encabezado de resumen ========================= */
+/** Copia los valores de los hidden a los labels del encabezado.
+ *  Si el "año" no es de 4 dígitos (p.ej. "2"), usa el año actual como fallback.
+ */
+function fillHeaderSummary() {
+  var anioText = ($('#id_cat_anio_text').val && $('#id_cat_anio_text').val()) || '';
+
+  var noTurno = $('#num_turno_sistema').val() || '—';
+  var fecha   = $('#fecha_captura').val()     || '—';
+
+  var anioRaw  = anioText || $('#id_cat_anio').val() || '';
+  var currentY = (new Date()).getFullYear().toString();
+  var anio     = (/^\d{4}$/.test(anioRaw) ? anioRaw : currentY);  // si viene "2", usa el año actual
+
+  var labNo   = document.getElementById('_labNoCorrespondencia');
+  var labFec  = document.getElementById('_labFechaCaptura');
+  var labAnio = document.getElementById('_labAño'); // usar getElementById por el caracter ñ
+
+  if (labNo)   labNo.textContent   = noTurno;
+  if (labFec)  labFec.textContent  = fecha;
+  if (labAnio) labAnio.textContent = anio;
 }
 
-// ——— INIT único ———
-$(document).ready(function () {
-  try { $('#carga_archivos, #carga_archivos_box, #id_checkbox_carga_archivos').off(); } catch(e) {}
-
-  $('select').attr('data-none-selected-text', 'SELECCIONE').selectpicker();
-  if (window.__applySelectPlaceholderES) window.__applySelectPlaceholderES();
-
-  setData();
-  getRole();
-  setCheckboxArea();
-  setCheckbox();
+/* ========================= Ready ========================= */
+$(function () {
   setDateLimits();
-  setCheckboxFiles();
+  setCheckboxArea();
 
   // Tooltips
   safeTooltip('#id_checkbox_Template_tooltip_fisico','Marcar si el documento es físico');
@@ -234,37 +336,103 @@ $(document).ready(function () {
   safeTooltip('#mas_remitentes','Añadir dos o más remitentes');
   safeTooltip('#habilitar_carga_archivos','Mostrar/ocultar la sección de carga de Oficio y Anexos');
 
-  // Validación visual de fechas
+  // Limpiar errores de fechas al escribir/cambiar
   $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
     clearFieldError('#' + this.id);
   });
 
-  // Validación en submit
-  $('#myForm').on('submit', function (e) {
-    if (!validarFechasAntesDeEnviar()) { e.preventDefault(); }
-  });
-
-  // Limpia error local al seleccionar archivos
-  ['#file_oficio_entrada', '#file_anexo_entrada'].forEach(function (id) {
-    $(id).on('change', function () { clearLocalFileError(id); });
-  });
-
-  // Sincroniza hidden ↔ checkbox de carga
-  $('#habilitar_carga_box').on('change', function () {
-    $('#habilitar_carga').val($(this).is(':checked') ? true : '');
-    setCheckboxFiles();
-  });
-
-  // Checkboxes principales
-  $('#es_doc_fisico_box').on('change', function () {
-    $('#es_doc_fisico').val($(this).is(':checked') ? true : '');
-  });
-  $('#son_mas_remitentes_box').on('change', function () {
-    $('#son_mas_remitentes').val($(this).is(':checked') ? true : '');
-    setCheckbox();
-  });
-  $('#idcheckboxTemplate').on('change', function () {
-    $('#rfc_remitente_bool').val($(this).is(':checked') ? true : '');
+  // Toggle “Agregar remitente”
+  $(document).on('change', '#idcheckboxTemplate', function () {
+    var checked = $(this).is(':checked');
+    $('#rfc_remitente_bool').val(checked ? '1' : '');
     setCheckboxArea();
+    if (checked) cleanSelect('#id_cat_remitente');
   });
+
+  // Toggle “Varios remitentes”
+  $(document).on('change', 'input[name="son_mas_remitentes_box"]', function () {
+    var checked = $(this).is(':checked');
+    $('#son_mas_remitentes').val(checked ? '1' : '');
+    setCheckboxArea();
+    if (checked) {
+      cleanSelect('#id_cat_remitente');
+      $('#rfc_remitente_bool').val('');
+      $('#idcheckboxTemplate').prop('checked', false);
+    }
+  });
+
+  // Toggle “¿Adjuntar oficio y/o anexos?”
+  $(document).on('change', 'input[name="habilitar_carga_box"]', function () {
+    var checked = $(this).is(':checked');
+    $('#habilitar_carga').val(checked ? '1' : '');
+    if (checked) {
+      $('#contenedor_carga_archivos').slideDown(150);
+    } else {
+      $('#contenedor_carga_archivos').slideUp(150);
+      // limpiar UI
+      $('#file_oficio_entrada').val('');
+      $('#file_anexo_entrada').val('');
+      updateOficioUI();
+      updateAnexosUI();
+    }
+  });
+
+  // Files
+  $('#file_oficio_entrada').on('change', updateOficioUI);
+  $('#file_anexo_entrada').on('change', updateAnexosUI);
+
+  // Submit: validaciones y sincronización de espejos
+  $('#myForm').on('submit', function (e) {
+    // 🔴 Asegurar que Área (id_cat_area) no vaya vacío
+    ensureFirstIfEmpty('#id_cat_area');
+
+    if (!validarFechasAntesDeEnviar()) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return false;
+    }
+
+    // Si está activo el modo Returnado, resincroniza mirrors por seguridad
+    if ($('#force_returnado').val() === '1') {
+      [
+        '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
+        '#id_usuario_area', '#id_usuario_enlace',
+        '#id_cat_unidad', '#id_cat_coordinacion',
+        '#id_cat_tramite', '#id_cat_clave', '#id_cat_estatus'
+      ].forEach(function(sel){
+        var $s = $(sel);
+        if ($s.length) {
+          var name = $s.attr('name');
+          if (name) {
+            var hidId = name + '__mirror';
+            var $hid = ensureHidden(hidId, name);
+            $hid.val($s.val() || '');
+          }
+        }
+      });
+    }
+
+    // Sugerencia visual si habilitó carga y no adjuntó oficio (no bloquea)
+    if ($('#habilitar_carga').val() === '1') {
+      var files = ($('#file_oficio_entrada')[0].files || []).length;
+      if (files === 0) {
+        $('#msg_oficio_req').show();
+        safeTooltip('#label_oficio_entrada', 'Hace falta cargar un oficio.');
+      }
+    }
+  });
+
+  // Placeholder y refresh de selects por si llegan vacíos
+  [
+    '#id_cat_area_1','#id_cat_area_2','#id_cat_area','#id_cat_tramite',
+    '#id_usuario_area','#id_usuario_enlace','#id_cat_unidad','#id_cat_coordinacion',
+    '#id_cat_clave'
+  ].forEach(refreshSelect);
+
+  // Estado inicial: NO bloqueado (hasta que deps-areas.js llame applyReturnadoMode(true))
+  applyReturnadoMode(false);
+
+  // >>> Encabezado: pinta algo inmediato y luego resuelve el nombre real del año
+  fillHeaderSummary(); // si id_cat_anio trae "2", mostramos año actual mientras
+  setData();           // sobreescribe con el texto correcto del catálogo (p.ej. "2025")
 });

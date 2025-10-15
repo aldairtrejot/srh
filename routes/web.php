@@ -63,6 +63,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
 use App\Http\Controllers\Courses\Assignedcourse\ConstanciaAlumnoC;
 use App\Http\Controllers\Letter\Letter\UploadTempC;
+use App\Http\Controllers\Letter\Letter\ReturnadoC;
 
 Route::get('/login', LoginC::class)->name('login'); // /ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); // /ROUTE_REGISTER
@@ -446,3 +447,12 @@ Route::get('/round/dashboard/generate', [RoundC::class, 'descargarReporte'])->na
 Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->name('roundoffice.catalogos')->middleware('auth');
 
 Route::post('/external/collection/area', [ExternalC::class, 'area']);
+
+
+
+Route::post('/letter/returnado/turnar', [ReturnadoC::class, 'turnar'])->name('letter.returnado.turnar');
+
+// (opcional) ya la tienes si seguiste lo anterior
+Route::post('/letter/returnado/check',  [ReturnadoC::class, 'check'])->name('letter.returnado.check');
+
+Route::get('/letter/returnado/seed/{id}', [ReturnadoC::class, 'seed'])->whereNumber('id')->name('letter.returnado.seed');
