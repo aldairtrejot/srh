@@ -47,7 +47,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
       ? URL_DEFAULT.concat('/letter/collection/collectionClave')
       : '/letter/collection/collectionClave');
 
-  /* ========= selectpicker helpers ========= */
+  /* ========== selectpicker helpers ========== */
   function getJQ () {
     return (window.jQuery && window.jQuery.fn && window.jQuery.fn.selectpicker)
       ? window.jQuery
@@ -80,7 +80,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     spRefresh($s);
   }
 
-  /* ====== helpers de selects ====== */
+  /* ========== helpers de selects ========== */
   const PLACEHOLDER = '<option value="">SELECCIONE</option>';
 
   function setPickerEmpty(sel) {
@@ -120,7 +120,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     spRefresh($sel);
   }
 
-  /* ====== logging ====== */
+  /* ========== logging ========== */
   function isAbortError(e) {
     return e && (e.name === 'AbortError' || String(e.message || '').toLowerCase().includes('abort'));
   }
@@ -159,7 +159,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     return resp.json();
   }
 
-  /* ====== control de carrera ====== */
+  /* ========== control de carrera ========== */
   const reqCtl = { a2: null, a3: null, deps: null, coor: null, clave: null };
   function abortAndNew(key) {
     try { reqCtl[key]?.abort(); } catch(_) {}
@@ -167,7 +167,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     return reqCtl[key];
   }
 
-  /* ====== resets en cascada ====== */
+  /* ========== resets en cascada ========== */
   function resetFrom(selectName) {
     const order = ['a1','a2','a3','usr','enl','uni','coor','tra','cla'];
     const map = { a1:$a1, a2:$a2, a3:$a3, usr:$usr, enl:$enl, uni:$uni, coor:$coor, tra:$tra, cla:$cla };
@@ -182,6 +182,47 @@ var token = $('meta[name="csrf-token"]').attr('content');
   function resetArea3(){ setPickerEmpty($a3); }
 
   /* =========================================================
+     Acceso: solo estatus RETURNADO (configurable)
+     ========================================================= */
+  function getAllowedStatusSet() {
+    const arr =
+      (Array.isArray(window.LETTER?.statusAllowedReturnado) && window.LETTER.statusAllowedReturnado.length
+        ? window.LETTER.statusAllowedReturnado
+        : (window.LETTER?.statusReturnadoId != null
+            ? [window.LETTER.statusReturnadoId]
+            : []));
+    // normaliza a strings
+    return new Set(arr.map(x => String(x)));
+  }
+
+  function getCurrentStatusId() {
+    const domVal = $('#id_cat_estatus').val();
+    if (domVal != null && domVal !== '') return String(domVal);
+    if (window.LETTER && window.LETTER.currentStatusId != null) return String(window.LETTER.currentStatusId);
+    return ''; // desconocido
+  }
+
+  function isReturnadoAllowedNow() {
+    const allowed = getAllowedStatusSet();
+    if (!allowed.size) {
+      // Si no hay config, no bloqueamos para no romper ambientes.
+      if (window.LETTER_DEBUG) console.debug('[Returnado] Sin configuración de estatus permitido; no se bloquea.');
+      return true;
+    }
+    const cur = getCurrentStatusId();
+    return allowed.has(cur);
+  }
+
+  function guardReturnadoOrWarn() {
+    const ok = isReturnadoAllowedNow();
+    if (!ok) {
+      if (window.notyfEM) notyfEM.error('Solo las correspondencias en estatus RETURNADO pueden usar esta función.');
+      else alert('Solo las correspondencias en estatus RETURNADO pueden usar esta función.');
+    }
+    return ok;
+  }
+
+  /* =========================================================
      Cargar A2 por A1  (SIN auto-seleccion)
      ========================================================= */
   async function cargarArea2PorArea1(area1Id, preselectA2 = null) {
@@ -194,7 +235,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
       const rows = (json.ok && Array.isArray(json.value)) ? json.value : [];
       fillPicker($a2, rows, preselectA2 || null);
       enablePicker($a2);
-      // 🔕 SIN autoselección ni trigger change aquí
+      // SIN autoselección ni trigger change aquí
     } catch (e) {
       logIfNotAbort('cargarArea2PorArea1 error', e);
       resetArea2(); resetArea3();
@@ -218,7 +259,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
       const rows = (json.ok && Array.isArray(json.value)) ? json.value : [];
       fillPicker($a3, rows, preselectA3 || null);
       enablePicker($a3);
-      // 🔕 SIN autoselección ni trigger change aquí
+      // SIN autoselección ni trigger change aquí
     } catch (e) {
       logIfNotAbort('cargarArea3PorArea2 error', e);
       resetArea3();
@@ -316,23 +357,61 @@ var token = $('meta[name="csrf-token"]').attr('content');
     }
   }
 
-  /* ====== Encadenamientos ====== */
+  /* =========================================================
+     Refresco de tabla/lista
+     ========================================================= */
+  function refreshMainTable() {
+    try {
+      // 1) DataTables común
+      if ($.fn && $.fn.DataTable) {
+        const ids = ['#tablaCorrespondencia', '#tabla_returnado', '#tabla_principal', '.dataTable'];
+        let refreshed = false;
+        for (const sel of ids) {
+          const $t = $(sel);
+          if ($t.length && ($t.hasClass('dataTable') || $t.is('.dataTable'))) {
+            const api = $t.DataTable();
+            if (api && api.ajax) api.ajax.reload(null, false);
+            else if (api) api.draw(false);
+            refreshed = true;
+          }
+        }
+        if (refreshed) return;
+      }
+      // 2) Livewire
+      if (window.Livewire && typeof window.Livewire.dispatch === 'function') {
+        window.Livewire.dispatch('refreshTable');
+        return;
+      }
+      // 3) Turbo/Hotwire
+      if (window.Turbo && typeof window.Turbo.visit === 'function') {
+        window.Turbo.visit(window.location.href, { action: 'replace' });
+        return;
+      }
+      // 4) Fallback
+      window.location.reload();
+    } catch (e) {
+      console.error('REFRESH_TABLE_ERROR:', e);
+      window.location.reload();
+    }
+  }
+
+  /* ========== Encadenamientos ========== */
   let __seeding = false;
 
-  // A1 -> carga A2, limpia A3, y carga dependientes por A1
+  // A1 -> carga A2, limpia A3, y dependientes por A1
   $(document).on('change', '#id_cat_area_1_ret,[name="id_cat_area_1_ret"]', async function () {
     if (__seeding) return;
     const area1Id = this.value || '';
-    await cargarArea2PorArea1(area1Id, null); // no autoselecciona
+    await cargarArea2PorArea1(area1Id, null); // sin auto
     resetArea3();
     actualizarCamposDerivadosPorAreaId(area1Id);
   });
 
-  // A2 -> carga A3 y dependientes por A2 (sin autoselección)
+  // A2 -> carga A3 y dependientes por A2 (sin auto)
   $(document).on('change', '#id_cat_area_2_ret,[name="id_cat_area_2_ret"]', async function () {
     if (__seeding) return;
     const area2Id = this.value || '';
-    await cargarArea3PorArea2(area2Id, null); // no autoselecciona
+    await cargarArea3PorArea2(area2Id, null); // sin auto
     actualizarCamposDerivadosPorAreaId(area2Id);
   });
 
@@ -352,7 +431,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     cargarClavesPorTramite($(this).val(), true);
   });
 
-  /* ====== Seed desde servidor ====== */
+  /* ========== Seed desde servidor ========== */
   async function seedFromServer(id) {
     const url = SEED_URL_BASE + encodeURIComponent(String(id));
     const resp = await fetch(url, { headers: { 'Accept':'application/json' }});
@@ -378,7 +457,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
 
     [$a1,$a2,$a3,$usr,$enl,$uni,$coor,$tra,$cla].forEach(enablePicker);
 
-    // Si faltan dependientes de A3, consolida
     if (getVal($a3) && (!hasRealOptions($usr) || !hasRealOptions($tra) || !hasRealOptions($uni))) {
       await actualizarCamposDerivadosPorAreaId(getVal($a3));
     }
@@ -390,7 +468,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     }
   }
 
-  /* ====== Seed desde el form principal ====== */
+  /* ========== Seed desde el form principal ========== */
   function cloneSelect(fromSel, toSel) {
     const $from = $(fromSel);
     const $to   = $(toSel);
@@ -417,7 +495,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     if (getVal($tra)) await cargarClavesPorTramite(getVal($tra), false);
   }
 
-  /* ====== Precarga inicial opcional ====== */
+  /* ========== Precarga inicial opcional (sin auto A2/A3) ========== */
   async function precargaInicialPorInitials() {
     const area1Inicial = window.LETTER?.initials?.area1 || null;
     const area2Inicial = window.LETTER?.initials?.area2 || null;
@@ -435,8 +513,11 @@ var token = $('meta[name="csrf-token"]').attr('content');
     }
   }
 
-  /* ====== API modal ====== */
+  /* ========== API modal (con guard de estatus) ========== */
   window.openReturnado = function (id, folGestion) {
+    // ⛔ Bloquea si estatus actual no está permitido
+    if (!guardReturnadoOrWarn()) return;
+
     $('#id_correspondencia_ret').val(id || '');
     $('#name_folio_gestion_returnado').text(folGestion || '');
     $('body').addClass('modal-open-returnado');
@@ -472,8 +553,11 @@ var token = $('meta[name="csrf-token"]').attr('content');
     Object.keys(reqCtl).forEach(k => { try { reqCtl[k]?.abort(); } catch(_){} });
   };
 
-  /* ====== Guardado ====== */
+  /* ========== Guardado (Turnado) con guard de estatus ========== */
   window.saveReturnado = async function () {
+    // ⛔ Verifica otra vez por si abrieron el modal con el estatus correcto y luego cambió.
+    if (!guardReturnadoOrWarn()) return;
+
     const id    = $('#id_correspondencia_ret').val() || '';
     const area1 = getVal($a1);
     const area2 = getVal($a2);
@@ -504,8 +588,22 @@ var token = $('meta[name="csrf-token"]').attr('content');
     try {
       const res = await postForm(TURNAR_SAVE_URL, payload);
       if (res && res.ok) {
-        if ($('#id_cat_estatus').length) { $('#id_cat_estatus').val(String(res.idTurnado || 6)); spRefresh('#id_cat_estatus'); }
+        if ($('#id_cat_estatus').length) {
+          $('#id_cat_estatus').val(String(res.idTurnado || 6));
+          spRefresh('#id_cat_estatus');
+        }
+
+        // Evento por si quieres enganchar lógica adicional
+        window.dispatchEvent(new CustomEvent('returnado:saved', {
+          detail: { id: Number(id), idTurnado: res.idTurnado }
+        }));
+
         if (window.notyfEM) notyfEM.success('Turnado actualizado.');
+
+        // 👉 Refresca la tabla/lista principal
+        refreshMainTable();
+
+        // Cierra el modal
         hiddenReturnado();
       } else {
         if (window.notyfEM) notyfEM.error(res?.message || 'No se pudo guardar.');

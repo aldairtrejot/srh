@@ -68,11 +68,10 @@
 
 <script>
   (function () {
-    // Rutas same-origin (solo path)
     const PATH_SEED   = "{{ parse_url(url('/letter/returnado/seed'), PHP_URL_PATH) }}/";
     const PATH_TURNAR = "{{ parse_url(url('/letter/returnado/turnar'), PHP_URL_PATH) }}";
     const PATH_AREA   = "{{ parse_url(url('/letter/collection/collectionArea'), PHP_URL_PATH) }}";
-    const PATH_COOR   = "{{ parse_url(url('/letter/collection/collectionUnidad'), PHP_URL_PATH) }}"; // Coordinación
+    const PATH_COOR   = "{{ parse_url(url('/letter/collection/collectionUnidad'), PHP_URL_PATH) }}";
     const PATH_CLAVE  = "{{ parse_url(url('/letter/collection/collectionClave'), PHP_URL_PATH) }}";
 
     window.LETTER = {
@@ -81,10 +80,14 @@
       collectionAreaUrl:  PATH_AREA,
       collectionCoorUrl:  PATH_COOR,
       collectionClaveUrl: PATH_CLAVE,
+
+      // ✅ Permitir SOLO este estatus (cambia 7 por el ID real de RETURNADO)
+      statusReturnadoId: 8
+      // includeInactiveArea3: true,
       // initials: { area1: null, area2: null, area3: null },
-      // includeInactiveArea3: true
     };
   })();
 </script>
+
 
 <script src="{{ asset('assets/js/app/letter/letter/returnado.js') }}?v={{ filemtime(public_path('assets/js/app/letter/letter/returnado.js')) }}"></script>
