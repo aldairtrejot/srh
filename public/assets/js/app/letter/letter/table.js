@@ -18,7 +18,7 @@ var __serverColumnsAppliedOnce = false;
 $(document).ready(function () {
   // 1) Cargar estado guardado (si existe)
   var saved = null;
-  try { saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_) {}
+  try { saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_) { }
 
   // 2) Leer checkboxes del menú de columnas
   columnVisibility = {};
@@ -74,14 +74,14 @@ function applySavedColumnVisibility(headersOnly) {
 function applyServerColumnsOnce(serverVis) {
   if (__serverColumnsAppliedOnce) return;
   var hasLocal = false;
-  try { hasLocal = !!JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_){}
+  try { hasLocal = !!JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_) { }
   if (hasLocal) return;
 
   if (serverVis && typeof serverVis === 'object') {
     // Back mapea: {area:bool, crh:bool, crhtod:bool}
     // En tabla: Área=5(índice 5), CRH=6(índice 6), CRHTOD=7(índice 7)
-    if (typeof serverVis.area   !== 'undefined') columnVisibility[5] = !!serverVis.area;
-    if (typeof serverVis.crh    !== 'undefined') columnVisibility[6] = !!serverVis.crh;
+    if (typeof serverVis.area !== 'undefined') columnVisibility[5] = !!serverVis.area;
+    if (typeof serverVis.crh !== 'undefined') columnVisibility[6] = !!serverVis.crh;
     if (typeof serverVis.crhtod !== 'undefined') columnVisibility[7] = !!serverVis.crhtod;
 
     applySavedColumnVisibility(false);
@@ -91,7 +91,7 @@ function applyServerColumnsOnce(serverVis) {
 
 /* Guarda estado en localStorage (opcional) */
 function persistVisibility() {
-  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(columnVisibility)); } catch (_) {}
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(columnVisibility)); } catch (_) { }
 }
 
 function bindToggleMenu() {
@@ -131,11 +131,11 @@ function renderEye(uid, title) {
   if (!uid) return '';
   return (
     '<div style="display:flex; justify-content:center; align-items:center;">' +
-      '<button type="button" class="custom-button-x custom-button" ' +
-        'style="background-color:#338CD4; padding:10px; border-radius:50%; border:none; cursor:pointer;" ' +
-        'title="' + (title || 'Ver documento') + '" onclick="seeDocumentUid(\'' + uid + '\')">' +
-        '<i class="fa fa-eye" style="color:#fff; font-size:18px;"></i>' +
-      '</button>' +
+    '<button type="button" class="custom-button-x custom-button" ' +
+    'style="background-color:#338CD4; padding:10px; border-radius:50%; border:none; cursor:pointer;" ' +
+    'title="' + (title || 'Ver documento') + '" onclick="seeDocumentUid(\'' + uid + '\')">' +
+    '<i class="fa fa-eye" style="color:#fff; font-size:18px;"></i>' +
+    '</button>' +
     '</div>'
   );
 }
@@ -154,20 +154,20 @@ function renderReplyEyeSlot(idCorr) {
 function fetchReplyUid(idCorr) {
   var token = $('meta[name="csrf-token"]').attr('content');
   $.post(URL_DEFAULT.concat('/letter/cloud/reply'), { id: idCorr, _token: token })
-   .done(function (r) {
-     var $slot = $('#resp-eye-' + idCorr);
-     if (!$slot.length) return;
+    .done(function (r) {
+      var $slot = $('#resp-eye-' + idCorr);
+      if (!$slot.length) return;
 
-     if (r && Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
-       var uid = r.oficiosSalida[0].uid; // backend ya los ordena
-       $slot.html(renderEye(uid, 'Ver documento de respuesta'));
-     } else {
-       $slot.html(''); // deja vacío si no hay respuesta
-     }
-   })
-   .fail(function () {
-     $('#resp-eye-' + idCorr).html('');
-   });
+      if (r && Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
+        var uid = r.oficiosSalida[0].uid; // backend ya los ordena
+        $slot.html(renderEye(uid, 'Ver documento de respuesta'));
+      } else {
+        $slot.html(''); // deja vacío si no hay respuesta
+      }
+    })
+    .fail(function () {
+      $('#resp-eye-' + idCorr).html('');
+    });
 }
 
 /* ===================== BÚSQUEDA Y RENDER FILAS ===================== */
@@ -188,9 +188,9 @@ function searchInit() {
 
     if (response && response.value && response.value.length > 0) {
       response.value.forEach(function (object) {
-        var finalUrl   = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
+        var finalUrl = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
         var finalCloud = URL_DEFAULT.concat('/letter/cloud/').concat(object.id);
-        var urlReport  = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
+        var urlReport = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
 
         var estatusColors = {
           'TURNADO': '#FFA82E',
@@ -212,86 +212,96 @@ function searchInit() {
 
         var rowHTML =
           '<tr>' +
-            // 0: Menú
-            '<td style="text-align:center;">' +
-              '<div class="dropdown">' +
-                '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
-                        'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
-                        'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
-                  '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
-                '</button>' +
-                '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
-                  '<h6 class="dropdown-header">Acciones</h6>' +
-                  '<a class="dropdown-item" href="' + finalUrl + '">' +
-                    '<span style="background:#1D5B3B" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
-                    '</span>Modificar' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + finalCloud + '">' +
-                    '<span style="background:#8a6f19" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
-                    '</span>Cloud' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + urlReport + '">' +
-                    '<span style="background:#707070" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
-                    '</span>Reporte' +
-                  '</a>' +
-                  // Responder SOLO queda en el dropdown (no en la columna 10)
-                  '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
-                    '<span style="background:#2986cc" class="icon-container-template">' +
-                      '<div style="text-align: center;">' +
-                        '<i class="fa fa-retweet item-icon-menu"></i>' +
-                      '</div>' +
-                    '</span>' +
-                    'Responder' +
-                  '</button>' +
-                  '<button class="dropdown-item" onclick="openReturnado(' + object.id + ', \'' + folioSafe + '\')">' +
-                    '<span style="background:#2a848c" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
-                    '</span>Returnado' +
-                  '</button>' +
-                '</div>' +
-              '</div>' +
-            '</td>' +
+          // 0: Menú
+          '<td style="text-align:center;">' +
+          '<div class="dropdown">' +
+          '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
+          'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
+          'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
+          '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
+          '</button>' +
+          '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
+          '<h6 class="dropdown-header">Acciones</h6>' +
+          '<a class="dropdown-item" href="' + finalUrl + '">' +
+          '<span style="background:#1D5B3B" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
+          '</span>Modificar' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + finalCloud + '">' +
+          '<span style="background:#8a6f19" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
+          '</span>Cloud' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + urlReport + '">' +
+          '<span style="background:#707070" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
+          '</span>Reporte' +
+          '</a>' +
+          // Responder SOLO queda en el dropdown (no en la columna 10)
+          '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
+          '<span style="background:#2986cc" class="icon-container-template">' +
+          '<div style="text-align: center;">' +
+          '<i class="fa fa-retweet item-icon-menu"></i>' +
+          '</div>' +
+          '</span>' +
+          'Responder' +
+          '</button>' +
+          '<button class="dropdown-item" onclick="openReturnado(' + object.id + ', \'' + folioSafe + '\')">' +
+          '<span style="background:#2a848c" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
+          '</span>Returnado' +
+          '</button>' +
+          '</button>' +
+          '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + object.folio_gestion + '\')">' +
+          '<span style="background:#462c95" class="icon-container-template">' +
+          '<div style="text-align: center;">' +
+          '<i class="fa fa-location-arrow item-icon-menu"></i>' +
+          '</div>' +
+          '</span>' +
+          'Cancelar' +
+          '</button>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+          '</td>' +
 
-            // 1: Estatus
-            '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
+          // 1: Estatus
+          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
 
-            // 2: Fecha de captura
-            '<td>' + (object.fecha_captura || '') + '</td>' +
+          // 2: Fecha de captura
+          '<td>' + (object.fecha_captura || '') + '</td>' +
 
-            // 3: Folio de gestión
-            '<td>' + (object.folio_gestion || '') + '</td>' +
+          // 3: Folio de gestión
+          '<td>' + (object.folio_gestion || '') + '</td>' +
 
-            // 4: No. Documento
-            '<td>' + (object.num_documento || '') + '</td>' +
+          // 4: No. Documento
+          '<td>' + (object.num_documento || '') + '</td>' +
 
-            // 5: Área
-            '<td class="col-area" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area || '') +
-            '</td>' +
+          // 5: Área
+          '<td class="col-area" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area || '') +
+          '</td>' +
 
-            // 6: CRH
-            '<td class="col-crh" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area_1 || '') +
-            '</td>' +
+          // 6: CRH
+          '<td class="col-crh" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area_1 || '') +
+          '</td>' +
 
-            // 7: CRHTOD
-            '<td class="col-crhtod" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
-              (object.area_2 || '') +
-            '</td>' +
+          // 7: CRHTOD
+          '<td class="col-crhtod" style="font-size:12px; width:300px; word-wrap:break-word; white-space:normal;">' +
+          (object.area_2 || '') +
+          '</td>' +
 
-            // 8: Asunto
-            '<td style="font-size:12px; width:800px; word-wrap:break-word; white-space:normal;">' +
-              (object.asunto || '') +
-            '</td>' +
+          // 8: Asunto
+          '<td style="font-size:12px; width:800px; word-wrap:break-word; white-space:normal;">' +
+          (object.asunto || '') +
+          '</td>' +
 
-            // 9: Cloud → solo “ojo” (entrada)
-            '<td>' + renderCloudCell(uidEntrada) + '</td>' +
+          // 9: Cloud → solo “ojo” (entrada)
+          '<td>' + renderCloudCell(uidEntrada) + '</td>' +
 
-            // 10: Respuesta → SOLO slot para el ojo (sin botón Responder)
-            '<td id="resp-cell-' + object.id + '">' + renderReplyEyeSlot(object.id) + '</td>' +
+          // 10: Respuesta → SOLO slot para el ojo (sin botón Responder)
+          '<td id="resp-cell-' + object.id + '">' + renderReplyEyeSlot(object.id) + '</td>' +
           '</tr>';
 
         $('#template-table tbody').append(rowHTML);
