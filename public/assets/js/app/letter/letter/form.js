@@ -406,46 +406,7 @@ $(function () {
   $('#file_oficio_entrada').on('change', updateOficioUI);
   $('#file_anexo_entrada').on('change', updateAnexosUI);
 
-  // Submit: validaciones y sincronización de espejos
-  $('#myForm').on('submit', function (e) {
-    // ❌ Ya no forzamos Área (id_cat_area) con la primera opción
-    // ensureFirstIfEmpty('#id_cat_area');  // <- eliminado
-
-    if (!validarFechasAntesDeEnviar()) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      return false;
-    }
-
-    // Si está activo el modo Returnado, resincroniza mirrors por seguridad
-    if ($('#force_returnado').val() === '1') {
-      [
-        '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
-        '#id_usuario_area', '#id_usuario_enlace',
-        '#id_cat_unidad', '#id_cat_coordinacion',
-        '#id_cat_tramite', '#id_cat_clave', '#id_cat_estatus'
-      ].forEach(function(sel){
-        var $s = $(sel);
-        if ($s.length) {
-          var name = $s.attr('name');
-          if (name) {
-            var hidId = name + '__mirror';
-            var $hid = ensureHidden(hidId, name);
-            $hid.val($s.val() || '');
-          }
-        }
-      });
-    }
-
-    // Sugerencia visual si habilitó carga y no adjuntó oficio (no bloquea)
-    if ($('#habilitar_carga').val() === '1') {
-      var files = ($('#file_oficio_entrada')[0].files || []).length;
-      if (files === 0) {
-        $('#msg_oficio_req').show();
-        safeTooltip('#label_oficio_entrada', 'Hace falta cargar un oficio.');
-      }
-    }
-  });
+  // ⛔️ Eliminamos el submit nativo duplicado (solo dejamos el AJAX de abajo)
 
   // Placeholder y refresh de selects por si llegan vacíos
   [
@@ -502,7 +463,6 @@ $(function () {
   var $form = $('#myForm');
   if (!$form.length) return;
 
-  // helpers: usa tus showSpinner()/hideSpinner() si existen; si no, fallback a overlays
   function spinnerOn()  {
     if (typeof showSpinner === 'function') return showSpinner();
     var $ov = $('#savingOverlay, #spinnerOverlay, #loadingScreen, .saving-overlay');
@@ -514,7 +474,6 @@ $(function () {
     if ($ov.length) $ov.hide();
   }
 
-  // limpiar error al escribir/cambiar
   $(document).on('input change', 'input,select,textarea', function () {
     if (this && this.id) clearFieldError('#' + this.id);
   });
@@ -525,7 +484,6 @@ $(function () {
     });
   }
 
-  // mapa de errores
   var FIELD_SEL = {
     'num_documento':'[name="num_documento"]',
     'folio_gestion':'[name="folio_gestion"]',
@@ -562,8 +520,7 @@ $(function () {
   var submitting = false;
 
   $form.off('submit.minAjax').on('submit.minAjax', function (e) {
-    // conserva tus validaciones previas
-    ensureFirstIfEmpty('#id_cat_area');
+    // NO forzar id_cat_area por defecto; solo validamos fechas
     if (!validarFechasAntesDeEnviar()) {
       e.preventDefault(); e.stopImmediatePropagation();
       return false;
@@ -579,7 +536,6 @@ $(function () {
     var action = this.action;
     var $btn = $form.find('button[type="submit"], .btn-submit');
 
-    // 🔄 spinner ON + hook para listeners globales (toasts)
     spinnerOn();
     $(document).trigger('form:save:start', [$form[0]]);
     $btn.prop('disabled', true).addClass('disabled');
@@ -594,6 +550,14 @@ $(function () {
       }
     })
     .then(async function (res) {
+      // 1) Si el backend redirige, navegamos de inmediato
+      if (res.redirected && res.url) {
+        $(document).trigger('form:save:success', [$form[0], 'redirect']);
+        window.location.href = res.url;
+        return;
+      }
+
+      // 2) Validaciones 422 (JSON con errors)
       if (res.status === 422) {
         let data = {};
         try { data = await res.json(); } catch(_) {}
@@ -612,65 +576,28 @@ $(function () {
         return;
       }
 
-      // --- DUPLICADO folio_gestion (toast específico) ---
-      const rawBody = await res.clone().text().catch(() => '');
-      if (
-        res.status === 409 ||                                   // si el backend ya devuelve 409
-        /duplicada|unique violation|folio_gestion/i.test(rawBody) // o si viene como 500/200 con ese texto
-      ) {
-        var $fg = $form.find('[name="folio_gestion"]');
-        if ($fg.length) {
-          var selFG = $fg.attr('id') ? ('#' + $fg.attr('id')) : $fg;
-          showFieldError(selFG, 'El folio de gestión ya existe.');
-          try { $fg[0].focus(); } catch (_) {}
-        }
-        if (typeof notyfEM !== 'undefined') {
-          if (notyfEM.warning) notyfEM.warning('El folio de gestión ya existe.');
-          else if (notyfEM.error) notyfEM.error('El folio de gestión ya existe.');
-        } else {
-          __notify('El folio de gestión ya existe.', 'warn');
-        }
-        $(document).trigger('form:save:error', [$form[0], res.status || 409]);
-        return;
-      }
-
-      // éxito con redirect: navega y tu flash/toast nativo aparece como siempre
-      if (res.redirected && res.url) {
-        $(document).trigger('form:save:success', [$form[0], 'redirect']);
-        window.location.href = res.url;
-        return;
-      }
-
-      // éxito sin redirect: si el servidor manda {message}, lo toasteamos
+      // 3) Éxito con JSON (sin redirect)
       if (res.ok) {
         try {
           const data = await res.json();
           if (data && data.message) {
             if (typeof notyfEM !== 'undefined' && notyfEM.success) {
               notyfEM.success(data.message);
-            } else {
-              __notify(data.message, 'ok');
-            }
+            } else { __notify(data.message, 'ok'); }
           } else {
-            if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-              notyfEM.success('Registro guardado con éxito.');
-            } else {
-              __notify('Registro guardado con éxito.', 'ok');
-            }
+            if (typeof notyfEM !== 'undefined' && notyfEM.success) { notyfEM.success('Registro guardado con éxito.'); }
+            else { __notify('Registro guardado con éxito.', 'ok'); }
           }
         } catch(_) {
-          if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-            notyfEM.success('Registro guardado con éxito.');
-          } else {
-            __notify('Registro guardado con éxito.', 'ok');
-          }
+          if (typeof notyfEM !== 'undefined' && notyfEM.success) { notyfEM.success('Registro guardado con éxito.'); }
+          else { __notify('Registro guardado con éxito.', 'ok'); }
         }
         $(document).trigger('form:save:success', [$form[0], 'ok']);
         window.location.reload();
         return;
       }
 
-      // otros errores (500, 403, etc.): mantenemos datos; deja que tus globals toasteen
+      // 4) Otros errores (500/403/etc.)
       try { console.error('[SAVE_ERROR]', res.status, await res.text()); } catch(_) {}
       $(document).trigger('form:save:error', [$form[0], res.status]);
       if (typeof notyfEM !== 'undefined' && notyfEM.error) {
@@ -690,7 +617,7 @@ $(function () {
     })
     .finally(function () {
       submitting = false;
-      spinnerOff(); // 🔄 spinner OFF
+      spinnerOff();
       $btn.prop('disabled', false).removeClass('disabled');
       $(document).trigger('form:save:finish', [$form[0]]);
     });
