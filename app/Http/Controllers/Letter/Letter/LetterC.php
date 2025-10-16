@@ -315,116 +315,131 @@ public function table(Request $request, LetterM $model)
 
     /* ======================== EDIT (FORM) ======================== */
     public function edit(string $id)
-    {
-        $letterM                 = new LetterM();
-        $collectionRelUsuarioM   = new CollectionRelUsuarioM();
-        $collectionRelEnlaceM    = new CollectionRelEnlaceM();
-        $collectionUnidadM       = new CollectionUnidadM();
-        $collectionStatusM       = new CollectionStatusM();
-        $collectionCoordinacionM = new CollectionCoordinacionM();
-        $collectionTramiteM      = new CollectionTramiteM();
-        $collectionRemitenteM    = new CollectionRemitenteM();
-        $collectionClaveM        = new CollectionClaveM();
-        $collectionEntidadM      = new CollectionEntidadM();
+{
+    $letterM                 = new LetterM();
+    $collectionRelUsuarioM   = new CollectionRelUsuarioM();
+    $collectionRelEnlaceM    = new CollectionRelEnlaceM();
+    $collectionUnidadM       = new CollectionUnidadM();
+    $collectionStatusM       = new CollectionStatusM();
+    $collectionCoordinacionM = new CollectionCoordinacionM();
+    $collectionTramiteM      = new CollectionTramiteM();
+    $collectionRemitenteM    = new CollectionRemitenteM();
+    $collectionClaveM        = new CollectionClaveM();
+    $collectionEntidadM      = new CollectionEntidadM();
 
-        $item = $letterM->edit($id);
+    $item = $letterM->edit($id);
 
-        // Valor formateado para el input (d/m/Y) sin tocar la columna real
-        if ($item) {
-            $item->fecha_captura_dmy = !empty($item->fecha_captura)
-                ? Carbon::parse($item->fecha_captura)->format('d/m/Y')
-                : null;
-        }
-
-        // Estatus
-        $selectStatus     = $collectionStatusM->listEdit();
-        $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
-
-        // Área 3 (todas, incl. inactivas)
-        $selectArea = DB::table('correspondencia.cat_area')
-            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-            ->orderBy('descripcion')->get();
-
-        $selectAreaEdit = isset($item->id_cat_area)
-            ? DB::table('correspondencia.cat_area')
-                ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-                ->where('id_cat_area', $item->id_cat_area)->first()
+    // Valor formateado para el input (d/m/Y) sin tocar la columna real
+    if ($item) {
+        $item->fecha_captura_dmy = !empty($item->fecha_captura)
+            ? Carbon::parse($item->fecha_captura)->format('d/m/Y')
             : null;
-
-        // Área 1
-        $miAreaId        = Auth::user()->id_cat_area ?? null;
-        $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
-        $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
-
-        // Área 2
-        $selectArea2     = $letterM->getArea2Options();
-        $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
-
-        // Usuarios / Enlace
-        $selectUser     = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_area) : [];
-        $selectUserEdit = (isset($item->id_cat_area) && isset($item->id_usuario_area)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];
-
-        $selectEnlace     = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_enlace) : [];
-        $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
-
-        // Unidad / Coordinación
-        $selectUnidad           = $collectionUnidadM->listEdit();
-        $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
-        $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
-        $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
-
-        // Trámite / Clave
-        $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
-        $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
-
-        $selectClave     = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
-        $selectClaveEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave)) ? $collectionClaveM->edit($item->id_cat_clave) : null;
-
-        // Remitente / Entidad
-        $selectRemitente     = $collectionRemitenteM->list();
-        $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : null;
-
-        $selectEntidad     = $collectionEntidadM->listEdit();
-        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
-
-        // 🔒 Lock Returnado en EDIT si el área lo tiene relacionado
-        $idReturnado   = $letterM->getReturnadoId();
-        $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
-
-        if ($lockReturnado) {
-            // Limitar combo de estatus solo al Returnado
-            $selectStatus = DB::table('correspondencia.cat_estatus')
-                ->select('id_cat_estatus as id', DB::raw('UPPER(descripcion) as descripcion'))
-                ->where('id_cat_estatus', $idReturnado)
-                ->get();
-
-            $selectStatusEdit = DB::table('correspondencia.cat_estatus')
-                ->select('id_cat_estatus as id', DB::raw('UPPER(descripcion) as descripcion'))
-                ->where('id_cat_estatus', $idReturnado)
-                ->first();
-        }
-
-        $isEdit = true;
-
-        return view('letter.letter.form', compact(
-            'item',
-            'isEdit',
-            'selectArea','selectAreaEdit',
-            'selectArea1','selectArea1Edit',
-            'selectArea2','selectArea2Edit',
-            'selectUser','selectUserEdit',
-            'selectEnlace','selectEnlaceEdit',
-            'selectUnidad','selectUnidadEdit',
-            'selectCoordinacion','selectCoordinacionEdit',
-            'selectStatus','selectStatusEdit',
-            'selectTramite','selectTramiteEdit',
-            'selectClave','selectClaveEdit',
-            'selectRemitente','selectRemitenteEdit',
-            'selectEntidad','selectEntidadEdit',
-            // flags para front
-            'lockReturnado','idReturnado'
-        ));
     }
+
+    // Estatus
+    $selectStatus     = $collectionStatusM->listEdit();
+    $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
+
+    // Área 3 (todas, incl. inactivas)
+    $selectArea = DB::table('correspondencia.cat_area')
+        ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+        ->orderBy('descripcion')->get();
+
+    $selectAreaEdit = isset($item->id_cat_area)
+        ? DB::table('correspondencia.cat_area')
+            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_area', $item->id_cat_area)->first()
+        : null;
+
+    // Área 1
+    $miAreaId        = Auth::user()->id_cat_area ?? null;
+    $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
+    $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
+
+    // Área 2
+    $selectArea2     = $letterM->getArea2Options();
+    $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
+
+    // Usuarios / Enlace
+    $selectUser     = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_area) : [];
+    $selectUserEdit = (isset($item->id_cat_area) && isset($item->id_usuario_area)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];
+
+    $selectEnlace     = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_enlace) : [];
+    $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
+
+    // Unidad / Coordinación
+    $selectUnidad           = $collectionUnidadM->listEdit();
+    $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
+    $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
+    $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
+
+    // Trámite / Clave
+    $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
+    $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
+
+    $selectClave     = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
+    $selectClaveEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave)) ? $collectionClaveM->edit($item->id_cat_clave) : null;
+
+    // Remitente / Entidad
+    $selectRemitente     = $collectionRemitenteM->list();
+    $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : null;
+
+    $selectEntidad     = $collectionEntidadM->listEdit();
+    $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
+
+    // 🔒 Lock Returnado en EDIT si el área lo tiene relacionado
+    $idReturnado   = $letterM->getReturnadoId();
+    $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
+
+    if ($lockReturnado) {
+        // Limitar combo de estatus solo al Returnado
+        $selectStatus = DB::table('correspondencia.cat_estatus')
+            ->select('id_cat_estatus as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_estatus', $idReturnado)
+            ->get();
+
+        $selectStatusEdit = DB::table('correspondencia.cat_estatus')
+            ->select('id_cat_estatus as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_estatus', $idReturnado)
+            ->first();
+    }
+
+    // ======== NUEVO: IDs actuales para precarga en el front ========
+    $initials = [
+        'area1'           => $item->id_cat_area_1 ?? null,
+        'area2'           => $item->id_cat_area_2 ?? null,
+        'area3'           => $item->id_cat_area   ?? null,
+        'usuario_area'    => $item->id_usuario_area ?? null,
+        'usuario_enlace'  => $item->id_usuario_enlace ?? null,
+        'unidad'          => $item->id_cat_unidad ?? null,
+        'coordinacion'    => $item->id_cat_coordinacion ?? null,
+        'tramite'         => $item->id_cat_tramite ?? null,
+        'clave'           => $item->id_cat_clave ?? null,
+    ];
+
+    $isEdit = true;
+
+    return view('letter.letter.form', compact(
+        'item',
+        'isEdit',
+        'selectArea','selectAreaEdit',
+        'selectArea1','selectArea1Edit',
+        'selectArea2','selectArea2Edit',
+        'selectUser','selectUserEdit',
+        'selectEnlace','selectEnlaceEdit',
+        'selectUnidad','selectUnidadEdit',
+        'selectCoordinacion','selectCoordinacionEdit',
+        'selectStatus','selectStatusEdit',
+        'selectTramite','selectTramiteEdit',
+        'selectClave','selectClaveEdit',
+        'selectRemitente','selectRemitenteEdit',
+        'selectEntidad','selectEntidadEdit',
+        // flags para front
+        'lockReturnado','idReturnado',
+        // NUEVO: objeto para JS
+        'initials'
+    ));
+}
 
     /* ======================== SAVE (CREATE/UPDATE) ======================== */
     public function save(Request $request)
