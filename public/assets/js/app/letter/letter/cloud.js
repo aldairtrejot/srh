@@ -94,6 +94,7 @@ function getReplySummary() {
             _token: token
         },
         success: function (r) {
+            console.log(r)
             // Texto
             $('#resp_asunto').text(r.asunto || '—');
             $('#resp_observaciones').text(r.observaciones || '—');
