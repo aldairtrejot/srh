@@ -349,5 +349,3 @@ document.addEventListener('DOMContentLoaded', function () {
     unlockTurnarAIfLocked();
   }
 });
-
-

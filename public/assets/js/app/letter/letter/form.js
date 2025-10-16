@@ -1,5 +1,5 @@
 /* =========================================================
-   form.js — LÓGICA GENERAL DEL FORMULARIO
+   form.js — LÓGICA GENERAL DEL FORMULARIO (versión consolidada)
    ========================================================= */
 
 var token = $('meta[name="csrf-token"]').attr('content');
@@ -17,23 +17,15 @@ function hideDiv(id)  { $('#'+id).hide(); }
 function cleanSelect(sel) { $(sel).val('').selectpicker('refresh'); }
 
 /* ========================= Helpers FORM & Mirrors ========================= */
-// Obtiene el formulario correcto (por defecto #myForm)
-function getForm$() {
-  return $('#myForm').length ? $('#myForm') : $('form').first();
-}
+function getForm$() { return $('#myForm').length ? $('#myForm') : $('form').first(); }
 
-// Crea/recupera un input hidden dentro del form
 function ensureHidden(id, name) {
   var $form = getForm$();
   var $hid = $form.find('#' + id);
-  if ($hid.length === 0) {
-    $hid = $('<input type="hidden">').attr({ id: id, name: name });
-    $form.append($hid);
-  }
+  if ($hid.length === 0) { $hid = $('<input type="hidden">').attr({ id: id, name: name }); $form.append($hid); }
   return $hid;
 }
 
-// Si el select está vacío pero hay opciones, toma la primera no-vacía
 function ensureFirstIfEmpty(sel) {
   var $s = $(sel);
   if (!$s.length) return;
@@ -47,24 +39,20 @@ function ensureFirstIfEmpty(sel) {
   }
 }
 
-// Congela un select y crea su “espejo” hidden para que viaje en el POST
 function freezeWithMirror(sel) {
   var $s = $(sel);
   if (!$s.length) return;
   var name = $s.attr('name');
   if (!name) return;
 
-  // Garantiza que tenga algún valor razonable
   var val = $s.val();
   if (!val) {
     var first = $s.find('option[value!=""]').first().val();
     if (first) {
-      val = first;
-      $s.val(first);
+      val = first; $s.val(first);
       if ($.fn.selectpicker) $s.selectpicker('refresh');
     }
   }
-
   var hidId = name + '__mirror';
   var $hid = ensureHidden(hidId, name);
   $hid.val(val || '');
@@ -73,7 +61,6 @@ function freezeWithMirror(sel) {
   if ($.fn.selectpicker) $s.selectpicker('refresh');
 }
 
-// Descongela y elimina el espejo
 function unfreezeWithMirror(sel) {
   var $s = $(sel);
   if (!$s.length) return;
@@ -158,40 +145,28 @@ function validarFechasAntesDeEnviar() {
 
 /* ========================= Remitentes ========================= */
 function setCheckboxArea() {
-  // “Agregar remitente” (alta por RFC)
   var addRem = $('#rfc_remitente_bool').val() === '1' || $('#rfc_remitente_bool').val() === 'true';
   $('#idcheckboxTemplate').prop('checked', !!addRem);
 
-  if (addRem) {
-    showDiv('mostrar_ocultar_template');    // formulario de nombre/apellidos/RFC
-    hideDiv('_hidden_select');              // oculta select de remitente
-  } else {
-    hideDiv('mostrar_ocultar_template');
-    showDiv('_hidden_select');
-  }
+  if (addRem) { showDiv('mostrar_ocultar_template'); hideDiv('_hidden_select'); }
+  else        { hideDiv('mostrar_ocultar_template');  showDiv('_hidden_select'); }
 
-  // “Varios remitentes”
   var mas = $('#son_mas_remitentes').val() === '1' || $('#son_mas_remitentes').val() === 'true';
-  if (mas) {
-    showDiv('mostrar_ocultar_mas_remitentes');
-    hideDiv('_hidden_select');
-    hideDiv('mostrar_ocultar_template');
-  } else {
-    hideDiv('mostrar_ocultar_mas_remitentes');
-  }
+  if (mas) { showDiv('mostrar_ocultar_mas_remitentes'); hideDiv('_hidden_select'); hideDiv('mostrar_ocultar_template'); }
+  else     { hideDiv('mostrar_ocultar_mas_remitentes'); }
 }
 
 /* ========================= Archivos (UI) ========================= */
 function updateOficioUI() {
   var $inp = $('#file_oficio_entrada');
-  var files = $inp[0].files;
+  var files = ($inp[0] && $inp[0].files) ? $inp[0].files : [];
   var $empty = $('#container_oficio_entrada_vacio');
   var $cont  = $('#container_oficio_entrada');
   var $label = $('#label_oficio_entrada');
   var $icon  = $('#icon_oficio_entrada');
 
   $cont.empty();
-  if (files && files.length > 0) {
+  if (files.length > 0) {
     $empty.hide();
     var f = files[0];
     var pill = $('<div class="file-pills-row"><span class="file-pill"></span></div>');
@@ -209,7 +184,7 @@ function updateOficioUI() {
 
 function updateAnexosUI() {
   var $inp = $('#file_anexo_entrada');
-  var files = $inp[0].files || [];
+  var files = ($inp[0] && $inp[0].files) ? $inp[0].files : [];
   var $empty = $('#container_anexo_entrada_vacio');
   var $cont  = $('#container_anexo_entrada');
   var $label = $('#label_anexo_entrada');
@@ -235,7 +210,6 @@ function updateAnexosUI() {
 }
 
 /* ========================= Bloqueo Turnar A & Returnado ========================= */
-// Congela/descongela todo el bloque "Turnar A" con espejos para el POST
 function setTurnarBlocked(on) {
   var sels = [
     '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
@@ -243,17 +217,11 @@ function setTurnarBlocked(on) {
     '#id_cat_unidad', '#id_cat_coordinacion',
     '#id_cat_tramite', '#id_cat_clave'
   ];
-
-  if (on) {
-    // Evita que algo viaje vacío al backend
-    sels.forEach(ensureFirstIfEmpty);
-    sels.forEach(freezeWithMirror);
-  } else {
-    sels.forEach(unfreezeWithMirror);
-  }
+  if (on) { sels.forEach(ensureFirstIfEmpty); sels.forEach(freezeWithMirror); }
+  else    { sels.forEach(unfreezeWithMirror); }
 }
 
-// === NUEVO: poner TURNADO (id=1) por defecto si está vacío y no estamos en Returnado
+// TURNADO (id=1) por defecto si no es Returnado y el select está vacío
 function setDefaultTurnado() {
   var $st = $('#id_cat_estatus');
   if (!$st.length) return;
@@ -264,7 +232,7 @@ function setDefaultTurnado() {
   }
 }
 
-// API pública que usa deps-areas.js al detectar Returnado
+// API pública — llamada por deps-areas.js al detectar Returnado
 function applyReturnadoMode(on, idReturnado) {
   var $form = getForm$();
   var $force = $form.find('#force_returnado');
@@ -291,20 +259,17 @@ function applyReturnadoMode(on, idReturnado) {
     $st.prop('disabled', false);
     if ($.fn.selectpicker) $st.selectpicker('refresh');
 
-    // Si quedó vacío, vuelve a TURNADO (1)
     setDefaultTurnado();
   }
 }
 
 /* ========================= Encabezado dinámico (Año / Clave) ========================= */
-// Pinta fecha y turno rápidos desde los hidden y luego resuelve año/clave desde backend
-function setData() {
+function setDataHeaderLabelsFromHidden() {
   $('#_labFechaCaptura').text($('#fecha_captura').val());
   $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
-  getData();
 }
 
-function getData() {
+function fetchAndPaintYearClave() {
   var id_cat_anio  = $('#id_cat_anio').val();
   var id_cat_clave = $('#id_cat_clave_aux').val();
 
@@ -316,7 +281,6 @@ function getData() {
     var item      = response.nameYear || {};
     var itemClave = response.dataClave || {};
 
-    // nameYear.name debe traer "2025", etc.
     $('#_labAño').text(item.name || $('#_labAño').text());
     $('#_labClave').text(itemClave._labClave || '');
     $('#_labClaveCodigo').text(itemClave._labClaveCodigo || '');
@@ -324,32 +288,27 @@ function getData() {
   });
 }
 
-/* ========================= Encabezado de resumen ========================= */
-/** Copia los valores de los hidden a los labels del encabezado.
- *  Si el "año" no es de 4 dígitos (p.ej. "2"), usa el año actual como fallback.
- */
+/* ========================= Encabezado de resumen (fallback de año) ========================= */
 function fillHeaderSummary() {
   var anioText = ($('#id_cat_anio_text').val && $('#id_cat_anio_text').val()) || '';
-
   var noTurno = $('#num_turno_sistema').val() || '—';
   var fecha   = $('#fecha_captura').val()     || '—';
 
   var anioRaw  = anioText || $('#id_cat_anio').val() || '';
   var currentY = (new Date()).getFullYear().toString();
-  var anio     = (/^\d{4}$/.test(anioRaw) ? anioRaw : currentY);  // si viene "2", usa el año actual
+  var anio     = (/^\d{4}$/.test(anioRaw) ? anioRaw : currentY);
 
   var labNo   = document.getElementById('_labNoCorrespondencia');
   var labFec  = document.getElementById('_labFechaCaptura');
-  var labAnio = document.getElementById('_labAño'); // usar getElementById por el caracter ñ
+  var labAnio = document.getElementById('_labAño');
 
   if (labNo)   labNo.textContent   = noTurno;
   if (labFec)  labFec.textContent  = fecha;
   if (labAnio) labAnio.textContent = anio;
 }
 
-/* ========================= Notificaciones sin alert() ========================= */
+/* ========================= Notificaciones ========================= */
 (function(){
-  // Capa simple si no hay notyfEM ni toastr (fallback mínimo)
   function ensureBannerHost(){
     var $host = $('#__notify_host');
     if ($host.length) return $host;
@@ -382,10 +341,8 @@ function fillHeaderSummary() {
   };
 })();
 
-/* ========= NUEVO: helpers para toasts que sobreviven redirect/recarga ========= */
-function rememberToast(kind, msg) {
-  try { sessionStorage.setItem('__next_toast', JSON.stringify({k: kind, m: msg, ts: Date.now()})); } catch(_) {}
-}
+/* ===== Toas ts persistentes ===== */
+function rememberToast(kind, msg) { try { sessionStorage.setItem('__next_toast', JSON.stringify({k: kind, m: msg, ts: Date.now()})); } catch(_) {} }
 function playToast(kind, msg) {
   if (typeof notyfEM !== 'undefined') {
     if (kind === 'ok'   && notyfEM.success) return notyfEM.success(msg);
@@ -399,8 +356,6 @@ function playToast(kind, msg) {
 $(function () {
   setDateLimits();
   setCheckboxArea();
-
-  // === NUEVO: por defecto, estatus TURNADO (id=1) si el select está vacío
   setDefaultTurnado();
 
   // Tooltips
@@ -442,7 +397,6 @@ $(function () {
       $('#contenedor_carga_archivos').slideDown(150);
     } else {
       $('#contenedor_carga_archivos').slideUp(150);
-      // limpiar UI
       $('#file_oficio_entrada').val('');
       $('#file_anexo_entrada').val('');
       updateOficioUI();
@@ -454,81 +408,33 @@ $(function () {
   $('#file_oficio_entrada').on('change', updateOficioUI);
   $('#file_anexo_entrada').on('change', updateAnexosUI);
 
-  // Submit: validaciones y sincronización de espejos
-  $('#myForm').on('submit', function (e) {
-    // ❌ Ya no forzamos Área (id_cat_area) con la primera opción
-    // ensureFirstIfEmpty('#id_cat_area');  // <- eliminado
-
-    if (!validarFechasAntesDeEnviar()) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      return false;
-    }
-
-    // Si está activo el modo Returnado, resincroniza mirrors por seguridad
-    if ($('#force_returnado').val() === '1') {
-      [
-        '#id_cat_area_1', '#id_cat_area_2', '#id_cat_area',
-        '#id_usuario_area', '#id_usuario_enlace',
-        '#id_cat_unidad', '#id_cat_coordinacion',
-        '#id_cat_tramite', '#id_cat_clave', '#id_cat_estatus'
-      ].forEach(function(sel){
-        var $s = $(sel);
-        if ($s.length) {
-          var name = $s.attr('name');
-          if (name) {
-            var hidId = name + '__mirror';
-            var $hid = ensureHidden(hidId, name);
-            $hid.val($s.val() || '');
-          }
-        }
-      });
-    }
-
-    // Sugerencia visual si habilitó carga y no adjuntó oficio (no bloquea)
-    if ($('#habilitar_carga').val() === '1') {
-      var files = ($('#file_oficio_entrada')[0].files || []).length;
-      if (files === 0) {
-        $('#msg_oficio_req').show();
-        safeTooltip('#label_oficio_entrada', 'Hace falta cargar un oficio.');
-      }
-    }
-  });
-
-  // Placeholder y refresh de selects por si llegan vacíos
+  // Selects → placeholder/refresh
   [
     '#id_cat_area_1','#id_cat_area_2','#id_cat_area','#id_cat_tramite',
     '#id_usuario_area','#id_usuario_enlace','#id_cat_unidad','#id_cat_coordinacion',
-    '#id_cat_clave'
-  ].forEach(refreshSelect);
+    '#id_cat_clave','#id_cat_estatus'
+  ].forEach(function(s){ if ($(s).length && $.fn.selectpicker) refreshSelect(s); });
 
-  // Estado inicial: NO bloqueado (hasta que deps-areas.js llame applyReturnadoMode(true))
+  // Estado inicial: NO Returnado (hasta que deps-areas.js diga)
   applyReturnadoMode(false);
 
-  // >>> Encabezado: pinta algo inmediato y luego resuelve el nombre real del año
-  fillHeaderSummary(); // si id_cat_anio trae "2", mostramos año actual mientras
-  setData();           // sobreescribe con el texto correcto del catálogo (p.ej. "2025")
+  // Encabezado: pinta inmediato y luego catálogos
+  fillHeaderSummary();
+  setDataHeaderLabelsFromHidden();
+  fetchAndPaintYearClave();
 
-  // >>> Reproducir toast pendiente (guardado en redirect/reload),
-  //     pero NUNCA en la vista de "Registro nuevo" (alta).
+  // Reproducir toast persistente solo fuera de “alta”
   try {
     var raw = sessionStorage.getItem('__next_toast');
     if (raw) {
-      // Detecta si estamos en formulario de alta (id_tbl_correspondencia vacío)
       var isCreatePage = (function(){
-        var $f = $('#myForm');
-        if (!$f.length) return false; // si no hay form, no es la vista de alta → permitir toast
+        var $f = $('#myForm'); if (!$f.length) return false;
         var $id = $f.find('[name="id_tbl_correspondencia"]');
-        if (!$id.length) return false; // si no existe el campo, no es la vista de alta
-        var val = ($id.val() || '').toString().trim();
-        return val === ''; // vacío → alta
+        if (!$id.length) return false;
+        return (($id.val() || '').toString().trim() === '');
       })();
-
-      if (isCreatePage) {
-        // Estamos en "Registro nuevo": limpiar y NO mostrar el toast
-        sessionStorage.removeItem('__next_toast');
-      } else {
-        // Cualquier otra vista (lista, edición, etc.): reproducir el toast
+      if (isCreatePage) { sessionStorage.removeItem('__next_toast'); }
+      else {
         sessionStorage.removeItem('__next_toast');
         var t = JSON.parse(raw || '{}');
         if (t && t.m) playToast(t.k || 'ok', t.m);
@@ -537,12 +443,11 @@ $(function () {
   } catch(_) {}
 });
 
-/* ========================= Submit AJAX (spinner + toasts propios) ========================= */
+/* ========================= Submit AJAX ========================= */
 (function () {
   var $form = $('#myForm');
   if (!$form.length) return;
 
-  // helpers: usa tus showSpinner()/hideSpinner() si existen; si no, fallback a overlays
   function spinnerOn()  {
     if (typeof showSpinner === 'function') return showSpinner();
     var $ov = $('#savingOverlay, #spinnerOverlay, #loadingScreen, .saving-overlay');
@@ -554,7 +459,6 @@ $(function () {
     if ($ov.length) $ov.hide();
   }
 
-  // limpiar error al escribir/cambiar
   $(document).on('input change', 'input,select,textarea', function () {
     if (this && this.id) clearFieldError('#' + this.id);
   });
@@ -565,7 +469,6 @@ $(function () {
     });
   }
 
-  // mapa de errores
   var FIELD_SEL = {
     'num_documento':'[name="num_documento"]',
     'folio_gestion':'[name="folio_gestion"]',
@@ -602,12 +505,7 @@ $(function () {
   var submitting = false;
 
   $form.off('submit.minAjax').on('submit.minAjax', function (e) {
-    // conserva tus validaciones previas
-    ensureFirstIfEmpty('#id_cat_area');
-    if (!validarFechasAntesDeEnviar()) {
-      e.preventDefault(); e.stopImmediatePropagation();
-      return false;
-    }
+    if (!validarFechasAntesDeEnviar()) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
 
     e.preventDefault(); e.stopImmediatePropagation();
     if (submitting) return false;
@@ -619,7 +517,6 @@ $(function () {
     var action = this.action;
     var $btn = $form.find('button[type="submit"], .btn-submit');
 
-    // 🔄 spinner ON + hook para listeners globales (toasts)
     spinnerOn();
     $(document).trigger('form:save:start', [$form[0]]);
     $btn.prop('disabled', true).addClass('disabled');
@@ -637,7 +534,15 @@ $(function () {
       const ct = (res.headers.get('content-type') || '').toLowerCase();
       const isJson = ct.indexOf('application/json') !== -1;
 
-      // 1) VALIDACIÓN 422 → pintar campos
+      // 1) Redirect inmediato (Laravel redirect)
+      if (res.redirected && res.url) {
+        rememberToast('ok','El registro se realizó de forma exitosa.');
+        $(document).trigger('form:save:success', [$form[0], 'redirect']);
+        window.location.href = res.url;
+        return;
+      }
+
+      // 2) Validaciones 422 (JSON con errors)
       if (res.status === 422) {
         let data = {};
         try { data = await res.json(); } catch(_) {}
@@ -656,19 +561,7 @@ $(function () {
         return;
       }
 
-      // 2) ÉXITO CON REDIRECT → toast + redirect (delay breve)
-      if (res.redirected && res.url) {
-        const okMsg = 'El registro se realizó de forma exitosa.';
-        playToast('ok', okMsg);
-        rememberToast('ok', okMsg);
-        setTimeout(function(){
-          $(document).trigger('form:save:success', [$form[0], 'redirect']);
-          window.location.href = res.url;
-        }, 600);
-        return;
-      }
-
-      // 3) ÉXITO SIN REDIRECT (200 OK) → toast + recarga
+      // 3) Éxito sin redirect (200/201 + JSON/HTML)
       if (res.ok) {
         let okMsg = 'El registro se realizó de forma exitosa.';
         if (isJson) {
@@ -684,7 +577,7 @@ $(function () {
         return;
       }
 
-      // 4) DUPLICADO (solo si NO fue ok/redirect) → status 409 o JSON con errors.folio_gestion
+      // 4) Duplicado explícito (409) o respuesta JSON con folio_gestion
       if (res.status === 409) {
         var $fg = $form.find('[name="folio_gestion"]');
         if ($fg.length) {
@@ -692,12 +585,7 @@ $(function () {
           showFieldError(selFG, 'El folio de gestión ya existe.');
           try { $fg[0].focus(); } catch (_) {}
         }
-        if (typeof notyfEM !== 'undefined') {
-          if (notyfEM.warning) notyfEM.warning('El folio de gestión ya existe.');
-          else if (notyfEM.error) notyfEM.error('El folio de gestión ya existe.');
-        } else {
-          __notify('El folio de gestión ya existe.', 'warn');
-        }
+        __notify('El folio de gestión ya existe.', 'warn');
         $(document).trigger('form:save:error', [$form[0], 409]);
         return;
       }
@@ -711,39 +599,26 @@ $(function () {
               showFieldError(selFG2, data.errors.folio_gestion[0] || 'El folio de gestión ya existe.');
               try { $fg2[0].focus(); } catch (_) {}
             }
-            if (typeof notyfEM !== 'undefined') {
-              if (notyfEM.warning) notyfEM.warning('El folio de gestión ya existe.');
-              else if (notyfEM.error) notyfEM.error('El folio de gestión ya existe.');
-            } else {
-              __notify('El folio de gestión ya existe.', 'warn');
-            }
+            __notify('El folio de gestión ya existe.', 'warn');
             $(document).trigger('form:save:error', [$form[0], res.status || 409]);
             return;
           }
         } catch(_) {}
       }
 
-      // 5) Otros errores (500, 403, etc.)
+      // 5) Otros errores (500/403/etc.)
       try { console.error('[SAVE_ERROR]', res.status, await res.text()); } catch(_) {}
       $(document).trigger('form:save:error', [$form[0], res.status]);
-      if (typeof notyfEM !== 'undefined' && notyfEM.error) {
-        notyfEM.error('No se pudo completar la acción. Por favor, vuelve a intentarlo.');
-      } else {
-        __notify('No se pudo completar la acción. Por favor, vuelve a intentarlo.', 'err');
-      }
+      __notify('No se pudo completar la acción. Por favor, vuelve a intentarlo.', 'err');
     })
     .catch(function (err) {
       console.error('[NETWORK]', err);
       $(document).trigger('form:save:error', [$form[0], 0]);
-      if (typeof notyfEM !== 'undefined' && notyfEM.error) {
-        notyfEM.error('Error de red. Intenta nuevamente.');
-      } else {
-        __notify('Error de red. Intenta nuevamente.', 'err');
-      }
+      __notify('Error de red. Intenta nuevamente.', 'err');
     })
     .finally(function () {
       submitting = false;
-      spinnerOff(); // 🔄 spinner OFF
+      spinnerOff();
       $btn.prop('disabled', false).removeClass('disabled');
       $(document).trigger('form:save:finish', [$form[0]]);
     });
@@ -753,19 +628,12 @@ $(function () {
 })();
 
 /* ========================= Encabezado (llamadas) ========================= */
-function setData() {
-  $('#_labFechaCaptura').text($('#fecha_captura').val());
-  $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
-  getData();
-}
-
-// === Toast inmediato si el folio ya está registrado ===
+// Toast inmediato si el folio ya está registrado
 $(document).on('blur', '[name="folio_gestion"]', function () {
   var $fg   = $(this);
   var value = ($fg.val() || '').trim();
   if (!value) return;
 
-  // Si estás en edición, manda el id para excluir el propio registro
   var id = ($('[name="id_tbl_correspondencia"]').val() || '').trim();
 
   $.post(URL_DEFAULT + '/letter/validateUnique', {
@@ -776,12 +644,7 @@ $(document).on('blur', '[name="folio_gestion"]', function () {
   })
   .done(function (res) {
     if (res && res.ok && res.exists) {
-      // ⚠️ Solo el toast (no tocamos el resto de la UX que ya funciona)
-      if (typeof notyfEM !== 'undefined' && notyfEM.warning) {
-        notyfEM.warning('El folio de gestión ya existe.');
-      } else {
-        __notify('El folio de gestión ya existe.', 'warn');
-      }
+      __notify('El folio de gestión ya existe.', 'warn');
     }
   })
   .fail(function(){ /* silencioso */ });
