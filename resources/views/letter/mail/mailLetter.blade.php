@@ -85,40 +85,24 @@
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
                 <td class="email-header">
-                    <p style="color:white">IMSS-BIENESTAR CENTRAL</p>
+                    <p style="color:white">Control de Gestión</p>
                 </td>
             </tr>
             <tr>
                 <td class="email-body">
                     <p>¡Hola, {{ $nameUser }}!</p>
-                    <p>Con el fin de dar seguimiento a la correspondencia, se te ha asignado un nuevo número de turno.
-                        A continuación, se detallan algunos puntos:</p>
-                    <ul style="padding-left: 20px;">
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Asunto:</strong> {{ $mailBody->asunto }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Fol. Gestión:</strong> {{ $mailBody->folio_gestion }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">No. Documento:</strong> {{ $mailBody->num_documento }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Fecha Inicio:</strong> {{ $mailBody->fecha_inicio }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Fecha Fin:</strong> {{ $mailBody->fecha_fin }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Turnado a:</strong> {{ $mailBody->area_descripcion }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Usuario:</strong> {{ $mailBody->usuario_area }}
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong style="color: #000;">Enlace:</strong> {{ $mailBody->usuario_enlace }}
-                        </li>
-                    </ul>
+                    <p>
+                        La respuesta al folio <strong>{{ $mailBody->folio_gestion }}</strong> ha sido
+                        <strong>rechazada</strong>.
+                        Es necesario validar que la información del folio sea correcta. Te invitamos a revisar los
+                        detalles y
+                        completar nuevamente el proceso de conclusión del folio.
+                    </p>
+                    <p>A continuación, se detallan las observaciones:</p>
+                    <div
+                        style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #dc3545; margin: 10px 0;">
+                        {{ $observaciones }}
+                    </div>
                     <p>Saludos cordiales,</p>
                 </td>
             </tr>

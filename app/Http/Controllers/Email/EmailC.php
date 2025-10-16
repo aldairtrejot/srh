@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers\Email;
 
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Letter\Letter\LetterM;
+use App\Models\Letter\Office\AnexosM;
+use App\Models\Letter\Office\OfficeM;
+use App\Models\Letter\Office\OficionM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class EmailC extends Controller
 {
-
     // La funcion manda correo para correspondecia
     public function emailLetter(Request $request)
     {
         try {
+
+            // validadion de roles
+            // si no return f
+
             // Declarar el asunto y cuerpo del correo
-            $letterM = new LetterM();
-            $subject = 'No. DE TURNO ASIGNADO PARA CORRESPONDENCIA';
+            $letterM = new LetterM;
+            $subject = 'Folio rechazado';
             $body = 'Este es el contenido dinámico del correo';
             $mailBody = $letterM->mailLetter($request->id);
 
@@ -28,6 +33,7 @@ class EmailC extends Controller
                 'body' => $body,
                 'mailBody' => $mailBody,
                 'nameUser' => strtoupper($request->nameUser),
+                'observaciones' => strtoupper($request->observaciones),
             ];
 
             // Enviar el correo con la vista Blade
@@ -36,6 +42,20 @@ class EmailC extends Controller
                     ->to($request->mail)  // Dirección del destinatario
                     ->subject($subject);  // Asunto del correo
             });
+
+            // ACTUALIZAR ESTATUS
+            LetterM::where('id_tbl_correspondencia', $request->id)
+                ->update(['id_cat_estatus' => 1]);
+
+            // Obtener id de oficio
+            $oficio = OfficeM::where('id_tbl_correspondencia', $request->id)->first();
+
+            // Eliminar registros relacionados primero
+            OficionM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+            AnexosM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+
+            // Eliminar el oficio principal
+            OfficeM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
 
             return response()->json([
                 'status' => true,
@@ -49,6 +69,4 @@ class EmailC extends Controller
             ]);
         }
     }
-
 }
-

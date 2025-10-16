@@ -3,14 +3,14 @@
         <h3
             style="font-weight: bold; color: #10312b; text-align: left; display: flex; align-items: center; margin-bottom: 20px;">
             <i class="fa fa-mail-forward" style="font-size: 20px; color: #10312b; margin-right: 10px;"></i>
-            Enviar email
+            Rechazar folio por email
         </h3>
 
         <!-- id oculto -->
         <x-template-form.template-form-input-hidden name="id_tbl_correspondencia_email" value="" />
 
         <p>Ingresa el nombre y correo del <strong style="color:rgb(46, 45, 45);">destinatario</strong> para enviar la
-            información del F. Gestión: <label id="noTurnoSistemaEmail"></label>, para su reasignación.</p>
+            información del F. Gestión: <label id="noTurnoSistemaEmail"></label></p>
 
         <div class="custom-input-container">
             <label class="custom-input-label" for="customTextInput">Nombre</label>
@@ -18,13 +18,13 @@
         </div>
 
         <div class="custom-input-container">
-            <label class="custom-input-label" for="customTextInput">Observaciones</label>
+            <label class="custom-input-label" for="customTextInput">Correo electrónico</label>
             <input type="email" id="emailMail" name="newPassword" class="custom-input-field">
         </div>
 
         <div class="custom-input-container">
             <label class="custom-input-label" for="customTextInput">Observaciones</label>
-            <input type="email" id="id_ob" name="id_ob" class="custom-input-field">
+            <input type="email" id="observaciones" name="observaciones" class="custom-input-field">
         </div>
 
         <div class="modal-buttons">

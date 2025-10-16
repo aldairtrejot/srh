@@ -29,6 +29,7 @@ function validateEmail() {
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#emailName').val(), 'Nombre') ||
         isExceedingLength($('#emailName').val(), 'Nombre', 40) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 50) ||
         validateMail($('#emailMail').val())) {
         bool = false;
     }
@@ -43,6 +44,7 @@ function cleanEmail() {
     $('#noTurnoSistemaEmail').val('');
     $('#emailName').val('');
     $('#emailMail').val('');
+    $('#observaciones').val('');
 }
 
 // La función manda al contro
@@ -56,11 +58,13 @@ function sendEmailLetter() {
             id: $('#id_tbl_correspondencia_email').val(),
             nameUser: $('#emailName').val(),
             mail: $('#emailMail').val(),
+            observaciones: $('#observaciones').val(),
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
             // Acceder al valor del 'status'
             hideSpinner(); // Se oculta el spinner
+            searchInit();
             if (response.status) {
                 notyfEM.success("Email enviado de manera exitosa.");
             } else {

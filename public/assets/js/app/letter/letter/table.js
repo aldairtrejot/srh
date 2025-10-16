@@ -258,7 +258,7 @@ function searchInit() {
           '<i class="fa fa-location-arrow item-icon-menu"></i>' +
           '</div>' +
           '</span>' +
-          'Reasignación' +
+          'Rechazar' +
           '</button>' +
           '</div>' +
           '</div>' +
