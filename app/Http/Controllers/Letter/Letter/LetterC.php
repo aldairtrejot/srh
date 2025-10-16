@@ -28,6 +28,8 @@ use App\Http\Controllers\Cloud\AlfrescoC;
 use App\Models\Letter\Letter\CloudAnexosM;
 use App\Models\Letter\Letter\CloudOficiosM;
 use App\Models\Letter\Cloud\CloudConfigM;
+use Illuminate\Http\UploadedFile;
+
 
 // Para crear el registro en tbl_oficio
 use App\Models\Letter\Office\OfficeM;
@@ -55,10 +57,10 @@ public function table(Request $request, LetterM $model)
         $iterator    = max(0, (int) $request->get('iterator', 0));
         $searchValue = (string) $request->get('searchValue', '');
 
-        // Visibilidad de columnas para el front
+        // Visibilidad por rol (se mantiene tu lógica)
         $visibility = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
 
-        /* ===================== BYPASS (admin / vista total) ===================== */
+        // ===================== BYPASS (admin / vista total) =====================
         if ($this->isBypassVisibility()) {
             $q = DB::table('correspondencia.tbl_correspondencia as c')
                 ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
@@ -93,6 +95,12 @@ public function table(Request $request, LetterM $model)
                     DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
                     DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
                     DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                    // Compacto: CRH / CRHTOD / Área (solo las que existan)
+                    DB::raw("UPPER(CONCAT_WS(' / ',
+                        NULLIF(a1.descripcion,''),
+                        NULLIF(a2.descripcion,''),
+                        NULLIF(a3.descripcion,'')
+                    )) AS areas_compact"),
                     DB::raw("(
                         SELECT co.uid
                         FROM correspondencia.ctrl_correspondencia_oficio co
@@ -102,22 +110,29 @@ public function table(Request $request, LetterM $model)
                     ) AS uuid_oficio"),
                 ]);
 
+            // visibilidad dinámica por presencia de datos
+            $hasArea   = collect($rows)->contains(fn($r) => !empty($r->area));
+            $hasCRH    = collect($rows)->contains(fn($r) => !empty($r->area_1));
+            $hasCRHTOD = collect($rows)->contains(fn($r) => !empty($r->area_2));
+
             return response()->json([
                 'value' => $rows,
                 'total' => $total,
-                'columns_visibility' => ['area'=>true,'crh'=>true,'crhtod'=>true],
+                'columns_visibility'  => ['area'=>true,'crh'=>true,'crhtod'=>true], // admin ve todo
+                'dynamic_visibility'  => ['area'=>$hasArea,'crh'=>$hasCRH,'crhtod'=>$hasCRHTOD],
             ]);
         }
 
-        /* ===================== USUARIO NORMAL (sin “atajo” por usuario) ===================== */
+        // ===================== USUARIO NORMAL =====================
         $userId    = (int) (Auth::id() ?? 0);
-        $userAreas = $this->getAllowedAreasForUser($userId); // solo sus áreas directas
+        $userAreas = $this->getAllowedAreasForUser($userId);
 
         if (empty($userAreas)) {
             return response()->json([
                 'value' => [],
                 'total' => 0,
-                'columns_visibility' => $visibility
+                'columns_visibility' => $visibility,
+                'dynamic_visibility' => ['area'=>false,'crh'=>false,'crhtod'=>false],
             ]);
         }
 
@@ -128,23 +143,19 @@ public function table(Request $request, LetterM $model)
             ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')   // CRHTOD
             ->where('e.estatus', true)
             ->where(function ($w) use ($userAreas) {
-
-                // 1) Si tiene Área (A3) => filtra por A3
+                // 1) Si tiene Área (A3)
                 $w->orWhereIn('c.id_cat_area', $userAreas);
-
-                // 2) Si NO hay Área (A3) pero sí CRHTOD (A2) => filtra por A2
+                // 2) Si NO hay Área (A3) pero sí CRHTOD (A2)
                 $w->orWhere(function ($q2) use ($userAreas) {
                     $q2->whereNull('c.id_cat_area')
                        ->whereIn('c.id_cat_area_2', $userAreas);
                 });
-
-                // 3) Si NO hay Área (A3) NI CRHTOD (A2) pero sí CRH (A1) => filtra por A1
+                // 3) Si NO hay Área (A3) NI CRHTOD (A2) pero sí CRH (A1)
                 $w->orWhere(function ($q3) use ($userAreas) {
                     $q3->whereNull('c.id_cat_area')
                        ->whereNull('c.id_cat_area_2')
                        ->whereIn('c.id_cat_area_1', $userAreas);
                 });
-
                 // 4) Copias a mis áreas — SOLO SI NO HAY ÁREA FINAL (A3)
                 $w->orWhere(function ($qCopy) use ($userAreas) {
                     $qCopy->whereNull('c.id_cat_area')
@@ -154,11 +165,7 @@ public function table(Request $request, LetterM $model)
                                 ->whereIn('t.id_cat_area', $userAreas);
                           });
                 });
-
-                // ⛔️ IMPORTANTE: quitamos la visibilidad por id_usuario_area / id_usuario_enlace
-                // para que Herminio/Berenice no vean folios que terminaron en CRHTOD (Karina/José).
             })
-            // si usabas esta regla, la dejamos igual
             ->where('c.id_cat_estatus', '!=', 2);
 
         if ($searchValue !== '') {
@@ -188,6 +195,11 @@ public function table(Request $request, LetterM $model)
                 DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
                 DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
                 DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                DB::raw("UPPER(CONCAT_WS(' / ',
+                    NULLIF(a1.descripcion,''),
+                    NULLIF(a2.descripcion,''),
+                    NULLIF(a3.descripcion,'')
+                )) AS areas_compact"),
                 DB::raw("(
                     SELECT co.uid
                     FROM correspondencia.ctrl_correspondencia_oficio co
@@ -197,13 +209,19 @@ public function table(Request $request, LetterM $model)
                 ) AS uuid_oficio"),
             ]);
 
-        // Aplicar visibilidad de columnas al resultado
+        // Aplica visibilidad por rol a las columnas individuales
         $rows = $this->applyVisibilityToRows($rows, $visibility);
+
+        // visibilidad dinámica por presencia de datos (después de applyVisibilityToRows)
+        $hasArea   = collect($rows)->contains(fn($r) => !empty($r->area));
+        $hasCRH    = collect($rows)->contains(fn($r) => !empty($r->area_1));
+        $hasCRHTOD = collect($rows)->contains(fn($r) => !empty($r->area_2));
 
         return response()->json([
             'value' => $rows,
             'total' => $total,
-            'columns_visibility' => $visibility
+            'columns_visibility' => $visibility, // la regla por rol se mantiene
+            'dynamic_visibility' => ['area'=>$hasArea,'crh'=>$hasCRH,'crhtod'=>$hasCRHTOD],
         ]);
 
     } catch (\Throwable $e) {
@@ -214,6 +232,7 @@ public function table(Request $request, LetterM $model)
         ], 500);
     }
 }
+
 
     public function dashboard()
     {
@@ -343,7 +362,7 @@ public function table(Request $request, LetterM $model)
     }
 
     /* ======================== EDIT (FORM) ======================== */
-    public function edit(string $id)
+public function edit(string $id)
 {
     $letterM                 = new LetterM();
     $collectionRelUsuarioM   = new CollectionRelUsuarioM();
@@ -393,8 +412,9 @@ public function table(Request $request, LetterM $model)
     $selectUser     = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_area) : [];
     $selectUserEdit = (isset($item->id_cat_area) && isset($item->id_usuario_area)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];
 
+    // 🔧 FIX: usar el modelo de Enlace para el edit de enlace
     $selectEnlace     = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_enlace) : [];
-    $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
+    $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelEnlaceM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
 
     // Unidad / Coordinación
     $selectUnidad           = $collectionUnidadM->listEdit();
@@ -433,7 +453,7 @@ public function table(Request $request, LetterM $model)
             ->first();
     }
 
-    // ======== NUEVO: IDs actuales para precarga en el front ========
+    // IDs actuales para precarga en el front
     $initials = [
         'area1'           => $item->id_cat_area_1 ?? null,
         'area2'           => $item->id_cat_area_2 ?? null,
@@ -463,347 +483,299 @@ public function table(Request $request, LetterM $model)
         'selectClave','selectClaveEdit',
         'selectRemitente','selectRemitenteEdit',
         'selectEntidad','selectEntidadEdit',
-        // flags para front
         'lockReturnado','idReturnado',
-        // NUEVO: objeto para JS
         'initials'
     ));
 }
 
     /* ======================== SAVE (CREATE/UPDATE) ======================== */
-    public function save(Request $request)
-    {
-        $now                    = Carbon::now();
-        $logC                   = new LogC();
-        $messagesC              = new MessagesC();
-        $letterM                = new LetterM();
-        $collectionRemitenteM   = new CollectionRemitenteM();
-        $collectionConsecutivoM = new CollectionConsecutivoM();
-        $collectionRolAreaM     = new CollectionRolAreaM();
-        $collectionLetterLogM   = new CollectionLetterLogM();
 
-        \Log::info('[SAVE] entrada', [
-            'route' => 'letter.save',
-            'user'  => Auth::id(),
-            'all'   => $request->all(),
-            'files' => array_keys($request->allFiles() ?? []),
+public function save(Request $request)
+{
+    $now                    = Carbon::now();
+    $logC                   = new LogC();
+    $messagesC              = new MessagesC();
+    $letterM                = new LetterM();
+    $collectionRemitenteM   = new CollectionRemitenteM();
+    $collectionConsecutivoM = new CollectionConsecutivoM();
+    $collectionRolAreaM     = new CollectionRolAreaM();
+    $collectionLetterLogM   = new CollectionLetterLogM();
+
+    \Log::info('[SAVE] entrada', [
+        'route' => 'letter.save',
+        'user'  => Auth::id(),
+        'all'   => $request->all(),
+        'files' => array_keys($request->allFiles() ?? []),
+    ]);
+
+    try {
+        // ===== Validaciones (solo strings / tamaño archivo) =====
+        $request->validate([
+            'id_tbl_correspondencia' => 'nullable|string',
+            'fecha_captura'          => 'nullable|string|max:20',
+            'id_cat_anio'            => 'required|string',
+            'num_turno_sistema'      => 'required|string|max:100',
+            'num_documento'          => 'nullable|string|max:100',
+            'folio_gestion'          => 'nullable|string|max:120',
+            'fecha_documento'        => 'nullable|string|max:20',
+            'fecha_inicio'           => 'nullable|string|max:20',
+            'fecha_fin'              => 'nullable|string|max:20',
+            'id_cat_entidad'         => 'nullable|string',
+            'horas_respuesta'        => 'nullable|string',
+            'asunto'                 => 'required|string|max:250',
+            'observaciones'          => 'nullable|string|max:500',
+
+            'id_cat_area_1'          => 'nullable|string',
+            'id_cat_area_2'          => 'nullable|string',
+            'id_cat_area'            => 'nullable|string',
+            'id_usuario_area'        => 'nullable|string',
+            'id_usuario_enlace'      => 'nullable|string',
+            'id_cat_unidad'          => 'nullable|string',
+            'id_cat_coordinacion'    => 'nullable|string',
+            'id_cat_tramite'         => 'nullable|string',
+            'id_cat_clave'           => 'nullable|string',
+            'id_cat_estatus'         => 'nullable|string', // <— antes 'required'
+
+            'id_cat_remitente'       => 'nullable|string',
+            'puesto_remitente'       => 'nullable|string|max:200',
+            'remitente'              => 'nullable|string|max:250',
+
+            'rfc_remitente_bool'     => 'nullable|string',
+            'es_doc_fisico'          => 'nullable|string',
+            'son_mas_remitentes'     => 'nullable|string',
+
+            'id_cat_entrada'         => 'nullable|string',
+            'id_cat_tipo_oficio'     => 'nullable|string',
+
+            'file_oficio_entrada'    => 'nullable|file|max:20480',
+            'file_anexo_entrada'     => 'nullable|array',
+            'file_anexo_entrada.*'   => 'file|max:20480',
         ]);
 
-        try {
-            // ===== Validaciones (solo strings / tamaño archivo) =====
-            $request->validate([
-                'id_tbl_correspondencia' => 'nullable|string',
-                'fecha_captura'          => 'nullable|string|max:20',
-                'id_cat_anio'            => 'required|string',
-                'num_turno_sistema'      => 'required|string|max:100',
-                'num_documento'          => 'nullable|string|max:100',
-                'folio_gestion'          => 'nullable|string|max:120',
-                'fecha_documento'        => 'nullable|string|max:20',
-                'fecha_inicio'           => 'nullable|string|max:20',
-                'fecha_fin'              => 'nullable|string|max:20',
-                'id_cat_entidad'         => 'nullable|string',
-                'horas_respuesta'        => 'nullable|string',
-                'asunto'                 => 'required|string|max:250',
-                'observaciones'          => 'nullable|string|max:500',
+        // ===== Flags
+        $rfc_remitente_bool = $request->boolean('rfc_remitente_bool');
+        $es_doc_fisico      = $request->boolean('es_doc_fisico');
+        $son_mas_remitentes = $request->boolean('son_mas_remitentes');
 
-                'id_cat_area_1'          => 'nullable|string',
-                'id_cat_area_2'          => 'nullable|string',
-                'id_cat_area'            => 'nullable|string',
-                'id_usuario_area'        => 'nullable|string',
-                'id_usuario_enlace'      => 'nullable|string',
-                'id_cat_unidad'          => 'nullable|string',
-                'id_cat_coordinacion'    => 'nullable|string',
-                'id_cat_tramite'         => 'nullable|string',
-                'id_cat_clave'           => 'nullable|string',
-                'id_cat_estatus'         => 'required|string',
-
-                'id_cat_remitente'       => 'nullable|string',
-                'puesto_remitente'       => 'nullable|string|max:200',
-                'remitente'              => 'nullable|string|max:250',
-
-                'rfc_remitente_bool'     => 'nullable|string',
-                'es_doc_fisico'          => 'nullable|string',
-                'son_mas_remitentes'     => 'nullable|string',
-
-                'id_cat_entrada'         => 'nullable|string',
-                'id_cat_tipo_oficio'     => 'nullable|string',
-
-                'file_oficio_entrada'    => 'nullable|file|max:20480',
-                'file_anexo_entrada'     => 'nullable|array',
-                'file_anexo_entrada.*'   => 'file|max:20480',
+        // ===== Alta rápida de remitente (sin propiedades dinámicas)
+        if ($rfc_remitente_bool) {
+            // usar static en ::create para evitar problemas en producción
+            CollectionRemitenteM::create([
+                'nombre'             => strtoupper((string)$request->remitente_nombre),
+                'primer_apellido'    => strtoupper((string)$request->remitente_apellido_paterno),
+                'segundo_apellido'   => strtoupper((string)$request->remitente_apellido_materno),
+                'rfc'                => strtoupper((string)$request->remitente_rfc),
+                'estatus'            => true,
+                'id_usuario_sistema' => Auth::user()->id,
+                'fecha_usuario'      => $now,
             ]);
+            $idRem = $collectionRemitenteM->getRfc(
+                strtoupper((string)$request->remitente_nombre),
+                strtoupper((string)$request->remitente_apellido_paterno),
+                strtoupper((string)$request->remitente_apellido_materno)
+            );
+            $request->merge(['id_cat_remitente' => $idRem]);
+        }
 
-            // ===== Flags
-            $rfc_remitente_bool = $request->boolean('rfc_remitente_bool');
-            $es_doc_fisico      = $request->boolean('es_doc_fisico');
-            $son_mas_remitentes = $request->boolean('son_mas_remitentes');
-
-            // ===== Alta rápida de remitente
-            if ($rfc_remitente_bool) {
-                $collectionRemitenteM::create([
-                    'nombre'             => strtoupper((string)$request->remitente_nombre),
-                    'primer_apellido'    => strtoupper((string)$request->remitente_apellido_paterno),
-                    'segundo_apellido'   => strtoupper((string)$request->remitente_apellido_materno),
-                    'rfc'                => strtoupper((string)$request->remitente_rfc),
-                    'estatus'            => true,
-                    'id_usuario_sistema' => Auth::user()->id,
-                    'fecha_usuario'      => $now,
-                ]);
-                $request->id_cat_remitente = $collectionRemitenteM->getRfc(
-                    strtoupper((string)$request->remitente_nombre),
-                    strtoupper((string)$request->remitente_apellido_paterno),
-                    strtoupper((string)$request->remitente_apellido_materno)
-                );
-            }
-
-            /* ==================== CREATE ==================== */
-            if (!$request->filled('id_tbl_correspondencia')) {
-                // Oficio ENTRADA obligatorio
-                if (
-                    !$request->hasFile('file_oficio_entrada') ||
-                    !$request->file('file_oficio_entrada')->isValid()
-                ) {
-                    return redirect()->back()->withInput()->with([
-                        'value'   => 'error',
-                        'message' => 'Hace falta cargar un oficio (PDF/DOC/IMG).',
-                        'estatus' => 'true'
-                    ]);
-                }
-                $allowed = ['pdf','doc','docx','jpg','jpeg','png'];
-                $ext = strtolower((string)$request->file('file_oficio_entrada')->getClientOriginalExtension());
-                if (!in_array($ext, $allowed, true)) {
-                    return redirect()->back()->withInput()->with([
-                        'value'   => 'error',
-                        'message' => 'El oficio debe ser PDF, DOC, DOCX, JPG o PNG.',
-                        'estatus' => 'true'
-                    ]);
-                }
-
-                // Consecutivo
-                $numTurnoSistemaAux = (string) $request->num_turno_sistema;
-                if ($this->getMaxTurno($request->num_turno_sistema) <= $letterM->getMaxNuSistem()) {
-                    $numTurnoSistemaAux = $this->procesarParametros(
-                        $request->num_turno_sistema,
-                        $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'))
-                    );
-                }
-
-                // Fechas
-                $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
-                $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
-                $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
-                $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
-
-                // Áreas (Área principal debe quedar NULL si el usuario no la selecciona)
-                $area1 = (int) ($request->id_cat_area_1 ?: 0);
-                $area2 = (int) ($request->id_cat_area_2 ?: 0);
-                $area3 = (int) ($request->id_cat_area   ?: 0);
-
-                $areaFinal = $area3 ?: null; // no heredamos a BD
-
-                $data = [
-                    'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
-                    'num_documento'        => strtoupper((string)$request->num_documento),
-                    'fecha_captura'        => $fechaCaptura,
-                    'fecha_inicio'         => $fechaInicio,
-                    'fecha_fin'            => $fechaFin,
-                    'num_flojas'           => 1,
-                    'num_tomos'            => 0,
-                    'horas_respuesta'      => (int) $request->horas_respuesta,
-                    'id_cat_entidad'       => $request->id_cat_entidad,
-                    'asunto'               => strtoupper((string)$request->asunto),
-                    'observaciones'        => strtoupper((string)$request->observaciones),
-
-                    'id_cat_area'          => $areaFinal,        // puede ir NULL
-                    'id_cat_area_1'        => $area1 ?: null,
-                    'id_cat_area_2'        => $area2 ?: null,
-
-                    'id_usuario_area'      => $request->id_usuario_area,
-                    'id_usuario_enlace'    => $request->id_usuario_enlace,
-                    'id_cat_estatus'       => $request->id_cat_estatus,
-                    'id_cat_remitente'     => $request->id_cat_remitente,
-                    'id_cat_anio'          => $request->id_cat_anio,
-                    'id_cat_tramite'       => $request->id_cat_tramite,
-                    'id_cat_clave'         => $request->id_cat_clave,
-                    'id_cat_unidad'        => $request->id_cat_unidad,
-                    'id_cat_coordinacion'  => $request->id_cat_coordinacion,
-                    'puesto_remitente'     => strtoupper((string)$request->puesto_remitente),
-                    'folio_gestion'        => strtoupper((string)$request->folio_gestion),
-                    'es_doc_fisico'        => $es_doc_fisico,
-                    'son_mas_remitentes'   => $son_mas_remitentes,
-                    'remitente'            => strtoupper((string)$request->remitente),
-                    'fecha_documento'      => $fechaDocumento,
-
-                    'id_usuario_sistema'   => Auth::user()->id,
-                    'fecha_usuario'        => $now,
-                    'id_usuario_captura'   => Auth::user()->id,
-                    'fecha_usuario_captura'=> $now,
-                ];
-
-                $created = LetterM::create($data);
-
-                $collectionConsecutivoM->iteratorConsecutivo(
-                    $request->id_cat_anio,
-                    config('custom_config.CP_TABLE_CORRESPONDENCIA')
-                );
-
-                $collectionLetterLogM::create([
-                    'estatus'                => 'AGREGAR',
-                    'num_documento'          => strtoupper((string)$request->num_documento),
-                    'folio_gestion'          => strtoupper((string)$request->folio_gestion),
-                    'asunto'                 => strtoupper((string)$request->asunto),
-                    'observaciones'          => strtoupper((string)$request->observaciones),
-                    'id_cat_area'            => $areaFinal, // puede ser NULL
-                    'id_cat_estatus'         => $request->id_cat_estatus,
-                    'id_tbl_correspondencia' => (int)$created->id_tbl_correspondencia,
-                    'fecha_usuario_captura'  => $now,
-                    'id_usuario_captura'     => Auth::user()->id,
-                ]);
-
-                /* ===== Subida a Alfresco con "área de contexto" temporal =====
-                   Si id_cat_area está NULL, usamos (Área -> CRHTOD -> CRH) SOLO para la subida. */
-                $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
-                $restoreAreaAfter = false;
-                if (empty($request->id_cat_area) && $areaContextForUpload) {
-                    $request->merge(['id_cat_area' => $areaContextForUpload]);
-                    $restoreAreaAfter = true;
-                }
-
-                // Subir archivos (usa id_cat_area del request)
-                $this->uploadFilesIfAny($request, (int)$created->id_tbl_correspondencia);
-
-                // Restaurar request si lo tocamos
-                if ($restoreAreaAfter) {
-                    $request->merge(['id_cat_area' => null]);
-                }
-
-                return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
-            }
-
-            /* ==================== UPDATE (total) ==================== */
-            $roleUserArray    = collect(session('SESSION_ROLE_USER'))->toArray();
-            $ADM_TOTAL        = (int) config('custom_config.ADM_TOTAL');
-            $COR_TOTAL        = (int) config('custom_config.COR_TOTAL');
-            $hasFullUpdateRole = in_array($ADM_TOTAL, $roleUserArray, true) || in_array($COR_TOTAL, $roleUserArray, true);
-
-            if ($hasFullUpdateRole) {
-                $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
-                $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
-                $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
-                $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
-
-                // Áreas: mantener NULL si el usuario deja Área vacía
-                $area1 = (int) ($request->id_cat_area_1 ?: 0);
-                $area2 = (int) ($request->id_cat_area_2 ?: 0);
-                $area3 = (int) ($request->id_cat_area   ?: 0);
-                $areaFinal = $area3 ?: null;
-
-                $data = [
-                    'num_turno_sistema'    => strtoupper((string)$request->num_turno_sistema),
-                    'num_documento'        => strtoupper((string)$request->num_documento),
-                    'fecha_captura'        => $fechaCaptura,
-                    'fecha_inicio'         => $fechaInicio,
-                    'fecha_fin'            => $fechaFin,
-                    'num_flojas'           => 1,
-                    'num_tomos'            => 0,
-                    'horas_respuesta'      => (int) $request->horas_respuesta,
-                    'id_cat_entidad'       => $request->id_cat_entidad,
-                    'asunto'               => strtoupper((string)$request->asunto),
-                    'observaciones'        => strtoupper((string)$request->observaciones),
-
-                    'id_cat_area'          => $areaFinal,       // puede ser NULL
-                    'id_cat_area_1'        => $area1 ?: null,
-                    'id_cat_area_2'        => $area2 ?: null,
-
-                    'id_usuario_area'      => $request->id_usuario_area,
-                    'id_usuario_enlace'    => $request->id_usuario_enlace,
-                    'id_cat_estatus'       => $request->id_cat_estatus,
-                    'id_cat_remitente'     => $request->id_cat_remitente,
-                    'id_cat_anio'          => $request->id_cat_anio,
-                    'id_cat_tramite'       => $request->id_cat_tramite,
-                    'id_cat_clave'         => $request->id_cat_clave,
-                    'id_cat_unidad'        => $request->id_cat_unidad,
-                    'id_cat_coordinacion'  => $request->id_cat_coordinacion,
-                    'puesto_remitente'     => strtoupper((string)$request->puesto_remitente),
-                    'folio_gestion'        => strtoupper((string)$request->folio_gestion),
-                    'es_doc_fisico'        => $es_doc_fisico,
-                    'son_mas_remitentes'   => $son_mas_remitentes,
-                    'remitente'            => strtoupper((string)$request->remitente),
-                    'fecha_documento'      => $fechaDocumento,
-
-                    'id_usuario_sistema'   => Auth::user()->id,
-                    'fecha_usuario'        => $now,
-                ];
-
-                // Forzar Returnado si aplica (tu lógica original)
-                try {
-                    if (
-                        $letterM->areaOnlyReturnado($area1 ?: null) ||
-                        $letterM->areaOnlyReturnado($area2 ?: null) ||
-                        $letterM->areaOnlyReturnado($areaFinal ?: null)
-                    ) {
-                        $data['id_cat_estatus'] = $letterM->getReturnadoId();
-                    }
-                } catch (\Throwable $e) {}
-
-                LetterM::where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)->update($data);
-
-                $logC->edit('correspondencia.tbl_correspondencia', $data + [
-                    'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia
-                ]);
-
-                $collectionLetterLogM::create([
-                    'estatus'                => 'MODIFICAR',
-                    'num_documento'          => strtoupper((string)$request->num_documento),
-                    'folio_gestion'          => strtoupper((string)$request->folio_gestion),
-                    'asunto'                 => strtoupper((string)$request->asunto),
-                    'observaciones'          => strtoupper((string)$request->observaciones),
-                    'id_cat_area'            => $areaFinal, // puede ser NULL
-                    'id_cat_estatus'         => $data['id_cat_estatus'],
-                    'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia,
-                    'fecha_usuario_captura'  => $now,
-                    'id_usuario_captura'     => Auth::user()->id,
-                ]);
-
-                // ===== Subidas (área de contexto temporal para Alfresco) =====
-                $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
-                $restoreAreaAfter = false;
-                if (empty($request->id_cat_area) && $areaContextForUpload) {
-                    $request->merge(['id_cat_area' => $areaContextForUpload]);
-                    $restoreAreaAfter = true;
-                }
-
-                $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
-                $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
-
-                if ($restoreAreaAfter) {
-                    $request->merge(['id_cat_area' => null]);
-                }
-
-                return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
-            }
-
-            /* ==================== UPDATE restringido ==================== */
-            if (!in_array($request->id_cat_area, (array)$collectionRolAreaM->getListArea(), true)) {
-                return redirect()->back()->with([
+        /* ==================== CREATE ==================== */
+        if (!$request->filled('id_tbl_correspondencia')) {
+            // Oficio ENTRADA obligatorio
+            if (!$request->hasFile('file_oficio_entrada') || !$request->file('file_oficio_entrada')->isValid()) {
+                return redirect()->back()->withInput()->with([
                     'value'   => 'error',
-                    'message' => 'No se han configurado permisos para este usuario.',
+                    'message' => 'Hace falta cargar un oficio (PDF/DOC/IMG).',
+                    'estatus' => 'true'
+                ]);
+            }
+            $allowed = ['pdf','doc','docx','jpg','jpeg','png'];
+            $ext = strtolower((string)$request->file('file_oficio_entrada')->getClientOriginalExtension());
+            if (!in_array($ext, $allowed, true)) {
+                return redirect()->back()->withInput()->with([
+                    'value'   => 'error',
+                    'message' => 'El oficio debe ser PDF, DOC, DOCX, JPG o PNG.',
                     'estatus' => 'true'
                 ]);
             }
 
-            // Mantener que Área principal pueda ser NULL
+            // Consecutivo (comparación segura)
+            $numTurnoSistemaAux = (string) $request->num_turno_sistema;
+            $maxTurno           = $this->getMaxTurno($request->num_turno_sistema);
+            if ($maxTurno !== null && $maxTurno <= $letterM->getMaxNuSistem()) {
+                $numTurnoSistemaAux = $this->procesarParametros(
+                    $request->num_turno_sistema,
+                    $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'))
+                );
+            }
+
+            // Fechas
+            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
+            // Áreas
             $area1 = (int) ($request->id_cat_area_1 ?: 0);
             $area2 = (int) ($request->id_cat_area_2 ?: 0);
             $area3 = (int) ($request->id_cat_area   ?: 0);
             $areaFinal = $area3 ?: null;
 
+            // TURNADO automático si hay destino (prioridad: Área > CRHTOD > CRH)
+            $areaFinalForTurno = $area3 ?: ($area2 ?: ($area1 ?: 0));
+            $turnadoId         = (new LetterM())->getTurnadoId();
+            $idEstatusFinal    = $request->filled('id_cat_estatus')
+                ? (int)$request->id_cat_estatus
+                : ($areaFinalForTurno ? $turnadoId : null);
+
             $data = [
-                'observaciones'      => strtoupper((string)$request->observaciones),
-                'id_cat_estatus'     => $request->id_cat_estatus,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario'      => $now,
+                'num_turno_sistema'     => strtoupper($numTurnoSistemaAux),
+                'num_documento'         => strtoupper((string)$request->num_documento),
+                'fecha_captura'         => $fechaCaptura,
+                'fecha_inicio'          => $fechaInicio,
+                'fecha_fin'             => $fechaFin,
+                'num_flojas'            => 1,
+                'num_tomos'             => 0,
+                'horas_respuesta'       => (int) $request->horas_respuesta,
+                'id_cat_entidad'        => $request->id_cat_entidad ?: null,
+                'asunto'                => strtoupper((string)$request->asunto),
+                'observaciones'         => strtoupper((string)$request->observaciones),
+
+                'id_cat_area'           => $areaFinal,
+                'id_cat_area_1'         => $area1 ?: null,
+                'id_cat_area_2'         => $area2 ?: null,
+
+                'id_usuario_area'       => $request->id_usuario_area ?: null,
+                'id_usuario_enlace'     => $request->id_usuario_enlace ?: null,
+                'id_cat_estatus'        => $idEstatusFinal,
+                'id_cat_remitente'      => $request->id_cat_remitente ?: null,
+                'id_cat_anio'           => $request->id_cat_anio,
+                'id_cat_tramite'        => $request->id_cat_tramite ?: null,
+                'id_cat_clave'          => $request->id_cat_clave ?: null,
+                'id_cat_unidad'         => $request->id_cat_unidad ?: null,
+                'id_cat_coordinacion'   => $request->id_cat_coordinacion ?: null,
+                'puesto_remitente'      => strtoupper((string)$request->puesto_remitente),
+                'folio_gestion'         => strtoupper((string)$request->folio_gestion),
+                'es_doc_fisico'         => $es_doc_fisico,
+                'son_mas_remitentes'    => $son_mas_remitentes,
+                'remitente'             => strtoupper((string)$request->remitente),
+                'fecha_documento'       => $fechaDocumento,
+
+                'id_usuario_sistema'    => Auth::user()->id,
+                'fecha_usuario'         => $now,
+                'id_usuario_captura'    => Auth::user()->id,
+                'fecha_usuario_captura' => $now,
             ];
+
+            $created = LetterM::create($data);
+
+            $collectionConsecutivoM->iteratorConsecutivo(
+                $request->id_cat_anio,
+                config('custom_config.CP_TABLE_CORRESPONDENCIA')
+            );
+
+            // usar static aquí también
+            CollectionLetterLogM::create([
+                'estatus'                => 'AGREGAR',
+                'num_documento'          => strtoupper((string)$request->num_documento),
+                'folio_gestion'          => strtoupper((string)$request->folio_gestion),
+                'asunto'                 => strtoupper((string)$request->asunto),
+                'observaciones'          => strtoupper((string)$request->observaciones),
+                'id_cat_area'            => $areaFinal,
+                'id_cat_estatus'         => $idEstatusFinal,
+                'id_tbl_correspondencia' => (int)$created->id_tbl_correspondencia,
+                'fecha_usuario_captura'  => $now,
+                'id_usuario_captura'     => Auth::user()->id,
+            ]);
+
+            // Área de contexto temporal para Alfresco (solo para subida)
+            $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
+            $restoreAreaAfter = false;
+            if (empty($request->id_cat_area) && $areaContextForUpload) {
+                $request->merge(['id_cat_area' => $areaContextForUpload]);
+                $restoreAreaAfter = true;
+            }
+
+            // Subir archivos
+            $this->uploadFilesIfAny($request, (int)$created->id_tbl_correspondencia);
+
+            if ($restoreAreaAfter) {
+                $request->merge(['id_cat_area' => null]);
+            }
+
+            return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
+        }
+
+        /* ==================== UPDATE (total) ==================== */
+        $roleUserArray     = collect(session('SESSION_ROLE_USER'))->toArray();
+        $ADM_TOTAL         = (int) config('custom_config.ADM_TOTAL');
+        $COR_TOTAL         = (int) config('custom_config.COR_TOTAL');
+        $hasFullUpdateRole = in_array($ADM_TOTAL, $roleUserArray, true) || in_array($COR_TOTAL, $roleUserArray, true);
+
+        if ($hasFullUpdateRole) {
+            $fechaCaptura   = $this->parseDateInput($request->input('fecha_captura'));
+            $fechaInicio    = $this->parseDateInput($request->input('fecha_inicio'));
+            $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
+            $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
+
+            // Áreas
+            $area1 = (int) ($request->id_cat_area_1 ?: 0);
+            $area2 = (int) ($request->id_cat_area_2 ?: 0);
+            $area3 = (int) ($request->id_cat_area   ?: 0);
+            $areaFinal = $area3 ?: null;
+
+            // TURNADO automático si no viene estatus pero hay destino (Área > CRHTOD > CRH)
+            $areaFinalForTurno = $area3 ?: ($area2 ?: ($area1 ?: 0));
+            $turnadoId         = (new LetterM())->getTurnadoId();
+            $idEstatusFinal    = $request->filled('id_cat_estatus')
+                ? (int)$request->id_cat_estatus
+                : ($areaFinalForTurno ? $turnadoId : null);
+
+            $data = [
+                'num_turno_sistema'    => strtoupper((string)$request->num_turno_sistema),
+                'num_documento'        => strtoupper((string)$request->num_documento),
+                'fecha_captura'        => $fechaCaptura,
+                'fecha_inicio'         => $fechaInicio,
+                'fecha_fin'            => $fechaFin,
+                'num_flojas'           => 1,
+                'num_tomos'            => 0,
+                'horas_respuesta'      => (int) $request->horas_respuesta,
+                'id_cat_entidad'       => $request->id_cat_entidad ?: null,
+                'asunto'               => strtoupper((string)$request->asunto),
+                'observaciones'        => strtoupper((string)$request->observaciones),
+
+                'id_cat_area'          => $areaFinal,
+                'id_cat_area_1'        => $area1 ?: null,
+                'id_cat_area_2'        => $area2 ?: null,
+
+                'id_usuario_area'      => $request->id_usuario_area ?: null,
+                'id_usuario_enlace'    => $request->id_usuario_enlace ?: null,
+                'id_cat_estatus'       => $idEstatusFinal,
+                'id_cat_remitente'     => $request->id_cat_remitente ?: null,
+                'id_cat_anio'          => $request->id_cat_anio,
+                'id_cat_tramite'       => $request->id_cat_tramite ?: null,
+                'id_cat_clave'         => $request->id_cat_clave ?: null,
+                'id_cat_unidad'        => $request->id_cat_unidad ?: null,
+                'id_cat_coordinacion'  => $request->id_cat_coordinacion ?: null,
+                'puesto_remitente'     => strtoupper((string)$request->puesto_remitente),
+                'folio_gestion'        => strtoupper((string)$request->folio_gestion),
+                'es_doc_fisico'        => $es_doc_fisico,
+                'son_mas_remitentes'   => $son_mas_remitentes,
+                'remitente'            => strtoupper((string)$request->remitente),
+                'fecha_documento'      => $fechaDocumento,
+
+                'id_usuario_sistema'   => Auth::user()->id,
+                'fecha_usuario'        => $now,
+            ];
+
+            // Forzar Returnado si aplica
+            try {
+                if (
+                    $letterM->areaOnlyReturnado($area1 ?: null) ||
+                    $letterM->areaOnlyReturnado($area2 ?: null) ||
+                    $letterM->areaOnlyReturnado($areaFinal ?: null)
+                ) {
+                    $data['id_cat_estatus'] = $letterM->getReturnadoId();
+                }
+            } catch (\Throwable $e) {}
 
             LetterM::where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)->update($data);
 
@@ -811,50 +783,96 @@ public function table(Request $request, LetterM $model)
                 'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia
             ]);
 
-            $collectionLetterLogM::create([
+            CollectionLetterLogM::create([
                 'estatus'                => 'MODIFICAR',
                 'num_documento'          => strtoupper((string)$request->num_documento),
                 'folio_gestion'          => strtoupper((string)$request->folio_gestion),
                 'asunto'                 => strtoupper((string)$request->asunto),
                 'observaciones'          => strtoupper((string)$request->observaciones),
-                'id_cat_area'            => $areaFinal, // puede ser NULL
-                'id_cat_estatus'         => $request->id_cat_estatus,
+                'id_cat_area'            => $areaFinal,
+                'id_cat_estatus'         => $data['id_cat_estatus'] ?? null,
                 'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia,
                 'fecha_usuario_captura'  => $now,
                 'id_usuario_captura'     => Auth::user()->id,
             ]);
 
+            // Subidas (área de contexto temporal para Alfresco)
+            $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
+            $restoreAreaAfter = false;
+            if (empty($request->id_cat_area) && $areaContextForUpload) {
+                $request->merge(['id_cat_area' => $areaContextForUpload]);
+                $restoreAreaAfter = true;
+            }
+
+            $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
+            $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
+
+            if ($restoreAreaAfter) {
+                $request->merge(['id_cat_area' => null]);
+            }
+
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
+        }
 
-        } catch (\Throwable $e) {
-            \Log::error('LETTER_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
-
-            // === CAMBIO: convierte UNIQUE PG (23505) en VALIDATION 422 para no recargar y mantener datos ===
-            if ($e instanceof \Illuminate\Database\QueryException && (string) $e->getCode() === '23505') {
-                if ($errors = $this->mapUniqueErrorToField($e)) {
-                    return $this->respondValidation422($request, $errors);
-                }
-                // Fallback si no se detectó el campo exacto
-                return $this->respondValidation422($request, [
-                    'folio_gestion' => ['Ya existe un registro con estos datos.']
-                ]);
-            }
-
-            // Si es AJAX/JSON, responde JSON; si es navegación normal, regresa con flash
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'value'   => [],
-                    'error'   => true,
-                    'message' => 'Error al guardar.',
-                    'trace'   => app()->environment('local') ? $e->getMessage() : null,
-                ], 500);
-            }
-
-            return redirect()->back()->withInput()->with([
+        /* ==================== UPDATE restringido ==================== */
+        $areasPermitidas = array_map('intval', (array) $collectionRolAreaM->getListArea());
+        $idAreaReq       = (int) ($request->id_cat_area ?: 0);
+        if (!in_array($idAreaReq, $areasPermitidas, true)) {
+            return redirect()->back()->with([
                 'value'   => 'error',
-                'message' => 'Error al guardar.',
+                'message' => 'No se han configurado permisos para este usuario.',
                 'estatus' => 'true'
             ]);
+        }
+
+        $area1 = (int) ($request->id_cat_area_1 ?: 0);
+        $area2 = (int) ($request->id_cat_area_2 ?: 0);
+        $area3 = (int) ($request->id_cat_area   ?: 0);
+        $areaFinal = $area3 ?: null;
+
+        $data = [
+            'observaciones'      => strtoupper((string)$request->observaciones),
+            'id_cat_estatus'     => $request->id_cat_estatus ?: null,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario'      => $now,
+        ];
+
+        LetterM::where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)->update($data);
+
+        $logC->edit('correspondencia.tbl_correspondencia', $data + [
+            'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia
+        ]);
+
+        CollectionLetterLogM::create([
+            'estatus'                => 'MODIFICAR',
+            'num_documento'          => strtoupper((string)$request->num_documento),
+            'folio_gestion'          => strtoupper((string)$request->folio_gestion),
+            'asunto'                 => strtoupper((string)$request->asunto),
+            'observaciones'          => strtoupper((string)$request->observaciones),
+            'id_cat_area'            => $areaFinal,
+            'id_cat_estatus'         => $request->id_cat_estatus ?: null,
+            'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia,
+            'fecha_usuario_captura'  => $now,
+            'id_usuario_captura'     => Auth::user()->id,
+        ]);
+
+        return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
+
+    } catch (\Throwable $e) {
+        \Log::error('LETTER_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
+
+        // Mapear UNIQUE PG (23505) a 422 con field específico
+        if ($e instanceof \Illuminate\Database\QueryException && (string) $e->getCode() === '23505') {
+            if ($errors = $this->mapUniqueErrorToField($e)) {
+                return $this->respondValidation422($request, $errors);
+            }
+            return $this->respondValidation422($request, [
+                'folio_gestion' => ['Ya existe un registro con estos datos.']
+            ]);
+        }
+
+        // Si es AJAX/JSON, responde JSON; si es navegación normal, regresa con flash
+        if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'value'   => [],
                 'error'   => true,
@@ -862,7 +880,15 @@ public function table(Request $request, LetterM $model)
                 'trace'   => app()->environment('local') ? $e->getMessage() : null,
             ], 500);
         }
+
+        return redirect()->back()->withInput()->with([
+            'value'   => 'error',
+            'message' => 'Error al guardar.',
+            'estatus' => 'true'
+        ]);
     }
+}
+
 
     /* ======================== ÁREAS DEPENDIENTES (AJAX) ======================== */
     public function collectionArea(Request $request)
@@ -1261,33 +1287,39 @@ public function table(Request $request, LetterM $model)
         })->values();
     }
 
-    // Acepta UUID puro, nodeRef "workspace://SpacesStore/<uuid>" o URL de Share con ?nodeRef=...
-    public function normalizeFolderId(?string $value): ?string
-    {
-        if (!$value) return null;
+    /**
+ * Normaliza un identificador de carpeta de Alfresco:
+ * - Acepta UUID puro (36 chars), nodeRef "workspace://SpacesStore/<uuid>"
+ *   o URL de Share que traiga ?nodeRef=workspace://SpacesStore/<uuid>
+ * - Devuelve el UUID (sin prefijos) o null si no se pudo resolver.
+ */
+public function normalizeFolderId(?string $value): ?string
+{
+    if (!$value) return null;
 
-        // 1) UUID
-        if (preg_match('/^[0-9a-fA-F-]{36}$/', $value)) return $value;
+    // 1) UUID puro
+    if (preg_match('/^[0-9a-fA-F-]{36}$/', $value)) return $value;
 
-        // 2) nodeRef
-        if (preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $value, $m)) return $m[1];
+    // 2) nodeRef
+    if (preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $value, $m)) return $m[1];
 
-        // 3) Share URL con nodeRef
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            $parts = parse_url($value);
-            if (!empty($parts['query'])) {
-                parse_str($parts['query'], $qs);
-                if (!empty($qs['nodeRef']) && preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $qs['nodeRef'], $m2)) {
-                    return $m2[1];
-                }
+    // 3) Share URL con nodeRef
+    if (filter_var($value, FILTER_VALIDATE_URL)) {
+        $parts = parse_url($value);
+        if (!empty($parts['query'])) {
+            parse_str($parts['query'], $qs);
+            if (!empty($qs['nodeRef']) && preg_match('#workspace://SpacesStore/([0-9a-fA-F-]{36})#', $qs['nodeRef'], $m2)) {
+                return $m2[1];
             }
         }
-
-        // 4) Primer UUID que aparezca
-        if (preg_match('/([0-9a-fA-F-]{36})/', $value, $m3)) return $m3[1];
-
-        return null;
     }
+
+    // 4) Primer UUID que aparezca en la cadena
+    if (preg_match('/([0-9a-fA-F-]{36})/', $value, $m3)) return $m3[1];
+
+    return null;
+}
+
 
     public function getMaxTurno($numTurno)
     {
@@ -1362,48 +1394,51 @@ public function table(Request $request, LetterM $model)
  * - Loguea URL y su hex para detectar caracteres invisibles en .env.
  */
 // En App\Http\Controllers\Letter\Letter\LetterC.php
+
 public function uploadFilesIfAny(Request $request, int $idCorrespondencia): void
 {
-    try {
-        // ====== Sembrar ENV para que AlfrescoC->env(...) no reciba null (sin modificar AlfrescoC) ======
-        // Si por cache/config el env viene vacío, tomamos fallback de config() y lo inyectamos a $_ENV/$_SERVER.
-        $seedEnv = function (string $key, ?string $fallback = null) {
-            $val = env($key);
-            if (empty($val)) {
-                $val = $fallback
-                    ?? config("alfresco.$key")
-                    ?? config("services.alfresco.$key")
-                    ?? null;
-                if (!empty($val)) {
-                    putenv("$key=$val");
-                    $_ENV[$key]    = $val;
-                    $_SERVER[$key] = $val;
-                }
+    // Semilla defensiva del ENV por si cache/config deja null (sin tocar AlfrescoC)
+    $seedEnv = function (string $key, ?string $fallback = null) {
+        $val = env($key);
+        if (empty($val)) {
+            $val = $fallback
+                ?? config("alfresco.$key")
+                ?? config("services.alfresco.$key")
+                ?? null;
+            if (!empty($val)) {
+                putenv("$key=$val");
+                $_ENV[$key]    = $val;
+                $_SERVER[$key] = $val;
             }
-        };
+        }
+    };
 
-        // Intenta poblar las 3 claves mínimas
+    try {
+        // Valores mínimos para Alfresco
         $seedEnv('ALFRESCO_URL_ADD', 'http://127.0.0.1:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{folderId}/children');
         $seedEnv('ALFRESCO_USER', 'admin');
         $seedEnv('ALFRESCO_PASS', 'admin');
 
-        // ====== LOG de diagnóstico de URL (post-seeding) ======
-        \Log::info('[UPLOAD][DIAG] ALFRESCO_URL_ADD raw (post-seed)', ['raw' => env('ALFRESCO_URL_ADD')]);
-        $hexUrl = '';
-        if (env('ALFRESCO_URL_ADD') !== null) {
-            $hexUrl = implode('', array_map(fn($c) => strtoupper(str_pad(dechex(ord($c)), 2, '0', STR_PAD_LEFT)), str_split(env('ALFRESCO_URL_ADD'))));
-        }
-        \Log::info('[UPLOAD][DIAG] ALFRESCO_URL_ADD hex (post-seed)', ['hex' => $hexUrl]);
+        \Log::info('[UPLOAD][DIAG] ALFRESCO_URL_ADD raw', ['raw' => env('ALFRESCO_URL_ADD')]);
 
-        // ====== Flags de archivos ======
+        // Flags de archivos
         $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
-        $rawAnexos = $request->file('file_anexo_entrada', []);
-        $anexos    = is_array($rawAnexos) ? array_values(array_filter($rawAnexos, fn($f) => $f && $f->isValid())) : [];
+
+        // Soporta 1 o N anexos
+        $rawAnexos = $request->file('file_anexo_entrada');
+        $anexos    = [];
+        if ($rawAnexos instanceof UploadedFile) {
+            if ($rawAnexos->isValid()) { $anexos = [$rawAnexos]; }
+        } elseif (is_array($rawAnexos)) {
+            foreach ($rawAnexos as $f) {
+                if ($f instanceof UploadedFile && $f->isValid()) { $anexos[] = $f; }
+            }
+        }
 
         \Log::info('[UPLOAD] init', [
             'correspondencia' => $idCorrespondencia,
             'has_oficio'      => $hasOficio,
-            'has_anexos_raw'  => $request->hasFile('file_anexo_entrada'),
+            'has_anexos'      => count($anexos),
             'area'            => $request->id_cat_area,
             'entrada_salida'  => $request->id_cat_entrada,
             'tipo_oficio'     => $request->id_cat_tipo_oficio,
@@ -1413,131 +1448,96 @@ public function uploadFilesIfAny(Request $request, int $idCorrespondencia): void
             return; // nada que subir
         }
 
-        // ====== Preparativos comunes ======
-        $alfrescoC    = new \App\Http\Controllers\Cloud\AlfrescoC();
-        $cloudConfigM = new \App\Models\Letter\Cloud\CloudConfigM();
+        $alfrescoC    = new AlfrescoC();
+        $cloudConfigM = new CloudConfigM();
 
-        // Carpeta destino (puede venir UUID, nodeRef, o URL con nodeRef)
+        // Carpeta destino (UUID / nodeRef / URL con nodeRef)
         $rawFolder = optional($cloudConfigM->getUid($request->id_cat_area, $request->id_cat_entrada, $request->id_cat_tipo_oficio))->uid ?? null;
         $folderId  = $this->normalizeFolderId($rawFolder);
         \Log::info('[UPLOAD] folderId normalize', ['raw' => $rawFolder, 'folderId' => $folderId]);
 
+        // Fallback por área si no hay coincidencia por (área, entrada, tipo)
+        if (!$folderId && $request->id_cat_area) {
+            $fbRow = DB::table('correspondencia.cat_config_cloud')
+                ->where('id_cat_area', $request->id_cat_area)
+                ->where('estatus', true)
+                ->whereNotNull('uid')
+                ->orderBy('id_cat_config_cloud')
+                ->first();
+
+            $folderId = $this->normalizeFolderId($fbRow->uid ?? null);
+            \Log::info('[UPLOAD] fallback by area', [
+                'area'     => $request->id_cat_area,
+                'folderId' => $folderId
+            ]);
+        }
+
         if (!$folderId) {
-            \Log::error('[UPLOAD] carpeta inválida (no hay folderId normalizable)');
+            \Log::error('[UPLOAD] carpeta inválida (folderId nulo)');
             return;
         }
 
-        // Folio para armar nombre
-        $folioGestion = \DB::table('correspondencia.tbl_correspondencia')
+        // Folio seguro + timestamp base
+        $folioGestion = DB::table('correspondencia.tbl_correspondencia')
             ->where('id_tbl_correspondencia', $idCorrespondencia)
             ->value('folio_gestion') ?: 'SIN_FOLIO';
         $folioSafe = preg_replace('/[^A-Za-z0-9_-]+/', '_', strtoupper($folioGestion));
+        $tsBase    = now()->format('YmdHis');
 
-        // ====== Subida de OFICIO (sufijo E) ======
+        // OFICIO (entrada) => sufijo E
         if ($hasOficio) {
-            $file = $request->file('file_oficio_entrada');
-            $ext  = strtolower($file->getClientOriginalExtension() ?: 'pdf');
-            $stamp = now()->format('YmdHis');
-            $customName = "OFICIO_{$folioSafe}_{$stamp}E.{$ext}";
+            $file       = $request->file('file_oficio_entrada');
+            $ext        = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+            $customName = "OFICIO_{$folioSafe}_{$tsBase}E.{$ext}";
 
-            \Log::info('[UPLOAD] oficio', [
-                'name' => $customName,
-                'size' => $file->getSize(),
-                'mime' => $file->getMimeType()
-            ]);
+            \Log::info('[UPLOAD] oficio', ['name' => $customName, 'size' => $file->getSize(), 'mime' => $file->getMimeType()]);
 
             $uid = $alfrescoC->addFile($file, $folderId, 1, $customName);
-            \Log::info('[UPLOAD] oficio uid', ['uid' => $uid]);
-
             if ($uid) {
-                \App\Models\Letter\Letter\CloudOficiosM::create([
-                    'uid'                   => $uid,
-                    'nombre'                => $customName,
-                    'estatus'               => true,
-                    'fecha_usuario'         => now(),
-                    'id_tbl_correspondencia'=> $idCorrespondencia,
-                    'id_usuario_sistema'    => \Illuminate\Support\Facades\Auth::id(),
-                    'id_cat_tipo_doc_cloud' => $request->id_cat_entrada, // mismo que usas para oficio de entrada
+                CloudOficiosM::create([
+                    'uid'                    => $uid,
+                    'nombre'                 => $customName,
+                    'estatus'                => true,
+                    'fecha_usuario'          => now(),
+                    'id_tbl_correspondencia' => $idCorrespondencia,
+                    'id_usuario_sistema'     => Auth::id(),
+                    'id_cat_tipo_doc_cloud'  => $request->id_cat_entrada,
                 ]);
             } else {
                 \Log::error('[UPLOAD] oficio falló en AlfrescoC::addFile');
             }
         }
 
-        // ====== Subida de ANEXOS (sufijo E) ======
-        if (count($anexos) > 0) {
-            \Log::info('[UPLOAD] anexos count', ['count' => count($anexos)]);
-            foreach ($anexos as $i => $file) {
-                try {
-                    $ext  = strtolower($file->getClientOriginalExtension() ?: 'bin');
-                    $stamp = now()->format('YmdHis');
-                    $customName = "ANEXO_{$folioSafe}_{$stamp}".str_pad((string)$i, 3, '0', STR_PAD_LEFT)."E.{$ext}";
+        // ANEXOS (entrada) => sufijo E
+        foreach ($anexos as $i => $file) {
+            try {
+                $ext        = strtolower($file->getClientOriginalExtension() ?: 'bin');
+                $customName = "ANEXO_{$folioSafe}_{$tsBase}" . str_pad((string)$i, 3, '0', STR_PAD_LEFT) . "E.{$ext}";
 
-                    \Log::info('[UPLOAD] anexo->try', [
-                        'i'          => $i,
-                        'name'       => $customName,
-                        'size'       => $file->getSize(),
-                        'mime'       => $file->getMimeType(),
-                        'clientName' => $file->getClientOriginalName(),
+                \Log::info('[UPLOAD] anexo', ['i' => $i, 'name' => $customName, 'size' => $file->getSize(), 'mime' => $file->getMimeType()]);
+
+                $uid = $alfrescoC->addFile($file, $folderId, 0, $customName);
+                if ($uid) {
+                    CloudAnexosM::create([
+                        'uid'                    => $uid,
+                        'nombre'                 => $customName,
+                        'estatus'                => true,
+                        'fecha_usuario'          => now(),
+                        'id_tbl_correspondencia' => $idCorrespondencia,
+                        'id_usuario_sistema'     => Auth::id(),
+                        'id_cat_tipo_doc_cloud'  => $request->id_cat_entrada,
                     ]);
-
-                    // Usamos SIEMPRE addFile (con nombre custom), no add()
-                    $uid = $alfrescoC->addFile($file, $folderId, 0, $customName);
-                    \Log::info('[UPLOAD] anexo uid', ['i' => $i, 'uid' => $uid]);
-
-                    if ($uid) {
-                        \App\Models\Letter\Letter\CloudAnexosM::create([
-                            'uid'                   => $uid,
-                            'nombre'                => $customName,
-                            'estatus'               => true,
-                            'fecha_usuario'         => now(),
-                            'id_tbl_correspondencia'=> $idCorrespondencia,
-                            'id_usuario_sistema'    => \Illuminate\Support\Facades\Auth::id(),
-                            'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
-                        ]);
-                    } else {
-                        \Log::error('[UPLOAD] anexo falló en AlfrescoC::addFile', [
-                            'i' => $i,
-                            'clientName' => $file->getClientOriginalName()
-                        ]);
-                    }
-                } catch (\Throwable $e) {
-                    \Log::error('[UPLOAD] anexo exception: '.$e->getMessage(), ['i' => $i, 'ex' => $e]);
+                } else {
+                    \Log::error('[UPLOAD] anexo falló en AlfrescoC::addFile', ['i' => $i]);
                 }
+            } catch (\Throwable $e) {
+                \Log::error('[UPLOAD] anexo exception: ' . $e->getMessage(), ['i' => $i, 'ex' => $e]);
             }
         }
     } catch (\Throwable $e) {
-        \Log::error('Error subiendo archivos post-guardar: '.$e->getMessage(), ['ex' => $e]);
-
-            // Anexos (Entrada => sufijo E)
-            if ($hasAnexos) {
-                $now = Carbon::now();
-                foreach ($request->file('file_anexo_entrada') as $file) {
-                    if (!$file || !$file->isValid()) { continue; }
-
-                    $ext  = strtolower($file->getClientOriginalExtension());
-                    $customName = "ANEXO_{$folioSafe}_{$stamp}E.{$ext}"; // *** ENTRADA => sufijo E ***
-
-                    $uploadedUid = $alfrescoC->addFile($file, $folderId, 0, $customName); // 0 => ANEXO_ con nombre custom
-
-                    if ($uploadedUid) {
-                        CloudAnexosM::create([
-                            'uid'                   => $uploadedUid,
-                            'nombre'                => $customName,
-                            'estatus'               => true,
-                            'fecha_usuario'         => $now,
-                            'id_tbl_correspondencia'=> $idCorrespondencia,
-                            'id_usuario_sistema'    => Auth::user()->id,
-                            'id_cat_tipo_doc_cloud' => $request->id_cat_entrada,
-                        ]);
-                    }
-                }
-            }
-
-        } catch (\Throwable $e) {
-            // Silencioso por petición: sin logs
-        }
+        \Log::error('[UPLOAD] exception: ' . $e->getMessage(), ['ex' => $e]);
     }
+}
 
     /* ===== Guardado local en edición (opcional a Alfresco) ===== */
     public function handleUploads(int $idCorrespondencia, Request $request): void
@@ -1611,226 +1611,224 @@ public function uploadFilesIfAny(Request $request, int $idCorrespondencia): void
         ]);
     }
 
-    public function replySave(Request $request)
-    {
+public function replySave(Request $request)
+{
+    try {
+        // 1) Validación
+        $request->validate([
+            'id_tbl_correspondencia' => 'required|integer',
+            'fecha_inicio'           => 'required|string',
+            'fecha_fin'              => 'nullable|string',
+            'asunto'                 => 'required|string|max:250',
+            'observaciones'          => 'nullable|string|max:500',
+
+            'id_cat_entrada'         => 'nullable|integer',
+            'id_cat_tipo_oficio'     => 'nullable|integer',
+
+            // archivos
+            'file_oficio_entrada'    => 'nullable|file|max:20480',
+            'file_anexo_entrada'     => 'nullable|array',
+            'file_anexo_entrada.*'   => 'file|max:20480',
+        ]);
+
+        $idCorr = (int) $request->input('id_tbl_correspondencia');
+
+        // 2) Traer correspondencia base
+        $corr = DB::table('correspondencia.tbl_correspondencia')
+            ->select(
+                'id_tbl_correspondencia',
+                'id_cat_anio',
+                'id_cat_area',
+                'id_usuario_area',
+                'id_usuario_enlace',
+                'observaciones',
+                'folio_gestion'
+            )
+            ->where('id_tbl_correspondencia', $idCorr)
+            ->first();
+
+        if (!$corr) {
+            return response()->json(['ok' => false, 'message' => 'Correspondencia no encontrada.'], 404);
+        }
+
+        // Normaliza fechas
+        $fechaInicio = $this->parseDateInput($request->input('fecha_inicio'));
+        $fechaFin    = $this->parseDateInput($request->input('fecha_fin'));
+        if (!$fechaInicio) {
+            return response()->json(['ok' => false, 'message' => 'Fecha inicio inválida.'], 422);
+        }
+
+        // 3) Crear OFICIO (en transacción)
+        $consec = new CollectionConsecutivoM();
+        $numTurnoOficio = $consec->noDocumento($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+
+        DB::beginTransaction();
         try {
-            // 1) Validación
-            $request->validate([
-                'id_tbl_correspondencia' => 'required|integer',
-                'fecha_inicio'           => 'required|string',
-                'fecha_fin'              => 'nullable|string',
-                'asunto'                 => 'required|string|max:250',
-                'observaciones'          => 'nullable|string|max:500',
+            $oficioObs  = strtoupper((string) $request->input('observaciones', ''));
+            $oficioData = [
+                'num_turno_sistema'      => (string) $numTurnoOficio,
+                'fecha_captura'          => now()->format('Y-m-d'),
+                'fecha_inicio'           => $fechaInicio,
+                'fecha_fin'              => $fechaFin,
+                'asunto'                 => strtoupper((string)$request->input('asunto')),
+                'observaciones'          => $oficioObs,
+                'id_tbl_correspondencia' => $corr->id_tbl_correspondencia,
+                'id_cat_anio'            => $corr->id_cat_anio,
 
-                'id_cat_entrada'         => 'nullable|integer',
-                'id_cat_tipo_oficio'     => 'nullable|integer',
+                // Ligado a correspondencia (no por área)
+                'es_por_area'            => 0,
+                'num_documento_area'     => null,
+                'id_cat_area_documento'  => null,
+                'id_usuario_area'        => $corr->id_usuario_area,
+                'id_usuario_enlace'      => $corr->id_usuario_enlace,
+                'id_cat_area'            => $corr->id_cat_area,
 
-                // archivos
-                'file_oficio_entrada'    => 'nullable|file|max:20480',
-                'file_anexo_entrada'     => 'nullable|array',
-                'file_anexo_entrada.*'   => 'file|max:20480',
-            ]);
+                // Auditoría
+                'id_usuario_sistema'     => Auth::id(),
+                'id_usuario_captura'     => Auth::id(),
+                'fecha_usuario'          => now(),
+            ];
 
-            $idCorr = (int) $request->input('id_tbl_correspondencia');
+            /** @var OfficeM $created */
+            $created = OfficeM::create($oficioData);
 
-            // 2) Traer correspondencia base
-            $corr = DB::table('correspondencia.tbl_correspondencia')
-                ->select(
-                    'id_tbl_correspondencia',
-                    'id_cat_anio',
-                    'id_cat_area',
-                    'id_usuario_area',
-                    'id_usuario_enlace',
-                    'observaciones',
-                    'folio_gestion'
-                )
+            // Iterar consecutivo
+            $consec->iteratorConsecutivo($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
+
+            // Actualizar correspondencia
+            $newObs = $corr->observaciones ?? '';
+            if ($oficioObs !== '') {
+                $newObs = trim($newObs) === '' ? $oficioObs : ($newObs . '  //  ' . $oficioObs);
+            }
+
+            DB::table('correspondencia.tbl_correspondencia')
                 ->where('id_tbl_correspondencia', $idCorr)
-                ->first();
-
-            if (!$corr) {
-                return response()->json(['ok' => false, 'message' => 'Correspondencia no encontrada.'], 404);
-            }
-
-            // Normaliza fechas
-            $fechaInicio = $this->parseDateInput($request->input('fecha_inicio'));
-            $fechaFin    = $this->parseDateInput($request->input('fecha_fin'));
-            if (!$fechaInicio) {
-                return response()->json(['ok' => false, 'message' => 'Fecha inicio inválida.'], 422);
-            }
-
-            // 3) Crear OFICIO (en transacción)
-            $consec = new CollectionConsecutivoM();
-            $numTurnoOficio = $consec->noDocumento($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-
-            DB::beginTransaction();
-            try {
-                $oficioObs  = strtoupper((string) $request->input('observaciones', ''));
-                $oficioData = [
-                    'num_turno_sistema'      => (string) $numTurnoOficio,
-                    'fecha_captura'          => now()->format('Y-m-d'),
-                    'fecha_inicio'           => $fechaInicio,
-                    'fecha_fin'              => $fechaFin,
-                    'asunto'                 => strtoupper((string)$request->input('asunto')),
-                    'observaciones'          => $oficioObs,
-                    'id_tbl_correspondencia' => $corr->id_tbl_correspondencia,
-                    'id_cat_anio'            => $corr->id_cat_anio,
-
-                    // Ligado a correspondencia (no por área)
-                    'es_por_area'            => 0,
-                    'num_documento_area'     => null,
-                    'id_cat_area_documento'  => null,
-                    'id_usuario_area'        => $corr->id_usuario_area,
-                    'id_usuario_enlace'      => $corr->id_usuario_enlace,
-                    'id_cat_area'            => $corr->id_cat_area,
-
-                    // Auditoría
-                    'id_usuario_sistema'     => Auth::id(),
-                    'id_usuario_captura'     => Auth::id(),
-                    'fecha_usuario'          => now(),
-                ];
-
-                /** @var OfficeM $created */
-                $created = OfficeM::create($oficioData);
-
-                // Iterar consecutivo
-                $consec->iteratorConsecutivo($corr->id_cat_anio, config('custom_config.CP_TABLE_OFICIO'));
-
-                // Actualizar correspondencia
-                $newObs = $corr->observaciones ?? '';
-                if ($oficioObs !== '') {
-                    $newObs = trim($newObs) === '' ? $oficioObs : ($newObs . '  //  ' . $oficioObs);
-                }
-
-                DB::table('correspondencia.tbl_correspondencia')
-                    ->where('id_tbl_correspondencia', $idCorr)
-                    ->update([
-                        'id_cat_estatus'     => 4,
-                        'observaciones'      => $newObs,
-                        'id_usuario_sistema' => Auth::id(),
-                        'fecha_usuario'      => now(),
-                    ]);
-
-                // Logs
-                // Logs (auditoría de negocio)
-                (new LogC())->add('correspondencia.tbl_oficio', $oficioData);
-                (new LogC())->edit('correspondencia.tbl_correspondencia', [
-                    'id_tbl_correspondencia' => $idCorr,
-                    'folio_gestion'          => $corr->folio_gestion,
-                    'id_cat_estatus'         => 4,
-                    'observaciones'          => $newObs,
+                ->update([
+                    'id_cat_estatus'     => 4,
+                    'observaciones'      => $newObs,
+                    'id_usuario_sistema' => Auth::id(),
+                    'fecha_usuario'      => now(),
                 ]);
 
-                DB::commit();
-            } catch (\Throwable $e) {
-                DB::rollBack();
-                \Log::error('LETTER_REPLY_SAVE_TX_ERROR: '.$e->getMessage(), ['ex' => $e]);
-                return response()->json(['ok' => false, 'message' => 'Error al crear el oficio.'], 500);
-            }
-
-            // 4) Subida a Alfresco (FUERA de la transacción)
-            try {
-                $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
-                $anexos    = $request->file('file_anexo_entrada', []);
-                $anexos    = is_array($anexos) ? array_filter($anexos) : [];
-
-                if ($hasOficio || count($anexos) > 0) {
-                    $alfrescoC    = new AlfrescoC();
-                    $cloudConfigM = new CloudConfigM();
-
-                    // Buscar carpeta (primero completa, luego fallback por área)
-                    $uidRow = $cloudConfigM->getUid(
-                        $corr->id_cat_area,
-                        $request->input('id_cat_entrada'),
-                        $request->input('id_cat_tipo_oficio')
-                    );
-
-                    if (!$uidRow) {
-                        $uidRow = DB::table('correspondencia.cat_config_cloud')
-                            ->where('id_cat_area', $corr->id_cat_area)
-                            ->where('estatus', true)
-                            ->whereNotNull('uid')
-                            ->orderBy('id_cat_config_cloud')
-                            ->first();
-                    }
-
-                    $rawUid   = $uidRow->uid ?? null;
-                    $folderId = $rawUid ? $this->normalizeFolderId($rawUid) : null;
-
-                    $folioSafe = preg_replace('/[^A-Za-z0-9_-]+/', '_', strtoupper((string)($corr->folio_gestion ?? 'SIN_FOLIO')));
-                    $tipoDocCloudBase = 1;
-
-                    if ($folderId) {
-                        // OFICIO (respuesta): usa sufijo R
-                        if ($hasOficio) {
-                            $file = $request->file('file_oficio_entrada');
-                            $ts   = now()->format('YmdHis');
-                            $ext  = strtolower($file->getClientOriginalExtension());
-                            $customName = "OFICIO_{$folioSafe}_{$ts}R.{$ext}";
-
-                            $uploadedUid = $alfrescoC->addFile($file, $folderId, 1, $customName);
-                            if ($uploadedUid) {
-                                DB::table('correspondencia.ctrl_oficio_oficio')->insert([
-                                    'uid'                   => $uploadedUid,
-                                    'nombre'                => $customName,
-                                    'estatus'               => true,
-                                    'fecha_usuario'         => now(),
-                                    'id_tbl_oficio'         => $created->id_tbl_oficio,
-                                    'id_usuario_sistema'    => Auth::id(),
-                                    'id_cat_tipo_doc_cloud' => $tipoDocCloudBase,
-                                ]);
-                            }
-                        }
-
-                        // ANEXOS (respuesta)
-                        foreach ($anexos as $idx => $file) {
-                            if (!$file instanceof \Illuminate\Http\UploadedFile || !$file->isValid()) {
-                                \Log::warning('[REPLY_UPLOAD] anexo inválido', ['idx' => $idx]);
-                                continue;
-                            }
-                            $ts  = now()->format('YmdHis');
-                            $ext = strtolower($file->getClientOriginalExtension());
-                            $customName = "ANEXO_{$folioSafe}_{$ts}.{$ext}";
-
-                            $uploadedUid = $alfrescoC->addFile($file, $folderId, 0, $customName);
-                            if ($uploadedUid) {
-                                DB::table('correspondencia.ctrl_oficio_anexo')->insert([
-                                    'uid'                   => $uploadedUid,
-                                    'nombre'                => $customName,
-                                    'estatus'               => true,
-                                    'fecha_usuario'         => now(),
-                                    'id_tbl_oficio'         => $created->id_tbl_oficio,
-                                    'id_usuario_sistema'    => Auth::id(),
-                                    'id_cat_tipo_doc_cloud' => $tipoDocCloudBase,
-                                ]);
-                            }
-                        }
-                    } else {
-                        \Log::error('[REPLY_UPLOAD] No se encontró carpeta Alfresco para el área', [
-                            'area' => $corr->id_cat_area
-                        ]);
-                    }
-                }
-            } catch (\Throwable $e) {
-                \Log::error('[REPLY_UPLOAD] error: ' . $e->getMessage(), ['ex' => $e]);
-                // No interrumpimos la respuesta si la subida falla
-            }
-
-            // 5) Respuesta final
-            return response()->json([
-                'ok'        => true,
-                'message'   => 'Oficio creado; estatus actualizado, observaciones concatenadas y archivos de respuesta subidos (si hubo).',
-                'id_oficio' => $created->id_tbl_oficio,
+            // Logs (auditoría de negocio)
+            (new LogC())->add('correspondencia.tbl_oficio', $oficioData);
+            (new LogC())->edit('correspondencia.tbl_correspondencia', [
+                'id_tbl_correspondencia' => $idCorr,
+                'folio_gestion'          => $corr->folio_gestion,
+                'id_cat_estatus'         => 4,
+                'observaciones'          => $newObs,
             ]);
+
+            DB::commit();
         } catch (\Throwable $e) {
-            // Solo hacer rollback si hubiera una transacción abierta
-            // Rollback defensivo si quedara algo abierto
-            try {
-                if (method_exists(DB::connection(), 'transactionLevel') && DB::transactionLevel() > 0) {
-                    DB::rollBack();
-                }
-            } catch (\Throwable $ignored) {}
-            \Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
-            return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
+            DB::rollBack();
+            \Log::error('LETTER_REPLY_SAVE_TX_ERROR: '.$e->getMessage(), ['ex' => $e]);
+            return response()->json(['ok' => false, 'message' => 'Error al crear el oficio.'], 500);
         }
+
+        // 4) Subida a Alfresco (FUERA de la transacción)
+        try {
+            $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
+            $anexos    = $request->file('file_anexo_entrada', []);
+            $anexos    = is_array($anexos) ? array_filter($anexos) : [];
+
+            if ($hasOficio || count($anexos) > 0) {
+                $alfrescoC    = new AlfrescoC();
+                $cloudConfigM = new CloudConfigM();
+
+                // Buscar carpeta (primero completa, luego fallback por área)
+                $uidRow = $cloudConfigM->getUid(
+                    $corr->id_cat_area,
+                    $request->input('id_cat_entrada'),
+                    $request->input('id_cat_tipo_oficio')
+                );
+
+                if (!$uidRow) {
+                    $uidRow = DB::table('correspondencia.cat_config_cloud')
+                        ->where('id_cat_area', $corr->id_cat_area)
+                        ->where('estatus', true)
+                        ->whereNotNull('uid')
+                        ->orderBy('id_cat_config_cloud')
+                        ->first();
+                }
+
+                $rawUid   = $uidRow->uid ?? null;
+                $folderId = $rawUid ? $this->normalizeFolderId($rawUid) : null;
+
+                $folioSafe = preg_replace('/[^A-Za-z0-9_-]+/', '_', strtoupper((string)($corr->folio_gestion ?? 'SIN_FOLIO')));
+                $tipoDocCloudBase = 1;
+
+                if ($folderId) {
+                    // OFICIO (respuesta): usa sufijo R
+                    if ($hasOficio) {
+                        $file = $request->file('file_oficio_entrada');
+                        $ts   = now()->format('YmdHis');
+                        $ext  = strtolower($file->getClientOriginalExtension());
+                        $customName = "OFICIO_{$folioSafe}_{$ts}R.{$ext}";
+
+                        $uploadedUid = $alfrescoC->addFile($file, $folderId, 1, $customName);
+                        if ($uploadedUid) {
+                            DB::table('correspondencia.ctrl_oficio_oficio')->insert([
+                                'uid'                   => $uploadedUid,
+                                'nombre'                => $customName,
+                                'estatus'               => true,
+                                'fecha_usuario'         => now(),
+                                'id_tbl_oficio'         => $created->id_tbl_oficio,
+                                'id_usuario_sistema'    => Auth::id(),
+                                'id_cat_tipo_doc_cloud' => $tipoDocCloudBase,
+                            ]);
+                        }
+                    }
+
+                    // ANEXOS (respuesta)
+                    foreach ($anexos as $idx => $file) {
+                        if (!$file instanceof \Illuminate\Http\UploadedFile || !$file->isValid()) {
+                            \Log::warning('[REPLY_UPLOAD] anexo inválido', ['idx' => $idx]);
+                            continue;
+                        }
+                        $ts  = now()->format('YmdHis');
+                        $ext = strtolower($file->getClientOriginalExtension());
+                        $customName = "ANEXO_{$folioSafe}_{$ts}.{$ext}";
+
+                        $uploadedUid = $alfrescoC->addFile($file, $folderId, 0, $customName);
+                        if ($uploadedUid) {
+                            DB::table('correspondencia.ctrl_oficio_anexo')->insert([
+                                'uid'                   => $uploadedUid,
+                                'nombre'                => $customName,
+                                'estatus'               => true,
+                                'fecha_usuario'         => now(),
+                                'id_tbl_oficio'         => $created->id_tbl_oficio,
+                                'id_usuario_sistema'    => Auth::id(),
+                                'id_cat_tipo_doc_cloud' => $tipoDocCloudBase,
+                            ]);
+                        }
+                    }
+                } else {
+                    \Log::error('[REPLY_UPLOAD] No se encontró carpeta Alfresco para el área', [
+                        'area' => $corr->id_cat_area
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::error('[REPLY_UPLOAD] error: ' . $e->getMessage(), ['ex' => $e]);
+            // No interrumpimos la respuesta si la subida falla
+        }
+
+        // 5) Respuesta final
+        return response()->json([
+            'ok'        => true,
+            'message'   => 'Oficio creado; estatus actualizado, observaciones concatenadas y archivos de respuesta subidos (si hubo).',
+            'id_oficio' => $created->id_tbl_oficio,
+        ]);
+    } catch (\Throwable $e) {
+        // Rollback defensivo si quedara algo abierto
+        try {
+            if (method_exists(DB::connection(), 'transactionLevel') && DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+        } catch (\Throwable $ignored) {}
+        \Log::error('LETTER_REPLY_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
+        return response()->json(['ok' => false, 'message' => 'Error al guardar la respuesta.'], 500);
     }
+}
 }

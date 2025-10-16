@@ -593,92 +593,116 @@ $(function () {
         'Accept': 'application/json'
       }
     })
+
     .then(async function (res) {
-      if (res.status === 422) {
-        let data = {};
-        try { data = await res.json(); } catch(_) {}
-        var errors = (data && data.errors) ? data.errors : {};
-        var firstFocused = false;
-        Object.keys(errors).forEach(function (k) {
-          var msg = errors[k] && errors[k][0] ? errors[k][0] : 'Campo requerido.';
-          var $el = findInputForErrorKey(k);
-          if ($el.length) {
-            var sel = $el.attr('id') ? ('#' + $el.attr('id')) : $el;
-            showFieldError(sel, msg);
-            if (!firstFocused) { try { $el[0].focus(); } catch(_){} firstFocused = true; }
-          }
-        });
-        $(document).trigger('form:save:error', [$form[0], 422]);
-        return;
-      }
+  // Helpers de toasts (no toco tus funciones globales)
+  const okToast = (msg) => {
+    if (typeof notyfEM !== 'undefined' && notyfEM.success) return notyfEM.success(msg);
+    if (typeof toastr  !== 'undefined' && toastr.success)  return toastr.success(msg);
+    return __notify(msg, 'ok');
+  };
+  const warnToast = (msg) => {
+    if (typeof notyfEM !== 'undefined' && notyfEM.warning) return notyfEM.warning(msg);
+    if (typeof toastr  !== 'undefined' && toastr.warning)  return toastr.warning(msg);
+    return __notify(msg, 'warn');
+  };
+  const errToast = (msg) => {
+    if (typeof notyfEM !== 'undefined' && notyfEM.error) return notyfEM.error(msg);
+    if (typeof toastr  !== 'undefined' && toastr.error)  return toastr.error(msg);
+    return __notify(msg, 'err');
+  };
 
-      // --- DUPLICADO folio_gestion (toast específico) ---
-      const rawBody = await res.clone().text().catch(() => '');
-      if (
-        res.status === 409 ||                                   // si el backend ya devuelve 409
-        /duplicada|unique violation|folio_gestion/i.test(rawBody) // o si viene como 500/200 con ese texto
-      ) {
-        var $fg = $form.find('[name="folio_gestion"]');
-        if ($fg.length) {
-          var selFG = $fg.attr('id') ? ('#' + $fg.attr('id')) : $fg;
-          showFieldError(selFG, 'El folio de gestión ya existe.');
-          try { $fg[0].focus(); } catch (_) {}
-        }
-        if (typeof notyfEM !== 'undefined') {
-          if (notyfEM.warning) notyfEM.warning('El folio de gestión ya existe.');
-          else if (notyfEM.error) notyfEM.error('El folio de gestión ya existe.');
-        } else {
-          __notify('El folio de gestión ya existe.', 'warn');
-        }
-        $(document).trigger('form:save:error', [$form[0], res.status || 409]);
-        return;
-      }
+  // 1) Validación 422 (incluye folio duplicado cuando el backend lo mapea a errors.folio_gestion)
+  if (res.status === 422) {
+    let data = {};
+    try { data = await res.json(); } catch(_) {}
+    const errors = (data && data.errors) ? data.errors : {};
+    let focused = false;
 
-      // éxito con redirect: navega y tu flash/toast nativo aparece como siempre
-      if (res.redirected && res.url) {
-        $(document).trigger('form:save:success', [$form[0], 'redirect']);
-        window.location.href = res.url;
-        return;
+    Object.keys(errors).forEach(function (k) {
+      const msg = errors[k]?.[0] || 'Campo requerido.';
+      const $el = findInputForErrorKey(k);
+      if ($el.length) {
+        const sel = $el.attr('id') ? ('#' + $el.attr('id')) : $el;
+        showFieldError(sel, msg);
+        if (!focused) { try { $el[0].focus(); } catch(_) {} focused = true; }
       }
+    });
 
-      // éxito sin redirect: si el servidor manda {message}, lo toasteamos
-      if (res.ok) {
-        try {
-          const data = await res.json();
-          if (data && data.message) {
-            if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-              notyfEM.success(data.message);
-            } else {
-              __notify(data.message, 'ok');
-            }
-          } else {
-            if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-              notyfEM.success('Registro guardado con éxito.');
-            } else {
-              __notify('Registro guardado con éxito.', 'ok');
-            }
-          }
-        } catch(_) {
-          if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-            notyfEM.success('Registro guardado con éxito.');
-          } else {
-            __notify('Registro guardado con éxito.', 'ok');
-          }
-        }
-        $(document).trigger('form:save:success', [$form[0], 'ok']);
-        window.location.reload();
-        return;
-      }
+    // Toast específico si el error vino en folio_gestion
+    if (errors['folio_gestion']) {
+      warnToast(errors['folio_gestion'][0] || 'El folio de gestión ya existe.');
+    }
 
-      // otros errores (500, 403, etc.): mantenemos datos; deja que tus globals toasteen
-      try { console.error('[SAVE_ERROR]', res.status, await res.text()); } catch(_) {}
-      $(document).trigger('form:save:error', [$form[0], res.status]);
-      if (typeof notyfEM !== 'undefined' && notyfEM.error) {
-        notyfEM.error('No se pudo completar la acción. Por favor, vuelve a intentarlo.');
-      } else {
-        __notify('No se pudo completar la acción. Por favor, vuelve a intentarlo.', 'err');
-      }
-    })
+    $(document).trigger('form:save:error', [$form[0], 422]);
+    return;
+  }
+
+  // 2) ÉXITO
+  // 2.a) Éxito con redirect (302/303 seguido de 200): mostramos toast y navegamos
+  if (res.redirected && res.url) {
+    okToast('El registro se realizó de forma exitosa.');
+    $(document).trigger('form:save:success', [$form[0], 'redirect']);
+    window.location.href = res.url;
+    return;
+  }
+
+  // 2.b) Éxito sin redirect (200 JSON o 204)
+  if (res.ok) {
+    let msg = 'El registro se realizó de forma exitosa.';
+    try {
+      const data = await res.clone().json();
+      if (data && data.message) msg = data.message;
+    } catch(_) { /* body no-JSON */ }
+
+    okToast(msg);
+    $(document).trigger('form:save:success', [$form[0], 'ok']);
+    window.location.reload();
+    return;
+  }
+
+  // 3) ERRORES REALES (>=400)
+  // 3.a) 409 conflicto explícito -> Folio duplicado
+  if (res.status === 409) {
+    const $fg = $form.find('[name="folio_gestion"]');
+    if ($fg.length) {
+      const selFG = $fg.attr('id') ? ('#' + $fg.attr('id')) : $fg;
+      showFieldError(selFG, 'El folio de gestión ya existe.');
+      try { $fg[0].focus(); } catch(_) {}
+    }
+    warnToast('El folio de gestión ya existe.');
+    $(document).trigger('form:save:error', [$form[0], 409]);
+    return;
+  }
+
+  // 3.b) Otros códigos: intentamos ver si viene JSON con errors.folio_gestion
+  let bodyText = '';
+  try { bodyText = await res.clone().text(); } catch(_) {}
+  let dupByJson = false;
+  try {
+    const maybe = JSON.parse(bodyText);
+    dupByJson = !!(maybe && maybe.errors && maybe.errors.folio_gestion);
+  } catch(_) { /* no-JSON */ }
+
+  if (dupByJson) {
+    const $fg = $form.find('[name="folio_gestion"]');
+    if ($fg.length) {
+      const selFG = $fg.attr('id') ? ('#' + $fg.attr('id')) : $fg;
+      showFieldError(selFG, 'El folio de gestión ya existe.');
+      try { $fg[0].focus(); } catch(_) {}
+    }
+    warnToast('El folio de gestión ya existe.');
+    $(document).trigger('form:save:error', [$form[0], res.status]);
+    return;
+  }
+
+  // 3.c) Genérico
+  try { console.error('[SAVE_ERROR]', res.status, bodyText || await res.text()); } catch(_) {}
+  $(document).trigger('form:save:error', [$form[0], res.status]);
+  errToast('No se pudo completar la acción. Por favor, vuelve a intentarlo.');
+})
+
+
     .catch(function (err) {
       console.error('[NETWORK]', err);
       $(document).trigger('form:save:error', [$form[0], 0]);
@@ -698,3 +722,71 @@ $(function () {
     return false;
   });
 })();
+
+/* =========================================================
+   OVERRIDES form.js — pegar al FINAL del archivo
+   - No auto-rellena selects
+   - Sólo "espeja" (hidden) lo que el usuario SÍ tocó
+   ========================================================= */
+
+// Marca cuándo el usuario tocó un select (cualquier select del form)
+$(document).on('change', 'select', function() {
+  $(this).data('userTouched', true);
+});
+
+// Obtiene el formulario correcto (por defecto #myForm)
+function getForm$() {
+  return $('#myForm').length ? $('#myForm') : $('form').first();
+}
+
+// Crea/recupera un input hidden dentro del form
+function ensureHidden(id, name) {
+  var $form = getForm$();
+  var $hid = $form.find('#' + id);
+  if ($hid.length === 0) {
+    $hid = $('<input type="hidden">').attr({ id: id, name: name });
+    $form.append($hid);
+  }
+  return $hid;
+}
+
+// Congela un select y crea su “espejo” SOLO si el usuario lo tocó
+function freezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  // NO auto-seleccionar nada: respetar vacío si no lo tocaron
+  var val = $s.val();
+
+  // Si el usuario NO lo tocó, no enviamos su valor (queda null en backend).
+  // Lo deshabilitamos para que no rompa bootstrap-select, y NO creamos hidden.
+  if (!$s.data('userTouched')) {
+    $s.prop('disabled', true);
+    if ($.fn.selectpicker) $s.selectpicker('refresh');
+    return;
+  }
+
+  // Si el usuario SÍ lo tocó, lo espejamos (hidden) y congelamos
+  var hidId = name + '__mirror';
+  var $hid = ensureHidden(hidId, name);
+  $hid.val(val || '');
+
+  $s.prop('disabled', true);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}
+
+// Descongela y elimina el espejo
+function unfreezeWithMirror(sel) {
+  var $s = $(sel);
+  if (!$s.length) return;
+  var name = $s.attr('name');
+  if (!name) return;
+
+  var hidId = name + '__mirror';
+  getForm$().find('#' + hidId).remove();
+
+  $s.prop('disabled', false);
+  if ($.fn.selectpicker) $s.selectpicker('refresh');
+}

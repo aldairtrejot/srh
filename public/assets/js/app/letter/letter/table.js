@@ -14,19 +14,32 @@ var columnVisibility = {};   // Mapa de visibilidad por índice (base 0)
 var LOCAL_KEY = 'letter_table_column_visibility';
 var __serverColumnsAppliedOnce = false;
 
+/* ================= Helpers de preferencias locales ================= */
+function getSavedPrefs() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_) { return null; }
+}
+function hasLocalPrefs() {
+  var s = getSavedPrefs();
+  return s && typeof s === 'object' && Object.keys(s).length > 0;
+}
+
 /* =========================== INIT =========================== */
 $(document).ready(function () {
-  // 1) Cargar estado guardado (si existe)
-  var saved = null;
-  try { saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_) {}
+  var saved = getSavedPrefs();
+  var __hasLocal = hasLocalPrefs();
 
-  // 2) Leer checkboxes del menú de columnas
+  // 1) Cargar estado inicial (checkboxes del menú de columnas)
   columnVisibility = {};
   if ($('.toggle-column').length) {
     $('.toggle-column').each(function () {
       var idx = parseInt($(this).data('column'), 10);
       var visible = $(this).is(':checked'); // por Blade: sin checked → false
-      if (saved && typeof saved[idx] !== 'undefined') visible = !!saved[idx]; // prioridad localStorage
+
+      // Si ya hay prefs locales REALES, tienen prioridad
+      if (__hasLocal && Object.prototype.hasOwnProperty.call(saved, String(idx))) {
+        visible = !!saved[idx];
+      }
+
       columnVisibility[idx] = !!visible;
       $(this).prop('checked', visible);
     });
@@ -35,13 +48,13 @@ $(document).ready(function () {
     [6, 7, 9, 10].forEach(function (i) { columnVisibility[i] = false; });
   }
 
-  // 3) Aplicar visibilidad inicial a encabezados (evita parpadeos)
+  // 2) Aplicar visibilidad inicial a encabezados (evita parpadeos)
   applySavedColumnVisibility(true);
 
-  // 4) Bind de eventos (toggle de columnas)
+  // 3) Bind de eventos (toggle de columnas)
   bindToggleMenu();
 
-  // 5) Proceso normal
+  // 4) Proceso normal
   searchInit();
   setValue();
 });
@@ -70,11 +83,10 @@ function applySavedColumnVisibility(headersOnly) {
   }
 }
 
-/* Aplica columnas del server UNA SOLA VEZ y sólo si no hay preferencias guardadas */
+/* Aplica columnas del server UNA SOLA VEZ y sólo si no hay preferencias guardadas reales */
 function applyServerColumnsOnce(serverVis) {
   if (__serverColumnsAppliedOnce) return;
-  var hasLocal = false;
-  try { hasLocal = !!JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (_){}
+  var hasLocal = hasLocalPrefs();  // usar helper correcto
   if (hasLocal) return;
 
   if (serverVis && typeof serverVis === 'object') {
@@ -85,6 +97,7 @@ function applyServerColumnsOnce(serverVis) {
     if (typeof serverVis.crhtod !== 'undefined') columnVisibility[7] = !!serverVis.crhtod;
 
     applySavedColumnVisibility(false);
+    persistVisibility(); // deja ese estado como inicial
     __serverColumnsAppliedOnce = true;
   }
 }
@@ -172,7 +185,7 @@ function fetchReplyUid(idCorr) {
 
 /* ===================== BÚSQUEDA Y RENDER FILAS ===================== */
 function searchInit() {
-  mostrarBarra();
+  if (typeof mostrarBarra === 'function') mostrarBarra();
   var startTime = Date.now();
 
   var searchValue = document.getElementById('searchValue').value;
@@ -200,6 +213,7 @@ function searchInit() {
           'VENCIDO': '#FF0000',
           'RECHAZADO': '#b30000',
           'CONOCIMIENTO': '#6fc5f4ff',
+          'RETURNADO': '#872ebbff',
           'RE-TURNADO': '#872ebbff'
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
@@ -210,7 +224,7 @@ function searchInit() {
         // Para dropdown
         var folioSafe = String(object.folio_gestion || '').replace(/'/g, "\\'");
 
-        // ====== NUEVO: status de la fila (ID o por texto) ======
+        // ====== status de la fila (por ID si viene; si no, por texto) ======
         var __statusId =
           (object.id_cat_estatus != null) ? Number(object.id_cat_estatus)
           : (object.estatus === 'TURNADO' ? 1
@@ -243,7 +257,7 @@ function searchInit() {
                       '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
                     '</span>Reporte' +
                   '</a>' +
-                  // Responder SOLO queda en el dropdown (no en la columna 10)
+                  // Responder SOLO queda en el dropdown
                   '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
                     '<span style="background:#2986cc" class="icon-container-template">' +
                       '<div style="text-align: center;">' +
@@ -252,7 +266,7 @@ function searchInit() {
                     '</span>' +
                     'Responder' +
                   '</button>' +
-                  // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
+                  // Returnado / Re-Turnado
                   '<button class="dropdown-item" data-status="' + __statusId + '" ' +
                           'onclick="(function(btn){' +
                             'window.LETTER = window.LETTER || {};' +
@@ -315,14 +329,14 @@ function searchInit() {
       });
 
       emptyContent = false;
-      talldropdown(response.value.length, 2);
+      if (typeof talldropdown === 'function') talldropdown(response.value.length, 2);
     } else {
       $('#template-table tbody').html('<tr><td colspan="11" class="text-center">No se encontraron resultados</td></tr>');
       emptyContent = true;
       setValue();
     }
 
-    // Aplica visibilidad del server si viene y no hay preferencias locales
+    // Aplica visibilidad del server si viene y no hay preferencias locales reales
     applyServerColumnsOnce(response && response.columns_visibility);
 
     // Re-aplicar visibilidad tras render (ya con filas)
@@ -331,7 +345,7 @@ function searchInit() {
     // Barra de progreso (respetando delay)
     var elapsed = Date.now() - startTime;
     var wait = Math.max(0, 2000 - elapsed);
-    setTimeout(ocultarBarra, wait);
+    setTimeout(function(){ if (typeof ocultarBarra === 'function') ocultarBarra(); }, wait);
   });
 }
 
