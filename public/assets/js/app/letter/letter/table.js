@@ -200,7 +200,7 @@ function searchInit() {
           'VENCIDO': '#FF0000',
           'RECHAZADO': '#b30000',
           'CONOCIMIENTO': '#6fc5f4ff',
-          'RETURNADO': '#872ebbff'
+          'RE-TURNADO': '#872ebbff'
         };
         var estatusColor = estatusColors[object.estatus] || '#6c757d';
 
@@ -209,6 +209,12 @@ function searchInit() {
 
         // Para dropdown
         var folioSafe = String(object.folio_gestion || '').replace(/'/g, "\\'");
+
+        // ====== NUEVO: status de la fila (ID o por texto) ======
+        var __statusId =
+          (object.id_cat_estatus != null) ? Number(object.id_cat_estatus)
+          : (object.estatus === 'TURNADO' ? 1
+            : (object.estatus === 'RETURNADO' || object.estatus === 'RE-TURNADO' ? 8 : 0));
 
         var rowHTML =
           '<tr>' +
@@ -246,10 +252,18 @@ function searchInit() {
                     '</span>' +
                     'Responder' +
                   '</button>' +
-                  '<button class="dropdown-item" onclick="openReturnado(' + object.id + ', \'' + folioSafe + '\')">' +
+                  // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
+                  '<button class="dropdown-item" data-status="' + __statusId + '" ' +
+                          'onclick="(function(btn){' +
+                            'window.LETTER = window.LETTER || {};' +
+                            'window.LETTER.statusAllowedReturnado = [1,8];' +                 // guard nuevo
+                            'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' + // guard viejo
+                            'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' + // estatus actual
+                            'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +        // abrir modal
+                          '})(this)">' +
                     '<span style="background:#2a848c" class="icon-container-template">' +
                       '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
-                    '</span>Returnado' +
+                    '</span>Re-Turnado' +
                   '</button>' +
                 '</div>' +
               '</div>' +

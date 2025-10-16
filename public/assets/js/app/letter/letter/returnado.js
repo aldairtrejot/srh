@@ -89,6 +89,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     if (!$s || !$s.length) return;
     $s.html(PLACEHOLDER);
     $s.prop('disabled', false).removeAttr('disabled');
+    $s.val('');
     spRefresh($s);
   }
   function setPickerLoading(sel) {
@@ -97,6 +98,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     if (!$s || !$s.length) return;
     $s.html('<option value="">CARGANDO…</option>');
     $s.prop('disabled', false).removeAttr('disabled');
+    $s.val('');
     spRefresh($s);
   }
   function hasRealOptions($sel) {
@@ -117,7 +119,26 @@ var token = $('meta[name="csrf-token"]').attr('content');
       $sel.append(opt);
     });
     $sel.prop('disabled', false).removeAttr('disabled');
+
+    // si no hay seleccionado explícito, deja seleccionado el placeholder
+    if (!selectedId) {
+      $sel.val('');
+    }
+
     spRefresh($sel);
+  }
+
+  // Helpers locales sin depender de getVal para el kickstart
+  function valOf($s) { return ($s && $s.length && $s.val()) ? String($s.val()) : ''; }
+  function triggerIfHasValue($s) { const v = valOf($s); if (v) $s.trigger('change'); }
+  function kickStartCascadeOnce() {
+    // Si ya hay A1 y aún no se cargó A2, dispara change en A1
+    if (valOf($a1) && !hasRealOptions($a2)) triggerIfHasValue($a1);
+    // Si ya hay A2 y aún no se cargó A3, dispara change en A2
+    if (valOf($a2) && !hasRealOptions($a3)) triggerIfHasValue($a2);
+    // Asegura dependientes con el área más específica disponible
+    const areaId = valOf($a3) || valOf($a2) || valOf($a1);
+    if (areaId) actualizarCamposDerivadosPorAreaId(areaId);
   }
 
   /* ========== logging ========== */
@@ -182,33 +203,28 @@ var token = $('meta[name="csrf-token"]').attr('content');
   function resetArea3(){ setPickerEmpty($a3); }
 
   /* =========================================================
-     Acceso: solo estatus RETURNADO (configurable)
+     Acceso permitido: TURNADO (1) o RE-TURNADO (8)
      ========================================================= */
   function getAllowedStatusSet() {
-    const arr =
-      (Array.isArray(window.LETTER?.statusAllowedReturnado) && window.LETTER.statusAllowedReturnado.length
-        ? window.LETTER.statusAllowedReturnado
-        : (window.LETTER?.statusReturnadoId != null
-            ? [window.LETTER.statusReturnadoId]
-            : []));
-    // normaliza a strings
-    return new Set(arr.map(x => String(x)));
+    if (Array.isArray(window.LETTER?.statusAllowedReturnado) && window.LETTER.statusAllowedReturnado.length) {
+      return new Set(window.LETTER.statusAllowedReturnado.map(String));
+    }
+    if (window.LETTER?.statusReturnadoId != null) {
+      return new Set([String(window.LETTER.statusReturnadoId), '1']);
+    }
+    return new Set(['1','8']);
   }
 
   function getCurrentStatusId() {
     const domVal = $('#id_cat_estatus').val();
     if (domVal != null && domVal !== '') return String(domVal);
     if (window.LETTER && window.LETTER.currentStatusId != null) return String(window.LETTER.currentStatusId);
-    return ''; // desconocido
+    return '';
   }
 
   function isReturnadoAllowedNow() {
     const allowed = getAllowedStatusSet();
-    if (!allowed.size) {
-      // Si no hay config, no bloqueamos para no romper ambientes.
-      if (window.LETTER_DEBUG) console.debug('[Returnado] Sin configuración de estatus permitido; no se bloquea.');
-      return true;
-    }
+    if (!allowed.size) return true;
     const cur = getCurrentStatusId();
     return allowed.has(cur);
   }
@@ -216,8 +232,11 @@ var token = $('meta[name="csrf-token"]').attr('content');
   function guardReturnadoOrWarn() {
     const ok = isReturnadoAllowedNow();
     if (!ok) {
-      if (window.notyfEM) notyfEM.error('Solo las correspondencias en estatus RETURNADO pueden usar esta función.');
-      else alert('Solo las correspondencias en estatus RETURNADO pueden usar esta función.');
+      const msg = (window.LETTER && window.LETTER.allowedStatusMessage)
+        ? window.LETTER.allowedStatusMessage
+        : 'Solo las correspondencias en estatus TURNADO o RE-TURNADO pueden usar esta función.';
+      if (window.notyfEM) notyfEM.error(msg);
+      else alert(msg);
     }
     return ok;
   }
@@ -235,7 +254,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
       const rows = (json.ok && Array.isArray(json.value)) ? json.value : [];
       fillPicker($a2, rows, preselectA2 || null);
       enablePicker($a2);
-      // SIN autoselección ni trigger change aquí
     } catch (e) {
       logIfNotAbort('cargarArea2PorArea1 error', e);
       resetArea2(); resetArea3();
@@ -259,7 +277,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
       const rows = (json.ok && Array.isArray(json.value)) ? json.value : [];
       fillPicker($a3, rows, preselectA3 || null);
       enablePicker($a3);
-      // SIN autoselección ni trigger change aquí
     } catch (e) {
       logIfNotAbort('cargarArea3PorArea2 error', e);
       resetArea3();
@@ -402,16 +419,16 @@ var token = $('meta[name="csrf-token"]').attr('content');
   $(document).on('change', '#id_cat_area_1_ret,[name="id_cat_area_1_ret"]', async function () {
     if (__seeding) return;
     const area1Id = this.value || '';
-    await cargarArea2PorArea1(area1Id, null); // sin auto
+    await cargarArea2PorArea1(area1Id, null);
     resetArea3();
     actualizarCamposDerivadosPorAreaId(area1Id);
   });
 
-  // A2 -> carga A3 y dependientes por A2 (sin auto)
+  // A2 -> carga A3 y dependientes por A2
   $(document).on('change', '#id_cat_area_2_ret,[name="id_cat_area_2_ret"]', async function () {
     if (__seeding) return;
     const area2Id = this.value || '';
-    await cargarArea3PorArea2(area2Id, null); // sin auto
+    await cargarArea3PorArea2(area2Id, null);
     actualizarCamposDerivadosPorAreaId(area2Id);
   });
 
@@ -502,9 +519,9 @@ var token = $('meta[name="csrf-token"]').attr('content');
     const area3Inicial = window.LETTER?.initials?.area3 || null;
 
     if (area1Inicial) {
-      await cargarArea2PorArea1(area1Inicial, area2Inicial); // sin auto
+      await cargarArea2PorArea1(area1Inicial, area2Inicial);
       const a2 = $a2.val() || area2Inicial;
-      if (a2) { await cargarArea3PorArea2(a2, area3Inicial); } // sin auto
+      if (a2) { await cargarArea3PorArea2(a2, area3Inicial); }
       await actualizarCamposDerivadosPorAreaId(area1Inicial);
     } else {
       resetArea2();
@@ -515,7 +532,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
 
   /* ========== API modal (con guard de estatus) ========== */
   window.openReturnado = function (id, folGestion) {
-    // ⛔ Bloquea si estatus actual no está permitido
     if (!guardReturnadoOrWarn()) return;
 
     $('#id_correspondencia_ret').val(id || '');
@@ -534,11 +550,13 @@ var token = $('meta[name="csrf-token"]').attr('content');
       Promise.resolve()
         .then(seedFromMainForm)
         .then(precargaInicialPorInitials)
+        .then(kickStartCascadeOnce)   // ← “patear” cascada una vez
         .catch(e => logIfNotAbort('seedFromMainForm/precarga error', e))
         .finally(finish);
     } else {
       seedFromServer(id)
         .then(precargaInicialPorInitials)
+        .then(kickStartCascadeOnce)   // ← “patear” cascada una vez
         .catch((e) => {
           logIfNotAbort('seedFromServer error', e);
           if (window.notyfEM) notyfEM.error('No se pudo cargar la información del turnado.');
@@ -548,14 +566,13 @@ var token = $('meta[name="csrf-token"]').attr('content');
   };
 
   window.hiddenReturnado = function () {
-    $m.fadeOut();
+    $m.stop(true, true).fadeOut(150, function(){ $(this).hide(); });
     $('body').removeClass('modal-open-returnado');
     Object.keys(reqCtl).forEach(k => { try { reqCtl[k]?.abort(); } catch(_){} });
   };
 
   /* ========== Guardado (Turnado) con guard de estatus ========== */
   window.saveReturnado = async function () {
-    // ⛔ Verifica otra vez por si abrieron el modal con el estatus correcto y luego cambió.
     if (!guardReturnadoOrWarn()) return;
 
     const id    = $('#id_correspondencia_ret').val() || '';
@@ -574,7 +591,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
       id_cat_area_1: area1 ? Number(area1) : null,
       id_cat_area_2: area2 ? Number(area2) : null,
       id_cat_area:   Number(destino),
-
       id_usuario_area:    Number(getVal($usr)),
       id_usuario_enlace:  getVal($enl)  ? Number(getVal($enl))  : null,
       id_cat_unidad:      getVal($uni)  ? Number(getVal($uni))  : null,
@@ -582,28 +598,25 @@ var token = $('meta[name="csrf-token"]').attr('content');
       id_cat_tramite:     Number(getVal($tra)),
       id_cat_clave:       Number(getVal($cla)),
 
-      force_turnado: true
+      toggle_status: true // alternar 1 ↔ 8
     };
 
     try {
       const res = await postForm(TURNAR_SAVE_URL, payload);
       if (res && res.ok) {
-        if ($('#id_cat_estatus').length) {
-          $('#id_cat_estatus').val(String(res.idTurnado || 6));
+        // usa newStatusId si viene; si no, cae a idTurnado (compat)
+        const newStatus = (res.newStatusId != null) ? res.newStatusId : (res.idTurnado ?? null);
+        if ($('#id_cat_estatus').length && newStatus != null) {
+          $('#id_cat_estatus').val(String(newStatus));
           spRefresh('#id_cat_estatus');
         }
 
-        // Evento por si quieres enganchar lógica adicional
         window.dispatchEvent(new CustomEvent('returnado:saved', {
-          detail: { id: Number(id), idTurnado: res.idTurnado }
+          detail: { id: Number(id), newStatusId: newStatus }
         }));
 
         if (window.notyfEM) notyfEM.success('Turnado actualizado.');
-
-        // 👉 Refresca la tabla/lista principal
         refreshMainTable();
-
-        // Cierra el modal
         hiddenReturnado();
       } else {
         if (window.notyfEM) notyfEM.error(res?.message || 'No se pudo guardar.');
@@ -614,10 +627,35 @@ var token = $('meta[name="csrf-token"]').attr('content');
     }
   };
 
-  // Cerrar por click en overlay
+  // Cerrar por click en overlay (si el click es exactamente en el fondo)
   $(window).on('click', function (ev) {
     if ($(ev.target).is('#modalReturnado')) hiddenReturnado();
   });
+
+  // Wire de cierre: Cancelar, X, data-dismiss, overlay y ESC
+  $(document).off('click.returnadoCancel')
+    .on('click.returnadoCancel', '#cancel_returnado', function (e) {
+      e.preventDefault();
+      hiddenReturnado();
+    });
+
+  $(document).off('click.returnadoClose')
+    .on('click.returnadoClose',
+      '#modalReturnado .modal-close, #modalReturnado [data-dismiss="modal"], #modalReturnado .btn-cancel',
+      function (e) {
+        e.preventDefault();
+        hiddenReturnado();
+      });
+
+  $(document).off('click.returnadoOverlay')
+    .on('click.returnadoOverlay', '#modalReturnado', function (e) {
+      if (e.target === this) hiddenReturnado();
+    });
+
+  $(document).off('keydown.returnadoEsc')
+    .on('keydown.returnadoEsc', function (e) {
+      if (e.key === 'Escape' && $m.is(':visible')) hiddenReturnado();
+    });
 
   // Refresh inicial de pickers
   [
@@ -627,7 +665,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
     '#id_cat_tramite_ret,#id_cat_clave_ret'
   ].forEach(spRefresh);
 
-  // Exponer helpers si los necesitas en otro script
+  // Exponer helpers
   window.cargarArea2PorArea1 = cargarArea2PorArea1;
   window.cargarArea3PorArea2 = cargarArea3PorArea2;
   window.actualizarCamposDerivadosPorAreaId = actualizarCamposDerivadosPorAreaId;
