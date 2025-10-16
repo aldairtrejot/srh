@@ -81,13 +81,16 @@
       collectionCoorUrl:  PATH_COOR,
       collectionClaveUrl: PATH_CLAVE,
 
-      // ✅ Permitir SOLO este estatus (cambia 7 por el ID real de RETURNADO)
-      statusReturnadoId: 8
-      // includeInactiveArea3: true,
-      // initials: { area1: null, area2: null, area3: null },
+      // ✅ Permitidos para abrir el modal
+      statusAllowedReturnado: [1, 8],
+
+      // Mensaje cuando el guard bloquea
+      allowedStatusMessage: 'Solo las correspondencias en estatus TURNADO o RE-TURNADO pueden usar esta función.',
+
+      // (opcional) bypass de emergencia para no bloquear apertura:
+      // debugBypassReturnadoGuard: true,
     };
   })();
 </script>
-
 
 <script src="{{ asset('assets/js/app/letter/letter/returnado.js') }}?v={{ filemtime(public_path('assets/js/app/letter/letter/returnado.js')) }}"></script>
