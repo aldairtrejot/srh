@@ -529,12 +529,12 @@ public function save(Request $request)
             $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
             $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
 
-            // Área final: 3 -> 2 -> 1 -> área del usuario
+            // Áreas (Área principal debe quedar NULL si el usuario no la selecciona)
             $area1 = (int) ($request->id_cat_area_1 ?: 0);
             $area2 = (int) ($request->id_cat_area_2 ?: 0);
             $area3 = (int) ($request->id_cat_area   ?: 0);
-            $areaUser = (int) (Auth::user()->id_cat_area ?? 0);
-            $areaFinal = $area3 ?: ($area2 ?: ($area1 ?: $areaUser ?: 0));
+
+            $areaFinal = $area3 ?: null; // no heredamos a BD
 
             $data = [
                 'num_turno_sistema'    => strtoupper($numTurnoSistemaAux),
@@ -549,7 +549,7 @@ public function save(Request $request)
                 'asunto'               => strtoupper((string)$request->asunto),
                 'observaciones'        => strtoupper((string)$request->observaciones),
 
-                'id_cat_area'          => $areaFinal ?: null,
+                'id_cat_area'          => $areaFinal,        // puede ir NULL
                 'id_cat_area_1'        => $area1 ?: null,
                 'id_cat_area_2'        => $area2 ?: null,
 
@@ -575,47 +575,52 @@ public function save(Request $request)
                 'fecha_usuario_captura'=> $now,
             ];
 
-            \Log::info('[SAVE] CREATE flow');
-            \Log::info('[SAVE] creando tbl_correspondencia', [
-                'folio' => $data['folio_gestion'],
-                'area'  => $data['id_cat_area'],
-            ]);
+            \Log::info('[SAVE] CREATE flow', ['area_final' => $areaFinal]);
 
             $created = LetterM::create($data);
 
-            \Log::info('[SAVE] creado OK', ['id' => $created->id_tbl_correspondencia]);
+            $collectionConsecutivoM->iteratorConsecutivo(
+                $request->id_cat_anio,
+                config('custom_config.CP_TABLE_CORRESPONDENCIA')
+            );
 
-            $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
-
-            // Log funcional (con área obligatoria)
             $collectionLetterLogM::create([
                 'estatus'                => 'AGREGAR',
                 'num_documento'          => strtoupper((string)$request->num_documento),
                 'folio_gestion'          => strtoupper((string)$request->folio_gestion),
                 'asunto'                 => strtoupper((string)$request->asunto),
                 'observaciones'          => strtoupper((string)$request->observaciones),
-                'id_cat_area'            => $areaFinal ?: null,
+                'id_cat_area'            => $areaFinal, // puede ser NULL
                 'id_cat_estatus'         => $request->id_cat_estatus,
                 'id_tbl_correspondencia' => (int)$created->id_tbl_correspondencia,
                 'fecha_usuario_captura'  => $now,
                 'id_usuario_captura'     => Auth::user()->id,
             ]);
 
-            // >>>>>>> FIX CLAVE: asegurar id_cat_area en el Request para la subida <<<<<<<
-            if (empty($request->id_cat_area) && $areaFinal) {
-                $request->merge(['id_cat_area' => $areaFinal]);
+            /* ===== Subida a Alfresco con "área de contexto" temporal =====
+               Si id_cat_area está NULL, usamos (Área -> CRHTOD -> CRH) SOLO para la subida. */
+            $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
+            $restoreAreaAfter = false;
+            if (empty($request->id_cat_area) && $areaContextForUpload) {
+                $request->merge(['id_cat_area' => $areaContextForUpload]);
+                $restoreAreaAfter = true;
             }
 
-            // Subir a Alfresco si vienen archivos
+            // Subir archivos (usa id_cat_area del request)
             $this->uploadFilesIfAny($request, (int)$created->id_tbl_correspondencia);
+
+            // Restaurar request si lo tocamos
+            if ($restoreAreaAfter) {
+                $request->merge(['id_cat_area' => null]);
+            }
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento agregado con éxito.');
         }
 
         /* ==================== UPDATE (total) ==================== */
-        $roleUserArray = collect(session('SESSION_ROLE_USER'))->toArray();
-        $ADM_TOTAL = (int) config('custom_config.ADM_TOTAL');
-        $COR_TOTAL = (int) config('custom_config.COR_TOTAL');
+        $roleUserArray    = collect(session('SESSION_ROLE_USER'))->toArray();
+        $ADM_TOTAL        = (int) config('custom_config.ADM_TOTAL');
+        $COR_TOTAL        = (int) config('custom_config.COR_TOTAL');
         $hasFullUpdateRole = in_array($ADM_TOTAL, $roleUserArray, true) || in_array($COR_TOTAL, $roleUserArray, true);
 
         if ($hasFullUpdateRole) {
@@ -624,11 +629,11 @@ public function save(Request $request)
             $fechaFin       = $this->parseDateInput($request->input('fecha_fin'));
             $fechaDocumento = $this->parseDateInput($request->input('fecha_documento'));
 
+            // Áreas: mantener NULL si el usuario deja Área vacía
             $area1 = (int) ($request->id_cat_area_1 ?: 0);
             $area2 = (int) ($request->id_cat_area_2 ?: 0);
             $area3 = (int) ($request->id_cat_area   ?: 0);
-            $areaUser = (int) (Auth::user()->id_cat_area ?? 0);
-            $areaFinal = $area3 ?: ($area2 ?: ($area1 ?: $areaUser ?: 0));
+            $areaFinal = $area3 ?: null;
 
             $data = [
                 'num_turno_sistema'    => strtoupper((string)$request->num_turno_sistema),
@@ -643,7 +648,7 @@ public function save(Request $request)
                 'asunto'               => strtoupper((string)$request->asunto),
                 'observaciones'        => strtoupper((string)$request->observaciones),
 
-                'id_cat_area'          => $areaFinal ?: null,
+                'id_cat_area'          => $areaFinal,       // puede ser NULL
                 'id_cat_area_1'        => $area1 ?: null,
                 'id_cat_area_2'        => $area2 ?: null,
 
@@ -667,7 +672,7 @@ public function save(Request $request)
                 'fecha_usuario'        => $now,
             ];
 
-            // Forzar Returnado si alguna área solo permite Returnado
+            // Forzar Returnado si aplica (tu lógica original)
             try {
                 if (
                     $letterM->areaOnlyReturnado($area1 ?: null) ||
@@ -680,8 +685,9 @@ public function save(Request $request)
 
             LetterM::where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)->update($data);
 
-            $data['id_tbl_correspondencia'] = (int)$request->id_tbl_correspondencia;
-            $logC->edit('correspondencia.tbl_correspondencia', $data);
+            $logC->edit('correspondencia.tbl_correspondencia', $data + [
+                'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia
+            ]);
 
             $collectionLetterLogM::create([
                 'estatus'                => 'MODIFICAR',
@@ -689,21 +695,27 @@ public function save(Request $request)
                 'folio_gestion'          => strtoupper((string)$request->folio_gestion),
                 'asunto'                 => strtoupper((string)$request->asunto),
                 'observaciones'          => strtoupper((string)$request->observaciones),
-                'id_cat_area'            => $areaFinal ?: null,
+                'id_cat_area'            => $areaFinal, // puede ser NULL
                 'id_cat_estatus'         => $data['id_cat_estatus'],
                 'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia,
                 'fecha_usuario_captura'  => $now,
                 'id_usuario_captura'     => Auth::user()->id,
             ]);
 
-            // >>>>>>> FIX CLAVE en UPDATE también <<<<<<<
-            if (empty($request->id_cat_area) && $areaFinal) {
-                $request->merge(['id_cat_area' => $areaFinal]);
+            // ===== Subidas (área de contexto temporal para Alfresco) =====
+            $areaContextForUpload = $area3 ?: ($area2 ?: ($area1 ?: null));
+            $restoreAreaAfter = false;
+            if (empty($request->id_cat_area) && $areaContextForUpload) {
+                $request->merge(['id_cat_area' => $areaContextForUpload]);
+                $restoreAreaAfter = true;
             }
 
-            // Subidas
             $this->handleUploads((int)$request->id_tbl_correspondencia, $request);
             $this->uploadFilesIfAny($request, (int)$request->id_tbl_correspondencia);
+
+            if ($restoreAreaAfter) {
+                $request->merge(['id_cat_area' => null]);
+            }
 
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
         }
@@ -717,11 +729,11 @@ public function save(Request $request)
             ]);
         }
 
+        // Mantener que Área principal pueda ser NULL
         $area1 = (int) ($request->id_cat_area_1 ?: 0);
         $area2 = (int) ($request->id_cat_area_2 ?: 0);
         $area3 = (int) ($request->id_cat_area   ?: 0);
-        $areaUser = (int) (Auth::user()->id_cat_area ?? 0);
-        $areaFinal = $area3 ?: ($area2 ?: ($area1 ?: $areaUser ?: 0));
+        $areaFinal = $area3 ?: null;
 
         $data = [
             'observaciones'      => strtoupper((string)$request->observaciones),
@@ -732,8 +744,9 @@ public function save(Request $request)
 
         LetterM::where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)->update($data);
 
-        $data['id_tbl_correspondencia'] = (int)$request->id_tbl_correspondencia;
-        $logC->edit('correspondencia.tbl_correspondencia', $data);
+        $logC->edit('correspondencia.tbl_correspondencia', $data + [
+            'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia
+        ]);
 
         $collectionLetterLogM::create([
             'estatus'                => 'MODIFICAR',
@@ -741,7 +754,7 @@ public function save(Request $request)
             'folio_gestion'          => strtoupper((string)$request->folio_gestion),
             'asunto'                 => strtoupper((string)$request->asunto),
             'observaciones'          => strtoupper((string)$request->observaciones),
-            'id_cat_area'            => $areaFinal ?: null,
+            'id_cat_area'            => $areaFinal, // puede ser NULL
             'id_cat_estatus'         => $request->id_cat_estatus,
             'id_tbl_correspondencia' => (int)$request->id_tbl_correspondencia,
             'fecha_usuario_captura'  => $now,
@@ -760,6 +773,9 @@ public function save(Request $request)
         ], 500);
     }
 }
+
+
+
 
 
     /* ======================== ÁREAS DEPENDIENTES (AJAX) ======================== */

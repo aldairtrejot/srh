@@ -245,6 +245,17 @@ function setTurnarBlocked(on) {
   }
 }
 
+// === NUEVO: poner TURNADO (id=1) por defecto si está vacío y no estamos en Returnado
+function setDefaultTurnado() {
+  var $st = $('#id_cat_estatus');
+  if (!$st.length) return;
+  var inReturnado = $('#force_returnado').val() === '1';
+  if (!inReturnado && !$st.val()) {
+    $st.val('1');
+    if ($.fn.selectpicker) $st.selectpicker('refresh');
+  }
+}
+
 // API pública que usa deps-areas.js al detectar Returnado
 function applyReturnadoMode(on, idReturnado) {
   var $form = getForm$();
@@ -271,6 +282,9 @@ function applyReturnadoMode(on, idReturnado) {
     unfreezeWithMirror('#id_cat_estatus');
     $st.prop('disabled', false);
     if ($.fn.selectpicker) $st.selectpicker('refresh');
+
+    // Si quedó vacío, vuelve a TURNADO (1)
+    setDefaultTurnado();
   }
 }
 
@@ -330,6 +344,9 @@ $(function () {
   setDateLimits();
   setCheckboxArea();
 
+  // === NUEVO: por defecto, estatus TURNADO (id=1) si el select está vacío
+  setDefaultTurnado();
+
   // Tooltips
   safeTooltip('#id_checkbox_Template_tooltip_fisico','Marcar si el documento es físico');
   safeTooltip('#id_checkbox_Template_tooltip','Añadir un remitente no registrado');
@@ -383,8 +400,8 @@ $(function () {
 
   // Submit: validaciones y sincronización de espejos
   $('#myForm').on('submit', function (e) {
-    // 🔴 Asegurar que Área (id_cat_area) no vaya vacío
-    ensureFirstIfEmpty('#id_cat_area');
+    // ❌ Ya no forzamos Área (id_cat_area) con la primera opción
+    // ensureFirstIfEmpty('#id_cat_area');  // <- eliminado
 
     if (!validarFechasAntesDeEnviar()) {
       e.preventDefault();
@@ -436,3 +453,4 @@ $(function () {
   fillHeaderSummary(); // si id_cat_anio trae "2", mostramos año actual mientras
   setData();           // sobreescribe con el texto correcto del catálogo (p.ej. "2025")
 });
+
