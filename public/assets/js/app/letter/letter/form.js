@@ -347,6 +347,54 @@ function fillHeaderSummary() {
   if (labAnio) labAnio.textContent = anio;
 }
 
+/* ========================= Notificaciones sin alert() ========================= */
+(function(){
+  // Capa simple si no hay notyfEM ni toastr (fallback mínimo)
+  function ensureBannerHost(){
+    var $host = $('#__notify_host');
+    if ($host.length) return $host;
+    $host = $('<div id="__notify_host" style="position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px;"></div>');
+    $('body').append($host);
+    return $host;
+  }
+  function banner(msg, type){
+    var $host = ensureBannerHost();
+    var bg = '#1f2937', bd = '#374151';
+    if (type === 'ok')  { bg = '#065f46'; bd = '#059669'; }
+    if (type === 'err') { bg = '#7f1d1d'; bd = '#ef4444'; }
+    if (type === 'warn'){ bg = '#78350f'; bd = '#f59e0b'; }
+    var $n = $('<div style="max-width:360px; padding:10px 12px; color:#fff; background:'+bg+'; border:1px solid '+bd+'; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.2); font-size:14px;"></div>').text(msg);
+    $host.append($n);
+    setTimeout(function(){ $n.fadeOut(200, function(){ $(this).remove(); }); }, 4000);
+  }
+  window.__notify = function(msg, kind){
+    if (typeof notyfEM !== 'undefined') {
+      if (kind === 'ok'   && notyfEM.success) return notyfEM.success(msg);
+      if (kind === 'warn' && notyfEM.warning) return notyfEM.warning(msg);
+      if (notyfEM.error) return notyfEM.error(msg);
+    }
+    if (typeof toastr !== 'undefined') {
+      if (kind === 'ok')   return toastr.success(msg);
+      if (kind === 'warn') return toastr.warning(msg);
+      return toastr.error(msg);
+    }
+    banner(msg, kind);
+  };
+})();
+
+/* ========= NUEVO: helpers para toasts que sobreviven redirect/recarga ========= */
+function rememberToast(kind, msg) {
+  try { sessionStorage.setItem('__next_toast', JSON.stringify({k: kind, m: msg, ts: Date.now()})); } catch(_) {}
+}
+function playToast(kind, msg) {
+  if (typeof notyfEM !== 'undefined') {
+    if (kind === 'ok'   && notyfEM.success) return notyfEM.success(msg);
+    if (kind === 'warn' && notyfEM.warning) return notyfEM.warning(msg);
+    if (notyfEM.error)  return notyfEM.error(msg);
+  }
+  return __notify(msg, kind);
+}
+
 /* ========================= Ready ========================= */
 $(function () {
   setDateLimits();
@@ -460,42 +508,34 @@ $(function () {
   // >>> Encabezado: pinta algo inmediato y luego resuelve el nombre real del año
   fillHeaderSummary(); // si id_cat_anio trae "2", mostramos año actual mientras
   setData();           // sobreescribe con el texto correcto del catálogo (p.ej. "2025")
-});
 
-/* ========================= Notificaciones sin alert() ========================= */
-(function(){
-  // Capa simple si no hay notyfEM ni toastr (fallback mínimo)
-  function ensureBannerHost(){
-    var $host = $('#__notify_host');
-    if ($host.length) return $host;
-    $host = $('<div id="__notify_host" style="position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px;"></div>');
-    $('body').append($host);
-    return $host;
-  }
-  function banner(msg, type){
-    var $host = ensureBannerHost();
-    var bg = '#1f2937', bd = '#374151';
-    if (type === 'ok')  { bg = '#065f46'; bd = '#059669'; }
-    if (type === 'err') { bg = '#7f1d1d'; bd = '#ef4444'; }
-    if (type === 'warn'){ bg = '#78350f'; bd = '#f59e0b'; }
-    var $n = $('<div style="max-width:360px; padding:10px 12px; color:#fff; background:'+bg+'; border:1px solid '+bd+'; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.2); font-size:14px;"></div>').text(msg);
-    $host.append($n);
-    setTimeout(function(){ $n.fadeOut(200, function(){ $(this).remove(); }); }, 4000);
-  }
-  window.__notify = function(msg, kind){
-    if (typeof notyfEM !== 'undefined') {
-      if (kind === 'ok'   && notyfEM.success) return notyfEM.success(msg);
-      if (kind === 'warn' && notyfEM.warning) return notyfEM.warning(msg);
-      if (notyfEM.error) return notyfEM.error(msg);
+  // >>> Reproducir toast pendiente (guardado en redirect/reload),
+  //     pero NUNCA en la vista de "Registro nuevo" (alta).
+  try {
+    var raw = sessionStorage.getItem('__next_toast');
+    if (raw) {
+      // Detecta si estamos en formulario de alta (id_tbl_correspondencia vacío)
+      var isCreatePage = (function(){
+        var $f = $('#myForm');
+        if (!$f.length) return false; // si no hay form, no es la vista de alta → permitir toast
+        var $id = $f.find('[name="id_tbl_correspondencia"]');
+        if (!$id.length) return false; // si no existe el campo, no es la vista de alta
+        var val = ($id.val() || '').toString().trim();
+        return val === ''; // vacío → alta
+      })();
+
+      if (isCreatePage) {
+        // Estamos en "Registro nuevo": limpiar y NO mostrar el toast
+        sessionStorage.removeItem('__next_toast');
+      } else {
+        // Cualquier otra vista (lista, edición, etc.): reproducir el toast
+        sessionStorage.removeItem('__next_toast');
+        var t = JSON.parse(raw || '{}');
+        if (t && t.m) playToast(t.k || 'ok', t.m);
+      }
     }
-    if (typeof toastr !== 'undefined') {
-      if (kind === 'ok')   return toastr.success(msg);
-      if (kind === 'warn') return toastr.warning(msg);
-      return toastr.error(msg);
-    }
-    banner(msg, kind);
-  };
-})();
+  } catch(_) {}
+});
 
 /* ========================= Submit AJAX (spinner + toasts propios) ========================= */
 (function () {
@@ -594,6 +634,10 @@ $(function () {
       }
     })
     .then(async function (res) {
+      const ct = (res.headers.get('content-type') || '').toLowerCase();
+      const isJson = ct.indexOf('application/json') !== -1;
+
+      // 1) VALIDACIÓN 422 → pintar campos
       if (res.status === 422) {
         let data = {};
         try { data = await res.json(); } catch(_) {}
@@ -612,12 +656,36 @@ $(function () {
         return;
       }
 
-      // --- DUPLICADO folio_gestion (toast específico) ---
-      const rawBody = await res.clone().text().catch(() => '');
-      if (
-        res.status === 409 ||                                   // si el backend ya devuelve 409
-        /duplicada|unique violation|folio_gestion/i.test(rawBody) // o si viene como 500/200 con ese texto
-      ) {
+      // 2) ÉXITO CON REDIRECT → toast + redirect (delay breve)
+      if (res.redirected && res.url) {
+        const okMsg = 'El registro se realizó de forma exitosa.';
+        playToast('ok', okMsg);
+        rememberToast('ok', okMsg);
+        setTimeout(function(){
+          $(document).trigger('form:save:success', [$form[0], 'redirect']);
+          window.location.href = res.url;
+        }, 600);
+        return;
+      }
+
+      // 3) ÉXITO SIN REDIRECT (200 OK) → toast + recarga
+      if (res.ok) {
+        let okMsg = 'El registro se realizó de forma exitosa.';
+        if (isJson) {
+          try {
+            const data = await res.clone().json();
+            if (data && data.message) okMsg = data.message;
+          } catch(_) {}
+        }
+        playToast('ok', okMsg);
+        rememberToast('ok', okMsg);
+        $(document).trigger('form:save:success', [$form[0], 'ok']);
+        setTimeout(function(){ window.location.reload(); }, 600);
+        return;
+      }
+
+      // 4) DUPLICADO (solo si NO fue ok/redirect) → status 409 o JSON con errors.folio_gestion
+      if (res.status === 409) {
         var $fg = $form.find('[name="folio_gestion"]');
         if ($fg.length) {
           var selFG = $fg.attr('id') ? ('#' + $fg.attr('id')) : $fg;
@@ -630,47 +698,32 @@ $(function () {
         } else {
           __notify('El folio de gestión ya existe.', 'warn');
         }
-        $(document).trigger('form:save:error', [$form[0], res.status || 409]);
+        $(document).trigger('form:save:error', [$form[0], 409]);
         return;
       }
-
-      // éxito con redirect: navega y tu flash/toast nativo aparece como siempre
-      if (res.redirected && res.url) {
-        $(document).trigger('form:save:success', [$form[0], 'redirect']);
-        window.location.href = res.url;
-        return;
-      }
-
-      // éxito sin redirect: si el servidor manda {message}, lo toasteamos
-      if (res.ok) {
+      if (isJson) {
         try {
-          const data = await res.json();
-          if (data && data.message) {
-            if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-              notyfEM.success(data.message);
-            } else {
-              __notify(data.message, 'ok');
+          const data = await res.clone().json();
+          if (data && data.errors && data.errors.folio_gestion) {
+            var $fg2 = $form.find('[name="folio_gestion"]');
+            if ($fg2.length) {
+              var selFG2 = $fg2.attr('id') ? ('#' + $fg2.attr('id')) : $fg2;
+              showFieldError(selFG2, data.errors.folio_gestion[0] || 'El folio de gestión ya existe.');
+              try { $fg2[0].focus(); } catch (_) {}
             }
-          } else {
-            if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-              notyfEM.success('Registro guardado con éxito.');
+            if (typeof notyfEM !== 'undefined') {
+              if (notyfEM.warning) notyfEM.warning('El folio de gestión ya existe.');
+              else if (notyfEM.error) notyfEM.error('El folio de gestión ya existe.');
             } else {
-              __notify('Registro guardado con éxito.', 'ok');
+              __notify('El folio de gestión ya existe.', 'warn');
             }
+            $(document).trigger('form:save:error', [$form[0], res.status || 409]);
+            return;
           }
-        } catch(_) {
-          if (typeof notyfEM !== 'undefined' && notyfEM.success) {
-            notyfEM.success('Registro guardado con éxito.');
-          } else {
-            __notify('Registro guardado con éxito.', 'ok');
-          }
-        }
-        $(document).trigger('form:save:success', [$form[0], 'ok']);
-        window.location.reload();
-        return;
+        } catch(_) {}
       }
 
-      // otros errores (500, 403, etc.): mantenemos datos; deja que tus globals toasteen
+      // 5) Otros errores (500, 403, etc.)
       try { console.error('[SAVE_ERROR]', res.status, await res.text()); } catch(_) {}
       $(document).trigger('form:save:error', [$form[0], res.status]);
       if (typeof notyfEM !== 'undefined' && notyfEM.error) {
@@ -698,3 +751,38 @@ $(function () {
     return false;
   });
 })();
+
+/* ========================= Encabezado (llamadas) ========================= */
+function setData() {
+  $('#_labFechaCaptura').text($('#fecha_captura').val());
+  $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
+  getData();
+}
+
+// === Toast inmediato si el folio ya está registrado ===
+$(document).on('blur', '[name="folio_gestion"]', function () {
+  var $fg   = $(this);
+  var value = ($fg.val() || '').trim();
+  if (!value) return;
+
+  // Si estás en edición, manda el id para excluir el propio registro
+  var id = ($('[name="id_tbl_correspondencia"]').val() || '').trim();
+
+  $.post(URL_DEFAULT + '/letter/validateUnique', {
+    _token: token,
+    type: 'folio',
+    id: id,
+    value: value
+  })
+  .done(function (res) {
+    if (res && res.ok && res.exists) {
+      // ⚠️ Solo el toast (no tocamos el resto de la UX que ya funciona)
+      if (typeof notyfEM !== 'undefined' && notyfEM.warning) {
+        notyfEM.warning('El folio de gestión ya existe.');
+      } else {
+        __notify('El folio de gestión ya existe.', 'warn');
+      }
+    }
+  })
+  .fail(function(){ /* silencioso */ });
+});
