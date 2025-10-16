@@ -42,6 +42,13 @@ class LetterC extends Controller
     {
         return view('letter.letter.list');
     }
+    public function cloud($id)
+    {
+        $object = new LetterM();
+        $item = $object->edit($id);
+        return view('letter/letter/cloud', compact('item'));
+
+    }
 
     /* =========================================================
      * TABLA
