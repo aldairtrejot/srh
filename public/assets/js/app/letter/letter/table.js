@@ -182,6 +182,7 @@ function searchInit() {
     iterator: iteradorAux,
     searchValue: searchValue
   }, function (response) {
+    console.log(response)
 
     var tbody = $('#template-table tbody');
     tbody.empty();

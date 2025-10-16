@@ -53,102 +53,53 @@ class LetterC extends Controller
     /* =========================================================
      * TABLA
      * ========================================================= */
-    public function table(Request $request, LetterM $model)
-    {
-        try {
-            $iterator    = max(0, (int)$request->get('iterator', 0));
-            $searchValue = (string)$request->get('searchValue', '');
-            $visibility  = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
+   public function table(Request $request, LetterM $model)
+{
+    try {
+        $iterator    = max(0, (int)$request->get('iterator', 0));
+        $searchValue = (string)$request->get('searchValue', '');
+        $visibility  = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
 
-            // BYPASS (admines)
-            if ($this->isBypassVisibility()) {
-                $q = DB::table('correspondencia.tbl_correspondencia as c')
-                    ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
-                    ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
-                    ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
-                    ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');
+        // BYPASS (admines)
+        //if ($this->isBypassVisibility()) {
+            $q = DB::table('correspondencia.tbl_correspondencia as c');
 
-                if ($searchValue !== '') {
-                    $sv = '%'.trim($searchValue).'%';
-                    $q->where(function ($f) use ($sv) {
-                        $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
-                          ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
-                    });
-                }
-
-                $total = (clone $q)->count('c.id_tbl_correspondencia');
-
-                $rows = $q->orderByDesc('c.id_tbl_correspondencia')
-                    ->offset($iterator)->limit(5)
-                    ->get([
-                        'c.id_tbl_correspondencia as id',
-                        DB::raw('UPPER(c.num_documento) as num_documento'),
-                        DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
-                        DB::raw('UPPER(c.asunto)         as asunto'),
-                        DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
-                        DB::raw('UPPER(e.descripcion)    as estatus'),
-                        DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
-                        DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
-                        DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
-                        DB::raw("(
-                            SELECT co.uid
-                            FROM correspondencia.ctrl_correspondencia_oficio co
-                            WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
-                            ORDER BY co.fecha_usuario DESC
-                            LIMIT 1
-                        ) AS uuid_oficio"),
-                    ]);
-
-                return response()->json([
-                    'value' => $rows,
-                    'total' => $total,
-                    'columns_visibility' => ['area'=>true,'crh'=>true,'crhtod'=>true],
-                ]);
-            }
-
-            // USUARIO NORMAL
-            $userId    = (int)(Auth::id() ?? 0);
-            $userAreas = $this->getAllowedAreasForUser($userId);
-            if (empty($userAreas)) {
-                return response()->json([
-                    'value' => [], 'total' => 0, 'columns_visibility' => $visibility
-                ]);
-            }
-
-            $q = DB::table('correspondencia.tbl_correspondencia as c')
+            // Aseguramos joins a estatus y áreas (se usan en búsqueda y select)
+            $q = $q
                 ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
                 ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
                 ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
-                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')
-                ->where('e.estatus', true)
-                ->where(function ($w) use ($userAreas) {
-                    // 1) Si hay A3
-                    $w->orWhereIn('c.id_cat_area', $userAreas);
-                    // 2) Si no hay A3 pero sí A2
-                    $w->orWhere(function ($q2) use ($userAreas) {
-                        $q2->whereNull('c.id_cat_area')->whereIn('c.id_cat_area_2', $userAreas);
-                    });
-                    // 3) Si no hay A3 ni A2 pero sí A1
-                    $w->orWhere(function ($q3) use ($userAreas) {
-                        $q3->whereNull('c.id_cat_area')->whereNull('c.id_cat_area_2')->whereIn('c.id_cat_area_1', $userAreas);
-                    });
-                    // 4) Copias — solo si no hay A3
-                    $w->orWhere(function ($qCopy) use ($userAreas) {
-                        $qCopy->whereNull('c.id_cat_area')
-                              ->whereExists(function ($ex) use ($userAreas) {
-                                  $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
-                                     ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
-                                     ->whereIn('t.id_cat_area', $userAreas);
-                              });
-                    });
-                    // ⛔️ NO por usuario_area / usuario_enlace
-                })
-                ->where('c.id_cat_estatus', '!=', 2);
+                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');
+
+    // Código para no administradores
+    if (
+        ! in_array(1, session('SESSION_ROLE_USER', [])) &&
+        ! in_array(2, session('SESSION_ROLE_USER', []))
+    ) {
+        $q->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_1', function ($join) {
+            $join->on('c.id_cat_area_1', '=', 'j_area_1.id_cat_area')
+                ->where('j_area_1.id_cat_jerarquia', 1)
+                ->where('j_area_1.estatus', true)
+                ->where('j_area_1.id_usuario', auth()->id());
+        })
+        ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_2', function ($join) {
+            $join->on('c.id_cat_area_2', '=', 'j_area_2.id_cat_area')
+                ->where('j_area_2.id_cat_jerarquia', 2)
+                ->where('j_area_2.estatus', true)
+                ->where('j_area_2.id_usuario', auth()->id());
+        })
+        ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_3', function ($join) {
+            $join->on('c.id_cat_area', '=', 'j_area_3.id_cat_area')
+                ->where('j_area_3.id_cat_jerarquia', 3)
+                ->where('j_area_3.estatus', true)
+                ->where('j_area_3.id_usuario', auth()->id());
+        })
+        ->where(function ($q) {
+            $q->whereNotNull('j_area_1.id_cat_area')
+              ->orWhereNotNull('j_area_2.id_cat_area')
+              ->orWhereNotNull('j_area_3.id_cat_area');
+        });
+    }
 
             if ($searchValue !== '') {
                 $sv = '%'.trim($searchValue).'%';
@@ -186,17 +137,100 @@ class LetterC extends Controller
                     ) AS uuid_oficio"),
                 ]);
 
-            $rows = $this->applyVisibilityToRows($rows, $visibility);
-
             return response()->json([
-                'value' => $rows, 'total' => $total, 'columns_visibility' => $visibility
+                'value' => $rows,
+                'total' => $total,
+                'columns_visibility' => ['area'=>true,'crh'=>true,'crhtod'=>true],
             ]);
-        } catch (\Throwable $e) {
+        //}
+
+        // USUARIO NORMAL
+        $userId    = (int)(Auth::id() ?? 0);
+        $userAreas = $this->getAllowedAreasForUser($userId);
+        if (empty($userAreas)) {
             return response()->json([
-                'value' => [], 'error' => true, 'message' => 'Error al cargar la tabla',
-            ], 500);
+                'value' => [], 'total' => 0, 'columns_visibility' => $visibility
+            ]);
         }
+
+        $q = DB::table('correspondencia.tbl_correspondencia as c')
+            ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
+            ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
+            ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
+            ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')
+            ->where('e.estatus', true)
+            ->where(function ($w) use ($userAreas) {
+                // 1) Si hay A3
+                $w->orWhereIn('c.id_cat_area', $userAreas);
+                // 2) Si no hay A3 pero sí A2
+                $w->orWhere(function ($q2) use ($userAreas) {
+                    $q2->whereNull('c.id_cat_area')->whereIn('c.id_cat_area_2', $userAreas);
+                });
+                // 3) Si no hay A3 ni A2 pero sí A1
+                $w->orWhere(function ($q3) use ($userAreas) {
+                    $q3->whereNull('c.id_cat_area')->whereNull('c.id_cat_area_2')->whereIn('c.id_cat_area_1', $userAreas);
+                });
+                // 4) Copias — solo si no hay A3
+                $w->orWhere(function ($qCopy) use ($userAreas) {
+                    $qCopy->whereNull('c.id_cat_area')
+                          ->whereExists(function ($ex) use ($userAreas) {
+                              $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
+                                 ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
+                                 ->whereIn('t.id_cat_area', $userAreas);
+                          });
+                });
+                // ⛔️ NO por usuario_area / usuario_enlace
+            })
+            ->where('c.id_cat_estatus', '!=', 2);
+
+        if ($searchValue !== '') {
+            $sv = '%'.trim($searchValue).'%';
+            $q->where(function ($f) use ($sv) {
+                $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
+                  ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
+            });
+        }
+
+        $total = (clone $q)->count('c.id_tbl_correspondencia');
+
+        $rows = $q->orderByDesc('c.id_tbl_correspondencia')
+            ->offset($iterator)->limit(5)
+            ->get([
+                'c.id_tbl_correspondencia as id',
+                DB::raw('UPPER(c.num_documento) as num_documento'),
+                DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
+                DB::raw('UPPER(c.asunto)         as asunto'),
+                DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
+                DB::raw('UPPER(e.descripcion)    as estatus'),
+                DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
+                DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
+                DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+                DB::raw("(
+                    SELECT co.uid
+                    FROM correspondencia.ctrl_correspondencia_oficio co
+                    WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
+                    ORDER BY co.fecha_usuario DESC
+                    LIMIT 1
+                ) AS uuid_oficio"),
+            ]);
+
+        $rows = $this->applyVisibilityToRows($rows, $visibility);
+
+        return response()->json([
+            'value' => $rows, 'total' => $total, 'columns_visibility' => $visibility
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'value' => [], 'error' => true, 'message' => 'Error al cargar la tabla',
+        ], 500);
     }
+}
+
 
     /* =========================================================
      * FORM CREATE
