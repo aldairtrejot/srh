@@ -1,11 +1,12 @@
 // assets/js/app/letter/letter/deps-areas.js
 // -------------------------------------------------------------
-// Flujo ORIGINAL:
+// Flujo ORIGINAL + precarga fiel en EDIT:
 // - Cambiar CRH => carga Área 2 y AUTOLLENA Usuario/Enlace/Unidad/Coord/Trámite
 // - Cambiar CRHTOD => carga Área 3 y AUTOLLENA Usuario/Enlace/Unidad/Coord/Trámite
 // - Cambiar Área => AUTOLLENA Usuario/Enlace/Unidad/Coord/Trámite
 // - Siempre auto-selecciona el primer Trámite y dispara 'change' (para cargar Claves)
-// Extra: detección Returnado (cualquiera de las 3 áreas) y bloqueo solo si aplica.
+// - En edición, respeta lo que YA estaba guardado: usuario/enlace/unidad/coord/trámite/clave
+// Extra: detección Returnado y bloqueo solo si aplica.
 // -------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -90,9 +91,12 @@ document.addEventListener('DOMContentLoaded', function () {
   /* =========================================================
      Repoblado de dependientes (Usuario/Enlace/Unidad/Coord/Trámite)
      → usa el modo LEGACY del backend: POST {id:<areaId>}
-     → AUTOS ELECCIÓN del PRIMER Trámite (dispara change para Claves)
+     → En EDIT respeta valores guardados (window.LETTER.initials)
+     → Autoselección primer Trámite SOLO si no hay “tramite” guardado
      ========================================================= */
   function actualizarCamposDerivadosPorAreaId(areaId) {
+    const init = (window.LETTER && window.LETTER.initials) || {};
+
     // Si no hay área -> todo a "SELECCIONE" y limpiar claves
     if (!areaId) {
       setPickerEmpty('#id_usuario_area');
@@ -121,30 +125,43 @@ document.addEventListener('DOMContentLoaded', function () {
           foreachSelect(response.selectTramite, '#id_cat_tramite');
         }
 
-        // Refrescar y asegurar "SELECCIONE" si quedaron vacíos
         setTimeout(function () {
-          ['#id_usuario_enlace','#id_usuario_area','#id_cat_unidad','#id_cat_coordinacion']
-            .forEach((selector) => {
-              const $sel = $(selector);
-              if ($sel.find('option').length === 0) setPickerEmpty(selector);
-              else $sel.selectpicker('refresh');
-            });
+          // ====== EDIT: seleccionar guardados si existen ======
+          if (init.usuario_enlace)   { $('#id_usuario_enlace').val(String(init.usuario_enlace)); }
+          if (init.usuario_area)     { $('#id_usuario_area').val(String(init.usuario_area)); }
+          if (init.unidad)           { $('#id_cat_unidad').val(String(init.unidad)); }
+          if (init.coordinacion)     { $('#id_cat_coordinacion').val(String(init.coordinacion)); }
 
-          // === AUTOS ELECCIÓN PRIMER TRÁMITE + disparo change ===
-          const $tram = $('#id_cat_tramite');
-          const tramOptions = $tram.find('option').not('[value=""]');
-          if (tramOptions.length > 0) {
-            const firstVal = tramOptions.first().val();
-            $tram.val(firstVal).selectpicker('refresh').trigger('change'); // carga Claves en select.js
+          // refrescar pickers (usuarios / unid / coord)
+          ['#id_usuario_enlace','#id_usuario_area','#id_cat_unidad','#id_cat_coordinacion']
+            .forEach(function (s) { $(s).selectpicker('refresh'); });
+
+          // Trámite
+          if (init.tramite) {
+            $('#id_cat_tramite').val(String(init.tramite)).selectpicker('refresh').trigger('change');
+
+            // esperar a que select.js llene claves
+            setTimeout(function () {
+              if (init.clave) {
+                $('#id_cat_clave').val(String(init.clave)).selectpicker('refresh');
+              }
+            }, 150);
           } else {
-            // Sin trámites -> Trámite y Clave a "SELECCIONE"
-            setPickerEmpty('#id_cat_tramite');
-            setPickerEmpty('#id_cat_clave');
-            if (typeof clearClaveData === 'function') clearClaveData();
+            // Sin 'tramite' guardado → usar primer trámite
+            const $tram = $('#id_cat_tramite');
+            const tramOptions = $tram.find('option').not('[value=""]');
+            if (tramOptions.length > 0) {
+              const firstVal = tramOptions.first().val();
+              $tram.val(firstVal).selectpicker('refresh').trigger('change');
+            } else {
+              setPickerEmpty('#id_cat_tramite');
+              setPickerEmpty('#id_cat_clave');
+              if (typeof clearClaveData === 'function') clearClaveData();
+            }
           }
         }, 0);
 
-        // Encabezado/num_turno_sistema (si lo regresa tu backend)
+        // Encabezado/num_turno_sistema (si lo regresa el backend)
         if (typeof setClaveInNuSystem === 'function') {
           setClaveInNuSystem(response.clave || '-');
         }
@@ -222,12 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function resetArea2() { setPickerEmpty('#id_cat_area_2'); }
   function resetArea3() { setPickerEmpty('#id_cat_area'); }
 
-  /* ===== Detección Returnado (CRH / CRHTOD / Área) =====
-     Espera del backend (cualquiera de estas dos formas):
-     A) { ok:true, any_only_returnado:true, idReturnado:8 }
-     B) { ok:true, only:{a1:true|false, a2:true|false, a3:true|false}, idReturnado:8 }
-     Solo bloquea si el área seleccionada está relacionada **únicamente** con Returnado.
-  */
+  /* ===== Detección Returnado (CRH / CRHTOD / Área) ===== */
   async function checkReturnadoAny() {
     try {
       const a1 = getVal($area1) ? Number(getVal($area1)) : 0;
@@ -250,10 +262,8 @@ document.addEventListener('DOMContentLoaded', function () {
       let shouldBlock = false;
       if (res && res.ok) {
         if (typeof res.any_only_returnado === 'boolean') {
-          // Modo simple (agrupado)
           shouldBlock = !!res.any_only_returnado;
         } else if (res.only && typeof res.only === 'object') {
-          // Modo por campo (fino)
           const selectedKeys = [];
           if (a1) selectedKeys.push('a1');
           if (a2) selectedKeys.push('a2');
@@ -279,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Encadenado de áreas
     cargarArea2PorArea1(area1Id, null);
     resetArea3(); // al cambiar Área 1, limpia Área 3
-    // Dependientes + Trámite (autoselección primer ítem)
+    // Dependientes + Trámite
     actualizarCamposDerivadosPorAreaId(area1Id);
     // Returnado (CRH)
     checkReturnadoAny();
@@ -289,14 +299,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const area2Id = e.target.value || '';
     // Encadenado de áreas
     cargarArea3PorArea2(area2Id, null);
-    // Dependientes + Trámite (autoselección primer ítem)
+    // Dependientes + Trámite
     actualizarCamposDerivadosPorAreaId(area2Id);
     // Returnado (CRHTOD)
     checkReturnadoAny();
   });
 
-  // Nota: cuando cambias Área 3, tu select.js ya actualiza
-  // Usuario/Enlace/Unidad/Coordinación/Trámite/Clave correctamente.
   $area3.addEventListener('change', function (e) {
     const area3Id = e.target.value || '';
     actualizarCamposDerivadosPorAreaId(area3Id);
@@ -311,16 +319,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (area1Inicial) {
     // Cargar cadena Área2/Área3
-    cargarArea2PorArea1(area1Inicial, area2Inicial).then(() => {
-      const a2 = $area2.value || area2Inicial;
-      if (a2) {
-        cargarArea3PorArea2(a2, area3Inicial);
-      }
-    });
-    // Precargar dependientes + Trámite (auto 1º) con base en Área 1
-    actualizarCamposDerivadosPorAreaId(area1Inicial);
-    // Checar Returnado en precarga (si hay selección)
-    checkReturnadoAny();
+    cargarArea2PorArea1(area1Inicial, area2Inicial)
+      .then(() => {
+        const a2 = $area2.value || area2Inicial;
+        if (a2) {
+          return cargarArea3PorArea2(a2, area3Inicial);
+        }
+      })
+      .finally(() => {
+        // Precargar dependientes usando el área más específica disponible (A3 || A2 || A1)
+        const targetAreaId = area3Inicial || area2Inicial || area1Inicial;
+        if (targetAreaId) {
+          actualizarCamposDerivadosPorAreaId(targetAreaId);
+        }
+        // Checar Returnado en precarga
+        checkReturnadoAny();
+      });
   } else {
     // create -> vacíos
     resetArea2();
@@ -335,3 +349,5 @@ document.addEventListener('DOMContentLoaded', function () {
     unlockTurnarAIfLocked();
   }
 });
+
+
