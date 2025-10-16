@@ -21,74 +21,87 @@ class ReturnadoC extends Controller
      * por compatibilidad; si envías force_turnado=true, coloca estatus TURNADO).
      * Validación con reglas tipo string.
      */
-    public function turnar(Request $r)
-    {
-        $r->validate([
-            'id_tbl_correspondencia' => 'required|string',
-            'id_cat_area'            => 'required|string',
-            'id_cat_tramite'         => 'required|string',
-            'id_cat_clave'           => 'required|string',
-            'id_usuario_area'        => 'required|string',
+public function turnar(Request $r)
+{
+    $r->validate([
+        'id_tbl_correspondencia' => 'required|string',
+        'id_cat_area'            => 'required|string',
+        'id_cat_tramite'         => 'required|string',
+        'id_cat_clave'           => 'required|string',
+        'id_usuario_area'        => 'required|string',
+        // opcionales
+        'id_cat_area_1'          => 'nullable|string',
+        'id_cat_area_2'          => 'nullable|string',
+        'id_usuario_enlace'      => 'nullable|string',
+        'id_cat_unidad'          => 'nullable|string',
+        'id_cat_coordinacion'    => 'nullable|string',
+        'force_turnado'          => 'nullable',
+        'toggle_status'          => 'nullable',  // 👈 nuevo
+    ], [], [
+        'id_cat_area'     => 'Área',
+        'id_usuario_area' => 'Usuario',
+        'id_cat_tramite'  => 'Trámite',
+        'id_cat_clave'    => 'Clave',
+    ]);
 
-            // opcionales
-            'id_cat_area_1'          => 'nullable|string',
-            'id_cat_area_2'          => 'nullable|string',
-            'id_usuario_enlace'      => 'nullable|string',
-            'id_cat_unidad'          => 'nullable|string',
-            'id_cat_coordinacion'    => 'nullable|string',
-            'force_turnado'          => 'nullable',
-        ], [], [
-            'id_cat_area'     => 'Área',
-            'id_usuario_area' => 'Usuario',
-            'id_cat_tramite'  => 'Trámite',
-            'id_cat_clave'    => 'Clave',
-        ]);
+    try {
+        DB::beginTransaction();
 
-        try {
-            DB::beginTransaction();
+        /** @var LetterM $letter */
+        $letter = LetterM::lockForUpdate()->findOrFail((int) $r->id_tbl_correspondencia);
 
-            /** @var LetterM $letter */
-            $letter = LetterM::lockForUpdate()->findOrFail((int) $r->id_tbl_correspondencia);
+        // Actualiza cadena Turnar A
+        $letter->id_cat_area_1       = $r->input('id_cat_area_1') ?: null;
+        $letter->id_cat_area_2       = $r->input('id_cat_area_2') ?: null;
+        $letter->id_cat_area         = $r->input('id_cat_area');
+        $letter->id_usuario_area     = $r->input('id_usuario_area');
+        $letter->id_usuario_enlace   = $r->input('id_usuario_enlace') ?: null;
+        $letter->id_cat_unidad       = $r->input('id_cat_unidad') ?: null;
+        $letter->id_cat_coordinacion = $r->input('id_cat_coordinacion') ?: null;
+        $letter->id_cat_tramite      = $r->input('id_cat_tramite');
+        $letter->id_cat_clave        = $r->input('id_cat_clave');
 
-            // Actualiza cadena Turnar A
-            $letter->id_cat_area_1       = $r->input('id_cat_area_1') ?: null;
-            $letter->id_cat_area_2       = $r->input('id_cat_area_2') ?: null;
-            $letter->id_cat_area         = $r->input('id_cat_area'); // destino final (A3 || A2 || A1)
-            $letter->id_usuario_area     = $r->input('id_usuario_area');
-            $letter->id_usuario_enlace   = $r->input('id_usuario_enlace') ?: null;
-            $letter->id_cat_unidad       = $r->input('id_cat_unidad') ?: null;
-            $letter->id_cat_coordinacion = $r->input('id_cat_coordinacion') ?: null;
-            $letter->id_cat_tramite      = $r->input('id_cat_tramite');
-            $letter->id_cat_clave        = $r->input('id_cat_clave');
+        // IDs de estatus (usa config o defaults 1 y 8)
+        $idTurnado    = method_exists($letter, 'getTurnadoId')
+            ? (int) $letter->getTurnadoId()
+            : (int) config('letter.status.turnado_id', 1);
 
-            // Forzar estatus TURNADO (si aplica)
-            $idTurnado = method_exists($letter, 'getTurnadoId')
-                ? $letter->getTurnadoId()
-                : (int) config('letter.status.turnado_id', 6);
+        $idReturnado  = (int) config('letter.status.returnado_id', 8);
 
-            if (filter_var($r->input('force_turnado'), FILTER_VALIDATE_BOOLEAN)) {
-                $letter->id_cat_estatus = $idTurnado;
-            }
-
-            $letter->fecha_usuario = now();
-            if (auth()->check()) {
-                $letter->id_usuario_sistema = auth()->id();
-            }
-
-            $letter->save();
-            DB::commit();
-
-            return response()->json([
-                'ok'        => true,
-                'idTurnado' => $idTurnado,
-                'message'   => 'Registro actualizado correctamente.',
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            \Log::error('RETURNADO_TURNAR_ERROR: '.$e->getMessage(), ['ex' => $e]);
-            return response()->json(['ok' => false, 'message' => 'Error al guardar.'], 500);
+        // 🔁 Alternar si nos lo piden
+        if (filter_var($r->input('toggle_status'), FILTER_VALIDATE_BOOLEAN)) {
+            if ((int)$letter->id_cat_estatus === $idReturnado) {
+                $letter->id_cat_estatus = $idTurnado;     // 8 -> 1
+            } elseif ((int)$letter->id_cat_estatus === $idTurnado) {
+                $letter->id_cat_estatus = $idReturnado;   // 1 -> 8
+            } // si es otro estatus, no cambia
         }
+        // Compat: si viene force_turnado=true, fuerza TURNADO
+        elseif (filter_var($r->input('force_turnado'), FILTER_VALIDATE_BOOLEAN)) {
+            $letter->id_cat_estatus = $idTurnado;
+        }
+
+        $letter->fecha_usuario = now();
+        if (auth()->check()) {
+            $letter->id_usuario_sistema = auth()->id();
+        }
+
+        $letter->save();
+        DB::commit();
+
+        return response()->json([
+            'ok'           => true,
+            'idTurnado'    => $idTurnado,
+            'newStatusId'  => (int) $letter->id_cat_estatus, // 👈 útil para el front
+            'message'      => 'Registro actualizado correctamente.',
+        ]);
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        \Log::error('RETURNADO_TURNAR_ERROR: '.$e->getMessage(), ['ex' => $e]);
+        return response()->json(['ok' => false, 'message' => 'Error al guardar.'], 500);
     }
+}
+
 
     /**
      * Semilla para el modal (al abrir desde la LISTA).
