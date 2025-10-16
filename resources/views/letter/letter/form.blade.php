@@ -3,7 +3,6 @@
   <?php include(resource_path('views/config.php')); ?>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  {{-- ======= ESTILOS LOCALES (solo presentación, sin alterar lógica) ======= --}}
   <style>
     .rectangulo{
       width:120px; height:150px; border:1px solid #ddd; border-radius:8px;
@@ -60,7 +59,14 @@
                     initials: {
                       area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
                       area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
-                      area3: "{{ old('id_cat_area',   optional($item)->id_cat_area) }}"
+                      area3: "{{ old('id_cat_area',   optional($item)->id_cat_area) }}",
+
+                      usuario_area:   "{{ old('id_usuario_area',     optional($item)->id_usuario_area) }}",
+                      usuario_enlace: "{{ old('id_usuario_enlace',   optional($item)->id_usuario_enlace) }}",
+                      unidad:         "{{ old('id_cat_unidad',       optional($item)->id_cat_unidad) }}",
+                      coordinacion:   "{{ old('id_cat_coordinacion', optional($item)->id_cat_coordinacion) }}",
+                      tramite:        "{{ old('id_cat_tramite',      optional($item)->id_cat_tramite) }}",
+                      clave:          "{{ old('id_cat_clave',        optional($item)->id_cat_clave) }}"
                     }
                   };
                 </script>
@@ -69,7 +75,6 @@
                 <x-template-form.template-form-input-hidden id="bool_user_role" name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
                 <x-template-form.template-form-input-hidden id="id_tbl_correspondencia" name="id_tbl_correspondencia" value="{{ optional($item)->id_tbl_correspondencia ?? '' }}" />
 
-                {{-- fecha_captura: backend espera d/m/Y; formateo seguro aquí --}}
                 @php
                   $fc     = $item->fecha_captura ?? null;
                   try { $fc_fmt = \Carbon\Carbon::parse($fc)->format('d/m/Y'); }
@@ -93,20 +98,20 @@
 
                 {{-- ===== Encabezado de resumen ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Información de correspondencia" />
-                                <div class="contenedor">
-                                    <div class="item">
-                                        <label class="etiqueta">No. Turno:</label>
-                                        <label id="_labNoCorrespondencia" class="valor"></label>
-                                    </div>
-                                    <div class="item">
-                                        <label class="etiqueta">Fecha de captura:</label>
-                                        <label id="_labFechaCaptura" class="valor"></label>
-                                    </div>
-                                    <div class="item">
-                                        <label class="etiqueta">Año:</label>
-                                        <label id="_labAño" class="valor"></label>
-                                    </div>
-                                </div>
+                <div class="contenedor">
+                  <div class="item">
+                    <label class="etiqueta">No. Turno:</label>
+                    <label id="_labNoCorrespondencia" class="valor"></label>
+                  </div>
+                  <div class="item">
+                    <label class="etiqueta">Fecha de captura:</label>
+                    <label id="_labFechaCaptura" class="valor"></label>
+                  </div>
+                  <div class="item">
+                    <label class="etiqueta">Año:</label>
+                    <label id="_labAño" class="valor"></label>
+                  </div>
+                </div>
                 <br>
 
                 {{-- ===== Información general ===== --}}
@@ -218,7 +223,6 @@
                 {{-- ===== Documento de entrada ===== --}}
                 <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                 <div class="row">
-                  {{-- *** ESTATUS vuelve a TU COMPONENTE (mantiene diseño) *** --}}
                   <x-template-form.template-form-select-required
                     :selectValue="$selectStatus" :selectEdit="$selectStatusEdit"
                     name="id_cat_estatus" tittle="Estatus"
@@ -360,7 +364,6 @@
     }
   });
 </script>
-
 
 {{-- JS existentes --}}
 <script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>
