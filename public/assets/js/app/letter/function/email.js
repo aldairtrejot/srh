@@ -18,6 +18,25 @@ function opneEmail(id, value) {
     $('#noTurnoSistemaEmail').text(value); // Se inciia el num de turno en modal
     $('#id_tbl_correspondencia_email').val(id); // Inicio de valor de input -> id
 
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/email/data'),
+        type: 'POST',
+        data: {
+            id: $('#id_tbl_correspondencia_email').val(),
+            _token: token  // Usar el token extraído de la metaetiqueta
+        },
+        success: function (response) {
+            if (response.status) {
+                $('#emailName').val(response.name);
+                $('#emailMail').val(response.email);
+            } else {
+                $('#_modalChangeMail').fadeOut();
+                notyfEM.error("El usuario no cuenta con roles para esta acción");
+            }
+
+        },
+    });
+
     $('#_cancelEmail').click(function () { //Se pulsa el boton de cancelar
         $('#_modalChangeMail').fadeOut(); // Cerrar la ventana modal
     });
@@ -29,7 +48,7 @@ function validateEmail() {
     if (//Validacion de campos requeridos y max caracteres
         isFieldEmpty($('#emailName').val(), 'Nombre') ||
         isExceedingLength($('#emailName').val(), 'Nombre', 40) ||
-        isExceedingLength($('#observaciones').val(), 'Observaciones', 50) ||
+        isExceedingLength($('#observaciones').val(), 'Observaciones', 150) ||
         validateMail($('#emailMail').val())) {
         bool = false;
     }

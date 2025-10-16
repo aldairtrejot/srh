@@ -52,6 +52,8 @@ use App\Http\Controllers\Letter\Inside\CloudInsideC;
 use App\Http\Controllers\Letter\Inside\InsideC;
 use App\Http\Controllers\Letter\Letter\CloudLetterC;
 use App\Http\Controllers\Letter\Letter\LetterC;
+use App\Http\Controllers\Letter\Letter\ReturnadoC;
+use App\Http\Controllers\Letter\Letter\UploadTempC;
 use App\Http\Controllers\Letter\Office\CloudC;
 use App\Http\Controllers\Letter\Office\OfficeC;
 use App\Http\Controllers\Letter\Report\ReporteCorrespondenciaC;
@@ -60,10 +62,6 @@ use App\Http\Controllers\Letter\Request\RequestC;
 use App\Http\Controllers\Letter\Round\CloudRoundC;
 use App\Http\Controllers\Letter\Round\RoundC;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Courses\Assignedcourse\AssignedcourseC;
-use App\Http\Controllers\Courses\Assignedcourse\ConstanciaAlumnoC;
-use App\Http\Controllers\Letter\Letter\UploadTempC;
-use App\Http\Controllers\Letter\Letter\ReturnadoC;
 
 Route::get('/login', LoginC::class)->name('login'); // /ROUTE_LOGIN
 Route::get('/register', RegisterC::class)->name('register'); // /ROUTE_REGISTER
@@ -115,13 +113,11 @@ Route::post('/letter/collection/j3', [DashboardLetterC::class, 'setAreaJ3'])->na
 
 // === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
-Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy']) ->name('letter.upload.temp.delete')->middleware('auth');
+Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy'])->name('letter.upload.temp.delete')->middleware('auth');
 Route::post('/letter/reply/save', [LetterC::class, 'replySave'])->name('letter.reply.save')->middleware('auth');
 Route::post('/letter/cloud/reply', [CloudFileC::class, 'cloudReply'])->name('letter.cloud.reply')->middleware('auth');
 
-
-
-//Guest
+// Guest
 // Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
 Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
@@ -132,10 +128,10 @@ Route::post('/guest/generate', [GuestReportC::class, 'generate'])->name('guest.g
 // //Cloud
 
 // 1) Alias GET usado por tu lista: /letter/cloud/view?uid=...
-Route::get('/letter/cloud/view',[AlfrescoC::class, 'see'])->name('letter.cloud.view')->middleware('auth');   // usa el mismo método see que ya tienes mapeado como POST
+Route::get('/letter/cloud/view', [AlfrescoC::class, 'see'])->name('letter.cloud.view')->middleware('auth');   // usa el mismo método see que ya tienes mapeado como POST
 
 // 2) Página Cloud por ID numérico (evita que "view" haga match como {id})
-Route::get('/letter/cloud/{id}',[LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth')->whereNumber('id');
+Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth')->whereNumber('id');
 
 Route::get('/letter/cloud/{id}', [LetterC::class, 'cloud'])->name('letter.cloud')->middleware('auth');
 Route::post('/letter/cloud/data', [CloudLetterC::class, 'cloudData'])->name('letter.cloud.data')->middleware('auth');
@@ -375,6 +371,7 @@ Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('table
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
+Route::post('/letter/email/data', [EmailC::class, 'main'])->middleware('auth');
 
 // CONSULTA DE USUARIO, ENLACE Y AREA
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');
@@ -448,11 +445,9 @@ Route::get('/round/dashboard/catalogos', [RoundC::class, 'obtenerCatalogos'])->n
 
 Route::post('/external/collection/area', [ExternalC::class, 'area']);
 
-
-
 Route::post('/letter/returnado/turnar', [ReturnadoC::class, 'turnar'])->name('letter.returnado.turnar');
 
 // (opcional) ya la tienes si seguiste lo anterior
-Route::post('/letter/returnado/check',  [ReturnadoC::class, 'check'])->name('letter.returnado.check');
+Route::post('/letter/returnado/check', [ReturnadoC::class, 'check'])->name('letter.returnado.check');
 
 Route::get('/letter/returnado/seed/{id}', [ReturnadoC::class, 'seed'])->whereNumber('id')->name('letter.returnado.seed');

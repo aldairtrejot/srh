@@ -8,6 +8,7 @@ use App\Models\Letter\Office\AnexosM;
 use App\Models\Letter\Office\OfficeM;
 use App\Models\Letter\Office\OficionM;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class EmailC extends Controller
@@ -51,11 +52,13 @@ class EmailC extends Controller
             $oficio = OfficeM::where('id_tbl_correspondencia', $request->id)->first();
 
             // Eliminar registros relacionados primero
-            OficionM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
-            AnexosM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+            if (! empty($oficio->id_tbl_oficio)) {
+                OficionM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+                AnexosM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
 
-            // Eliminar el oficio principal
-            OfficeM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+                // Eliminar el oficio principal
+                OfficeM::where('id_tbl_oficio', $oficio->id_tbl_oficio)->delete();
+            }
 
             return response()->json([
                 'status' => true,
@@ -63,9 +66,46 @@ class EmailC extends Controller
             ]);
         } catch (\Exception $e) {
             // Capturar cualquier excepción y mostrar el error
+            // \Log::info('erro: '.$e);
+
             return response()->json([
                 'status' => false,
                 'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function main(Request $request)
+    {
+        try {
+            if (
+                ! in_array(1, session('SESSION_ROLE_USER', [])) &&
+                ! in_array(15, session('SESSION_ROLE_USER', []))
+            ) {
+                return response()->json([
+                    'status' => false,
+                ]);
+            }
+
+            $query = DB::table('correspondencia.tbl_correspondencia as c')
+                ->join('administration.users as u', 'u.id', '=', 'c.id_usuario_enlace')
+                ->select('u.name', 'u.email')
+                ->where('c.id_tbl_correspondencia', $request->id)
+                ->first();
+
+            $name = $query->name ?? null;
+            $email = $query->email ?? null;
+
+            return response()->json([
+                'status' => true,
+                'name' => $name,
+                'email' => $email,
+            ]);
+        } catch (\Throwable $th) {
+            // Capturar cualquier excepción y mostrar el error
+            return response()->json([
+                'status' => false,
+                'error' => $th->getMessage(),
             ]);
         }
     }
