@@ -214,61 +214,61 @@ function searchInit() {
         // ====== NUEVO: status de la fila (ID o por texto) ======
         var __statusId =
           (object.id_cat_estatus != null) ? Number(object.id_cat_estatus)
-          : (object.estatus === 'TURNADO' ? 1
-            : (object.estatus === 'RETURNADO' || object.estatus === 'RE-TURNADO' ? 8 : 0));
+            : (object.estatus === 'TURNADO' ? 1
+              : (object.estatus === 'RETURNADO' || object.estatus === 'RE-TURNADO' ? 8 : 0));
 
         var rowHTML =
           '<tr>' +
-            // 0: Menú
-            '<td style="text-align:center;">' +
-              '<div class="dropdown">' +
-                '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
-                        'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
-                        'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
-                  '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
-                '</button>' +
-                '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
-                  '<h6 class="dropdown-header">Acciones</h6>' +
-                  '<a class="dropdown-item" href="' + finalUrl + '">' +
-                    '<span style="background:#1D5B3B" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
-                    '</span>Modificar' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + finalCloud + '">' +
-                    '<span style="background:#8a6f19" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
-                    '</span>Cloud' +
-                  '</a>' +
-                  '<a class="dropdown-item" href="' + urlReport + '">' +
-                    '<span style="background:#707070" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
-                    '</span>Reporte' +
-                  '</a>' +
-                  // Responder SOLO queda en el dropdown (no en la columna 10)
-                  '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
-                    '<span style="background:#2986cc" class="icon-container-template">' +
-                      '<div style="text-align: center;">' +
-                        '<i class="fa fa-retweet item-icon-menu"></i>' +
-                      '</div>' +
-                    '</span>' +
-                    'Responder' +
-                  '</button>' +
-                  // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
-                  '<button class="dropdown-item" data-status="' + __statusId + '" ' +
-                          'onclick="(function(btn){' +
-                            'window.LETTER = window.LETTER || {};' +
-                            'window.LETTER.statusAllowedReturnado = [1,8];' +                 // guard nuevo
-                            'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' + // guard viejo
-                            'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' + // estatus actual
-                            'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +        // abrir modal
-                          '})(this)">' +
-                    '<span style="background:#2a848c" class="icon-container-template">' +
-                      '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
-                    '</span>Re-Turnado' +
-                  '</button>' +
-                '</div>' +
-              '</div>' +
-            '</td>' +
+          // 0: Menú
+          '<td style="text-align:center;">' +
+          '<div class="dropdown">' +
+          '<button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" ' +
+          'id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ' +
+          'style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">' +
+          '<i style="color:#fff; font-size:15px" class="fa fa-pencil"></i>' +
+          '</button>' +
+          '<div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">' +
+          '<h6 class="dropdown-header">Acciones</h6>' +
+          '<a class="dropdown-item" href="' + finalUrl + '">' +
+          '<span style="background:#1D5B3B" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-pencil item-icon-menu"></i></div>' +
+          '</span>Modificar' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + finalCloud + '">' +
+          '<span style="background:#8a6f19" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-cloud item-icon-menu"></i></div>' +
+          '</span>Cloud' +
+          '</a>' +
+          '<a class="dropdown-item" href="' + urlReport + '">' +
+          '<span style="background:#707070" class="icon-container-template">' +
+          '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
+          '</span>Reporte' +
+          '</a>' +
+          // Responder SOLO queda en el dropdown (no en la columna 10)
+          '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
+          '<span style="background:#2986cc" class="icon-container-template">' +
+          '<div style="text-align: center;">' +
+          '<i class="fa fa-retweet item-icon-menu"></i>' +
+          '</div>' +
+          '</span>' +
+          'Responder' +
+          '</button>' +
+          // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
+'<button class="dropdown-item" ' +
+  'onclick="(function(){' +
+    'window.LETTER = window.LETTER || {};' +
+    'window.LETTER.statusAllowedReturnado = [1,8];' +
+    'window.LETTER.currentStatusId = ' + __statusId + ';' +
+    'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +
+  '})()">' +
+  '<span style="background:#2a848c" class="icon-container-template">' +
+    '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
+  '</span>Re-Turnado' +
+'</button>'+
+
+          '</div>' +
+          '</div>' +
+          '</td>' +
 
           // 1: Estatus
           '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +

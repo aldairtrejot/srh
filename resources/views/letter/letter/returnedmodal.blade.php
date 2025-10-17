@@ -81,13 +81,8 @@
       collectionCoorUrl:  PATH_COOR,
       collectionClaveUrl: PATH_CLAVE,
 
-      // ✅ Permitidos para abrir el modal
       statusAllowedReturnado: [1, 8],
-
-      // Mensaje cuando el guard bloquea
       allowedStatusMessage: 'Solo las correspondencias en estatus TURNADO o RE-TURNADO pueden usar esta función.',
-
-      // (opcional) bypass de emergencia para no bloquear apertura:
       // debugBypassReturnadoGuard: true,
     };
   })();
