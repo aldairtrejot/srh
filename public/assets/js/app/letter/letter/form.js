@@ -186,12 +186,12 @@ function getRole() {
             '#remitente', '#fecha_documento', '#idcheckboxTemplate', '#es_doc_fisico_box',
             '#son_mas_remitentes_box', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
             '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-            '#id_cat_remitente', '#id_cat_entidad'
+            '#id_cat_remitente', '#id_cat_entidad', '#id_cat_area_1', '#id_cat_area_2'
         ];
         toDisable.forEach(id => $(id).prop('disabled', true));
         ['#id_cat_entidad', '#id_cat_area', '#id_usuario_area', '#id_usuario_enlace',
-         '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave',
-         '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
+            '#id_cat_unidad', '#id_cat_coordinacion', '#id_cat_tramite', '#id_cat_clave', '#id_cat_area_1', '#id_cat_area_2',
+            '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
     }
 }
 
@@ -199,7 +199,7 @@ function validateEstatus() {
     if ([2, 5, 7].includes(Number($('#id_cat_estatus').val()))) {
         $('#id_cat_estatus').prop('disabled', true).selectpicker('refresh');
     } else {
-        $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"]').remove();
+        $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"],#id_cat_estatus option[value="8"]').remove();
         $('#id_cat_estatus').selectpicker('refresh');
     }
 }
@@ -260,18 +260,18 @@ function updateAnexosUI() {
     var $inp = $('#file_anexo_entrada');
     var files = ($inp[0] && $inp[0].files) ? $inp[0].files : [];
     var $empty = $('#container_anexo_entrada_vacio');
-    var $cont  = $('#container_anexo_entrada');
+    var $cont = $('#container_anexo_entrada');
     var $label = $('#label_anexo_entrada');
-    var $icon  = $('#icon_anexo_entrada');
+    var $icon = $('#icon_anexo_entrada');
 
     $cont.empty();
     if (files.length > 0) {
         $empty.hide();
         var row = $('<div class="file-pills-row"></div>');
         Array.prototype.slice.call(files).forEach(function (f) {
-            row.append('<span class="file-pill" title="'+ f.name +'">' +
-                        f.name + ' (' + Math.ceil(f.size/1024) + ' KB)' +
-                       '</span>');
+            row.append('<span class="file-pill" title="' + f.name + '">' +
+                f.name + ' (' + Math.ceil(f.size / 1024) + ' KB)' +
+                '</span>');
         });
         $cont.append(row);
         $label.text('Cambiar');
