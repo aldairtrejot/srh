@@ -314,106 +314,124 @@ class LetterC extends Controller
     /* =========================================================
      * FORM EDIT
      * ========================================================= */
-    public function edit(string $id)
-    {
-        $letterM                 = new LetterM();
-        $collectionRelUsuarioM   = new CollectionRelUsuarioM();
-        $collectionRelEnlaceM    = new CollectionRelEnlaceM();
-        $collectionUnidadM       = new CollectionUnidadM();
-        $collectionStatusM       = new CollectionStatusM();
-        $collectionCoordinacionM = new CollectionCoordinacionM();
-        $collectionTramiteM      = new CollectionTramiteM();
-        $collectionRemitenteM    = new CollectionRemitenteM();
-        $collectionClaveM        = new CollectionClaveM();
-        $collectionEntidadM      = new CollectionEntidadM();
+public function edit(string $id) 
+{
+    // Modelos
+    $letterM                 = new LetterM();
+    $collectionAreaM         = new CollectionAreaM();
+    $collectionRelUsuarioM   = new CollectionRelUsuarioM();
+    $collectionRelEnlaceM    = new CollectionRelEnlaceM();
+    $collectionUnidadM       = new CollectionUnidadM();
+    $collectionStatusM       = new CollectionStatusM();
+    $collectionCoordinacionM = new CollectionCoordinacionM();
+    $collectionTramiteM      = new CollectionTramiteM();
+    $collectionRemitenteM    = new CollectionRemitenteM();
+    $collectionClaveM        = new CollectionClaveM();
+    $collectionEntidadM      = new CollectionEntidadM();
 
-        $item = $letterM->edit($id);
+    // Obtener el registro por ID
+    $item = $letterM->edit($id);
 
-        if ($item) {
-            $item->fecha_captura_dmy = !empty($item->fecha_captura)
-                ? Carbon::parse($item->fecha_captura)->format('d/m/Y')
-                : null;
-        }
-
-        $selectStatus     = $collectionStatusM->listEdit();
-        $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
-
-        $selectArea = DB::table('correspondencia.cat_area')
-            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-            ->orderBy('descripcion')->get();
-
-        $selectAreaEdit = isset($item->id_cat_area)
-            ? DB::table('correspondencia.cat_area')
-                ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
-                ->where('id_cat_area', $item->id_cat_area)->first()
+    // Formatear la fecha de captura (nueva lógica)
+    if ($item) {
+        $item->fecha_captura_dmy = !empty($item->fecha_captura)
+            ? Carbon::parse($item->fecha_captura)->format('d/m/Y')
             : null;
-
-        $miAreaId        = Auth::user()->id_cat_area ?? null;
-        $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
-        $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
-
-        $selectArea2     = $letterM->getArea2Options();
-        $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
-
-        $selectUser     = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_area) : [];
-        $selectUserEdit = (isset($item->id_cat_area) && isset($item->id_usuario_area)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];
-
-        $selectEnlace     = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_enlace) : [];
-        $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
-
-        $selectUnidad           = $collectionUnidadM->listEdit();
-        $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
-        $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
-        $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
-
-        $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
-        $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
-
-        $selectClave     = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
-        $selectClaveEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave)) ? $collectionClaveM->edit($item->id_cat_clave) : null;
-
-        $selectRemitente     = $collectionRemitenteM->list();
-        $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : null;
-
-        $selectEntidad     = $collectionEntidadM->listEdit();
-        $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
-
-        // Lock Returnado visual si aplica (el front ya lo bloquea con deps-areas.js)
-        $idReturnado   = $letterM->getReturnadoId();
-        $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
-
-        $initials = [
-            'area1'           => $item->id_cat_area_1 ?? null,
-            'area2'           => $item->id_cat_area_2 ?? null,
-            'area3'           => $item->id_cat_area   ?? null,
-            'usuario_area'    => $item->id_usuario_area ?? null,
-            'usuario_enlace'  => $item->id_usuario_enlace ?? null,
-            'unidad'          => $item->id_cat_unidad ?? null,
-            'coordinacion'    => $item->id_cat_coordinacion ?? null,
-            'tramite'         => $item->id_cat_tramite ?? null,
-            'clave'           => $item->id_cat_clave ?? null,
-        ];
-
-        $isEdit = true;
-
-        return view('letter.letter.form', compact(
-            'item','isEdit',
-            'selectArea','selectAreaEdit',
-            'selectArea1','selectArea1Edit',
-            'selectArea2','selectArea2Edit',
-            'selectUser','selectUserEdit',
-            'selectEnlace','selectEnlaceEdit',
-            'selectUnidad','selectUnidadEdit',
-            'selectCoordinacion','selectCoordinacionEdit',
-            'selectStatus','selectStatusEdit',
-            'selectTramite','selectTramiteEdit',
-            'selectClave','selectClaveEdit',
-            'selectRemitente','selectRemitenteEdit',
-            'selectEntidad','selectEntidadEdit',
-            'lockReturnado','idReturnado',
-            'initials'
-        ));
     }
+
+    // Verificar si se obtuvieron datos
+    if (!$item) {
+        // Manejar el caso cuando no se encuentra el registro
+        return redirect()->route('letter.index')->with('error', 'No se encontró el registro.');
+    }
+
+    // Obtener catálogos para los campos de selección
+    $selectStatus     = $collectionStatusM->listEdit();
+    $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
+
+    // Obtener áreas y usuarios (lógica vieja y nueva combinadas)
+    $selectArea = DB::table('correspondencia.cat_area')
+        ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+        ->orderBy('descripcion')->get();
+    $selectAreaEdit = isset($item->id_cat_area)
+        ? DB::table('correspondencia.cat_area')
+            ->select('id_cat_area as id', DB::raw('UPPER(descripcion) as descripcion'))
+            ->where('id_cat_area', $item->id_cat_area)->first()
+        : null;
+
+    // Obtenemos los valores nuevos y antiguos para las áreas 1 y 2
+    $miAreaId        = Auth::user()->id_cat_area ?? null;
+    $selectArea1     = $miAreaId ? $letterM->getArea1OptionsByArea((int)$miAreaId) : $letterM->getArea1Options();
+    $selectArea1Edit = isset($item->id_cat_area_1) ? $letterM->getArea1EditObj($item->id_cat_area_1) : null;
+
+    $selectArea2     = $letterM->getArea2Options();
+    $selectArea2Edit = isset($item->id_cat_area_2) ? $letterM->getArea2EditObj($item->id_cat_area_2) : null;
+
+    // Obtener datos de usuarios y enlaces (lógica combinada)
+    $selectUser     = isset($item->id_cat_area) ? $collectionRelUsuarioM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_area) : [];
+    $selectUserEdit = (isset($item->id_cat_area) && isset($item->id_usuario_area)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_area) : [];
+
+    $selectEnlace     = isset($item->id_cat_area) ? $collectionRelEnlaceM->idUsuarioByAreaNewX($item->id_cat_area, $item->id_usuario_enlace) : [];
+    $selectEnlaceEdit = (isset($item->id_cat_area) && isset($item->id_usuario_enlace)) ? $collectionRelUsuarioM->idUsuarioByAreaEdit($item->id_usuario_enlace) : [];
+
+    // Obtener unidades y coordinaciones
+    $selectUnidad           = $collectionUnidadM->listEdit();
+    $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
+    $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
+    $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
+
+    // Obtener trámites y claves
+    $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
+    $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
+
+    $selectClave     = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
+    $selectClaveEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave)) ? $collectionClaveM->edit($item->id_cat_clave) : null;
+
+    // Obtener remitentes y entidades
+    $selectRemitente     = $collectionRemitenteM->list();
+    $selectRemitenteEdit = isset($item->id_cat_remitente) ? $collectionRemitenteM->edit($item->id_cat_remitente) : null;
+
+    $selectEntidad     = $collectionEntidadM->listEdit();
+    $selectEntidadEdit = isset($item->id_cat_entidad) ? $collectionEntidadM->edit($item->id_cat_entidad) : null;
+
+    // Bloquear Returnado visual
+    $idReturnado   = $letterM->getReturnadoId();
+    $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
+
+    // Inicialización de valores
+    $initials = [
+        'area1'           => $item->id_cat_area_1 ?? null,
+        'area2'           => $item->id_cat_area_2 ?? null,
+        'area3'           => $item->id_cat_area   ?? null,
+        'usuario_area'    => $item->id_usuario_area ?? null,
+        'usuario_enlace'  => $item->id_usuario_enlace ?? null,
+        'unidad'          => $item->id_cat_unidad ?? null,
+        'coordinacion'    => $item->id_cat_coordinacion ?? null,
+        'tramite'         => $item->id_cat_tramite ?? null,
+        'clave'           => $item->id_cat_clave ?? null,
+    ];
+
+    $isEdit = true;
+
+    // Devolver la vista con todos los datos
+    return view('letter.letter.form', compact(
+        'item','isEdit',
+        'selectArea','selectAreaEdit',
+        'selectArea1','selectArea1Edit',
+        'selectArea2','selectArea2Edit',
+        'selectUser','selectUserEdit',
+        'selectEnlace','selectEnlaceEdit',
+        'selectUnidad','selectUnidadEdit',
+        'selectCoordinacion','selectCoordinacionEdit',
+        'selectStatus','selectStatusEdit',
+        'selectTramite','selectTramiteEdit',
+        'selectClave','selectClaveEdit',
+        'selectRemitente','selectRemitenteEdit',
+        'selectEntidad','selectEntidadEdit',
+        'lockReturnado','idReturnado',
+        'initials'
+    ));
+}
 
     /* =========================================================
      * SAVE (CREATE / UPDATE)
