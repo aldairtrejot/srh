@@ -1564,7 +1564,7 @@ private function resolveUploadFolderIdForRequest(Request $request): ?string
                         foreach ($anexos as $idx => $file) {
                             if (!$file instanceof \Illuminate\Http\UploadedFile || !$file->isValid()) continue;
                             $ts = now()->format('YmdHis'); $ext = strtolower($file->getClientOriginalExtension());
-                            $custom = "ANEXO_{$folioSafe}_{$ts}.{$ext}";
+                            $custom = "ANEXO_{$folioSafe}_{$ts}R.{$ext}";
                             $uid = $alfrescoC->addFile($file,$folderId,0,$custom);
                             if ($uid) {
                                 DB::table('correspondencia.ctrl_oficio_anexo')->insert([
