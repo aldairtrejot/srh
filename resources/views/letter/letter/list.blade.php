@@ -157,12 +157,12 @@
                                     <th>Fólio de gestión</th>
                                     <th>No. Documento</th>
                                     <th>Área</th>
-                                    <th>CRH</th>
-                                    <th>CRHTOD</th>
+                                    <th>C.R.H.</th>
+                                    <th>C.R.H.T.</th>
                                     <th>Asunto</th>
                                     <!-- NUEVAS -->
-                                    <th>Cloud</th>
-                                    <th>Respuesta</th>
+                                    <th>Oficio</th>
+                                    <th>Rep. Oficio</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
