@@ -339,6 +339,8 @@ class LetterM extends Model
                 'correspondencia.cat_anio.descripcion AS anio',
                 'correspondencia.cat_tramite.descripcion AS tramite',
                 'correspondencia.cat_area.descripcion AS area',
+                'area_1.descripcion AS area_1',
+                'area_2.descripcion AS area_2',
                 'correspondencia.cat_clave.descripcion AS codigo',
                 'correspondencia.cat_clave.redaccion AS clave',
                 'correspondencia.cat_unidad.descripcion AS unidad',
@@ -348,6 +350,8 @@ class LetterM extends Model
                 'administration.users.name AS user_area'
             )
             ->leftJoin('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS area_1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area_1.id_cat_area')
+            ->leftJoin('correspondencia.cat_area AS area_2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area_2.id_cat_area')
             ->leftJoin('correspondencia.cat_remitente', 'correspondencia.tbl_correspondencia.id_cat_remitente', '=', 'correspondencia.cat_remitente.id_cat_remitente')
             ->leftJoin('correspondencia.cat_anio', 'correspondencia.tbl_correspondencia.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
             ->leftJoin('correspondencia.cat_tramite', 'correspondencia.tbl_correspondencia.id_cat_tramite', '=', 'correspondencia.cat_tramite.id_cat_tramite')
