@@ -274,18 +274,6 @@ function searchInit() {
           '</div>' +
           '</span>' +
           'Rechazar' +
-          '</button>' +
-          '<button class="dropdown-item" ' +
-          'onclick="(function(){' +
-          'window.LETTER = window.LETTER || {};' +
-          'window.LETTER.statusAllowedReturnado = [1,8];' +
-          'window.LETTER.currentStatusId = ' + __statusId + ';' +
-          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +
-          '})()">' +
-          '<span style="background:#2a848c" class="icon-container-template">' +
-          '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
-          '</span>Re-Turnado' +
-          '</button>' +
 
           '</div>' +
           '</div>' +
