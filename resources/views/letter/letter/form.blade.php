@@ -296,9 +296,8 @@
                     name="id_cat_estatus" tittle="Estatus"
                     grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
-                  <x-template-form.template-form-select-required
-                    :selectValue="$selectTramite" :selectEdit="$selectTramiteEdit"
-                    name="id_cat_tramite" tittle="Tramite"
+                  <x-template-form.template-form-select-required :selectValue="$selectTramite"
+                    :selectEdit="$selectTramiteEdit" name="id_cat_tramite" tittle="Trámite"
                     grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
                   <x-template-form.template-form-select-required
