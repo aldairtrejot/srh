@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Log;
 
 class LetterC extends Controller
 {
@@ -377,15 +378,23 @@ public function edit(string $id)
     // Obtener unidades y coordinaciones
     $selectUnidad           = $collectionUnidadM->listEdit();
     $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
+   // $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
+    //$selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
+
     $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
     $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
 
     // Obtener trámites y claves
-    $selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
-    $selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
+    //$selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
 
-    $selectClave     = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionClaveM->listEdit($item->id_cat_tramite) : [];
-    $selectClaveEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite) && isset($item->id_cat_clave)) ? $collectionClaveM->edit($item->id_cat_clave) : null;
+    //$selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
+
+     $selectTramite     =  $collectionTramiteM->listEdit($item->id_cat_area);
+
+    $selectTramiteEdit =  $collectionTramiteM->edit($item->id_cat_tramite);
+
+    $selectClave     = $collectionClaveM->listEdit($item->id_cat_tramite);
+    $selectClaveEdit =  $collectionClaveM->edit($item->id_cat_clave);
 
     // Obtener remitentes y entidades
     $selectRemitente     = $collectionRemitenteM->list();
@@ -399,7 +408,7 @@ public function edit(string $id)
     $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
 
     // Inicialización de valores
-    $initials = [
+   /* $initials = [
         'area1'           => $item->id_cat_area_1 ?? null,
         'area2'           => $item->id_cat_area_2 ?? null,
         'area3'           => $item->id_cat_area   ?? null,
@@ -410,28 +419,43 @@ public function edit(string $id)
         'tramite'         => $item->id_cat_tramite ?? null,
         'clave'           => $item->id_cat_clave ?? null,
     ];
+log::info($initials);
 
-    $isEdit = true;
+    $isEdit = true;*/
 
-    // Devolver la vista con todos los datos
-    return view('letter.letter.form', compact(
-        'item','isEdit',
-        'selectArea','selectAreaEdit',
-        'selectArea1','selectArea1Edit',
-        'selectArea2','selectArea2Edit',
-        'selectUser','selectUserEdit',
-        'selectEnlace','selectEnlaceEdit',
-        'selectUnidad','selectUnidadEdit',
-        'selectCoordinacion','selectCoordinacionEdit',
-        'selectStatus','selectStatusEdit',
-        'selectTramite','selectTramiteEdit',
-        'selectClave','selectClaveEdit',
-        'selectRemitente','selectRemitenteEdit',
-        'selectEntidad','selectEntidadEdit',
-        'lockReturnado','idReturnado',
-        'initials'
-    ));
+
+return view('letter.letter.form', compact(
+    'item',
+    'selectArea' ,
+    'selectAreaEdit',
+    'selectArea1' ,
+    'selectArea1Edit',
+    'selectArea2',
+    'selectArea2Edit',
+    'selectUser',
+    'selectUserEdit',
+    'selectEnlace' ,
+    'selectEnlaceEdit',
+    'selectUnidad' ,
+    'selectUnidadEdit',
+    'selectCoordinacion' ,
+    'selectCoordinacionEdit',
+    'selectStatus',
+    'selectStatusEdit',
+    'selectTramite' ,
+    'selectTramiteEdit',
+    'selectClave',
+    'selectClaveEdit',
+    'selectRemitente',
+    'selectRemitenteEdit',
+    'selectEntidad' ,
+    'selectEntidadEdit',
+    'lockReturnado',
+    'idReturnado'
+));
+
 }
+
 
     /* =========================================================
      * SAVE (CREATE / UPDATE)
