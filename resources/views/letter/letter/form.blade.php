@@ -292,9 +292,13 @@
                 <x-template-tittle.tittle-caption-secon tittle="Documento de entrada" />
                 <div class="row">
                   <x-template-form.template-form-select-required
-                    :selectValue="$selectStatus" :selectEdit="$selectStatusEdit"
-                    name="id_cat_estatus" tittle="Estatus"
-                    grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                  :selectValue="$selectStatus"
+                  :selectEdit="$selectStatusEdit"
+                  :valueSelected="old('id_cat_estatus', optional($item)->id_cat_estatus ?? 1)"
+                  name="id_cat_estatus"
+                  tittle="Estatus"
+                  grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+
 
                   <x-template-form.template-form-select-required :selectValue="$selectTramite"
                     :selectEdit="$selectTramiteEdit" name="id_cat_tramite" tittle="Trámite"
