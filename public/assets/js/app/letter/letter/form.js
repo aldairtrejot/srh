@@ -22,6 +22,9 @@ $(document).ready(function () {
     $('#formulario').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
             e.preventDefault(); // Detener envío si hay errores
+        } else {
+            // << PATCH: spinner al guardar (solo si la validación pasó)
+            if (typeof showSpinner === 'function') showSpinner();
         }
     });
 });
