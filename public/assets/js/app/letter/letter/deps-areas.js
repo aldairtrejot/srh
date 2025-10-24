@@ -278,17 +278,24 @@ document.addEventListener('DOMContentLoaded', function () {
     window.__DEPS_AREAS_PRIMED__ = true;
   }
 
-  /* ===== Salvaguarda: si A3 quedó inválido, no enviar valor “stale” ===== */
+  /* ===== Salvaguarda: si A3 quedó inválido, NO borrar el valor; asegúralo ===== */
+  // << PATCH: inyecta una opción de emergencia si el valor existe pero la opción no está presente >>
   const form = document.getElementById('myForm') || document.getElementById('formulario');
   if (form) {
     form.addEventListener('submit', function () {
       const valA3 = $area3.value;
-      const hasOpt = !!($('#id_cat_area option').toArray().find(o => o.value === valA3));
-      if (!valA3 || !hasOpt) {
-        $area3.value = '';
-        $('#id_cat_area').val('').trigger('change');
+      if (!valA3) return; // si no hay valor, no hacemos nada
+
+      const $sel = $('#id_cat_area');
+      const hasOpt = $sel.find('option[value="' + String(valA3) + '"]').length > 0;
+
+      if (!hasOpt) {
+        // crear opción temporal para que el valor viaje en el POST
+        $sel.append($('<option>', { value: String(valA3), text: '[Área ' + String(valA3) + ']' }));
+        if ($ && $.fn && $.fn.selectpicker) $sel.selectpicker('refresh');
+        // Nota: NO disparamos 'change' aquí para no alterar dependientes justo en submit
       }
     });
   }
+  // << /PATCH >>
 });
-

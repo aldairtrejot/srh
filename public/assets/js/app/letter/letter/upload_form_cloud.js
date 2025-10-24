@@ -160,6 +160,14 @@
       var hasOficio = ($('#file_oficio_entrada')[0] && $('#file_oficio_entrada')[0].files.length > 0);
       var isEdit    = !!$('#id_tbl_correspondencia').val();
 
+      // << PATCH: validar obligatorios mínimos ANTES de la lógica propia y del spinner (sin usuario) >>
+      if (typeof window.validarObligatoriosMinimos === 'function' && !window.validarObligatoriosMinimos()) {
+        e.preventDefault();
+        if (window.hideSpinner) window.hideSpinner();
+        return false;
+      }
+      // << /PATCH >>
+
       // Requerido SOLO al crear
       if (!isEdit && !hasOficio) {
         e.preventDefault();
@@ -189,6 +197,13 @@
           return false;
         }
       }
+      // << /PATCH >>
+
+      // << PATCH: fallback silencioso de usuario de área si viene vacío >>
+      if (typeof window.ensureUsuarioAreaFallback === 'function') {
+        window.ensureUsuarioAreaFallback();
+      }
+      // << /PATCH >>
 
       // Si pasa validación => spinner
       var hasAnexos = ($('#file_anexo_entrada')[0] && $('#file_anexo_entrada')[0].files.length > 0);

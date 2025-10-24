@@ -19,10 +19,44 @@ $(document).ready(function () {
         clearFieldError('#' + this.id);
     });
 
+    // << PATCH: limpiar feedback en campos obligatorios adicionales (sin usuario) >>
+    $('#asunto, #puesto_remitente').on('input change', function () {
+        clearFieldError('#' + this.id);
+    });
+    $('#id_cat_entidad, #id_cat_area_1, #id_cat_tramite, #id_cat_clave, #id_cat_clave_aux')
+      .on('changed.bs.select change', function () {
+        // (quitamos estilos rojos en selects)
+        // try { $(this).selectpicker('setStyle', 'is-invalid', 'remove'); } catch(_){}
+        clearFieldError('#' + this.id);
+      });
+    // << /PATCH >>
+
+    // << PATCH: toast de éxito si el backend deja alguna “señal” al volver de guardar >>
+    try {
+        var qs = new URLSearchParams(window.location.search);
+        var metaSaved = $('meta[name="x-letter-saved"]').attr('content');
+        if ((window.LETTER && window.LETTER.saveOk === true) ||
+            metaSaved === '1' ||
+            qs.get('saved') === '1' || qs.get('ok') === '1' || qs.get('saved_ok') === '1') {
+            toastSuccess('Registro guardado con éxito.');
+        }
+    } catch (_){}
+    // << /PATCH >>
+
     $('#formulario').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
             e.preventDefault(); // Detener envío si hay errores
         } else {
+            // << PATCH: validar obligatorios mínimos (sin tocar Usuario auto-asignado) >>
+            if (typeof validarObligatoriosMinimos === 'function' && !validarObligatoriosMinimos()) {
+                e.preventDefault();
+                if (typeof hideSpinner === 'function') hideSpinner();
+                return;
+            }
+            // << PATCH: fallback silencioso de usuario de área si viene vacío >>
+            if (typeof ensureUsuarioAreaFallback === 'function') ensureUsuarioAreaFallback();
+            // << /PATCH >>
+
             // << PATCH: spinner al guardar (solo si la validación pasó)
             if (typeof showSpinner === 'function') showSpinner();
         }
@@ -105,20 +139,155 @@ function validarFechasAntesDeEnviar() {
     return ok;
 }
 
+// << PATCH: toasts unificados >>
+function toastError(message) {
+    if (window.notyfEM?.error) { window.notyfEM.error(message); }
+    else { alert(message); }
+}
+function toastSuccess(message) {
+    if (window.notyfEM?.success) { window.notyfEM.success(message); }
+    else { alert(message); }
+}
+// << /PATCH >>
+
 function showFieldError(selector, message) {
-    const $inp = $(selector);
-    if ($inp.next('.invalid-feedback').length === 0) {
-        $inp.after('<div class="invalid-feedback"></div>');
-    }
-    $inp.addClass('is-invalid');
-    $inp.next('.invalid-feedback').text(message).show();
+    // << PATCH: NO marcar rojo (excepto lo de oficios que vive en otro archivo).
+    //           Aquí solo mostramos toast y salimos. >>
+    toastError(message);
+    // --- Comportamiento anterior (desactivado):
+    // const $inp = $(selector);
+    // if ($inp.next('.invalid-feedback').length === 0) {
+    //     $inp.after('<div class="invalid-feedback"></div>');
+    // }
+    // $inp.addClass('is-invalid');
+    // $inp.next('.invalid-feedback').text(message).show();
 }
 
 function clearFieldError(selector) {
+    // Mantenemos la limpieza por si quedan restos en algún template,
+    // pero ya no estamos agregando 'is-invalid' desde aquí.
     const $inp = $(selector);
     $inp.removeClass('is-invalid');
     $inp.next('.invalid-feedback').hide().text('');
 }
+
+// << PATCH: helpers mínimos y validación de obligatorios (sin usuario) >>
+function _isMissing($el) {
+    if (!$el || $el.length === 0) return false;       // si no existe, no bloquea
+    if ($el.prop && $el.prop('disabled')) return false;// deshabilitado no participa
+    let v = ($el.val != null) ? $el.val() : null;
+
+    if (Array.isArray(v)) return v.length === 0 || v[0] === '' || v[0] === '0' || v[0] === 0;
+    if (v === null || v === undefined) return true;
+    if (typeof v === 'number') return v === 0;
+    if (typeof v === 'string') return v.trim() === '' || v === '0';
+    return false;
+}
+function validarObligatoriosMinimos() {
+    let ok = true;
+
+    // Entidad
+    (function(){
+        const $el = $('#id_cat_entidad');
+        if (_isMissing($el)) {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'add'); } catch(_){}
+            showFieldError('#id_cat_entidad', 'Selecciona la Entidad.');
+            ok = false;
+        } else {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'remove'); } catch(_){}
+            clearFieldError('#id_cat_entidad');
+        }
+    })();
+
+    // Asunto
+    (function(){
+        const $el = $('#asunto');
+        if ($el.length && !$el.prop('disabled')) {
+            const v = ($el.val() || '').trim();
+            if (v === '') {
+                showFieldError('#asunto', 'Ingresa el Asunto.');
+                ok = false;
+            } else {
+                clearFieldError('#asunto');
+            }
+        }
+    })();
+
+    // Área 1
+    (function(){
+        const $el = $('#id_cat_area_1');
+        if (_isMissing($el)) {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'add'); } catch(_){}
+            showFieldError('#id_cat_area_1', 'Selecciona Área 1.');
+            ok = false;
+        } else {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'remove'); } catch(_){}
+            clearFieldError('#id_cat_area_1');
+        }
+    })();
+
+    // Trámite
+    (function(){
+        const $el = $('#id_cat_tramite');
+        if (_isMissing($el)) {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'add'); } catch(_){}
+            showFieldError('#id_cat_tramite', 'Selecciona el Trámite.');
+            ok = false;
+        } else {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'remove'); } catch(_){}
+            clearFieldError('#id_cat_tramite');
+        }
+    })();
+
+    // Clave (o auxiliar)
+    (function(){
+        let $el = $('#id_cat_clave');
+        if ($el.length === 0) $el = $('#id_cat_clave_aux');
+        if (_isMissing($el)) {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'add'); } catch(_){}
+            showFieldError('#' + $el.attr('id'), 'Selecciona la Clave.');
+            ok = false;
+        } else {
+            // try { $el.selectpicker('setStyle', 'is-invalid', 'remove'); } catch(_){}
+            clearFieldError('#' + $el.attr('id'));
+        }
+    })();
+
+    // Puesto remitente
+    (function(){
+        const $el = $('#puesto_remitente');
+        if ($el.length && !$el.prop('disabled')) {
+            const v = ($el.val() || '').trim();
+            if (v === '') {
+                showFieldError('#puesto_remitente', 'Ingresa el Puesto del remitente.');
+                ok = false;
+            } else {
+                clearFieldError('#puesto_remitente');
+            }
+        }
+    })();
+
+    return ok;
+}
+// << /PATCH >>
+
+// << PATCH: fallback silencioso para id_usuario_area si la auto-asignación no llegó >>
+function ensureUsuarioAreaFallback() {
+    var $ua = $('#id_usuario_area');
+    if ($ua.length && !$ua.prop('disabled')) {
+        var val = $ua.val();
+        if (!val) {
+            var fallback = $ua.data('default')
+                        || ($('#id_usuario_area_default').length ? $('#id_usuario_area_default').val() : null)
+                        || ($('#id_usuario_captura').length ? $('#id_usuario_captura').val() : null)
+                        || ($('#id_usuario_sistema').length ? $('#id_usuario_sistema').val() : null);
+            if (fallback) {
+                $ua.val(String(fallback)).trigger('change');
+            }
+        }
+    }
+}
+// << /PATCH >>
 
 // =========================
 // FUNCIONES EXISTENTES
