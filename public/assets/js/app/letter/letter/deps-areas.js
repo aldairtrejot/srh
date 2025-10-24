@@ -59,6 +59,51 @@ document.addEventListener('DOMContentLoaded', function () {
     return resp.json();
   }
 
+  /* === ADICIÓN MIN: normalizadores para inyectar A3 si falta opción === */
+  function coerceOne(json) {
+    const arr =
+      (Array.isArray(json) && json) ||
+      (Array.isArray(json.value) && json.value) ||
+      (Array.isArray(json.selectArea) && json.selectArea) ||
+      (Array.isArray(json.options) && json.options) || [];
+    const it = arr[0] || null;
+    if (it && typeof it === 'object') {
+      const id = String(it.id ?? it.value ?? it.key ?? it.id_cat_area ?? it.id_area ?? '');
+      const label = String(it.label ?? it.text ?? it.descripcion ?? it.name ?? it.nombre ?? '');
+      return { id, label };
+    }
+    return null;
+  }
+  async function loadArea3LabelById(area3Id) {
+    const tries = [
+      { by: 'area_by_id',  id_cat_area: area3Id },
+      { by: 'area3_by_id', id_cat_area: area3Id },
+      { id: area3Id } // algunos backends aceptan {id} y devuelven algo útil
+    ];
+    for (const body of tries) {
+      try {
+        const json = await postJSON(COLLECTION_AREA_URL, body);
+        const one = coerceOne(json);
+        if (one && one.label) return one.label;
+        const label2 = json.label ?? json.descripcion ?? json.name ?? json.text ?? json.nombre;
+        if (label2) return String(label2);
+      } catch (_) {}
+    }
+    return null;
+  }
+  async function ensureArea3Visible(area3Id) {
+    const $sel = $('#id_cat_area');
+    const val = String(area3Id);
+    if ($sel.find('option[value="' + val + '"]').length === 0) {
+      const label = await loadArea3LabelById(val);
+      const text  = label || ('[Área ' + val + ']');
+      $sel.append($('<option>', { value: val, text }));
+    }
+    $sel.val(val);
+    if ($ && $.fn && $.fn.selectpicker) $sel.selectpicker('refresh');
+  }
+  /* === FIN ADICIÓN === */
+
   /* ======================= Guards anti-race ======================= */
   let reqA2 = 0;
   let reqA3 = 0;
@@ -208,11 +253,28 @@ document.addEventListener('DOMContentLoaded', function () {
         if (target && window.fillDependentsFromArea) {
           window.fillDependentsFromArea(target, initials());
         }
-        window.__DEPS_AREAS_PRIMED__ = true; // marca que ya primereamos
+        window.__DEPS_AREAS_PRIMED__ = true;
       });
   } else {
+    // Siempre limpia A2
     resetArea2();
-    resetArea3();
+
+    // PARCHE: si vienes con solo A3, NO limpies el select; muéstralo (inyectando la opción si hace falta)
+    if (!area3Inicial) {
+      resetArea3();
+    } else {
+      // Asegura que exista la opción y quede seleccionada
+      ensureArea3Visible(String(area3Inicial))
+        .then(() => {
+          // Dispara el llenado de dependientes usando el A3 directo
+          if (window.fillDependentsFromArea) {
+            window.fillDependentsFromArea(String(area3Inicial), initials());
+          }
+        })
+        .finally(() => { window.__DEPS_AREAS_PRIMED__ = true; });
+      return; // evitamos marcar PRIMED dos veces
+    }
+
     window.__DEPS_AREAS_PRIMED__ = true;
   }
 
