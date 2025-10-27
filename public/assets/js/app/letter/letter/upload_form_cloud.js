@@ -151,12 +151,22 @@
         $('#container_oficio_entrada_vacio').text('Sin contenido');
         $('#container_oficio_entrada').empty();
       }
+
+      if (window.hideSpinner) window.hideSpinner(); // << PATCH: apaga spinner al tocar oficio
     });
 
     // ====== SUBMIT: validar oficio requerido al CREAR ======
     $('#myForm').on('submit', function(e){
       var hasOficio = ($('#file_oficio_entrada')[0] && $('#file_oficio_entrada')[0].files.length > 0);
       var isEdit    = !!$('#id_tbl_correspondencia').val();
+
+      // << PATCH: validar obligatorios mínimos ANTES de la lógica propia y del spinner (sin usuario) >>
+      if (typeof window.validarObligatoriosMinimos === 'function' && !window.validarObligatoriosMinimos()) {
+        e.preventDefault();
+        if (window.hideSpinner) window.hideSpinner();
+        return false;
+      }
+      // << /PATCH >>
 
       // Requerido SOLO al crear
       if (!isEdit && !hasOficio) {
@@ -177,6 +187,23 @@
         }
         return false;
       }
+
+      // << PATCH: validar con la lógica global ANTES de prender el spinner
+      if (typeof window.validarFechasAntesDeEnviar === 'function') {
+        var okGlobal = window.validarFechasAntesDeEnviar();
+        if (!okGlobal) {
+          e.preventDefault();
+          if (window.hideSpinner) window.hideSpinner();
+          return false;
+        }
+      }
+      // << /PATCH >>
+
+      // << PATCH: fallback silencioso de usuario de área si viene vacío >>
+      if (typeof window.ensureUsuarioAreaFallback === 'function') {
+        window.ensureUsuarioAreaFallback();
+      }
+      // << /PATCH >>
 
       // Si pasa validación => spinner
       var hasAnexos = ($('#file_anexo_entrada')[0] && $('#file_anexo_entrada')[0].files.length > 0);
@@ -201,6 +228,15 @@
         $('#msg_oficio_req').hide();
       }
     }
+
+    // << PATCH: cinturón de seguridad global para cualquier AJAX (422, etc.)
+    $(document).ajaxComplete(function () {
+      if (window.hideSpinner) window.hideSpinner();
+    });
+    $(document).ajaxError(function () {
+      if (window.hideSpinner) window.hideSpinner();
+    });
+
   });
 
 })(jQuery, window, document);
