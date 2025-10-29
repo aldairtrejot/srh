@@ -1,5 +1,5 @@
 var token = $('meta[name="csrf-token"]').attr('content');
-
+ 
 // =========================
 // Funciones del Código 1
 // =========================
@@ -10,15 +10,15 @@ $(document).ready(function () {
     setCheckboxArea();
     setCheckbox();
     setDateLimits(); // <-- APLICAMOS límites visuales a las fechas
-
+ 
     tooltip('#id_checkbox_Template_tooltip_fisico', 'Marcar si el documento es físico');
     tooltip('#id_checkbox_Template_tooltip', 'Añadir un remitente no registrado');
     tooltip('#mas_remitentes', 'Añadir dos o más remitentes');
-
+ 
     $('#fecha_inicio, #fecha_fin, #fecha_documento').on('input change', function () {
         clearFieldError('#' + this.id);
     });
-
+ 
     // << PATCH: limpiar feedback en campos obligatorios adicionales (sin usuario) >>
     $('#asunto, #puesto_remitente').on('input change', function () {
         clearFieldError('#' + this.id);
@@ -30,7 +30,7 @@ $(document).ready(function () {
         clearFieldError('#' + this.id);
       });
     // << /PATCH >>
-
+ 
     // << PATCH: toast de éxito si el backend deja alguna “señal” al volver de guardar >>
     try {
         var qs = new URLSearchParams(window.location.search);
@@ -42,7 +42,7 @@ $(document).ready(function () {
         }
     } catch (_){}
     // << /PATCH >>
-
+ 
     $('#formulario').on('submit', function (e) {
         if (!validarFechasAntesDeEnviar()) {
             e.preventDefault(); // Detener envío si hay errores
@@ -56,13 +56,13 @@ $(document).ready(function () {
             // << PATCH: fallback silencioso de usuario de área si viene vacío >>
             if (typeof ensureUsuarioAreaFallback === 'function') ensureUsuarioAreaFallback();
             // << /PATCH >>
-
+ 
             // << PATCH: spinner al guardar (solo si la validación pasó)
             if (typeof showSpinner === 'function') showSpinner();
         }
     });
 });
-
+ 
 // =========================
 // LÓGICA FECHAS
 // =========================
@@ -71,10 +71,10 @@ function setDateLimits() {
     const maxDate = new Date(today);
     const minDate = new Date('2020-01-01');
     maxDate.setMonth(maxDate.getMonth() + 3);
-
+ 
     const minStr = minDate.toISOString().split('T')[0];
     const maxStr = maxDate.toISOString().split('T')[0];
-
+ 
     ['#fecha_inicio', '#fecha_fin', '#fecha_documento'].forEach(id => {
         $(id).attr('min', minStr);
         $(id).attr('max', maxStr);
@@ -84,24 +84,24 @@ function setDateLimits() {
         }
     });
 }
-
+ 
 function validarFechasAntesDeEnviar() {
     clearFieldError('#fecha_inicio');
     clearFieldError('#fecha_fin');
-
+ 
     const fechaInicio = $('#fecha_inicio').val();
     const fechaFin = $('#fecha_fin').val();
-
+ 
     const today = new Date();
     const maxDate = new Date(today);
     const minDate = new Date('2020-01-01');
     maxDate.setMonth(maxDate.getMonth() + 3);
-
+ 
     const limitStr = maxDate.toISOString().split('T')[0];
     const minStr = minDate.toISOString().split('T')[0];
-
+ 
     let ok = true;
-
+ 
     if (!fechaInicio) {
         showFieldError('#fecha_inicio', 'Por favor, ingresa la fecha de inicio.');
         ok = false;
@@ -111,10 +111,10 @@ function validarFechasAntesDeEnviar() {
         ok = false;
     }
     if (!ok) return false;
-
+ 
     const fi = new Date(fechaInicio);
     const ff = new Date(fechaFin);
-
+ 
     if (fi < minDate) {
         showFieldError('#fecha_inicio', 'La fecha de inicio no puede ser menor a ' + minStr + '.');
         ok = false;
@@ -135,10 +135,10 @@ function validarFechasAntesDeEnviar() {
         showFieldError('#fecha_fin', 'La fecha de fin no puede ser mayor a ' + limitStr + '.');
         ok = false;
     }
-
+ 
     return ok;
 }
-
+ 
 // << PATCH: toasts unificados >>
 function toastError(message) {
     if (window.notyfEM?.error) { window.notyfEM.error(message); }
@@ -149,7 +149,7 @@ function toastSuccess(message) {
     else { alert(message); }
 }
 // << /PATCH >>
-
+ 
 function showFieldError(selector, message) {
     // << PATCH: NO marcar rojo (excepto lo de oficios que vive en otro archivo).
     //           Aquí solo mostramos toast y salimos. >>
@@ -162,7 +162,7 @@ function showFieldError(selector, message) {
     // $inp.addClass('is-invalid');
     // $inp.next('.invalid-feedback').text(message).show();
 }
-
+ 
 function clearFieldError(selector) {
     // Mantenemos la limpieza por si quedan restos en algún template,
     // pero ya no estamos agregando 'is-invalid' desde aquí.
@@ -170,13 +170,13 @@ function clearFieldError(selector) {
     $inp.removeClass('is-invalid');
     $inp.next('.invalid-feedback').hide().text('');
 }
-
+ 
 // << PATCH: helpers mínimos y validación de obligatorios (sin usuario) >>
 function _isMissing($el) {
     if (!$el || $el.length === 0) return false;       // si no existe, no bloquea
     if ($el.prop && $el.prop('disabled')) return false;// deshabilitado no participa
     let v = ($el.val != null) ? $el.val() : null;
-
+ 
     if (Array.isArray(v)) return v.length === 0 || v[0] === '' || v[0] === '0' || v[0] === 0;
     if (v === null || v === undefined) return true;
     if (typeof v === 'number') return v === 0;
@@ -185,7 +185,7 @@ function _isMissing($el) {
 }
 function validarObligatoriosMinimos() {
     let ok = true;
-
+ 
     // Entidad
     (function(){
         const $el = $('#id_cat_entidad');
@@ -198,7 +198,7 @@ function validarObligatoriosMinimos() {
             clearFieldError('#id_cat_entidad');
         }
     })();
-
+ 
     // Asunto
     (function(){
         const $el = $('#asunto');
@@ -212,7 +212,7 @@ function validarObligatoriosMinimos() {
             }
         }
     })();
-
+ 
     // Área 1
     (function(){
         const $el = $('#id_cat_area_1');
@@ -225,7 +225,7 @@ function validarObligatoriosMinimos() {
             clearFieldError('#id_cat_area_1');
         }
     })();
-
+ 
     // Trámite
     (function(){
         const $el = $('#id_cat_tramite');
@@ -238,7 +238,7 @@ function validarObligatoriosMinimos() {
             clearFieldError('#id_cat_tramite');
         }
     })();
-
+ 
     // Clave (o auxiliar)
     (function(){
         let $el = $('#id_cat_clave');
@@ -252,7 +252,7 @@ function validarObligatoriosMinimos() {
             clearFieldError('#' + $el.attr('id'));
         }
     })();
-
+ 
     // Puesto remitente
     (function(){
         const $el = $('#puesto_remitente');
@@ -266,11 +266,11 @@ function validarObligatoriosMinimos() {
             }
         }
     })();
-
+ 
     return ok;
 }
 // << /PATCH >>
-
+ 
 // << PATCH: fallback silencioso para id_usuario_area si la auto-asignación no llegó >>
 function ensureUsuarioAreaFallback() {
     var $ua = $('#id_usuario_area');
@@ -288,11 +288,11 @@ function ensureUsuarioAreaFallback() {
     }
 }
 // << /PATCH >>
-
+ 
 // =========================
 // FUNCIONES EXISTENTES
 // =========================
-
+ 
 function setCheckboxArea() {
     if ($('#rfc_remitente_bool').val()) {
         $('#idcheckboxTemplate').prop('checked', true);
@@ -306,16 +306,16 @@ function setCheckboxArea() {
     }
     getRole();
 }
-
+ 
 function setCheckbox() {
     let es_doc_fisico = $('#es_doc_fisico').val();
     let son_mas_remitentes = $('#son_mas_remitentes').val();
-
+ 
     $('#es_doc_fisico_box').prop('checked', !!es_doc_fisico);
     $('#son_mas_remitentes_box').prop('checked', !!son_mas_remitentes);
     setValueOfMoreRem();
 }
-
+ 
 function setValueOfMoreRem() {
     let son_mas_remitentes = $('#son_mas_remitentes').val();
     if (son_mas_remitentes) {
@@ -330,21 +330,21 @@ function setValueOfMoreRem() {
         $('#remitente').val('');
     }
 }
-
+ 
 $('#es_doc_fisico_box').change(function () {
     $('#es_doc_fisico').val($(this).is(':checked') ? true : '');
 });
-
+ 
 $('#son_mas_remitentes_box').change(function () {
     $('#son_mas_remitentes').val($(this).is(':checked') ? true : '');
     setCheckbox();
 });
-
+ 
 $('#idcheckboxTemplate').change(function () {
     $('#rfc_remitente_bool').val($(this).is(':checked') ? true : '');
     setCheckboxArea();
 });
-
+ 
 function getRole() {
     let bool_user_role = $('#bool_user_role').val();
     let new_variable = bool_user_role && bool_user_role.trim() !== '';
@@ -366,7 +366,7 @@ function getRole() {
             '#id_cat_remitente'].forEach(id => $(id).selectpicker('refresh'));
     }
 }
-
+ 
 function validateEstatus() {
     if ([2, 5, 7].includes(Number($('#id_cat_estatus').val()))) {
         $('#id_cat_estatus').prop('disabled', true).selectpicker('refresh');
@@ -375,13 +375,13 @@ function validateEstatus() {
         $('#id_cat_estatus').selectpicker('refresh');
     }
 }
-
+ 
 function setData() {
     $('#_labFechaCaptura').text($('#fecha_captura').val());
     $('#_labNoCorrespondencia').text($('#num_turno_sistema').val());
     getData();
 }
-
+ 
 function getData() {
     const id_cat_anio = $('#id_cat_anio').val();
     const id_cat_clave = $('#id_cat_clave_aux').val();
@@ -396,11 +396,11 @@ function getData() {
         $('#_labClaveRedaccion').text(itemClave._labClaveRedaccion);
     });
 }
-
+ 
 // =========================
 // Funciones del Código 2
 // =========================
-
+ 
 // Función para actualizar UI de archivo (oficio)
 function updateOficioUI() {
     var $inp = $('#file_oficio_entrada');
@@ -409,7 +409,7 @@ function updateOficioUI() {
     var $cont = $('#container_oficio_entrada');
     var $label = $('#label_oficio_entrada');
     var $icon = $('#icon_oficio_entrada');
-
+ 
     $cont.empty();
     if (files.length > 0) {
         $empty.hide();
@@ -426,7 +426,7 @@ function updateOficioUI() {
         $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
     }
 }
-
+ 
 // Función para actualizar UI de anexos
 function updateAnexosUI() {
     var $inp = $('#file_anexo_entrada');
@@ -435,7 +435,7 @@ function updateAnexosUI() {
     var $cont = $('#container_anexo_entrada');
     var $label = $('#label_anexo_entrada');
     var $icon = $('#icon_anexo_entrada');
-
+ 
     $cont.empty();
     if (files.length > 0) {
         $empty.hide();
@@ -454,3 +454,4 @@ function updateAnexosUI() {
         $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
     }
 }
+ 
