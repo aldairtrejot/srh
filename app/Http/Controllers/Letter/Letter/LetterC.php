@@ -456,15 +456,14 @@ log::info($initials);
      * SAVE (CREATE / UPDATE)
      * ========================================================= */
     public function save(Request $request)
-    {
-        $now = Carbon::now();
-        $logC = new LogC;
-        $messagesC = new MessagesC;
-        $letterM = new LetterM;
-        $collectionRemitenteM = new CollectionRemitenteM;
-        $collectionConsecutivoM = new CollectionConsecutivoM;
-        $collectionRolAreaM = new CollectionRolAreaM;
-        $collectionLetterLogM = new CollectionLetterLogM;
+{
+    $now                    = Carbon::now();
+    $logC                   = new LogC();
+    $messagesC              = new MessagesC();
+    $letterM                = new LetterM();
+    $collectionRemitenteM   = new CollectionRemitenteM();
+    $collectionConsecutivoM = new CollectionConsecutivoM();
+    $collectionLetterLogM   = new CollectionLetterLogM();
 
     \Log::info('[SAVE] entrada', [
         'route' => 'letter.save',
@@ -512,73 +511,54 @@ log::info($initials);
             'id_cat_entrada'         => 'nullable|string',
             'id_cat_tipo_oficio'     => 'nullable|string',
 
-            'file_oficio_entrada'    => 'nullable|file|max:20480',
+            'file_oficio_entrada'    => 'nullable|file|max:20480', // requerido sólo en CREATE (abajo)
             'file_anexo_entrada'     => 'nullable|array',
             'file_anexo_entrada.*'   => 'file|max:20480',
         ]);
 
-        try {
-            /* =================== VALIDACIONES BÁSICAS =================== */
-            $request->validate([
-                'id_tbl_correspondencia' => 'nullable|string',
-                'fecha_captura' => 'nullable|string|max:20',
-                'id_cat_anio' => 'required|string',
-                'num_turno_sistema' => 'required|string|max:100',
-                'num_documento' => 'nullable|string|max:100',
-                'folio_gestion' => 'nullable|string|max:120',
-                'fecha_documento' => 'nullable|string|max:20',
-                'fecha_inicio' => 'nullable|string|max:20',
-                'fecha_fin' => 'nullable|string|max:20',
-                'id_cat_entidad' => 'nullable|string',
-                'horas_respuesta' => 'nullable|string',
-                'asunto' => 'required|string|max:250',
-                'observaciones' => 'nullable|string|max:500',
+        /* =================== FLAGS =================== */
+        $rfc_remitente_bool = $request->boolean('rfc_remitente_bool');
+        $es_doc_fisico      = $request->boolean('es_doc_fisico');
+        $son_mas_remitentes = $request->boolean('son_mas_remitentes');
 
-                'id_cat_area_1' => 'nullable|string', // CRH
-                'id_cat_area_2' => 'nullable|string', // CRHTOD
-                'id_cat_area' => 'nullable|string', // Área (A3)
-                'id_usuario_area' => 'nullable|string',
-                'id_usuario_enlace' => 'nullable|string',
-                'id_cat_unidad' => 'nullable|string',
-                'id_cat_coordinacion' => 'nullable|string',
-                'id_cat_tramite' => 'nullable|string',
-                'id_cat_clave' => 'nullable|string',
-                'id_cat_estatus' => 'required|string',
-
-                'id_cat_remitente' => 'nullable|string',
-                'puesto_remitente' => 'nullable|string|max:200',
-                'remitente' => 'nullable|string|max:250',
-
-                'rfc_remitente_bool' => 'nullable|string',
-                'es_doc_fisico' => 'nullable|string',
-                'son_mas_remitentes' => 'nullable|string',
-
-                'id_cat_entrada' => 'nullable|string',
-                'id_cat_tipo_oficio' => 'nullable|string',
-
-                // archivos
-                'file_oficio_entrada' => 'nullable|file|max:20480',    // requerido solo en CREATE (abajo)
-                'file_anexo_entrada' => 'nullable|array',
-                'file_anexo_entrada.*' => 'file|max:20480',
+        /* ===== Alta rápida de remitente (opcional) ===== */
+        if ($rfc_remitente_bool) {
+            $collectionRemitenteM::create([
+                'nombre'             => strtoupper((string)$request->remitente_nombre),
+                'primer_apellido'    => strtoupper((string)$request->remitente_apellido_paterno),
+                'segundo_apellido'   => strtoupper((string)$request->remitente_apellido_materno),
+                'rfc'                => strtoupper((string)$request->remitente_rfc),
+                'estatus'            => true,
+                'id_usuario_sistema' => Auth::id(),
+                'fecha_usuario'      => $now,
             ]);
+
+            // Si tienes un método para obtener el ID del remitente recién creado por RFC/nombre:
+            if (method_exists($collectionRemitenteM, 'getRfc')) {
+                $request->merge([
+                    'id_cat_remitente' => $collectionRemitenteM->getRfc(
+                        strtoupper((string)$request->remitente_nombre),
+                        strtoupper((string)$request->remitente_apellido_paterno),
+                        strtoupper((string)$request->remitente_apellido_materno)
+                    ),
+                ]);
+            }
+        }
 
         /* =================== PRE-UNICIDAD GLOBAL =================== */
         $idActual = $request->filled('id_tbl_correspondencia')
             ? (int)$request->input('id_tbl_correspondencia')
             : null;
 
-        // Normalizador de texto
         $clean = function (?string $v) {
             $t = preg_replace('/\x{00A0}|\x{2007}|\x{202F}/u', ' ', (string)$v);
             $t = preg_replace('/\s+/u', ' ', $t);
             return mb_strtoupper(trim($t));
         };
 
-        // Normaliza folio y documento
-        $folioClean = $clean($request->input('folio_gestion', ''));
+        $folioClean  = $clean($request->input('folio_gestion', ''));
         $numDocClean = $clean($request->input('num_documento', ''));
 
-        // Valida folio globalmente
         if ($folioClean !== '') {
             $existsFolio = DB::table('correspondencia.tbl_correspondencia')
                 ->whereRaw('TRIM(UPPER(folio_gestion)) = ?', [$folioClean])
@@ -592,7 +572,6 @@ log::info($initials);
             }
         }
 
-        // Valida num_documento globalmente
         if ($numDocClean !== '') {
             $existsNumDoc = DB::table('correspondencia.tbl_correspondencia')
                 ->whereRaw('TRIM(UPPER(num_documento)) = ?', [$numDocClean])
@@ -618,7 +597,6 @@ log::info($initials);
 
         /* =================== CREATE =================== */
         if (!$request->filled('id_tbl_correspondencia')) {
-
             if (!$request->hasFile('file_oficio_entrada') || !$request->file('file_oficio_entrada')->isValid()) {
                 return redirect()->back()->withInput()->with([
                     'value'   => 'error',
@@ -707,27 +685,20 @@ log::info($initials);
                 $this->uploadFilesIfAny($request, (int)$created->id_tbl_correspondencia);
                 return $messagesC->messageSuccessRedirect('letter.list', 'Registro agregado con éxito.');
             } catch (\Illuminate\Database\QueryException $qe) {
-    DB::rollBack();
+                DB::rollBack();
 
-    // Si el error fue por duplicado (23505), solo registramos en log y continuamos
-    if ((string)$qe->getCode() === '23505') {
-        \Log::warning('[SAVE][DUPLICATE_IGNORED]', [
-            'message' => $qe->getMessage(),
-            'user'    => Auth::id(),
-        ]);
-        // ❗ OMITIMOS el respondValidation422, permitimos continuar
-        // pero debemos evitar hacer commit porque se interrumpió la inserción
-        return redirect()->back()->withInput()->with([
-            'value'   => 'warning',
-            'message' => 'Registro duplicado detectado, pero se permitió continuar.',
-            'estatus' => 'true'
-        ]);
-    }
+                if ((string)$qe->getCode() === '23505') {
+                    if ($errors = $this->mapUniqueErrorToField($qe)) {
+                        return $this->respondValidation422($request, $errors);
+                    }
+                    // Si el constraint no identifica el campo, devolvemos un mensaje genérico
+                    return $this->respondValidation422($request, [
+                        'folio_gestion' => ['Ya existe un registro con estos datos.']
+                    ]);
+                }
 
-    throw $qe;
-}
-
-
+                throw $qe;
+            }
         }
 
         /* =================== UPDATE (roles “total”) =================== */
@@ -737,10 +708,11 @@ log::info($initials);
         $hasFullUpdateRole = in_array($ADM_TOTAL, $roleUserArray, true) || in_array($COR_TOTAL, $roleUserArray, true);
 
         if ($hasFullUpdateRole) {
-            // ... [SIN CAMBIOS EN UPDATE] ...
+            // ... tu lógica de UPDATE aquí (sin cambios) ...
         }
 
-        // ... resto del código igual que tu versión original ...
+        // ... resto del código (si aplica) ...
+
     } catch (\Throwable $e) {
         \Log::error('LETTER_SAVE_ERROR: '.$e->getMessage(), ['ex' => $e]);
 
@@ -766,6 +738,8 @@ log::info($initials);
             'estatus' => 'true'
         ]);
     }
+}
+
 
     /* =========================================================
      * ÁREAS DEPENDIENTES (AJAX)
