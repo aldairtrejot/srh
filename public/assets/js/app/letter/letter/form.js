@@ -1,5 +1,5 @@
 /* =========================
- * form.js — FINAL
+ * form.js — FINAL (CORREGIDO)
  * ========================= */
 
 // CSRF
@@ -86,7 +86,7 @@ $(document).ready(function () {
     });
     // === /PATCH: Asunto & Observaciones ===
 
-    // << PATCH: toast de éxito si el backend deja alguna “señal” al volver de guardar >>
+    // << PATCH: toast de éxito si el backend deja alguna "señal" al volver de guardar >>
     // Toast de éxito si backend deja señal
     try {
         var qs = new URLSearchParams(window.location.search);
@@ -130,15 +130,62 @@ function toastOnce(type, key, message) {
     if (key) window.__TOAST_KEYS__.add(key);
     try {
         if (type === 'error') {
-            (window.notyfEM?.error ? window.notyfEM.error : alert)(message);
+            if (window.notyfEM?.error) {
+                window.notyfEM.error(message);
+            } else {
+                alert(message);
+            }
         } else {
-            (window.notyfEM?.success ? window.notyfEM.success : alert)(message);
+            if (window.notyfEM?.success) {
+                window.notyfEM.success(message);
+            } else {
+                alert(message);
+            }
         }
-    } catch(_) { /* noop */ }
+    } catch(err) {
+        console.error('Error al mostrar toast:', err);
+        alert(message);
+    }
 }
 
-function toastError(message, key)   { toastOnce('error',   key || message, message); }
-function toastSuccess(message, key) { toastOnce('success', key || message, message); }
+// Versiones simples sin el sistema de keys (para toasts repetitivos como input)
+function toastError(message, key) {
+    // Si se proporciona una key, usar el sistema anti-duplicados
+    if (key) {
+        toastOnce('error', key, message);
+    } else {
+        // Sin key, mostrar directamente (para eventos input repetitivos)
+        try {
+            if (window.notyfEM?.error) {
+                window.notyfEM.error(message);
+            } else {
+                alert(message);
+            }
+        } catch(err) {
+            console.error('Error al mostrar toast:', err);
+            alert(message);
+        }
+    }
+}
+
+function toastSuccess(message, key) {
+    // Si se proporciona una key, usar el sistema anti-duplicados
+    if (key) {
+        toastOnce('success', key, message);
+    } else {
+        // Sin key, mostrar directamente
+        try {
+            if (window.notyfEM?.success) {
+                window.notyfEM.success(message);
+            } else {
+                alert(message);
+            }
+        } catch(err) {
+            console.error('Error al mostrar toast:', err);
+            alert(message);
+        }
+    }
+}
 
 /* =========================
  * LÓGICA FECHAS
