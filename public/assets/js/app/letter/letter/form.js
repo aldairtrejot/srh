@@ -31,6 +31,52 @@ $(document).ready(function () {
       });
     // << /PATCH >>
 
+    // === PATCH: Config Asunto (máximo 300) y Observaciones (máximo 250) ===
+    const ASUNTO_MAX = 300;
+    const OBS_MAX    = 250;
+
+    // Atributos maxlength en HTML
+    $('#asunto').attr('maxlength', ASUNTO_MAX);
+    $('#observaciones').attr('maxlength', OBS_MAX);
+
+    // (Opcional) contador si existe <small id="asunto_counter"></small>
+    function updateAsuntoCounter() {
+      if ($('#asunto_counter').length) {
+        const left = ASUNTO_MAX - ($('#asunto').val() || '').length;
+        $('#asunto_counter').text(left);
+      }
+    }
+    updateAsuntoCounter();
+
+    let asuntoToastGuard = false; // evita spam del toast
+    $('#asunto').on('input', function () {
+      const val = $(this).val() || '';
+      if (val.length > ASUNTO_MAX) {
+        $(this).val(val.slice(0, ASUNTO_MAX));
+      }
+      updateAsuntoCounter();
+
+      if ((val.length >= ASUNTO_MAX) && !asuntoToastGuard) {
+        asuntoToastGuard = true;
+        toastError('Máximo 300 caracteres para Asunto.');
+        setTimeout(() => asuntoToastGuard = false, 1500);
+      }
+    });
+
+    let obsToastGuard = false; // evita spam del toast
+    $('#observaciones').on('input', function () {
+      const val = $(this).val() || '';
+      if (val.length > OBS_MAX) {
+        $(this).val(val.slice(0, OBS_MAX));
+      }
+      if ((val.length >= OBS_MAX) && !obsToastGuard) {
+        obsToastGuard = true;
+        toastError('Máximo 250 caracteres para Observaciones.');
+        setTimeout(() => obsToastGuard = false, 1500);
+      }
+    });
+    // === /PATCH: Asunto & Observaciones ===
+
     // << PATCH: toast de éxito si el backend deja alguna “señal” al volver de guardar >>
     try {
         var qs = new URLSearchParams(window.location.search);
@@ -207,8 +253,25 @@ function validarObligatoriosMinimos() {
             if (v === '') {
                 showFieldError('#asunto', 'Ingresa el Asunto.');
                 ok = false;
+            } else if (v.length > 300) { // alineado con ASUNTO_MAX
+                showFieldError('#asunto', 'El Asunto no puede exceder 300 caracteres.');
+                ok = false;
             } else {
                 clearFieldError('#asunto');
+            }
+        }
+    })();
+
+    // Observaciones (opcional, pero si trae texto, tope 250)
+    (function(){
+        const $el = $('#observaciones');
+        if ($el.length && !$el.prop('disabled')) {
+            const v = ($el.val() || '');
+            if (v && v.length > 250) { // alineado con OBS_MAX
+                showFieldError('#observaciones', 'Observaciones no puede exceder 250 caracteres.');
+                ok = false;
+            } else {
+                clearFieldError('#observaciones');
             }
         }
     })();
@@ -454,3 +517,4 @@ function updateAnexosUI() {
         $icon.removeClass('fa-refresh').addClass('fa-arrow-up');
     }
 }
+

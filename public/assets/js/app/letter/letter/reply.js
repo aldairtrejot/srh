@@ -217,6 +217,31 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       $('#reply_asunto').val('');
       $('#reply_msg_oficio_req').hide();
 
+      // Forzar límites de longitud (Asunto 300 / Observaciones 200)
+      $('#reply_asunto').attr('maxlength', 300);
+      $('#reply_observacion').attr('maxlength', 200);
+
+      // Aviso en tiempo real al llegar al tope (sin spam)
+      var asuntoToastGuard = false, obsToastGuard = false;
+
+      $('#reply_asunto').off('input.replyMax').on('input.replyMax', function () {
+        var v = this.value || '';
+        if (v.length >= 300 && !asuntoToastGuard) {
+          asuntoToastGuard = true;
+          Swal.fire('Límite de caracteres', 'El Asunto no puede exceder 300 caracteres.', 'warning');
+          setTimeout(function(){ asuntoToastGuard = false; }, 1200);
+        }
+      });
+
+      $('#reply_observacion').off('input.replyMax').on('input.replyMax', function () {
+        var v = this.value || '';
+        if (v.length >= 200 && !obsToastGuard) {
+          obsToastGuard = true;
+          Swal.fire('Límite de caracteres', 'Las Observaciones no pueden exceder 200 caracteres.', 'warning');
+          setTimeout(function(){ obsToastGuard = false; }, 1200);
+        }
+      });
+
       // Reset archivos/preview
       replyOficioFile  = null;
       replyAnexosFiles = [];
@@ -241,6 +266,16 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     const fechaFin     = replyValByName('fecha_fin');    // Fecha de captura (REQ)
     const observacion  = replyValById('reply_observacion');
     const asunto       = replyValById('reply_asunto');
+
+    // Chequeos de longitud antes de enviar
+    if (asunto && asunto.length > 300){
+      Swal.fire('Límite de caracteres', 'El Asunto no puede exceder 300 caracteres.', 'warning');
+      return;
+    }
+    if (observacion && observacion.length > 200){
+      Swal.fire('Límite de caracteres', 'Las Observaciones no pueden exceder 200 caracteres.', 'warning');
+      return;
+    }
 
     if(!id){
       Swal.fire('Falta información','No se encontró el ID de correspondencia.','warning'); 
@@ -317,6 +352,8 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   });
 
 })();
+
+
 
 
 

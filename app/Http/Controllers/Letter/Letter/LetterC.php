@@ -492,8 +492,8 @@ return view('letter.letter.form', compact(
             'fecha_fin'              => 'nullable|string|max:20',
             'id_cat_entidad'         => 'nullable|string',
             'horas_respuesta'        => 'nullable|string',
-            'asunto'                 => 'required|string|max:250',
-            'observaciones'          => 'nullable|string|max:500',
+            'asunto'                 => 'required|string|max:300',
+            'observaciones'          => 'nullable|string|max:250',
 
             'id_cat_area_1'          => 'nullable|string',
             'id_cat_area_2'          => 'nullable|string',
