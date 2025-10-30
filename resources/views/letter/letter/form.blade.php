@@ -110,20 +110,37 @@
               <form id="myForm" action="{{ route('letter.save') }}" method="POST" class="form-sample" enctype="multipart/form-data">
                 @csrf
 
-                {{-- ===== Config accesible para JS ===== --}}
+{{-- ===== Config accesible para JS (REEMPLAZADO) ===== --}}
 <script>
-  window.LETTER = {
-    collectionAreaUrl: "{{ route('letter.collectionArea') }}",
-    includeInactiveArea3: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
-    isEdit: {{ isset($isEdit) && $isEdit ? 'true' : 'false' }},
-    initials: {
-      area1: "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}",
-      area2: "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}",
-      area3: "{{ old('id_cat_area', optional($item)->id_cat_area) }}"
-    }
-  };
-</script>
+  (function () {
+    // Detecta edición por existencia de id_tbl_correspondencia
+    const isEdit = {{ isset($item) && !empty($item->id_tbl_correspondencia) ? 'true' : 'false' }};
 
+    // Toma iniciales desde old() o desde $item
+    const a1 = "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}";
+    const a2 = "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}";
+    const a3 = "{{ old('id_cat_area',   optional($item)->id_cat_area) }}";
+
+    // Normaliza vacíos -> null
+    function nz(v) {
+      return (v === '' || v === 'null' || v === null || v === undefined) ? null : v;
+    }
+
+    window.LETTER = {
+      collectionAreaUrl: "{{ route('letter.collectionArea') }}",
+      includeInactiveArea3: isEdit,
+      isEdit: isEdit,
+      initials: {
+        area1: nz(a1),
+        area2: nz(a2),
+        area3: nz(a3)
+      }
+    };
+
+    // Flag global que usa deps-areas.js
+    window.IS_EDIT = isEdit;
+  })();
+</script>
 
                 {{-- ===== HIDDEN FIELDS ===== --}}
                 <x-template-form.template-form-input-hidden id="bool_user_role" name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
@@ -238,7 +255,7 @@
 {{-- ===== Turnar A ===== --}}
 <x-template-tittle.tittle-caption-secon tittle="Turnar A" />
 <div class="row">
-    <!-- Select CRH -->
+    <!-- Select CRH (A1) -->
     <x-template-form.template-form-select-required
         :selectValue="$selectArea1"
         :selectEdit="$selectArea1Edit"
@@ -246,7 +263,7 @@
         name="id_cat_area_1" tittle="CRH"
         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-    <!-- Select CRHTOD -->
+    <!-- Select CRHTOD (A2) -->
     <x-template-form.template-form-select-required
         :selectValue="$selectArea2"
         :selectEdit="$selectArea2Edit"
@@ -254,7 +271,7 @@
         name="id_cat_area_2" tittle="CRHTOD"
         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 
-    {{-- *** ÁREA (A3) — ¡reinstalado! *** --}}
+    {{-- *** ÁREA (A3) — reinstalado *** --}}
     <x-template-form.template-form-select-required
         :selectValue="$selectArea"
         :selectEdit="$selectAreaEdit"
@@ -262,7 +279,6 @@
         name="id_cat_area" tittle="Área"
         grid="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4" />
 </div>
-
 
                 <div class="row">
                   <x-template-form.template-form-select-required
@@ -298,7 +314,6 @@
                   name="id_cat_estatus"
                   tittle="Estatus"
                   grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
-
 
                   <x-template-form.template-form-select-required :selectValue="$selectTramite"
                     :selectEdit="$selectTramiteEdit" name="id_cat_tramite" tittle="Trámite"
@@ -417,36 +432,41 @@
 
 </x-template-app.app-layout>
 
-<!-- === Quitar obligatoriedad de Área 2 sin tocar Área (id_cat_area) === -->
+<!-- === Quitar obligatoriedad de Área 1 y 2 SOLO en edición; NO tocar Área (id_cat_area) === -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Quitar required de A2 pero NO tocar A3 (id_cat_area)
-    var a2 = document.querySelector("select[name='id_cat_area_2']");
-    if (a2) {
-      a2.required = false;
-      a2.removeAttribute('required');
-      a2.removeAttribute('aria-required');
-      a2.removeAttribute('data-rule-required');
-      if (a2.setCustomValidity) a2.setCustomValidity('');
-      if (typeof $ !== 'undefined' && $.fn.selectpicker) {
-        $(a2).prop('required', false).selectpicker('refresh');
-      }
+    var isEdit = !!(window.LETTER && window.LETTER.isEdit);
+
+    // En edición, desactiva "required" de A1 y A2
+    if (isEdit) {
+      ['id_cat_area_1', 'id_cat_area_2'].forEach(function (name) {
+        var el = document.querySelector("select[name='" + name + "']");
+        if (!el) return;
+        el.required = false;
+        el.removeAttribute('required');
+        el.removeAttribute('aria-required');
+        el.removeAttribute('data-rule-required');
+        if (el.setCustomValidity) el.setCustomValidity('');
+        if (typeof $ !== 'undefined' && $.fn && $.fn.selectpicker) {
+          $(el).prop('required', false).selectpicker('refresh');
+        }
+      });
     }
 
-    // Relleno de encabezado para registros viejos (fallback por si JS externo no lo hace)
+    // Relleno de encabezado (fallback)
     try {
-      var noTurno   = @json(optional($item)->num_turno_sistema ?? '');
-      var fechaCap  = @json($fc_fmt ?? '');
-      var anioVal   = @json(optional($item)->anio ?? optional($item)->id_cat_anio ?? '');
+      var noTurno  = @json(optional($item)->num_turno_sistema ?? '');
+      var fechaCap = @json($fc_fmt ?? '');
+      var anioVal  = @json(optional($item)->anio ?? optional($item)->id_cat_anio ?? '');
 
       var labNo  = document.getElementById('_labNoCorrespondencia');
       var labFec = document.getElementById('_labFechaCaptura');
       var labAn  = document.getElementById('_labAño');
 
-      if (labNo && noTurno)  labNo.textContent  = noTurno;
+      if (labNo  && noTurno)  labNo.textContent  = noTurno;
       if (labFec && fechaCap) labFec.textContent = fechaCap;
       if (labAn  && anioVal)  labAn.textContent  = anioVal;
-    } catch(e) { /* noop */ }
+    } catch (e) { /* noop */ }
   });
 </script>
 

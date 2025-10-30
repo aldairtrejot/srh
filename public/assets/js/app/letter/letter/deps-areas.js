@@ -1,4 +1,4 @@
-// public/assets/js/app/letter/letter/deps-areas.js — FINAL ÚNICO
+// public/assets/js/app/letter/letter/deps-areas.js — FINAL ÚNICO (edición segura)
 // Maneja TODA la jerarquía A1 -> A2 -> A3 y dispara fillDependentsFromArea
 // desde aquí. select.js SOLO define la función fillDependentsFromArea y
 // los encadenamientos (Unidad->Coordinación, Trámite->Clave, etc).
@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const $area3 = document.getElementById('id_cat_area');   // Área final
   if (!$area1 || !$area2 || !$area3) return;
 
+  // Flag global opcional desde Blade: <script>window.IS_EDIT = true|false;</script>
+  const IS_EDIT = !!window.IS_EDIT;
+
   // CSRF
   const token = (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '';
 
@@ -24,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
       : '/letter/collection/collectionArea');
 
   /* ============== Helpers selectpicker / reset ============== */
-  const useBS = !!$.fn.selectpicker;
+  const useBS = !!$.fn?.selectpicker;
   const R_PLACE = '<option value="">SELECCIONE</option>';
   const R_LOAD  = '<option value="">Cargando…</option>';
 
@@ -48,18 +51,14 @@ document.addEventListener('DOMContentLoaded', function () {
   async function postJSON(url, body) {
     const resp = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': token,
-        'Accept': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return resp.json();
   }
 
-  /* === ADICIÓN MIN: normalizadores para inyectar A3 si falta opción === */
+  /* === Normalizadores para inyectar A3 si falta opción === */
   function coerceOne(json) {
     const arr =
       (Array.isArray(json) && json) ||
@@ -78,13 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const tries = [
       { by: 'area_by_id',  id_cat_area: area3Id },
       { by: 'area3_by_id', id_cat_area: area3Id },
-      { id: area3Id } // algunos backends aceptan {id} y devuelven algo útil
+      { id: area3Id }
     ];
     for (const body of tries) {
       try {
         const json = await postJSON(COLLECTION_AREA_URL, body);
         const one = coerceOne(json);
-        if (one && one.label) return one.label;
+        if (one?.label) return one.label;
         const label2 = json.label ?? json.descripcion ?? json.name ?? json.text ?? json.nombre;
         if (label2) return String(label2);
       } catch (_) {}
@@ -100,9 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
       $sel.append($('<option>', { value: val, text }));
     }
     $sel.val(val);
-    if ($ && $.fn && $.fn.selectpicker) $sel.selectpicker('refresh');
+    if (useBS) $sel.selectpicker('refresh');
   }
-  /* === FIN ADICIÓN === */
 
   /* ======================= Guards anti-race ======================= */
   let reqA2 = 0;
@@ -113,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
     reqA2++; const myReq = reqA2;
 
     resetArea2();
-    resetArea3(); // Al cambiar A1, A3 queda inválida
+    // En edición, no limpies A3 si ya viene seteado y solo quieres cambiar estatus
+    if (!IS_EDIT) resetArea3();
     if (!area1Id) return;
 
     setPickerLoading('#id_cat_area_2');
@@ -122,12 +121,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
       const json = await postJSON(COLLECTION_AREA_URL, { by: 'area2_by_area1', id_cat_area_1: area1Id });
-      if (myReq !== reqA2) return; // respuesta vieja
+      if (myReq !== reqA2) return;
 
       setPickerEmpty('#id_cat_area_2');
-      if (json.ok && Array.isArray(json.value) && json.value.length) {
+      const list = Array.isArray(json?.value) ? json.value : [];
+      if (list.length) {
         const frag = document.createDocumentFragment();
-        json.value.forEach(opt => {
+        list.forEach(opt => {
           const op = document.createElement('option');
           op.value = String(opt.id ?? '');
           op.textContent = String(opt.label ?? '');
@@ -152,7 +152,8 @@ document.addEventListener('DOMContentLoaded', function () {
   async function cargarArea3PorArea2(area2Id, selectedId = null) {
     reqA3++; const myReq = reqA3;
 
-    resetArea3();
+    // En edición, si ya traes A3Inicial y solo mueves estatus, no limpies la selección
+    if (!IS_EDIT) resetArea3();
     if (!area2Id) return;
 
     setPickerLoading('#id_cat_area');
@@ -164,12 +165,13 @@ document.addEventListener('DOMContentLoaded', function () {
         id_cat_area_2: area2Id,
         include_inactive: !!(window.LETTER && window.LETTER.includeInactiveArea3),
       });
-      if (myReq !== reqA3) return; // respuesta vieja
+      if (myReq !== reqA3) return;
 
       setPickerEmpty('#id_cat_area');
-      if (json.ok && Array.isArray(json.value) && json.value.length) {
+      const list = Array.isArray(json?.value) ? json.value : [];
+      if (list.length) {
         const frag = document.createDocumentFragment();
-        json.value.forEach(opt => {
+        list.forEach(opt => {
           const op = document.createElement('option');
           op.value = String(opt.id ?? '');
           op.textContent = String(opt.label ?? '');
@@ -177,14 +179,15 @@ document.addEventListener('DOMContentLoaded', function () {
           frag.appendChild(op);
         });
         $area3.appendChild(frag);
-        if (!selectedId) $('#id_cat_area').val(''); // evita auto-selección
+        if (!selectedId && !IS_EDIT) $('#id_cat_area').val('');
         pickerRefresh('#id_cat_area');
       } else {
-        resetArea3();
+        // En edición, mantener A3 aunque no regrese en el catálogo
+        if (!IS_EDIT) resetArea3();
       }
     } catch (e) {
       console.error('AREA3_LOAD_ERROR:', e);
-      resetArea3();
+      if (!IS_EDIT) resetArea3();
     } finally {
       pickerDisable('#id_cat_area', false);
     }
@@ -195,13 +198,13 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================= Listeners ÚNICOS ========================= */
   function onA1Change(v) {
     const id = v || '';
-    resetArea3();
+    if (!IS_EDIT) resetArea3();
     cargarArea2PorArea1(id, null);
     if (window.fillDependentsFromArea) window.fillDependentsFromArea(id, initials());
   }
   function onA2Change(v) {
     const id = v || '';
-    resetArea3();
+    if (!IS_EDIT) resetArea3();
     cargarArea3PorArea2(id, null);
     if (window.fillDependentsFromArea) window.fillDependentsFromArea(id, initials());
   }
@@ -259,27 +262,29 @@ document.addEventListener('DOMContentLoaded', function () {
     // Siempre limpia A2
     resetArea2();
 
-    // PARCHE: si vienes con solo A3, NO limpies el select; muéstralo (inyectando la opción si hace falta)
+    // Si vienes con SOLO A3 (edición), no lo borres: inyecta y selecciona
     if (!area3Inicial) {
       resetArea3();
+      window.__DEPS_AREAS_PRIMED__ = true;
     } else {
-      // Asegura que exista la opción y quede seleccionada
       ensureArea3Visible(String(area3Inicial))
         .then(() => {
-          // Dispara el llenado de dependientes usando el A3 directo
           if (window.fillDependentsFromArea) {
             window.fillDependentsFromArea(String(area3Inicial), initials());
           }
+          // En edición, evita bloquear selects si no hay A1/A2
+          if (IS_EDIT) {
+            pickerDisable('#id_cat_area_1', false);
+            pickerDisable('#id_cat_area_2', false);
+            pickerDisable('#id_cat_area', false);
+          }
         })
         .finally(() => { window.__DEPS_AREAS_PRIMED__ = true; });
-      return; // evitamos marcar PRIMED dos veces
+      return;
     }
-
-    window.__DEPS_AREAS_PRIMED__ = true;
   }
 
-  /* ===== Salvaguarda: si A3 quedó inválido, NO borrar el valor; asegúralo ===== */
-  // << PATCH: inyecta una opción de emergencia si el valor existe pero la opción no está presente >>
+  /* ===== Salvaguarda: si A3 quedó inválido, crea la opción al vuelo antes de enviar ===== */
   const form = document.getElementById('myForm') || document.getElementById('formulario');
   if (form) {
     form.addEventListener('submit', function () {
@@ -292,10 +297,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!hasOpt) {
         // crear opción temporal para que el valor viaje en el POST
         $sel.append($('<option>', { value: String(valA3), text: '[Área ' + String(valA3) + ']' }));
-        if ($ && $.fn && $.fn.selectpicker) $sel.selectpicker('refresh');
-        // Nota: NO disparamos 'change' aquí para no alterar dependientes justo en submit
+        if (useBS) $sel.selectpicker('refresh');
       }
     });
   }
-  // << /PATCH >>
 });
