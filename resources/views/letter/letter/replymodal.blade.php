@@ -49,7 +49,7 @@
 
   <div class="reply-input-container">
     <label class="reply-input-label" for="reply_asunto">Asunto</label>
-    <input type="text" id="reply_asunto" class="reply-input-field" maxlength="250" placeholder="Asunto…">
+    <input type="text" id="reply_asunto" class="reply-input-field" maxlength="300" placeholder="Asunto…">
   </div>
 
   <div class="reply-input-container">
