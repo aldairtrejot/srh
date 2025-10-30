@@ -346,6 +346,9 @@ public function edit(string $id)
         return redirect()->route('letter.index')->with('error', 'No se encontró el registro.');
     }
 
+    // Flag de edición para el front
+    $isEdit = true;
+
     // Obtener catálogos para los campos de selección
     $selectStatus     = $collectionStatusM->listEdit();
     $selectStatusEdit = isset($item->id_cat_estatus) ? $collectionStatusM->edit($item->id_cat_estatus) : null;
@@ -378,23 +381,16 @@ public function edit(string $id)
     // Obtener unidades y coordinaciones
     $selectUnidad           = $collectionUnidadM->listEdit();
     $selectUnidadEdit       = isset($item->id_cat_unidad) ? $collectionUnidadM->edit($item->id_cat_unidad) : null;
-   // $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
-    //$selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
 
     $selectCoordinacion     = isset($item->id_cat_unidad) ? $collectionCoordinacionM->listEdit($item->id_cat_unidad) : [];
     $selectCoordinacionEdit = (isset($item->id_cat_unidad) && isset($item->id_cat_coordinacion)) ? $collectionCoordinacionM->edit($item->id_cat_coordinacion) : null;
 
     // Obtener trámites y claves
-    //$selectTramite     = isset($item->id_cat_area) ? $collectionTramiteM->listEdit($item->id_cat_area) : [];
-
-    //$selectTramiteEdit = (isset($item->id_cat_area) && isset($item->id_cat_tramite)) ? $collectionTramiteM->edit($item->id_cat_tramite) : null;
-
-     $selectTramite     =  $collectionTramiteM->listEdit($item->id_cat_area);
-
+    $selectTramite     =  $collectionTramiteM->listEdit($item->id_cat_area);
     $selectTramiteEdit =  $collectionTramiteM->edit($item->id_cat_tramite);
 
     $selectClave     = $collectionClaveM->listEdit($item->id_cat_tramite);
-    $selectClaveEdit =  $collectionClaveM->edit($item->id_cat_clave);
+    $selectClaveEdit = $collectionClaveM->edit($item->id_cat_clave);
 
     // Obtener remitentes y entidades
     $selectRemitente     = $collectionRemitenteM->list();
@@ -407,60 +403,46 @@ public function edit(string $id)
     $idReturnado   = $letterM->getReturnadoId();
     $lockReturnado = isset($item->id_cat_area) ? $letterM->areaHasReturnado((int)$item->id_cat_area) : false;
 
-    // Inicialización de valores
-   /* $initials = [
-        'area1'           => $item->id_cat_area_1 ?? null,
-        'area2'           => $item->id_cat_area_2 ?? null,
-        'area3'           => $item->id_cat_area   ?? null,
-        'usuario_area'    => $item->id_usuario_area ?? null,
-        'usuario_enlace'  => $item->id_usuario_enlace ?? null,
-        'unidad'          => $item->id_cat_unidad ?? null,
-        'coordinacion'    => $item->id_cat_coordinacion ?? null,
-        'tramite'         => $item->id_cat_tramite ?? null,
-        'clave'           => $item->id_cat_clave ?? null,
-    ];
-log::info($initials);
-
-    $isEdit = true;*/
-
-
-return view('letter.letter.form', compact(
-    'item',
-    'selectArea' ,
-    'selectAreaEdit',
-    'selectArea1' ,
-    'selectArea1Edit',
-    'selectArea2',
-    'selectArea2Edit',
-    'selectUser',
-    'selectUserEdit',
-    'selectEnlace' ,
-    'selectEnlaceEdit',
-    'selectUnidad' ,
-    'selectUnidadEdit',
-    'selectCoordinacion' ,
-    'selectCoordinacionEdit',
-    'selectStatus',
-    'selectStatusEdit',
-    'selectTramite' ,
-    'selectTramiteEdit',
-    'selectClave',
-    'selectClaveEdit',
-    'selectRemitente',
-    'selectRemitenteEdit',
-    'selectEntidad' ,
-    'selectEntidadEdit',
-    'lockReturnado',
-    'idReturnado'
-));
-
+    return view('letter.letter.form', compact(
+        'item',
+        'selectArea' ,
+        'selectAreaEdit',
+        'selectArea1' ,
+        'selectArea1Edit',
+        'selectArea2',
+        'selectArea2Edit',
+        'selectUser',
+        'selectUserEdit',
+        'selectEnlace' ,
+        'selectEnlaceEdit',
+        'selectUnidad' ,
+        'selectUnidadEdit',
+        'selectCoordinacion' ,
+        'selectCoordinacionEdit',
+        'selectStatus',
+        'selectStatusEdit',
+        'selectTramite' ,
+        'selectTramiteEdit',
+        'selectClave',
+        'selectClaveEdit',
+        'selectRemitente',
+        'selectRemitenteEdit',
+        'selectEntidad' ,
+        'selectEntidadEdit',
+        'lockReturnado',
+        'idReturnado',
+        'isEdit' // ← NUEVO
+    ));
 }
 
 
     /* =========================================================
      * SAVE (CREATE / UPDATE)
      * ========================================================= */
-   public function save(Request $request)
+/* =========================================================
+ * SAVE (CREATE / UPDATE)
+ * ========================================================= */
+public function save(Request $request)
 {
     $now                    = Carbon::now();
     $logC                   = new LogC();
@@ -495,33 +477,36 @@ return view('letter.letter.form', compact(
             'asunto'                 => 'required|string|max:300',
             'observaciones'          => 'nullable|string|max:250',
 
-            'id_cat_area_1'          => 'nullable|string', // CRH
-            'id_cat_area_2'          => 'nullable|string', // CRHTOD
-            'id_cat_area'            => 'nullable|string', // Área (A3)
-            'id_usuario_area'        => 'nullable|string',
-            'id_usuario_enlace'      => 'nullable|string',
-            'id_cat_unidad'          => 'nullable|string',
-            'id_cat_coordinacion'    => 'nullable|string',
-            'id_cat_tramite'         => 'nullable|string',
-            'id_cat_clave'           => 'nullable|string',
-            'id_cat_estatus'         => 'required|string',
+    // ÁREAS: ya NO se exige tipo string para permitir null en edición
+    'id_cat_area_1'          => 'nullable', // ó 'nullable|integer'
+    'id_cat_area_2'          => 'nullable', // ó 'nullable|integer'
+    'id_cat_area'            => 'nullable', // ó 'nullable|integer'
 
-            'id_cat_remitente'       => 'nullable|string',
-            'puesto_remitente'       => 'nullable|string|max:200',
-            'remitente'              => 'nullable|string|max:250',
+    'id_usuario_area'        => 'nullable|string',
+    'id_usuario_enlace'      => 'nullable|string',
+    'id_cat_unidad'          => 'nullable|string',
+    'id_cat_coordinacion'    => 'nullable|string',
+    'id_cat_tramite'         => 'nullable|string',
+    'id_cat_clave'           => 'nullable|string',
+    'id_cat_estatus'         => 'required|string',
 
-            'rfc_remitente_bool'     => 'nullable|string',
-            'es_doc_fisico'          => 'nullable|string',
-            'son_mas_remitentes'     => 'nullable|string',
+    'id_cat_remitente'       => 'nullable|string',
+    'puesto_remitente'       => 'nullable|string|max:200',
+    'remitente'              => 'nullable|string|max:250',
 
-            'id_cat_entrada'         => 'nullable|string',
-            'id_cat_tipo_oficio'     => 'nullable|string',
+    'rfc_remitente_bool'     => 'nullable|string',
+    'es_doc_fisico'          => 'nullable|string',
+    'son_mas_remitentes'     => 'nullable|string',
 
-            // archivos
-            'file_oficio_entrada'    => 'nullable|file|max:20480',    // requerido solo en CREATE (abajo)
-            'file_anexo_entrada'     => 'nullable|array',
-            'file_anexo_entrada.*'   => 'file|max:20480',
-        ]);
+    'id_cat_entrada'         => 'nullable|string',
+    'id_cat_tipo_oficio'     => 'nullable|string',
+
+    // archivos
+    'file_oficio_entrada'    => 'nullable|file|max:20480',
+    'file_anexo_entrada'     => 'nullable|array',
+    'file_anexo_entrada.*'   => 'file|max:20480',
+]);
+
 
         /* =================== FLAGS =================== */
         $rfc_remitente_bool = $request->boolean('rfc_remitente_bool');
@@ -686,7 +671,7 @@ return view('letter.letter.form', compact(
 
                 DB::commit();
 
-                // ===== Subidas a Alfresco (post-commit) =====
+                // ===== Subidas a Alfresco (post-commit)
                 $this->uploadFilesIfAny($request, (int)$created->id_tbl_correspondencia);
 
                 return $messagesC->messageSuccessRedirect('letter.list', 'Registro agregado con éxito.');
@@ -749,8 +734,15 @@ return view('letter.letter.form', compact(
             ];
 
             // Forzar Returnado si alguna área es “solo Returnado”
+            $area3ForCheck = $area3;
+            if (!$area3ForCheck && $request->filled('id_tbl_correspondencia')) {
+                $area3ForCheck = DB::table('correspondencia.tbl_correspondencia')
+                    ->where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)
+                    ->value('id_cat_area');
+            }
+
             try {
-                if ($letterM->areaOnlyReturnado($area1) || $letterM->areaOnlyReturnado($area2) || $letterM->areaOnlyReturnado($area3)) {
+                if ($letterM->areaOnlyReturnado($area1) || $letterM->areaOnlyReturnado($area2) || $letterM->areaOnlyReturnado($area3ForCheck)) {
                     $data['id_cat_estatus'] = $letterM->getReturnadoId();
                 }
             } catch (\Throwable $e) {}
@@ -795,7 +787,15 @@ return view('letter.letter.form', compact(
         }
 
         /* =================== UPDATE (restringido) =================== */
-        if (!in_array($request->id_cat_area, (array)$collectionRolAreaM->getListArea(), true)) {
+        // Permisos: usar área de request o, si viene vacía, la de BD (solo para checar permiso)
+        $areaForPerms = $request->id_cat_area;
+        if (!$areaForPerms && $request->filled('id_tbl_correspondencia')) {
+            $areaForPerms = DB::table('correspondencia.tbl_correspondencia')
+                ->where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)
+                ->value('id_cat_area');
+        }
+
+        if (!in_array($areaForPerms, (array)$collectionRolAreaM->getListArea(), true)) {
             return redirect()->back()->with([
                 'value'   => 'error',
                 'message' => 'No se han configurado permisos para este usuario.',
