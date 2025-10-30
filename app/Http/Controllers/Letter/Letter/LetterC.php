@@ -435,10 +435,6 @@ public function edit(string $id)
     ));
 }
 
-
-    /* =========================================================
-     * SAVE (CREATE / UPDATE)
-     * ========================================================= */
 /* =========================================================
  * SAVE (CREATE / UPDATE)
  * ========================================================= */
@@ -477,35 +473,35 @@ public function save(Request $request)
             'asunto'                 => 'required|string|max:300',
             'observaciones'          => 'nullable|string|max:250',
 
-    // ÁREAS: ya NO se exige tipo string para permitir null en edición
-    'id_cat_area_1'          => 'nullable', // ó 'nullable|integer'
-    'id_cat_area_2'          => 'nullable', // ó 'nullable|integer'
-    'id_cat_area'            => 'nullable', // ó 'nullable|integer'
+            // ÁREAS: ya NO se exige tipo string para permitir null en edición
+            'id_cat_area_1'          => 'nullable', // ó 'nullable|integer'
+            'id_cat_area_2'          => 'nullable', // ó 'nullable|integer'
+            'id_cat_area'            => 'nullable', // ó 'nullable|integer'
 
-    'id_usuario_area'        => 'nullable|string',
-    'id_usuario_enlace'      => 'nullable|string',
-    'id_cat_unidad'          => 'nullable|string',
-    'id_cat_coordinacion'    => 'nullable|string',
-    'id_cat_tramite'         => 'nullable|string',
-    'id_cat_clave'           => 'nullable|string',
-    'id_cat_estatus'         => 'required|string',
+            'id_usuario_area'        => 'nullable|string',
+            'id_usuario_enlace'      => 'nullable|string',
+            'id_cat_unidad'          => 'nullable|string',
+            'id_cat_coordinacion'    => 'nullable|string',
+            'id_cat_tramite'         => 'nullable|string',
+            'id_cat_clave'           => 'nullable|string',
+            'id_cat_estatus'         => 'required|string',
 
-    'id_cat_remitente'       => 'nullable|string',
-    'puesto_remitente'       => 'nullable|string|max:200',
-    'remitente'              => 'nullable|string|max:250',
+            'id_cat_remitente'       => 'nullable|string',
+            'puesto_remitente'       => 'nullable|string|max:200',
+            'remitente'              => 'nullable|string|max:250',
 
-    'rfc_remitente_bool'     => 'nullable|string',
-    'es_doc_fisico'          => 'nullable|string',
-    'son_mas_remitentes'     => 'nullable|string',
+            'rfc_remitente_bool'     => 'nullable|string',
+            'es_doc_fisico'          => 'nullable|string',
+            'son_mas_remitentes'     => 'nullable|string',
 
-    'id_cat_entrada'         => 'nullable|string',
-    'id_cat_tipo_oficio'     => 'nullable|string',
+            'id_cat_entrada'         => 'nullable|string',
+            'id_cat_tipo_oficio'     => 'nullable|string',
 
-    // archivos
-    'file_oficio_entrada'    => 'nullable|file|max:20480',
-    'file_anexo_entrada'     => 'nullable|array',
-    'file_anexo_entrada.*'   => 'file|max:20480',
-]);
+            // archivos
+            'file_oficio_entrada'    => 'nullable|file|max:20480',
+            'file_anexo_entrada'     => 'nullable|array',
+            'file_anexo_entrada.*'   => 'file|max:20480',
+        ]);
 
 
         /* =================== FLAGS =================== */
@@ -687,7 +683,7 @@ public function save(Request $request)
             }
         }
 
-        /* =================== UPDATE (roles “total”) =================== */
+        /* =================== UPDATE (roles "total") =================== */
         $roleUserArray     = collect(session('SESSION_ROLE_USER'))->toArray();
         $ADM_TOTAL         = (int) config('custom_config.ADM_TOTAL');
         $COR_TOTAL         = (int) config('custom_config.COR_TOTAL');
@@ -733,7 +729,7 @@ public function save(Request $request)
                 'fecha_usuario'        => $now,
             ];
 
-            // Forzar Returnado si alguna área es “solo Returnado”
+            // Forzar Returnado si alguna área es "solo Returnado"
             $area3ForCheck = $area3;
             if (!$area3ForCheck && $request->filled('id_tbl_correspondencia')) {
                 $area3ForCheck = DB::table('correspondencia.tbl_correspondencia')
@@ -786,23 +782,8 @@ public function save(Request $request)
             return $messagesC->messageSuccessRedirect('letter.list', 'Elemento modificado con éxito.');
         }
 
-        /* =================== UPDATE (restringido) =================== */
-        // Permisos: usar área de request o, si viene vacía, la de BD (solo para checar permiso)
-        $areaForPerms = $request->id_cat_area;
-        if (!$areaForPerms && $request->filled('id_tbl_correspondencia')) {
-            $areaForPerms = DB::table('correspondencia.tbl_correspondencia')
-                ->where('id_tbl_correspondencia', (int)$request->id_tbl_correspondencia)
-                ->value('id_cat_area');
-        }
-
-        if (!in_array($areaForPerms, (array)$collectionRolAreaM->getListArea(), true)) {
-            return redirect()->back()->with([
-                'value'   => 'error',
-                'message' => 'No se han configurado permisos para este usuario.',
-                'estatus' => 'true'
-            ]);
-        }
-
+        /* =================== UPDATE (restringido) - CAMBIO AQUÍ =================== */
+        // PERMITIR cambio de estatus y observaciones a TODOS los usuarios (sin validar permisos)
         $dataRestricted = [
             'observaciones'      => strtoupper((string)$request->observaciones),
             'id_cat_estatus'     => $request->id_cat_estatus,
@@ -860,8 +841,6 @@ public function save(Request $request)
         ]);
     }
 }
-
-
     /* =========================================================
      * ÁREAS DEPENDIENTES (AJAX)
      * ========================================================= */
