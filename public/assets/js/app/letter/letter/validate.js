@@ -7,6 +7,11 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
     let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false;
 
+    // <<< NUEVO: si es edición, no exigir Áreas >>>
+    const IS_EDIT = !!(window.IS_EDIT || (window.LETTER && window.LETTER.isEdit));
+    const REQUIRE_AREAS = !IS_EDIT;
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
     if (new_variable) {
         if (
             //isPositiveInteger($('#num_flojas').val(), 'No. hojas') ||
@@ -19,10 +24,10 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             isFieldEmpty($('#id_cat_entidad').val(), 'Entidad') ||
             isFieldEmpty($('#asunto').val(), 'Asunto') ||
             // ===== Áreas =====
-            isFieldEmpty($('#id_cat_area_1').val(), 'Área 1') ||
-            // ⛔️ quitamos estas dos para que NO sean obligatorias:
-            // isFieldEmpty($('#id_cat_area_2').val(), 'Área 2') ||
-            // isFieldEmpty($('#id_cat_area').val(), 'Área 3') ||
+            (REQUIRE_AREAS && isFieldEmpty($('#id_cat_area_1').val(), 'Área 1')) ||
+            // ⛔️ seguimos sin exigir estas dos:
+            // (REQUIRE_AREAS && isFieldEmpty($('#id_cat_area_2').val(), 'Área 2')) ||
+            // (REQUIRE_AREAS && isFieldEmpty($('#id_cat_area').val(), 'Área 3')) ||
             isFieldEmpty($('#id_usuario_area').val(), 'Usuario') ||
             isFieldEmpty($('#id_usuario_enlace').val(), 'Enlace') ||
             isFieldEmpty($('#id_cat_unidad').val(), 'Unidad') ||
