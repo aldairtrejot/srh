@@ -5,6 +5,9 @@
 // CSRF
 var token = $('meta[name="csrf-token"]').attr('content') || (window.CSRF_TOKEN || '');
 
+// LÍMITE DE TAMAÑO PARA ARCHIVOS (20 MB)
+const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+
 /* =========================
  * INIT
  * ========================= */
@@ -117,6 +120,37 @@ $(document).ready(function () {
         if (typeof ensureUsuarioAreaFallback === 'function') ensureUsuarioAreaFallback();
 
         if (typeof showSpinner === 'function') showSpinner();
+    });
+
+    // =========================
+    // VALIDACIÓN INMEDIATA DE TAMAÑO DE ARCHIVOS (20 MB)
+    // =========================
+    $('#file_oficio_entrada').on('change', function () {
+        var files = this.files || [];
+        if (files.length > 0 && files[0].size > MAX_FILE_SIZE_BYTES) {
+            toastError('El archivo de oficio supera el tamaño máximo permitido (20 MB).');
+            // limpiar input y UI
+            this.value = '';
+            updateOficioUI();
+            return;
+        }
+        // si es válido, solo actualizamos la UI
+        updateOficioUI();
+    });
+
+    $('#file_anexo_entrada').on('change', function () {
+        var files = this.files || [];
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].size > MAX_FILE_SIZE_BYTES) {
+                toastError('Uno de los anexos supera el tamaño máximo permitido (20 MB).');
+                // limpiar input y UI
+                this.value = '';
+                updateAnexosUI();
+                return;
+            }
+        }
+        // si todos son válidos, solo actualizamos la UI
+        updateAnexosUI();
     });
 });
 
