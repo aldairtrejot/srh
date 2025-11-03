@@ -138,7 +138,7 @@ class ReportM extends Model
         }
 
         // Order by
-        $query->orderBy('correspondencia.tbl_correspondencia.folio_gestion', 'ASC');
+        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'ASC');
 
         return $query->get();
     }
@@ -194,7 +194,7 @@ class ReportM extends Model
         $query->where('correspondencia.tbl_correspondencia.id_cat_estatus', '!=', 2)
             ->where('correspondencia.tbl_correspondencia.num_documento', 'ILIKE', 'IB-UAF-TURNOS-%');
 
-        $query->orderBy('correspondencia.tbl_correspondencia.folio_gestion', 'ASC');
+        $query->orderBy('correspondencia.tbl_correspondencia.id_tbl_correspondencia', 'ASC');
 
         return $query->get();
     }
