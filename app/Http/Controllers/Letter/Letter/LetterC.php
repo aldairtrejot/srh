@@ -1478,8 +1478,18 @@ private function resolveUploadFolderIdForRequest(Request $request): ?string
             $idCorr = (int)$request->input('id_tbl_correspondencia');
 
             $corr = DB::table('correspondencia.tbl_correspondencia')
-                ->select('id_tbl_correspondencia','id_cat_anio','id_cat_area','id_usuario_area','id_usuario_enlace','observaciones','folio_gestion')
-                ->where('id_tbl_correspondencia', $idCorr)->first();
+    ->select(
+        'id_tbl_correspondencia',
+        'id_cat_anio',
+        'id_cat_area',      // Área
+        'id_cat_area_1',    // CRH
+        'id_cat_area_2',    // CRHT
+        'id_usuario_area',
+        'id_usuario_enlace',
+        'observaciones',
+        'folio_gestion'
+    )
+    ->where('id_tbl_correspondencia', $idCorr)->first();
 
             if (!$corr) {
                 return response()->json(['ok'=>false,'message'=>'Correspondencia no encontrada.'],404);
@@ -1546,16 +1556,19 @@ private function resolveUploadFolderIdForRequest(Request $request): ?string
 
             // Subidas R
             try {
-                $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
-                $anexos    = $request->file('file_anexo_entrada', []);
-                $anexos    = is_array($anexos) ? array_filter($anexos) : [];
+               $hasOficio = $request->hasFile('file_oficio_entrada') && $request->file('file_oficio_entrada')->isValid();
+$anexos    = $request->file('file_anexo_entrada', []);
+$anexos    = is_array($anexos) ? array_filter($anexos) : [];
 
-                if ($hasOficio || count($anexos)>0) {
-                    $alfrescoC    = new AlfrescoC();
-                    $cloudConfigM = new CloudConfigM();
+if ($hasOficio || count($anexos)>0) {
+    $alfrescoC    = new AlfrescoC();
+    $cloudConfigM = new CloudConfigM();
 
-                    $areaForCloud = $corr->id_cat_area ?: ($request->input('id_cat_area_2') ?: ($request->input('id_cat_area_1') ?: null));
-                    $uidRow = $cloudConfigM->getUid($areaForCloud, $request->input('id_cat_entrada'), $request->input('id_cat_tipo_oficio'));
+    // 1º Área (A3), si no hay toma CRHT (A2), si no hay toma CRH (A1)
+    $areaForCloud = $corr->id_cat_area ?: ($corr->id_cat_area_2 ?: ($corr->id_cat_area_1 ?: null));
+
+    $uidRow = $cloudConfigM->getUid($areaForCloud, $request->input('id_cat_entrada'), $request->input('id_cat_tipo_oficio'));
+
 
                     if (!$uidRow) {
                         $uidRow = DB::table('correspondencia.cat_config_cloud')
