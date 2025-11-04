@@ -171,13 +171,23 @@
                     <div id="container_oficio_salida" style="margin-top:8px;"></div>
                   </div>
 
-                  <!-- Anexos enviados (salida) -->
-                  <div class="reply-card">
-                    <x-template-tittle.tittle-caption-secon tittle="Anexos enviados" />
-                    <div id="container_anexo_salida_vacio" class="rectangulo" style="margin-top:8px;">Sin contenido</div>
-                    <div id="container_anexo_salida" style="margin-top:8px;"></div>
-                  </div>
-                </div>
+                 <!-- Anexos enviados (SALIDA) -->
+<div class="reply-card">
+  <div style="display:flex; align-items:center;">
+    <x-template-tittle.tittle-caption-secon tittle="Anexos enviados (Max 3)" />
+    <label for="file_anexo_salida" id="label_anexo_salida"
+           style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none; margin-left:8px;">
+      <i class="fa fa-arrow-up" id="icon_anexo_salida" style="margin-right:5px;"></i>
+      Cargar
+    </label>
+    <input type="file" id="file_anexo_salida" style="display:none;">
+  </div>
+
+  <div id="container_anexo_salida_vacio" class="rectangulo" style="margin-top:8px;">Sin contenido</div>
+  <div id="container_anexo_salida" style="margin-top:8px;"></div>
+</div>
+
+
 
               </div>
               <!-- /Contenedor principal -->

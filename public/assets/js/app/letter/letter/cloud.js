@@ -8,6 +8,11 @@ var id_cat_tipo_oficio = $('#id_cat_tipo_oficio').val(); //Se obtiene el id de l
 var es_oficio = 1; //Identifica si es oficio
 var es_anexo = 0;//Identifca si es un anexo
 
+// ===== NUEVO: datos para anexos de respuesta (lado derecho) =====
+var replyOficioId      = null;  // id_tbl_oficio (respuesta)
+var replyAnexosCount   = 0;     // cuantos anexos de salida hay
+var MAX_ANEXOS_SALIDA  = 3;     // se sobreescribe con lo que mande el back
+
 //Inicio de variables
 $(document).ready(function () {
     getDataCloud();
@@ -32,7 +37,8 @@ function getRole() {
         enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
     }
 }
-//La funcion lista los documentos que existen en el cloud
+
+//La funcion lista los documentos que existen en el cloud (ENTRADA)
 function getDataDocument() {
 
     let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
@@ -51,15 +57,20 @@ function getDataDocument() {
             _token: token  // Usar el token extraído de la metaetiqueta
         },
         success: function (response) {
-            let anexosEntrada = response.anexosEntrada;  // Suponiendo que la respuesta tiene una propiedad 'value' con los datos
+            let anexosEntrada = response.anexosEntrada;
             let oficosEntrada = response.oficosEntrada;
 
-            //Habilita o desabilita los botones de agregar
-            response.resultOficioEntrada || !new_variable ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada') : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
-            response.resultAnexosEntrada || !new_variable ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada') : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+            //Habilita o desabilita los botones de agregar (ENTRADA)
+            response.resultOficioEntrada || !new_variable
+                ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada')
+                : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
 
-            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada); //Listamos la informacion
-            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada); //Listamos la informacion
+            response.resultAnexosEntrada || !new_variable
+                ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada')
+                : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
+
+            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada);
+            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada);
         },
     });
 }
@@ -75,16 +86,16 @@ function getDataCloud() {
         },
         success: function (response) {
             let item = response.value; //Obtenemos la consulta
-            $('#_noOficio').text(item.num_turno_sistema); // establecer los valores
-            $('#_noCorrespondencia').text(item.num_documento); // establecer los valores
-            $('#_noAnio').text(item.anio); // establecer los valores
-            $('#_fechaInicio').text(item.fecha_inicio); // establecer los valores
-            $('#_fechaFin').text(item.fecha_fin); // establecer los valores
+            $('#_noOficio').text(item.num_turno_sistema);
+            $('#_noCorrespondencia').text(item.num_documento);
+            $('#_noAnio').text(item.anio);
+            $('#_fechaInicio').text(item.fecha_inicio);
+            $('#_fechaFin').text(item.fecha_fin);
         },
     });
 }
 
-// ========= NUEVO: Lado derecho (solo lectura) =========
+// ========= Lado derecho: Documento de respuesta (solo lectura + subir anexos) =========
 function getReplySummary() {
     $.ajax({
         url: URL_DEFAULT.concat('/letter/cloud/reply'),
@@ -94,7 +105,13 @@ function getReplySummary() {
             _token: token
         },
         success: function (r) {
-            console.log(r)
+            console.log(r);
+
+            // Guardar info global
+            replyOficioId     = r.id_oficio || null;
+            MAX_ANEXOS_SALIDA = r.max_anexos_salida || 3;
+            replyAnexosCount  = Array.isArray(r.anexosSalida) ? r.anexosSalida.length : 0;
+
             // Texto
             $('#resp_asunto').text(r.asunto || '—');
             $('#resp_observaciones').text(r.observaciones || '—');
@@ -106,8 +123,7 @@ function getReplySummary() {
             if (Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
                 ofiVacio.hide();
                 r.oficiosSalida.forEach(function (v) {
-                    // generateFileHTML(boolPermitirEliminar, template)
-                    ofiCont.append(generateFileHTML(false, v)); // false => sin botón de eliminar
+                    ofiCont.append(generateFileHTML(false, v)); // sin eliminar
                 });
             } else {
                 ofiVacio.show();
@@ -120,31 +136,134 @@ function getReplySummary() {
             if (Array.isArray(r.anexosSalida) && r.anexosSalida.length > 0) {
                 aneVacio.hide();
                 r.anexosSalida.forEach(function (v) {
-                    aneCont.append(generateFileHTML(false, v));
+                    aneCont.append(generateFileHTML(false, v)); // sin eliminar
                 });
             } else {
                 aneVacio.show();
+            }
+
+            // Habilitar / deshabilitar botón "Cargar" de anexos de respuesta
+            toggleReplyAnexoUpload();
+        }
+    });
+}
+
+// ====== EVENTOS DE SUBIDA (ENTRADA) ======
+
+//La funcion sube el archivo que el usuario esta seleccionando (OFICIO ENTRADA)
+document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_entrada, es_oficio);
+    }
+});
+
+//La funcion sube el archivo que el usuario esta seleccionando (ANEXO ENTRADA)
+document.getElementById('file_anexo_entrada').addEventListener('change', function (event) {
+    if (event.target.files.length > 0) {
+        sendFile(event.target.files[0], id_cat_entrada, es_anexo);
+    }
+});
+
+// ====== EVENTO DE SUBIDA (ANEXO SALIDA / RESPUESTA) ======
+var fileAnexoSalidaEl = document.getElementById('file_anexo_salida');
+if (fileAnexoSalidaEl) {
+    fileAnexoSalidaEl.addEventListener('change', function (event) {
+        var files = event.target.files || [];
+        if (!files.length) return;
+        sendReplyAnexo(files[0]);
+        event.target.value = ''; // limpiar input
+    });
+}
+
+// ====== FUNCIÓN PARA SUBIR ANEXO DE RESPUESTA ======
+function sendReplyAnexo(file) {
+    if (!file) return;
+
+    if (!replyOficioId) {
+        if (typeof notyfEM !== 'undefined' && notyfEM.error) {
+            notyfEM.error('No hay oficio de respuesta para adjuntar.');
+        } else {
+            alert('No hay oficio de respuesta para adjuntar.');
+        }
+        $('#file_anexo_salida').val('');
+        return;
+    }
+
+    var remaining = MAX_ANEXOS_SALIDA - replyAnexosCount;
+    if (remaining <= 0) {
+        if (typeof notyfEM !== 'undefined' && notyfEM.error) {
+            notyfEM.error('Solo se permiten hasta ' + MAX_ANEXOS_SALIDA + ' anexos de respuesta.');
+        } else {
+            alert('Solo se permiten hasta ' + MAX_ANEXOS_SALIDA + ' anexos de respuesta.');
+        }
+        $('#file_anexo_salida').val('');
+        return;
+    }
+
+    showSpinner();
+
+    var data = new FormData();
+    data.append('file', file);
+    data.append('id_tbl_oficio', replyOficioId);
+    data.append('id_tbl_correspondencia', id);
+    data.append('id_cat_area', id_cat_area);
+    data.append('id_cat_entrada', id_cat_entrada);
+    data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
+
+    $.ajax({
+        url: URL_DEFAULT.concat('/letter/cloud/reply/upload-anexo'),
+        type: 'POST',
+        data: data,
+        processData: false,
+        contentType: false,
+        headers: { 'X-CSRF-TOKEN': token },
+        success: function (resp) {
+            hideSpinner();
+            $('#file_anexo_salida').val('');
+
+            if (resp.status) {
+                if (typeof notyfEM !== 'undefined' && notyfEM.success) {
+                    notyfEM.success(resp.message || 'Anexo agregado correctamente.');
+                } else {
+                    alert('Anexo agregado correctamente.');
+                }
+                // Recargar panel derecho para actualizar conteo y lista
+                getReplySummary();
+            } else {
+                if (typeof notyfEM !== 'undefined' && notyfEM.error) {
+                    notyfEM.error(resp.message || 'No fue posible subir el anexo.');
+                } else {
+                    alert(resp.message || 'No fue posible subir el anexo.');
+                }
+            }
+        },
+        error: function () {
+            hideSpinner();
+            $('#file_anexo_salida').val('');
+            if (typeof notyfEM !== 'undefined' && notyfEM.error) {
+                notyfEM.error('Error al subir el anexo.');
+            } else {
+                alert('Error al subir el anexo.');
             }
         }
     });
 }
 
+// ====== Habilitar / deshabilitar botón "Cargar" anexos de respuesta ======
+function toggleReplyAnexoUpload() {
+    var bool_user_role = $('#bool_user_role').val();
+    var hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
+    var remaining      = MAX_ANEXOS_SALIDA - replyAnexosCount;
 
-//La funcion sube el archivo que el usuario esta seleccionando
-document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], id_cat_entrada, es_oficio); // Pasa el archivo real a la función
+    if (!hasRole || !replyOficioId || remaining <= 0) {
+        disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
+    } else {
+        enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
+        $('#file_anexo_salida').attr('data-remaining', remaining);
     }
-});
+}
 
-//La funcion sube el archivo que el usuario esta seleccionando
-document.getElementById('file_anexo_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], id_cat_entrada, es_anexo); // Pasa el archivo real a la función
-    }
-});
-
-
+// ====== SUBIDA DE ARCHIVOS (ENTRADA) ======
 function sendFile(file, id_entrada_salida, esOficio) {
     if (file) {
         showSpinner();// Inicio de spinner
@@ -172,7 +291,6 @@ function sendFile(file, id_entrada_salida, esOficio) {
                     notyfEM.error(response.messages);
                 }
                 getDataDocument(); //Lista de nuevo el directorio (entrada)
-                // getReplySummary(); // <- normalmente no cambia la respuesta, por eso lo dejo comentado
             },
         });
     }
@@ -208,7 +326,6 @@ function deleteDocumenServer(uid) {
                 notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
             getDataDocument(); //Lista de nuevo e directorio
-            // getReplySummary(); // <- si algún día permites borrar en el panel derecho, descomenta
         },
     });
 }

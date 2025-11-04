@@ -67,51 +67,72 @@ class CloudFileC extends Controller
     }
 
     // ===== NUEVO: Datos para "Documento de Respuesta" (solo lectura) =====
-    public function cloudReply(Request $request)
-    {
-        $idCorr = (int) $request->id; // id_tbl_correspondencia
+ public function cloudReply(Request $request)
+{
+    $idCorr = (int) $request->id; // id_tbl_correspondencia
 
-        // Último oficio ligado a esta correspondencia
-        $oficio = DB::table('correspondencia.tbl_oficio')
-            ->where('id_tbl_correspondencia', $idCorr)
-            ->orderByDesc('id_tbl_oficio')
-            ->first();
+    $oficio = DB::table('correspondencia.tbl_oficio')
+        ->where('id_tbl_correspondencia', $idCorr)
+        ->orderByDesc('id_tbl_oficio')
+        ->first();
 
-        if (!$oficio) {
-            return response()->json([
-                'asunto'         => null,
-                'observaciones'  => null,
-                'oficiosSalida'  => [],
-                'anexosSalida'   => [],
-            ]);
-        }
-
-        // Texto principal
-        $asunto = $oficio->asunto ?? null;
-        $observaciones = $oficio->observaciones ?? null;
-
-        // Archivos de salida (ligados a id_tbl_oficio)
-        $oficiosSalida = DB::table('correspondencia.ctrl_oficio_oficio')
-            ->select('uid', 'nombre')
-            ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
-            ->where('estatus', true)
-            ->orderBy('id_ctrl_oficio_oficio', 'asc')
-            ->get();
-
-        $anexosSalida = DB::table('correspondencia.ctrl_oficio_anexo')
-            ->select('uid', 'nombre')
-            ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
-            ->where('estatus', true)
-            ->orderBy('id_ctrl_oficio_anexo', 'asc')
-            ->get();
-
+    if (!$oficio) {
         return response()->json([
-            'asunto'         => $asunto,
-            'observaciones'  => $observaciones,
-            'oficiosSalida'  => $oficiosSalida,
-            'anexosSalida'   => $anexosSalida,
+            'asunto'                  => null,
+            'observaciones'           => null,
+            'oficiosSalida'           => [],
+            'anexosSalida'            => [],
+            'id_oficio'               => null,
+            'max_anexos_salida'       => 3,
+            'remaining_anexos_salida' => 3,
         ]);
     }
+
+    $asunto        = $oficio->asunto ?? null;
+    $observaciones = $oficio->observaciones ?? null;
+
+    $oficiosSalida = DB::table('correspondencia.ctrl_oficio_oficio')
+        ->select('uid', 'nombre')
+        ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
+        ->where('estatus', true)
+        ->orderBy('id_ctrl_oficio_oficio', 'asc')
+        ->get();
+
+    $anexosSalida = DB::table('correspondencia.ctrl_oficio_anexo')
+        ->select('uid', 'nombre')
+        ->where('id_tbl_oficio', $oficio->id_tbl_oficio)
+        ->where('estatus', true)
+        ->orderBy('id_ctrl_oficio_anexo', 'asc')
+        ->get();
+
+    // Límite desde config (si existe), default 3
+    $max = 3;
+    try {
+        $maxKey = config('custom_config.MAX_ANEXOS_SALIDA');
+        if ($maxKey) {
+            $cfg    = new CollectionConfigCloudM();
+            $rowMax = $cfg->getValue($maxKey);
+            if ($rowMax && is_numeric($rowMax->valor)) {
+                $max = (int) $rowMax->valor;
+            }
+        }
+    } catch (\Throwable $e) {
+        // silencioso
+    }
+
+    $remaining = max(0, $max - $anexosSalida->count());
+
+    return response()->json([
+        'asunto'                  => $asunto,
+        'observaciones'           => $observaciones,
+        'oficiosSalida'           => $oficiosSalida,
+        'anexosSalida'            => $anexosSalida,
+        'id_oficio'               => $oficio->id_tbl_oficio,
+        'max_anexos_salida'       => $max,
+        'remaining_anexos_salida' => $remaining,
+    ]);
+}
+
 
     // ===== Subida con nombre personalizado (folio + fechaHora sin guion bajo) =====
 public function upload(Request $request)
@@ -239,6 +260,125 @@ public function upload(Request $request)
             'status'   => true,
         ]);
     }
+    public function uploadReplyAnexo(Request $request)
+{
+    $cloudConfigM = new CloudConfigM();
+    $alfrescoC    = new AlfrescoC();
+    $now          = Carbon::now();
+
+    $request->validate([
+        'id_tbl_oficio'         => 'required|integer',
+        'id_tbl_correspondencia'=> 'required|integer',
+        'file'                  => 'required|file|max:20480',
+    ]);
+
+    $idOficio = (int) $request->id_tbl_oficio;
+    $idCorr   = (int) $request->id_tbl_correspondencia;
+
+    // Límite de 3 anexos de salida
+    $maxAnexos = 3;
+    $current   = DB::table('correspondencia.ctrl_oficio_anexo')
+        ->where('id_tbl_oficio', $idOficio)
+        ->where('estatus', true)
+        ->count();
+
+    if ($current >= $maxAnexos) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Solo se permiten hasta '.$maxAnexos.' anexos de respuesta.',
+        ]);
+    }
+
+    if (! $request->hasFile('file') || ! $request->file('file')->isValid()) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Archivo no válido.',
+        ]);
+    }
+
+    $file = $request->file('file');
+
+    // Validación tamaño/extensiones (igual que en upload())
+    $extensionArchivo = strtolower($file->getClientOriginalExtension());
+    $tamanoArchivoMB  = $file->getSize() / 1024 / 1024;
+
+    $maxSize         = $cloudConfigM->getData(config('custom_config.MAX_SIZE_ARCHIVO'));
+    $fileExtension   = $cloudConfigM->getData(config('custom_config.EXTENSIONES_VALIDAS'));
+    $validExtensions = array_map('strtolower', explode(',', $fileExtension->valor));
+
+    if ($tamanoArchivoMB > (float) $maxSize->valor) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Tamaño máximo de archivo admitido: '.$maxSize->valor.' MB',
+        ]);
+    }
+    if (! in_array($extensionArchivo, $validExtensions, true)) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Las extensiones permitidas son: '.$fileExtension->valor,
+        ]);
+    }
+
+    // Datos de la correspondencia para nombre y área
+    $corr = DB::table('correspondencia.tbl_correspondencia')
+        ->select('id_cat_area', 'id_cat_area_2', 'id_cat_area_1', 'folio_gestion')
+        ->where('id_tbl_correspondencia', $idCorr)
+        ->first();
+
+    if (! $corr) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Correspondencia no encontrada.',
+        ]);
+    }
+
+    $areaForCloud = $corr->id_cat_area ?: ($corr->id_cat_area_2 ?: $corr->id_cat_area_1);
+
+    $uidRow = $cloudConfigM->getUid(
+        $areaForCloud,
+        $request->id_cat_entrada,
+        $request->id_cat_tipo_oficio
+    );
+
+    if (! $uidRow || ! $uidRow->uid) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'No se encontró carpeta en Alfresco para el área.',
+        ]);
+    }
+
+    $folderId   = $uidRow->uid;
+    $folio      = $corr->folio_gestion ?: 'SIN_FOLIO';
+    $folioSafe  = preg_replace('/[^\w\-]+/u', '_', $folio);
+    $stamp      = now()->format('YmdHis');
+    $fileName   = "ANEXO_{$folioSafe}_{$stamp}R.{$extensionArchivo}";
+
+    $uid = $alfrescoC->addFile($file, $folderId, 0, $fileName);
+
+    if (! $uid) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Error al subir el archivo a Alfresco.',
+        ]);
+    }
+
+    // Guardar en ctrl_oficio_anexo
+    DB::table('correspondencia.ctrl_oficio_anexo')->insert([
+        'uid'                   => $uid,
+        'nombre'                => $fileName,
+        'estatus'               => true,
+        'fecha_usuario'         => $now,
+        'id_tbl_oficio'         => $idOficio,
+        'id_usuario_sistema'    => Auth::id(),
+        'id_cat_tipo_doc_cloud' => 1, // mismo que en replySave
+    ]);
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'Anexo agregado correctamente.',
+    ]);
+}
+
 }
 
 

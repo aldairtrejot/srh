@@ -116,6 +116,8 @@ Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.
 Route::delete('/letter/upload-temp/{token}', [UploadTempC::class, 'destroy'])->name('letter.upload.temp.delete')->middleware('auth');
 Route::post('/letter/reply/save', [LetterC::class, 'replySave'])->name('letter.reply.save')->middleware('auth');
 Route::post('/letter/cloud/reply', [CloudFileC::class, 'cloudReply'])->name('letter.cloud.reply')->middleware('auth');
+Route::post('/letter/cloud/reply/upload-anexo', [CloudFileC::class, 'uploadReplyAnexo'])->name('letter.cloud.reply.upload-anexo')->middleware('auth');
+
 
 // Guest
 // Guest
