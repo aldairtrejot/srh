@@ -78,15 +78,15 @@ class EmailC extends Controller
     public function main(Request $request)
     {
         try {
-            if (
-                ! in_array(1, session('SESSION_ROLE_USER', [])) &&
-                ! in_array(15, session('SESSION_ROLE_USER', []))
-            ) {
-                return response()->json([
-                    'status' => false,
-                ]);
-            }
-
+           if (
+    ! in_array(1, session('SESSION_ROLE_USER', [])) &&
+    ! in_array(2, session('SESSION_ROLE_USER', [])) &&
+    ! in_array(15, session('SESSION_ROLE_USER', []))
+) {
+    return response()->json([
+        'status' => false,
+    ]);
+}
             $query = DB::table('correspondencia.tbl_correspondencia as c')
                 ->join('administration.users as u', 'u.id', '=', 'c.id_usuario_enlace')
                 ->select('u.name', 'u.email')
