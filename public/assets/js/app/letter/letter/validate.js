@@ -125,7 +125,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         }
     } else {
         // Role not administration
-        if ($('#id_cat_estatus').val() == 7 || $('#id_cat_estatus').val() == 6) {
+        if ($('#id_cat_estatus').val() == 6) {
             notyfEM.error('El usuairo no tiene permisos para acceder a esta sección.');
             event.preventDefault();
             return;

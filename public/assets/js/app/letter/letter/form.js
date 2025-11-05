@@ -506,7 +506,7 @@ function getRole() {
 }
 
 function validateEstatus() {
-    if ([2, 5, 7].includes(Number($('#id_cat_estatus').val()))) {
+    if ([2, 5].includes(Number($('#id_cat_estatus').val()))) {
         $('#id_cat_estatus').prop('disabled', true).selectpicker('refresh');
     } else {
         $('#id_cat_estatus option[value="2"], #id_cat_estatus option[value="5"], #id_cat_estatus option[value="6"],#id_cat_estatus option[value="8"]').remove();
