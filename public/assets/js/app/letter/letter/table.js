@@ -170,6 +170,29 @@ function fetchReplyUid(idCorr) {
     });
 }
 
+/* ===== NUEVO: abre Responder solo si el estatus NO es CONCLUIDO (4) ===== */
+function openReplyGuard(idCorr, folio, statusId, statusText) {
+  statusId   = Number(statusId || 0);
+  statusText = (statusText || '').toString().toUpperCase();
+
+  if (statusId === 4 || statusText === 'CONCLUIDO') {
+    if (window.Swal) {
+      Swal.fire(
+        'No es posible responder',
+        'El folio ya está CONCLUIDO y no admite nuevas respuestas.',
+        'info'
+      );
+    } else {
+      alert('El folio ya está CONCLUIDO y no admite nuevas respuestas.');
+    }
+    return;
+  }
+
+  if (typeof openReply === 'function') {
+    openReply(idCorr, folio);
+  }
+}
+
 /* ===================== BÚSQUEDA Y RENDER FILAS ===================== */
 function searchInit() {
   mostrarBarra();
@@ -182,16 +205,16 @@ function searchInit() {
     iterator: iteradorAux,
     searchValue: searchValue
   }, function (response) {
-    console.log(response)
+    console.log(response);
 
     var tbody = $('#template-table tbody');
     tbody.empty();
 
     if (response && response.value && response.value.length > 0) {
       response.value.forEach(function (object) {
-        var finalUrl = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
+        var finalUrl   = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
         var finalCloud = URL_DEFAULT.concat('/letter/cloud/').concat(object.id);
-        var urlReport = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
+        var urlReport  = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
 
         var estatusColors = {
           'TURNADO': '#FFA82E',
@@ -203,7 +226,9 @@ function searchInit() {
           'CONOCIMIENTO': '#6fc5f4ff',
           'RE-TURNADO': '#872ebbff'
         };
-        var estatusColor = estatusColors[object.estatus] || '#6c757d';
+        var estatusText  = (object.estatus || '').toString();
+        var estatusUpper = estatusText.toUpperCase();
+        var estatusColor = estatusColors[estatusText] || '#6c757d';
 
         // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
@@ -211,11 +236,29 @@ function searchInit() {
         // Para dropdown
         var folioSafe = String(object.folio_gestion || '').replace(/'/g, "\\'");
 
-        // ====== NUEVO: status de la fila (ID o por texto) ======
+        // ====== status numérico si viene, si no, algunos defaults ======
         var __statusId =
           (object.id_cat_estatus != null) ? Number(object.id_cat_estatus)
-            : (object.estatus === 'TURNADO' ? 1
-              : (object.estatus === 'RETURNADO' || object.estatus === 'RE-TURNADO' ? 8 : 0));
+            : (estatusUpper === 'TURNADO' ? 1
+              : (estatusUpper === 'RETURNADO' || estatusUpper === 'RE-TURNADO' ? 8 : 0));
+
+        // ¿Se puede responder? NO si está concluido (id=4 o texto CONCLUIDO)
+        var canReply = !(__statusId === 4 || estatusUpper === 'CONCLUIDO');
+
+        // HTML del botón Responder (sólo si se permite)
+        var responderBtnHtml = '';
+        if (canReply) {
+          var statusTextEsc = estatusUpper.replace(/'/g, "\\'");
+          responderBtnHtml =
+            '<button class="dropdown-item" onclick="openReplyGuard(' + object.id + ', \'' + folioSafe + '\',' + __statusId + ', \'' + statusTextEsc + '\')">' +
+            '<span style="background:#2986cc" class="icon-container-template">' +
+            '<div style="text-align: center;">' +
+            '<i class="fa fa-retweet item-icon-menu"></i>' +
+            '</div>' +
+            '</span>' +
+            'Responder' +
+            '</button>';
+        }
 
         var rowHTML =
           '<tr>' +
@@ -244,28 +287,20 @@ function searchInit() {
           '<div style="text-align:center;"><i class="fa fa-print item-icon-menu"></i></div>' +
           '</span>Reporte' +
           '</a>' +
-          // Responder SOLO queda en el dropdown (no en la columna 10)
-          '<button class="dropdown-item" onclick="openReply(' + object.id + ', \'' + folioSafe + '\')">' +
-          '<span style="background:#2986cc" class="icon-container-template">' +
-          '<div style="text-align: center;">' +
-          '<i class="fa fa-retweet item-icon-menu"></i>' +
-          '</div>' +
-          '</span>' +
-          'Responder' +
-          '</button>' +
-          // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
+          // Botón Responder sólo si canReply=true
+          responderBtnHtml +
+          // ====== botón Re-Turnado ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +
           'window.LETTER = window.LETTER || {};' +
-          'window.LETTER.statusAllowedReturnado = [1,8];' +                 // guard nuevo
-          'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' + // guard viejo
-          'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' + // estatus actual
-          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +        // abrir modal
+          'window.LETTER.statusAllowedReturnado = [1,8];' +
+          'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' +
+          'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' +
+          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +
           '})(this)">' +
           '<span style="background:#2a848c" class="icon-container-template">' +
           '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
           '</span>Re-Turnado' +
-          '</button>' +
           '</button>' +
           '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + object.folio_gestion + '\')">' +
           '<span style="background:#462c95" class="icon-container-template">' +
@@ -274,13 +309,12 @@ function searchInit() {
           '</div>' +
           '</span>' +
           'Rechazar' +
-
           '</div>' +
           '</div>' +
           '</td>' +
 
           // 1: Estatus
-          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
+          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + estatusText + '</label></td>' +
 
           // 2: Fecha de captura
           '<td>' + (object.fecha_captura || '') + '</td>' +
@@ -363,3 +397,4 @@ function searchValue() {
   setValue();
   searchInit();
 }
+
