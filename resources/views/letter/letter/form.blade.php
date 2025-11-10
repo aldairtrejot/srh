@@ -117,7 +117,7 @@
     const isEdit = {{ isset($item) && !empty($item->id_tbl_correspondencia) ? 'true' : 'false' }};
 
     // Toma iniciales desde old() o desde $item
-    const a1 = "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}";
+    const a1 = "{{ old('id_cat_area_1', optional($item)->id_cat_area_1?? 3) }}";
     const a2 = "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}";
     const a3 = "{{ old('id_cat_area',   optional($item)->id_cat_area) }}";
 
@@ -451,6 +451,17 @@
           $(el).prop('required', false).selectpicker('refresh');
         }
       });
+    } else {
+      // *** ALTA: seleccionar automáticamente CRH = 3 ***
+      var crh = document.querySelector("select[name='id_cat_area_1']");
+      if (crh) {
+        crh.value = '3';
+        if (window.jQuery && $.fn.selectpicker) {
+          $(crh).selectpicker('val', '3').trigger('change');
+        } else {
+          crh.dispatchEvent(new Event('change'));
+        }
+      }
     }
 
     // Relleno de encabezado (fallback)
