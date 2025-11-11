@@ -253,6 +253,16 @@ function searchInit() {
           '</span>' +
           'Responder' +
           '</button>' +
+          // Copia
+'<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + folioSafe + '\')">' +
+'<span style="background:#691C32" class="icon-container-template">' +
+'<div style="text-align: center;">' +
+'<i class="fa fa-share-square item-icon-menu"></i>' +
+'</div>' +
+'</span>' +
+'Copia' +
+'</button>' +
+          
           // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +
