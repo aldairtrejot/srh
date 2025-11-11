@@ -193,4 +193,35 @@ class CollectionAreaC extends Controller
             'status'     => true,
         ]);
     }
+    public function areasForCopy(Request $r)
+{
+    try {
+        $ids = array_map('intval', (array) config('custom_config.AREAS_COPY', []));
+        if (empty($ids)) {
+            return response()->json(['ok'=>true, 'value'=>[]]);
+        }
+
+        $rows = \DB::table('correspondencia.cat_area')
+            ->whereIn('id_cat_area', $ids)
+            ->where('estatus', true)
+            ->orderBy('descripcion')
+            ->get([
+                'id_cat_area as id',
+                \DB::raw('UPPER(descripcion) as descripcion'),
+            ]);
+
+        // Compatible con tus helpers foreachSelect / foreachSelectNull
+        $out = $rows->map(fn($r) => [
+            'id'          => (int) $r->id,
+            'descripcion' => (string) $r->descripcion,
+            'label'       => (string) $r->descripcion, // opcional
+        ])->values();
+
+        return response()->json(['ok'=>true, 'value'=>$out]);
+    } catch (\Throwable $e) {
+        \Log::error('AREAS_FOR_COPY_ERROR: '.$e->getMessage(), ['ex'=>$e]);
+        return response()->json(['ok'=>false, 'message'=>'Error al cargar áreas'], 500);
+    }
+}
+
 }

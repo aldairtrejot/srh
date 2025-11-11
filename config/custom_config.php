@@ -72,4 +72,12 @@ return [
 
     // Si true (default), incluye copias (ctrl_transcribir_correspondencia) en la visibilidad
     'INCLUDE_COPIES_IN_VISIBILITY' => true,
+
+    // Solo estas áreas aparecerán en el modal "Turnar con copia"
+'AREAS_COPY' => [
+    // ← PON AQUÍ los IDs reales de correspondencia.cat_area que SÍ deben salir en el modal
+    // Ejemplos:
+    6, 16, 19, 14,
+],
+
 ];

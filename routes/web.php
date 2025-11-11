@@ -110,6 +110,8 @@ Route::post('/alf/download', [DescargaController::class, 'descargarArchivos'])->
 Route::post('/letter/countReport', [CountReportController::class, 'countReportController'])->name('letter.countReport')->middleware('auth');
 Route::post('/letter/collection/j2', [DashboardLetterC::class, 'setAreaJ2'])->name('letter.collection.j2')->middleware('auth');
 Route::post('/letter/collection/j3', [DashboardLetterC::class, 'setAreaJ3'])->name('letter.collection.j3')->middleware('auth');
+Route::post('/letter/collection/areasForCopy',[CollectionAreaC::class, 'areasForCopy'])->name('letter.areasForCopy')->middleware('auth');
+
 
 // === [ADD] Subida temporal para archivos de Correspondencia (persistencia y validación previa) ===
 Route::post('/letter/upload-temp', [UploadTempC::class, 'store'])->name('letter.upload.temp')->middleware('auth');
