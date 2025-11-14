@@ -113,7 +113,6 @@
 {{-- ===== Config accesible para JS (REEMPLAZADO) ===== --}}
 <script>
   (function () {
-    // Detecta edición por existencia de id_tbl_correspondencia
     const isEdit = {{ isset($item) && !empty($item->id_tbl_correspondencia) ? 'true' : 'false' }};
 
     // Toma iniciales desde old() o desde $item
@@ -121,7 +120,14 @@
     const a2 = "{{ old('id_cat_area_2', optional($item)->id_cat_area_2) }}";
     const a3 = "{{ old('id_cat_area',   optional($item)->id_cat_area) }}";
 
-    // Normaliza vacíos -> null
+    // NUEVO: demás dependientes
+    const tramite      = "{{ old('id_cat_tramite',     optional($item)->id_cat_tramite) }}";
+    const clave        = "{{ old('id_cat_clave',       optional($item)->id_cat_clave) }}";
+    const usuarioArea  = "{{ old('id_usuario_area',    optional($item)->id_usuario_area) }}";
+    const usuarioEnlace= "{{ old('id_usuario_enlace',  optional($item)->id_usuario_enlace) }}";
+    const unidad       = "{{ old('id_cat_unidad',      optional($item)->id_cat_unidad) }}";
+    const coordinacion = "{{ old('id_cat_coordinacion',optional($item)->id_cat_coordinacion) }}";
+
     function nz(v) {
       return (v === '' || v === 'null' || v === null || v === undefined) ? null : v;
     }
@@ -133,14 +139,22 @@
       initials: {
         area1: nz(a1),
         area2: nz(a2),
-        area3: nz(a3)
+        area3: nz(a3),
+
+        // NUEVO: nombres TAL CUAL los usa select.js
+        tramite:      nz(tramite),
+        clave:        nz(clave),
+        usuario_area: nz(usuarioArea),
+        usuario_enlace: nz(usuarioEnlace),
+        unidad:       nz(unidad),
+        coordinacion: nz(coordinacion),
       }
     };
 
-    // Flag global que usa deps-areas.js
     window.IS_EDIT = isEdit;
   })();
 </script>
+
 
                 {{-- ===== HIDDEN FIELDS ===== --}}
                 <x-template-form.template-form-input-hidden id="bool_user_role" name="bool_user_role" value="{{ $letterAdminMatch ?? '' }}" />
