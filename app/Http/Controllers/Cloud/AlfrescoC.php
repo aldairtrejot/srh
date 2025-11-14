@@ -168,7 +168,7 @@ class AlfrescoC extends Controller
         if ($response === false || $http_status != 200) {
             return redirect()->back()->with([
                 'value' => 'error',
-                'message' => 'Se produjo un error al intentar abrir el documento.',
+                //'message' => 'Se produjo un error al intentar abrir el documento.',
                 'estatus' => 'true'
             ]);
         }

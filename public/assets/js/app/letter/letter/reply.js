@@ -11,8 +11,9 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   var MODAL_SEL     = '#replyModal';
 
   // Estado local
-  var replyOficioFile   = null;   // 1 archivo (REQUERIDO)
-  var replyAnexosFiles  = [];     // hasta 3 archivos (OPCIONALES)
+  var replyOficioFile   = null;   // archivo oficio (FINAL: requerido / otros tipos: no se usa)
+  var replyAnexosFiles  = [];     // NUEVOS anexos a subir (máx 3 - guardados)
+  var replyAnexosPrev   = [];     // Anexos ya guardados en el servidor (solo vista)
 
   // ===== URL para POST (evita 404 en subcarpetas) =====
   function getReplyUrl(){
@@ -24,6 +25,14 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     var i = path.indexOf('/letter/');
     var prefix = (i >= 0) ? path.slice(0, i) : '';
     return prefix + '/letter/reply/save';
+  }
+
+  // ===== URL para obtener datos previos de respuesta =====
+  function getReplyDataUrl(id){
+    var path = window.location.pathname;
+    var i = path.indexOf('/letter/');
+    var prefix = (i >= 0) ? path.slice(0, i) : '';
+    return prefix + '/letter/reply/data/' + id;
   }
 
   // ===== Backdrop (fallback) =====
@@ -59,7 +68,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     var el = document.querySelector('[name="'+name+'"]');
     return (el && el.value) ? el.value : '';
   }
-  function fmtSizeKb(bytes){ return Math.ceil(bytes/1024) + ' KB'; }
+  function fmtSizeKb(bytes){ return Math.ceil((bytes || 0)/1024) + ' KB'; }
 
   // ===== Render Oficio (1) =====
   function renderReplyOficioPreview(){
@@ -84,19 +93,34 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     $cont.append($pill);
   }
 
-  // ===== Render Anexos (hasta 3) =====
+  // ===== Render Anexos (guardados + nuevos, máx 3 en total) =====
   function renderReplyAnexosPreview(){
     var $vacio = $('#reply_container_anexos_empty');
     var $cont  = $('#reply_container_anexos');
     $cont.empty();
 
-    if (!replyAnexosFiles.length) { $vacio.show(); return; }
+    var totalPrev = replyAnexosPrev.length;
+    var totalNew  = replyAnexosFiles.length;
+
+    if (!totalPrev && !totalNew) { $vacio.show(); return; }
     $vacio.hide();
 
+    // 1) Anexos ya guardados (solo vista, sin botón quitar)
+    replyAnexosPrev.forEach(function(a){
+      var nombre = (a && a.nombre) ? a.nombre : ((a && a.name) ? a.name : '(sin nombre)');
+      var $pill  = $('<div class="reply-file-pill"></div>');
+      var $icon  = $('<i class="fa fa-file"></i>');
+      var $name  = $('<span></span>').text(nombre + ' (guardado)');
+      $pill.append($icon, $name);
+      $cont.append($pill);
+    });
+
+    // 2) Nuevos anexos (con botón quitar)
     replyAnexosFiles.forEach(function(file, idx){
       var $pill = $('<div class="reply-file-pill"></div>');
       var $icon = $('<i class="fa fa-file"></i>');
-      var $name = $('<span></span>').text(file.name + ' (' + fmtSizeKb(file.size) + ')');
+      var labelName = file.name || file.nombre || '(sin nombre)';
+      var $name = $('<span></span>').text(labelName + ' (' + fmtSizeKb(file.size) + ')');
       var $rm   = $('<button type="button" class="reply-remove-btn" aria-label="Quitar">&times;</button>')
         .on('click', function(){
           replyAnexosFiles.splice(idx, 1);
@@ -123,7 +147,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       // SOLO: pdf, jpg, jpeg, png
       var allowed = /\.(pdf|jpg|jpeg|png)$/i.test(file.name);
       if (!allowed){
-        Swal.fire('Archivo no permitido','warning');
+        Swal.fire('Archivo no permitido','Solo se permiten PDF/JPG/PNG.','warning');
         $(this).val(''); return;
       }
       var maxBytes = 10 * 1024 * 1024; // 10MB
@@ -138,42 +162,169 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     });
   }
 
-  // ===== Change: Anexos (hasta 3) =====
+  // ===== Change: Anexos (hasta 3 TOTAL: guardados + nuevos) =====
   function bindReplyAnexosInput(){
     var $input = $('#reply_file_anexos');
     if (!$input.length) return;
     $input.off('change.reply').on('change.reply', function(e){
       var files = Array.from(e.target.files || []);
-      if (!files.length){ replyAnexosFiles = []; renderReplyAnexosPreview(); return; }
+      if (!files.length){ renderReplyAnexosPreview(); return; }
 
-      var maxFiles = 3;
+      var maxTotal = 3;
+      var totalPrev = replyAnexosPrev.length;
+      var totalNew  = replyAnexosFiles.length;
+      var total     = totalPrev + totalNew;
+
+      if (total >= maxTotal) {
+        Swal.fire('Límite alcanzado','Ya tienes el máximo de 3 anexos (entre guardados y nuevos).','info');
+        $(this).val('');
+        return;
+      }
+
       var maxBytes = 10 * 1024 * 1024; // 10MB c/u
+      var maxNewAllowed = maxTotal - totalPrev; // cupo para nuevos (considerando guardados)
       var next = replyAnexosFiles.slice();
 
       for (var i=0; i<files.length; i++){
-        if (next.length >= maxFiles) break;
+        if (next.length >= maxNewAllowed) break;
 
         var f = files[i];
         // SOLO: pdf, jpg, jpeg, png
         var allowed = /\.(pdf|jpg|jpeg|png)$/i.test(f.name);
-        if (!allowed){ Swal.fire('Archivo no permitido','warning'); continue; }
-        if (f.size > maxBytes){ Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning'); continue; }
+        if (!allowed){
+          Swal.fire('Archivo no permitido','Solo se permiten PDF/JPG/PNG.','warning');
+          continue;
+        }
+        if (f.size > maxBytes){
+          Swal.fire('Archivo muy grande', f.name + ': máximo 10 MB.', 'warning');
+          continue;
+        }
 
+        // evitar duplicados entre nuevos
         var dup = next.some(function(x){ return x.name === f.name && x.size === f.size; });
         if (dup) continue;
 
         next.push(f);
       }
 
-      if (next.length > maxFiles){
-        next = next.slice(0, maxFiles);
-        Swal.fire('Límite alcanzado','Solo se permiten hasta 3 anexos.','info');
+      if (next.length > replyAnexosFiles.length && next.length >= maxNewAllowed) {
+        Swal.fire('Límite alcanzado','Se guardaron solo algunos anexos hasta completar el máximo de 3.','info');
       }
 
       replyAnexosFiles = next;
       renderReplyAnexosPreview();
       $(this).val('');
     });
+  }
+
+  // ===== Reglas según Tipo de Respuesta =====
+  function applyTipoRespuestaRules(){
+    var tipo = ($('#reply_tipo_respuesta').val() || '').toUpperCase();
+
+    var $fechaInicio = $('[name="fecha_inicio"]');
+    var $fechaFin    = $('[name="fecha_fin"]');
+    var $asunto      = $('#reply_asunto');
+    var $obs         = $('#reply_observacion');
+    var $fileOficio  = $('#reply_file_oficio');
+    var $fileAnexos  = $('#reply_file_anexos');
+
+    // Si no hay tipo seleccionado → TODO bloqueado (menos el select)
+    if (!tipo) {
+      $('#reply_observacion_group').show();
+      $('#reply_oficios_group').show();
+
+      $fechaInicio.prop('disabled', true);
+      $fechaFin.prop('disabled', true);
+      $asunto.prop('disabled', true);
+      $obs.prop('disabled', true);
+      $fileOficio.prop('disabled', true);
+      $fileAnexos.prop('disabled', true);
+
+      $('#reply_label_oficio, #reply_label_anexos')
+        .css('opacity', 0.4)
+        .css('pointer-events', 'none');
+
+      return;
+    }
+
+    // Con tipo seleccionado → habilitar base
+    $fechaInicio.prop('disabled', false);
+    $fechaFin.prop('disabled', false);
+    $asunto.prop('disabled', false);
+    $fileAnexos.prop('disabled', false);
+    $('#reply_label_anexos')
+      .css('opacity', 1)
+      .css('pointer-events', 'auto');
+
+    if (tipo === 'FINAL') {
+      // FINAL: mostrar y habilitar Observaciones + Oficios
+      $('#reply_observacion_group').show();
+      $('#reply_oficios_group').show();
+
+      $obs
+        .prop('disabled', false)
+        .attr('placeholder', 'Observaciones…');
+
+      $fileOficio.prop('disabled', false);
+      $('#reply_label_oficio')
+        .css('opacity', 1)
+        .css('pointer-events', 'auto');
+
+      // Limpiar anexos NUEVOS (los guardados se mantienen en replyAnexosPrev)
+      replyAnexosFiles = [];
+      $fileAnexos.val('');
+      renderReplyAnexosPreview();
+
+    } else {
+      // AVANCE (u otro distinto a FINAL):
+      // ocultar Observaciones + Oficios, anexos activos
+      $('#reply_observacion_group').hide();
+      $('#reply_oficios_group').hide();
+
+      $obs.val('').prop('disabled', true);
+
+      replyOficioFile = null;
+      $fileOficio.val('').prop('disabled', true);
+      renderReplyOficioPreview();
+      $('#reply_msg_oficio_req').hide();
+
+      $('#reply_label_oficio')
+        .css('opacity', 0.4)
+        .css('pointer-events', 'none');
+    }
+  }
+
+  // ===== Rellenar modal desde el servidor (última respuesta) =====
+  function fillReplyFromServer(data){
+    if (!data || !data.ok) return;
+
+    // Tipo de respuesta según estatus
+    if (data.tipo_respuesta) {
+      $('#reply_tipo_respuesta').val(data.tipo_respuesta);
+      applyTipoRespuestaRules();
+    }
+
+    // Oficio (fechas, asunto, observaciones)
+    if (data.oficio) {
+      if (data.oficio.fecha_inicio) {
+        var fi = (data.oficio.fecha_inicio || '').toString();
+        $('[name="fecha_inicio"]').val(fi.substring(0,10));
+      }
+      if (data.oficio.fecha_fin) {
+        var ff = (data.oficio.fecha_fin || '').toString();
+        $('[name="fecha_fin"]').val(ff.substring(0,10));
+      }
+      if (data.oficio.asunto) {
+        $('#reply_asunto').val(data.oficio.asunto);
+      }
+      if (data.oficio.observaciones) {
+        $('#reply_observacion').val(data.oficio.observaciones);
+      }
+    }
+
+    // Anexos ya guardados (se muestran SIEMPRE, en AVANCE y FINAL)
+    replyAnexosPrev = Array.isArray(data.anexos) ? data.anexos.slice() : [];
+    renderReplyAnexosPreview();
   }
 
   // ===== POST con FormData =====
@@ -186,7 +337,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       fd.append(k, v);
     });
 
-    // Oficio (REQUERIDO) + Anexos (opcionales)
+    // Oficio + Anexos (según reglas)
     if (replyOficioFile) fd.append('file_oficio_entrada', replyOficioFile);
     if (replyAnexosFiles.length){
       replyAnexosFiles.forEach(function(f){ fd.append('file_anexo_entrada[]', f); });
@@ -213,9 +364,14 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       // Reset campos
       $('[name="fecha_inicio"]').val('');
       $('[name="fecha_fin"]').val('');
-      $('#reply_observacion').val('');
+      $('#reply_observacion').val('').prop('disabled', false).attr('placeholder', 'Observaciones…');
       $('#reply_asunto').val('');
+      $('#reply_tipo_respuesta').val('');
       $('#reply_msg_oficio_req').hide();
+
+      // Asegurar que los grupos estén visibles al inicio
+      $('#reply_observacion_group').show();
+      $('#reply_oficios_group').show();
 
       // Forzar límites de longitud (Asunto 300 / Observaciones 200)
       $('#reply_asunto').attr('maxlength', 300);
@@ -243,16 +399,43 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       });
 
       // Reset archivos/preview
-      replyOficioFile  = null;
-      replyAnexosFiles = [];
-      $('#reply_file_oficio').val('');
+      replyOficioFile   = null;
+      replyAnexosFiles  = [];
+      replyAnexosPrev   = [];
+      $('#reply_file_oficio').val('').prop('disabled', false);
       $('#reply_file_anexos').val('');
       renderReplyOficioPreview();
       renderReplyAnexosPreview();
+      $('#reply_label_oficio, #reply_label_anexos')
+        .css('opacity', 1)
+        .css('pointer-events', 'auto');
 
       // Vincular change de inputs file
       bindReplyOficioInput();
       bindReplyAnexosInput();
+
+      // Vincular cambio de tipo de respuesta
+      $('#reply_tipo_respuesta')
+        .off('change.replyTipo')
+        .on('change.replyTipo', function () {
+          applyTipoRespuestaRules();
+        });
+
+      // Aplicar reglas iniciales (quedará todo bloqueado hasta elegir tipo)
+      applyTipoRespuestaRules();
+
+      // Cargar datos de última respuesta (si existen)
+      if (id) {
+        fetch(getReplyDataUrl(id))
+          .then(function(res){ return res.ok ? res.json() : null; })
+          .then(function(data){
+            if (!data) return;
+            fillReplyFromServer(data);
+          })
+          .catch(function(err){
+            console.error('replyData error:', err);
+          });
+      }
 
       showReplyModal(MODAL_SEL);
     } catch (e) { console.error('openReplyModal error:', e); }
@@ -266,6 +449,13 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     const fechaFin     = replyValByName('fecha_fin');    // Fecha de captura (REQ)
     const observacion  = replyValById('reply_observacion');
     const asunto       = replyValById('reply_asunto');
+    const tipoRespuesta = ($('#reply_tipo_respuesta').val() || '').toUpperCase();
+
+    // Tipo de respuesta
+    if (!tipoRespuesta) {
+      Swal.fire('Campo requerido','Selecciona el tipo de respuesta.','warning');
+      return;
+    }
 
     // Chequeos de longitud antes de enviar
     if (asunto && asunto.length > 300){
@@ -293,14 +483,26 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       Swal.fire('Campo requerido','Escribe el asunto.','warning'); 
       return;
     }
-    if(!observacion.trim()){
-      Swal.fire('Campo requerido','Escribe las observaciones.','warning'); 
-      return;
-    }
-    if(!replyOficioFile){
-      $('#reply_msg_oficio_req').show();
-      Swal.fire('Archivo requerido','Debes cargar el Oficio (1).','warning');
-      return;
+
+    // Reglas según tipo:
+    if (tipoRespuesta === 'FINAL') {
+      // Observaciones obligatorias
+      if(!observacion.trim()){
+        Swal.fire('Campo requerido','Escribe las observaciones.','warning'); 
+        return;
+      }
+      // Oficio obligatorio
+      if(!replyOficioFile){
+        $('#reply_msg_oficio_req').show();
+        Swal.fire('Archivo requerido','Debes cargar el Oficio (1).','warning');
+        return;
+      }
+    } else {
+      // AVANCE (u otro distinto a FINAL): nuevos anexos obligatorios
+      if (!replyAnexosFiles || !replyAnexosFiles.length) {
+        Swal.fire('Archivo requerido','Debes cargar al menos un anexo.','warning');
+        return;
+      }
     }
 
     if (typeof mostrarBarra === 'function') mostrarBarra();
@@ -310,8 +512,9 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
         id_tbl_correspondencia: id,
         fecha_inicio: fechaInicio,
         fecha_fin: fechaFin,
-        observaciones: observacion,  // requerido
-        asunto: asunto
+        observaciones: observacion,  // FINAL: requerido / AVANCE: puede ir vacío
+        asunto: asunto,
+        tipo_respuesta: tipoRespuesta
       };
 
       const data = await postReplyForm(payload);
@@ -352,6 +555,15 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   });
 
 })();
+
+
+
+
+
+
+
+
+
 
 
 

@@ -35,6 +35,16 @@
     <label id="reply_folio_label" style="font-weight:bold;"></label>.
   </p>
 
+  {{-- NUEVO: Tipo de respuesta --}}
+  <div class="reply-input-container">
+  <label class="reply-input-label" for="reply_tipo_respuesta">Tipo de respuesta</label>
+  <select id="reply_tipo_respuesta" name="tipo_respuesta" class="reply-input-field">
+    <option value="">Selecciona tipo de respuesta…</option>
+    <option value="FINAL">Respuesta Final</option>
+    <option value="AVANCE">Avance de Respuesta</option>
+  </select>
+</div>
+
   <div class="row">
     <x-template-form.template-form-input-required
       label="Fecha del documento" type="date" name="fecha_inicio" placeholder=""
@@ -52,49 +62,53 @@
     <input type="text" id="reply_asunto" class="reply-input-field" maxlength="300" placeholder="Asunto…">
   </div>
 
-  <div class="reply-input-container">
-    <label class="reply-input-label" for="reply_observacion">Observaciones</label>
-    <input type="text" id="reply_observacion" class="reply-input-field" maxlength="200" placeholder="Observaciones…">
-  </div>
+  {{-- Observaciones --}}
+<div class="reply-input-container" id="reply_observacion_group">
+  <label class="reply-input-label" for="reply_observacion">Observaciones</label>
+  <input type="text" id="reply_observacion" class="reply-input-field" maxlength="200" placeholder="Observaciones…">
+</div>
 
   <!-- ====== SUBIDA DE ARCHIVOS (opcionales) ====== -->
-  <div class="reply-upload-row">
-    <div class="reply-upload-col">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
-        <label for="reply_file_oficio" id="reply_label_oficio"
-               style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
-          <i class="fa fa-arrow-up" id="reply_icon_oficio" style="margin-right:5px;"></i>
-          Cargar
-        </label>
-        <input type="file" id="reply_file_oficio" name="file_oficio_entrada"
-               style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-      </div>
-
-      <div id="reply_container_oficio_empty" class="reply-rectangulo" style="margin-top:8px;">Sin contenido</div>
-      <div id="reply_container_oficio" style="margin-top:8px;"></div>
-
-      <div id="reply_msg_oficio_req" style="display:none;color:#c0392b;font-weight:600;margin-top:6px;">
-        Hace falta cargar un oficio.
-      </div>
+<div class="reply-upload-row">
+  {{-- TODO el bloque de oficios dentro de reply_oficios_group --}}
+  <div class="reply-upload-col" id="reply_oficios_group">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <x-template-tittle.tittle-caption-secon tittle="Oficios (Max 1)" />
+      <label for="reply_file_oficio" id="reply_label_oficio"
+             style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
+        <i class="fa fa-arrow-up" id="reply_icon_oficio" style="margin-right:5px;"></i>
+        Cargar
+      </label>
+      <input type="file" id="reply_file_oficio" name="file_oficio_entrada"
+             style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
     </div>
 
-    <div class="reply-upload-col">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
-        <label for="reply_file_anexos" id="reply_label_anexos"
-               style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
-          <i class="fa fa-arrow-up" id="reply_icon_anexos" style="margin-right:5px;"></i>
-          Cargar
-        </label>
-        <input type="file" id="reply_file_anexos" name="file_anexo_entrada[]"
-               multiple style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-      </div>
+    <div id="reply_container_oficio_empty" class="reply-rectangulo" style="margin-top:8px;">Sin contenido</div>
+    <div id="reply_container_oficio" style="margin-top:8px;"></div>
 
-      <div id="reply_container_anexos_empty" class="reply-rectangulo" style="margin-top:8px;">Sin contenido</div>
-      <div id="reply_container_anexos" style="margin-top:8px;"></div>
+    <div id="reply_msg_oficio_req" style="display:none;color:#c0392b;font-weight:600;margin-top:6px;">
+      Hace falta cargar un oficio.
     </div>
   </div>
+
+  {{-- Anexos igual que antes --}}
+  <div class="reply-upload-col">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <x-template-tittle.tittle-caption-secon tittle="Anexos (Max 3)" />
+      <label for="reply_file_anexos" id="reply_label_anexos"
+             style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none;">
+        <i class="fa fa-arrow-up" id="reply_icon_anexos" style="margin-right:5px;"></i>
+        Cargar
+      </label>
+      <input type="file" id="reply_file_anexos" name="file_anexo_entrada[]"
+             multiple style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+    </div>
+
+    <div id="reply_container_anexos_empty" class="reply-rectangulo" style="margin-top:8px;">Sin contenido</div>
+    <div id="reply_container_anexos" style="margin-top:8px;"></div>
+  </div>
+</div>
+
 
   <input type="hidden" id="reply_correspondencia_id" />
 </x-template-modal.modal-template>

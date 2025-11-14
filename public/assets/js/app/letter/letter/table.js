@@ -2,10 +2,12 @@
    assets/js/app/letter/letter/table.js
    -------------------------------------------------------------------------
    - Paginación y búsqueda (sin tocar endpoints ni helpers existentes)
-   - Columnas togglables: CRH (6), CRHTOD (7), Cloud (9), Respuesta (10)
+   - Columnas togglables: CRH (6), CRHTOD (7), Cloud (9), Rep. Oficio (10),
+     Avce. Oficio (11)
    - Estado inicial: TODAS desmarcadas → ocultas hasta que el usuario elija
    - Cloud: SOLO botón "ojo" (entrada)
-   - Respuesta: SOLO "ojo" si existe documento de respuesta (sin botón Responder)
+   - Rep. Oficio: SOLO "ojo" si existe documento de respuesta
+   - Avce. Oficio: SOLO "ojo" del PRIMER anexo de oficio (si existe)
    ========================================================================= */
 
 var iterator = 1;            // Se comienza el iterador en 1
@@ -32,7 +34,7 @@ $(document).ready(function () {
     });
   } else {
     // Fallback si no existieran checkboxes (oculta por defecto las pedidas)
-    [6, 7, 9, 10].forEach(function (i) { columnVisibility[i] = false; });
+    [6, 7, 9, 10, 11].forEach(function (i) { columnVisibility[i] = false; });
   }
 
   // 3) Aplicar visibilidad inicial a encabezados (evita parpadeos)
@@ -80,8 +82,8 @@ function applyServerColumnsOnce(serverVis) {
   if (serverVis && typeof serverVis === 'object') {
     // Back mapea: {area:bool, crh:bool, crhtod:bool}
     // En tabla: Área=5(índice 5), CRH=6(índice 6), CRHTOD=7(índice 7)
-    if (typeof serverVis.area !== 'undefined') columnVisibility[5] = !!serverVis.area;
-    if (typeof serverVis.crh !== 'undefined') columnVisibility[6] = !!serverVis.crh;
+    if (typeof serverVis.area !== 'undefined')   columnVisibility[5] = !!serverVis.area;
+    if (typeof serverVis.crh !== 'undefined')    columnVisibility[6] = !!serverVis.crh;
     if (typeof serverVis.crhtod !== 'undefined') columnVisibility[7] = !!serverVis.crhtod;
 
     applySavedColumnVisibility(false);
@@ -170,6 +172,60 @@ function fetchReplyUid(idCorr) {
     });
 }
 
+/* AVANCE (col 11): slot para “ojo” del anexo principal del oficio */
+function renderAdvanceEyeSlot(idCorr) {
+  return '<div id="avance-eye-' + idCorr + '" ' +
+         'style="display:flex; justify-content:center; align-items:center;"></div>';
+}
+
+/* Trae ANEXOS del oficio y usa SOLO el primero para el ojito */
+function fetchAdvanceUid(idCorr) {
+  $.get(URL_DEFAULT.concat('/letter/reply/data/').concat(idCorr))
+    .done(function (r) {
+      var $slot = $('#avance-eye-' + idCorr);
+      if (!$slot.length) return;
+
+      if (r && Array.isArray(r.anexos) && r.anexos.length > 0) {
+        var first = r.anexos[0];          // 👈 sólo el primero
+        var uid   = first && first.uid ? first.uid : null;
+
+        if (uid) {
+          $slot.html(renderEye(uid, 'Ver avance de oficio'));
+        } else {
+          $slot.html('');
+        }
+      } else {
+        $slot.html(''); // sin anexos → sin ojo
+      }
+    })
+    .fail(function () {
+      $('#avance-eye-' + idCorr).html('');
+    });
+}
+
+/* ===== NUEVO: abre Responder solo si el estatus NO es CONCLUIDO (4) ===== */
+function openReplyGuard(idCorr, folio, statusId, statusText) {
+  statusId   = Number(statusId || 0);
+  statusText = (statusText || '').toString().toUpperCase();
+
+  if (statusId === 4 || statusText === 'CONCLUIDO') {
+    if (window.Swal) {
+      Swal.fire(
+        'No es posible responder',
+        'El folio ya está CONCLUIDO y no admite nuevas respuestas.',
+        'info'
+      );
+    } else {
+      alert('El folio ya está CONCLUIDO y no admite nuevas respuestas.');
+    }
+    return;
+  }
+
+  if (typeof openReply === 'function') {
+    openReply(idCorr, folio);
+  }
+}
+
 /* ===================== BÚSQUEDA Y RENDER FILAS ===================== */
 function searchInit() {
   mostrarBarra();
@@ -182,16 +238,16 @@ function searchInit() {
     iterator: iteradorAux,
     searchValue: searchValue
   }, function (response) {
-    console.log(response)
+    console.log(response);
 
     var tbody = $('#template-table tbody');
     tbody.empty();
 
     if (response && response.value && response.value.length > 0) {
       response.value.forEach(function (object) {
-        var finalUrl = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
+        var finalUrl   = URL_DEFAULT.concat('/letter/edit/').concat(object.id);
         var finalCloud = URL_DEFAULT.concat('/letter/cloud/').concat(object.id);
-        var urlReport = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
+        var urlReport  = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
 
                 var estatusColors = {
           'TURNADO': '#FFA82E',
@@ -214,7 +270,9 @@ function searchInit() {
         var estatusKey   = isCopy ? 'COPIA' : (object.estatus || '');
         var estatusColor = estatusColors[estatusKey] || '#6c757d';
         var estatusLabel = estatusKey;
-
+        var estatusText  = (object.estatus || '').toString();
+        var estatusUpper = estatusText.toUpperCase();
+        var estatusColor = estatusColors[estatusText] || '#6c757d';
 
         // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
@@ -222,11 +280,29 @@ function searchInit() {
         // Para dropdown
         var folioSafe = String(object.folio_gestion || '').replace(/'/g, "\\'");
 
-        // ====== NUEVO: status de la fila (ID o por texto) ======
+        // ====== status numérico si viene, si no, algunos defaults ======
         var __statusId =
           (object.id_cat_estatus != null) ? Number(object.id_cat_estatus)
-            : (object.estatus === 'TURNADO' ? 1
-              : (object.estatus === 'RETURNADO' || object.estatus === 'RE-TURNADO' ? 8 : 0));
+            : (estatusUpper === 'TURNADO' ? 1
+              : (estatusUpper === 'RETURNADO' || estatusUpper === 'RE-TURNADO' ? 8 : 0));
+
+        // ¿Se puede responder? NO si está concluido (id=4 o texto CONCLUIDO)
+        var canReply = !(__statusId === 4 || estatusUpper === 'CONCLUIDO');
+
+        // HTML del botón Responder (sólo si se permite)
+        var responderBtnHtml = '';
+        if (canReply) {
+          var statusTextEsc = estatusUpper.replace(/'/g, "\\'");
+          responderBtnHtml =
+            '<button class="dropdown-item" onclick="openReplyGuard(' + object.id + ', \'' + folioSafe + '\',' + __statusId + ', \'' + statusTextEsc + '\')">' +
+            '<span style="background:#2986cc" class="icon-container-template">' +
+            '<div style="text-align: center;">' +
+            '<i class="fa fa-retweet item-icon-menu"></i>' +
+            '</div>' +
+            '</span>' +
+            'Responder' +
+            '</button>';
+        }
 
         var rowHTML =
           '<tr>' +
@@ -274,18 +350,20 @@ function searchInit() {
           'Copias' +
           '</button>' +
           // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
+          // Botón Responder sólo si canReply=true
+          responderBtnHtml +
+          // ====== botón Re-Turnado ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +
           'window.LETTER = window.LETTER || {};' +
-          'window.LETTER.statusAllowedReturnado = [1,8];' +                 // guard nuevo
-          'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' + // guard viejo
-          'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' + // estatus actual
-          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +        // abrir modal
+          'window.LETTER.statusAllowedReturnado = [1,8];' +
+          'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' +
+          'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' +
+          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +
           '})(this)">' +
           '<span style="background:#2a848c" class="icon-container-template">' +
           '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
           '</span>Re-Turnado' +
-          '</button>' +
           '</button>' +
           '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + object.folio_gestion + '\')">' +
           '<span style="background:#462c95" class="icon-container-template">' +
@@ -294,7 +372,6 @@ function searchInit() {
           '</div>' +
           '</span>' +
           'Rechazar' +
-
           '</div>' +
           '</div>' +
           '</td>' +
@@ -302,6 +379,8 @@ function searchInit() {
                     // 1: Estatus (si es copia, muestra "COPIA" en rojo)
           '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + estatusLabel + '</label></td>' +
 
+          // 1: Estatus
+          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + estatusText + '</label></td>' +
 
           // 2: Fecha de captura
           '<td>' + (object.fecha_captura || '') + '</td>' +
@@ -335,20 +414,26 @@ function searchInit() {
           // 9: Cloud → solo “ojo” (entrada)
           '<td>' + renderCloudCell(uidEntrada) + '</td>' +
 
-          // 10: Respuesta → SOLO slot para el ojo (sin botón Responder)
+          // 10: Rep. Oficio → SOLO slot para el ojo
           '<td id="resp-cell-' + object.id + '">' + renderReplyEyeSlot(object.id) + '</td>' +
+
+          // 11: Avce. Oficio → slot para ojito de AVANCE (primer anexo)
+          '<td id="avance-cell-' + object.id + '">' + renderAdvanceEyeSlot(object.id) + '</td>' +
           '</tr>';
 
         $('#template-table tbody').append(rowHTML);
 
         // Traer y pintar el ojito de respuesta (si existe)
         fetchReplyUid(object.id);
+
+        // Traer y pintar el ojito de AVANCE (primer anexo de oficio, si existe)
+        fetchAdvanceUid(object.id);
       });
 
       emptyContent = false;
       talldropdown(response.value.length, 2);
     } else {
-      $('#template-table tbody').html('<tr><td colspan="11" class="text-center">No se encontraron resultados</td></tr>');
+      $('#template-table tbody').html('<tr><td colspan="12" class="text-center">No se encontraron resultados</td></tr>');
       emptyContent = true;
       setValue();
     }
@@ -384,3 +469,5 @@ function searchValue() {
   setValue();
   searchInit();
 }
+
+

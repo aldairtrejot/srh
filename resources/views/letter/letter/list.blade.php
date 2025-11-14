@@ -137,6 +137,9 @@
                                         <label class="dropdown-item">
                                             <input type="checkbox" class="toggle-column" data-column="10"> Respuesta
                                         </label>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" class="toggle-column" data-column="11"> AvanceR.
+                                        </label>
                                     </div>
                                 </div>
 
@@ -163,6 +166,7 @@
                                     <!-- NUEVAS -->
                                     <th>Oficio</th>
                                     <th>Rep. Oficio</th>
+                                    <th>Avce. Oficio</th>
                                 </tr>
                             </thead>
                         </x-template-table.template-table>
