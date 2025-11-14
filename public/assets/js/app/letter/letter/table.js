@@ -193,7 +193,7 @@ function searchInit() {
         var finalCloud = URL_DEFAULT.concat('/letter/cloud/').concat(object.id);
         var urlReport = URL_DEFAULT.concat('/letter/generate-pdf/correspondencia/').concat(object.id);
 
-        var estatusColors = {
+                var estatusColors = {
           'TURNADO': '#FFA82E',
           'CANCELADO': '#660000',
           'EN PROCESO': '#0077B6',
@@ -201,9 +201,20 @@ function searchInit() {
           'VENCIDO': '#FF0000',
           'RECHAZADO': '#b30000',
           'CONOCIMIENTO': '#6fc5f4ff',
-          'RE-TURNADO': '#872ebbff'
+          'RE-TURNADO': '#872ebbff',
+          'COPIA': '#dc3545' // rojo para copia
         };
-        var estatusColor = estatusColors[object.estatus] || '#6c757d';
+
+        // es_copia viene del backend: true/false, 1/0, '1'/'0'
+        var isCopy = (object.es_copia === true ||
+                      object.es_copia === 1 ||
+                      object.es_copia === '1');
+
+        // Si es copia, forzamos la palabra COPIA y su color
+        var estatusKey   = isCopy ? 'COPIA' : (object.estatus || '');
+        var estatusColor = estatusColors[estatusKey] || '#6c757d';
+        var estatusLabel = estatusKey;
+
 
         // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';
@@ -254,14 +265,14 @@ function searchInit() {
           'Responder' +
           '</button>' +
           // === NUEVO: Copias ===
-        '<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + folioSafe + '\')">' +
-        '<span style="background:#6c757d" class="icon-container-template">' +
-        '<div style="text-align:center;">' +
-        '<i class="fa fa-clone item-icon-menu"></i>' +
-        '</div>' +
-        '</span>' +
-        'Copias' +
-        '</button>' +
+          '<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + folioSafe + '\')">' +
+          '<span style="background:#6c757d" class="icon-container-template">' +
+          '<div style="text-align:center;">' +
+          '<i class="fa fa-clone item-icon-menu"></i>' +
+          '</div>' +
+          '</span>' +
+          'Copias' +
+          '</button>' +
           // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +
@@ -288,8 +299,9 @@ function searchInit() {
           '</div>' +
           '</td>' +
 
-          // 1: Estatus
-          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + (object.estatus || '') + '</label></td>' +
+                    // 1: Estatus (si es copia, muestra "COPIA" en rojo)
+          '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + estatusLabel + '</label></td>' +
+
 
           // 2: Fecha de captura
           '<td>' + (object.fecha_captura || '') + '</td>' +

@@ -54,120 +54,149 @@ class LetterC extends Controller
     /* =========================================================
      * TABLA
      * ========================================================= */
-    public function table(Request $request, LetterM $model)
-    {
-        try {
-            $iterator    = max(0, (int)$request->get('iterator', 0));
-            $searchValue = (string)$request->get('searchValue', '');
-            $visibility  = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
+   public function table(Request $request, LetterM $model)
+{
+    try {
+        $iterator    = max(0, (int)$request->get('iterator', 0));
+        $searchValue = (string)$request->get('searchValue', '');
+        $visibility  = $this->resolveAreaColumnVisibility(); // ['area'=>bool,'crh'=>bool,'crhtod'=>bool]
 
-            // =========================================================
-            //  BYPASS + USUARIO NORMAL (en una sola rama)
-            //  - Admin (roles 1 y 2) -> ven todo
-            //  - Resto -> por área (A1/A2/A3) o por COPIA
-            // =========================================================
-            $q = DB::table('correspondencia.tbl_correspondencia as c')
-                ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
-                ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
-                ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
-                ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2');
+        // ================= ROLES =================
+        $rolesSession = session('SESSION_ROLE_USER', []);
+        $isAdminLike  = in_array(1, $rolesSession) || in_array(2, $rolesSession); // 1 y 2 = admin
 
-            // Código para NO administradores (no rol 1 ni 2)
-            $rolesSession = session('SESSION_ROLE_USER', []);
-            if (! in_array(1, $rolesSession) && ! in_array(2, $rolesSession)) {
-
-                $userId    = (int) (Auth::id() ?? 0);
-                $userAreas = $this->getAllowedAreasForUser($userId); // áreas del usuario (ctrl_rol_usuario_area)
-
-                $q->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_1', function ($join) {
-                    $join->on('c.id_cat_area_1', '=', 'j_area_1.id_cat_area')
-                        ->where('j_area_1.id_cat_jerarquia', 1)
-                        ->where('j_area_1.estatus', true)
-                        ->where('j_area_1.id_usuario', auth()->id());
-                })
-                ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_2', function ($join) {
-                    $join->on('c.id_cat_area_2', '=', 'j_area_2.id_cat_area')
-                        ->where('j_area_2.id_cat_jerarquia', 2)
-                        ->where('j_area_2.estatus', true)
-                        ->where('j_area_2.id_usuario', auth()->id());
-                })
-                ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_3', function ($join) {
-                    $join->on('c.id_cat_area', '=', 'j_area_3.id_cat_area')
-                        ->where('j_area_3.id_cat_jerarquia', 3)
-                        ->where('j_area_3.estatus', true)
-                        ->where('j_area_3.id_usuario', auth()->id());
-                })
-                ->where(function ($w) use ($userAreas) {
-                    // 1) Dueño / responsable (área 1, 2 o 3)
-                    $w->whereNotNull('j_area_1.id_cat_area')
-                        ->orWhereNotNull('j_area_2.id_cat_area')
-                        ->orWhereNotNull('j_area_3.id_cat_area');
-
-                    // 2) O el usuario aparece como COPIA en ctrl_transcribir_correspondencia
-                    if (!empty($userAreas)) {
-                        $w->orWhereExists(function ($ex) use ($userAreas) {
-                            $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
-                                ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
-                                ->whereIn('t.id_cat_area', $userAreas);
-                        });
-                    }
-                });
-            }
-
-            // ================= BUSCADOR =================
-            if ($searchValue !== '') {
-                $sv = '%'.trim($searchValue).'%';
-                $q->where(function ($f) use ($sv) {
-                    $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
-                        ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
-                });
-            }
-
-            $total = (clone $q)->count('c.id_tbl_correspondencia');
-
-            $rows = $q->orderByDesc('c.id_tbl_correspondencia')
-                ->offset($iterator)->limit(5)
-                ->get([
-                    'c.id_tbl_correspondencia as id',
-                    DB::raw('UPPER(c.num_documento) as num_documento'),
-                    DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
-                    DB::raw('UPPER(c.asunto)         as asunto'),
-                    DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
-                    DB::raw('UPPER(e.descripcion)    as estatus'),
-                    DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
-                    DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
-                    DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
-                    DB::raw("(
-                        SELECT co.uid
-                        FROM correspondencia.ctrl_correspondencia_oficio co
-                        WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
-                        ORDER BY co.fecha_usuario DESC
-                        LIMIT 1
-                    ) AS uuid_oficio"),
-                ]);
-
-            // NOTA: de momento dejamos la visibilidad de columnas fija (true/true/true)
-            return response()->json([
-                'value' => $rows,
-                'total' => $total,
-                'columns_visibility' => ['area'=>true,'crh'=>true,'crhtod'=>true],
-            ]);
-
-            // El código de "USUARIO NORMAL" que tienes abajo ya no se usa;
-            // lo puedes dejar o borrar, pero ya no se ejecuta.
-        } catch (\Throwable $e) {
-            return response()->json([
-                'value' => [],
-                'error' => true,
-                'message' => 'Error al cargar la tabla',
-            ], 500);
+        $userAreas = [];
+        if (! $isAdminLike) {
+            $userId    = (int) (Auth::id() ?? 0);
+            // Áreas a las que pertenece el usuario (para A1/A2/A3 y copias)
+            $userAreas = $this->getAllowedAreasForUser($userId); // array de id_cat_area
         }
+
+        // ================= QUERY BASE =================
+        $q = DB::table('correspondencia.tbl_correspondencia as c')
+            ->leftJoin('correspondencia.cat_estatus as e', 'e.id_cat_estatus', '=', 'c.id_cat_estatus')
+            ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
+            ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
+            ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')
+            // Join para saber si ESTE usuario lo ve como copia
+            ->leftJoin('correspondencia.ctrl_transcribir_correspondencia as t_copia', function ($join) use ($userAreas, $isAdminLike) {
+                $join->on('t_copia.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia');
+                if (! $isAdminLike && !empty($userAreas)) {
+                    $join->whereIn('t_copia.id_cat_area', $userAreas);
+                } else {
+                    // Para admins (o sin áreas), evitamos que genere coincidencias
+                    $join->whereRaw('1=0');
+                }
+            });
+
+        // ================= FILTRO POR ÁREAS (NO ADMINS) =================
+        if (! $isAdminLike) {
+            $q->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_1', function ($join) {
+                $join->on('c.id_cat_area_1', '=', 'j_area_1.id_cat_area')
+                    ->where('j_area_1.id_cat_jerarquia', 1)
+                    ->where('j_area_1.estatus', true)
+                    ->where('j_area_1.id_usuario', auth()->id());
+            })
+            ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_2', function ($join) {
+                $join->on('c.id_cat_area_2', '=', 'j_area_2.id_cat_area')
+                    ->where('j_area_2.id_cat_jerarquia', 2)
+                    ->where('j_area_2.estatus', true)
+                    ->where('j_area_2.id_usuario', auth()->id());
+            })
+            ->leftJoin('correspondencia.ctrl_rol_usuario_area as j_area_3', function ($join) {
+                $join->on('c.id_cat_area', '=', 'j_area_3.id_cat_area')
+                    ->where('j_area_3.id_cat_jerarquia', 3)
+                    ->where('j_area_3.estatus', true)
+                    ->where('j_area_3.id_usuario', auth()->id());
+            })
+            ->where(function ($w) use ($userAreas) {
+                // 1) Responsable (A1 / A2 / A3)
+                $w->whereNotNull('j_area_1.id_cat_area')
+                    ->orWhereNotNull('j_area_2.id_cat_area')
+                    ->orWhereNotNull('j_area_3.id_cat_area');
+
+                // 2) O aparece como COPIA
+                if (!empty($userAreas)) {
+                    $w->orWhereExists(function ($ex) use ($userAreas) {
+                        $ex->from('correspondencia.ctrl_transcribir_correspondencia as t')
+                            ->whereColumn('t.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
+                            ->whereIn('t.id_cat_area', $userAreas);
+                    });
+                }
+            });
+        }
+
+        // ================= BUSCADOR =================
+        if ($searchValue !== '') {
+            $sv = '%'.trim($searchValue).'%';
+            $q->where(function ($f) use ($sv) {
+                $f->whereRaw('TRIM(c.num_documento) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(c.asunto) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(c.folio_gestion) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(a3.descripcion) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(a1.descripcion) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(a2.descripcion) ILIKE ?', [$sv])
+                    ->orWhereRaw('TRIM(e.descripcion) ILIKE ?', [$sv]);
+            });
+        }
+
+        $total = (clone $q)->count('c.id_tbl_correspondencia');
+
+        // ================= SELECT =================
+        $select = [
+            'c.id_tbl_correspondencia as id',
+            'c.id_cat_estatus',
+            DB::raw('UPPER(c.num_documento) as num_documento'),
+            DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
+            DB::raw('UPPER(c.asunto)         as asunto'),
+            DB::raw("TO_CHAR(c.fecha_captura::date,'DD/MM/YYYY') as fecha_captura"),
+            DB::raw('UPPER(e.descripcion)    as estatus'),
+            DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
+            DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
+            DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+            DB::raw("(
+                SELECT co.uid
+                FROM correspondencia.ctrl_correspondencia_oficio co
+                WHERE co.id_tbl_correspondencia = c.id_tbl_correspondencia
+                ORDER BY co.fecha_usuario DESC
+                LIMIT 1
+            ) AS uuid_oficio"),
+        ];
+
+        // Flag es_copia SOLO para usuarios normales
+        if (! $isAdminLike) {
+            $select[] = DB::raw("CASE
+                WHEN t_copia.id_tbl_correspondencia IS NOT NULL
+                     AND (j_area_1.id_cat_area IS NULL
+                          AND j_area_2.id_cat_area IS NULL
+                          AND j_area_3.id_cat_area IS NULL)
+                THEN true
+                ELSE false
+            END AS es_copia");
+        } else {
+            // Para admin siempre es false
+            $select[] = DB::raw('false AS es_copia');
+        }
+
+        $rows = $q->orderByDesc('c.id_tbl_correspondencia')
+            ->offset($iterator)->limit(5)
+            ->get($select);
+
+        return response()->json([
+            'value' => $rows,
+            'total' => $total,
+            'columns_visibility' => ['area'=>true,'crh'=>true,'crhtod'=>true],
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'value'   => [],
+            'error'   => true,
+            'message' => 'Error al cargar la tabla',
+        ], 500);
     }
+}
+
+
 
     /* =========================================================
      * FORM CREATE
