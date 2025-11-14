@@ -50,6 +50,17 @@ class ReturnadoC extends Controller
             'id_cat_tramite'  => 'Trámite',
             'id_cat_clave'    => 'Clave',
         ]);
+  // 🔒 CANDADO: si el usuario SOLO tiene este folio como COPIA, no puede turnar/returnar
+        $idCorr = (int) $r->input('id_tbl_correspondencia');
+        $userId = (int) (Auth::id() ?? 0);
+
+        if ($idCorr > 0 && $userId > 0 && $this->userHasCopyOnlyAccess($idCorr, $userId)) {
+            return response()->json([
+                'ok'      => false,
+                'message' => 'Este registro está disponible solo como copia (solo lectura). No puede cambiar el estatus TURNADO/RE-TURNADO.',
+            ], 403);
+        }
+
 
         try {
             DB::beginTransaction();

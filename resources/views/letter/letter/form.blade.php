@@ -114,6 +114,7 @@
 <script>
   (function () {
     const isEdit = {{ isset($item) && !empty($item->id_tbl_correspondencia) ? 'true' : 'false' }};
+    const soloLecturaPorCopia = {{ !empty($soloLecturaPorCopia) && $soloLecturaPorCopia ? 'true' : 'false' }};
 
     // Áreas
     const a1 = "{{ old('id_cat_area_1', optional($item)->id_cat_area_1) }}";
@@ -121,12 +122,12 @@
     const a3 = "{{ old('id_cat_area',   optional($item)->id_cat_area) }}";
 
     // NUEVO: demás dependientes
-    const tramite      = "{{ old('id_cat_tramite',     optional($item)->id_cat_tramite) }}";
-    const clave        = "{{ old('id_cat_clave',       optional($item)->id_cat_clave) }}";
-    const usuarioArea  = "{{ old('id_usuario_area',    optional($item)->id_usuario_area) }}";
-    const usuarioEnlace= "{{ old('id_usuario_enlace',  optional($item)->id_usuario_enlace) }}";
-    const unidad       = "{{ old('id_cat_unidad',      optional($item)->id_cat_unidad) }}";
-    const coordinacion = "{{ old('id_cat_coordinacion',optional($item)->id_cat_coordinacion) }}";
+    const tramite       = "{{ old('id_cat_tramite',     optional($item)->id_cat_tramite) }}";
+    const clave         = "{{ old('id_cat_clave',       optional($item)->id_cat_clave) }}";
+    const usuarioArea   = "{{ old('id_usuario_area',    optional($item)->id_usuario_area) }}";
+    const usuarioEnlace = "{{ old('id_usuario_enlace',  optional($item)->id_usuario_enlace) }}";
+    const unidad        = "{{ old('id_cat_unidad',      optional($item)->id_cat_unidad) }}";
+    const coordinacion  = "{{ old('id_cat_coordinacion',optional($item)->id_cat_coordinacion) }}";
 
     function nz(v) {
       return (v === '' || v === 'null' || v === null || v === undefined) ? null : v;
@@ -136,24 +137,25 @@
       collectionAreaUrl: "{{ route('letter.collectionArea') }}",
       includeInactiveArea3: isEdit,
       isEdit: isEdit,
+      soloLecturaPorCopia: soloLecturaPorCopia,
       initials: {
         area1: nz(a1),
         area2: nz(a2),
         area3: nz(a3),
-
-        // NUEVO: nombres TAL CUAL los usa select.js
-        tramite:      nz(tramite),
-        clave:        nz(clave),
-        usuario_area: nz(usuarioArea),
+        tramite:        nz(tramite),
+        clave:          nz(clave),
+        usuario_area:   nz(usuarioArea),
         usuario_enlace: nz(usuarioEnlace),
-        unidad:       nz(unidad),
-        coordinacion: nz(coordinacion),
+        unidad:         nz(unidad),
+        coordinacion:   nz(coordinacion),
       }
     };
 
     window.IS_EDIT = isEdit;
+    window.SOLO_LECTURA_POR_COPIA = soloLecturaPorCopia;
   })();
 </script>
+
 
 
                 {{-- ===== HIDDEN FIELDS ===== --}}
@@ -449,7 +451,29 @@
 <!-- === Quitar obligatoriedad de Área 1 y 2 SOLO en edición; NO tocar Área (id_cat_area) === -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var isEdit = !!(window.LETTER && window.LETTER.isEdit);
+    var isEdit      = !!(window.LETTER && window.LETTER.isEdit);
+    var soloLectura = !!(window.SOLO_LECTURA_POR_COPIA);
+
+    // 🔒 Si es solo lectura por copia, deshabilitar campos y ocultar botón Guardar
+    if (soloLectura) {
+      var form = document.getElementById('myForm');
+      if (form) {
+        var fields = form.querySelectorAll('input, select, textarea, button');
+        fields.forEach(function (el) {
+          // Mantener HIDDENs para que sigan viajando (id, token, etc.)
+          if (el.type === 'hidden') return;
+
+          // Ocultar/deshabilitar botones de envío
+          if (el.tagName.toLowerCase() === 'button' && el.type === 'submit') {
+            el.disabled = true;
+            el.style.display = 'none';
+            return;
+          }
+
+          el.disabled = true;
+        });
+      }
+    }
 
     // En edición, desactiva "required" de A1 y A2
     if (isEdit) {
@@ -483,6 +507,7 @@
     } catch (e) { /* noop */ }
   });
 </script>
+
 
 {{-- JS existentes --}}
 <script src="{{ asset('assets/js/app/other/rfc.js') }}"></script>

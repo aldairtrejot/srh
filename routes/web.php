@@ -86,7 +86,7 @@ Route::post('/user/validatePassword', [UserC::class, 'validatePassword'])->name(
 
 // ROUTE_LETTER
 Route::get('/letter/list', LetterC::class)->name('letter.list')->middleware('auth');
-Route::get('/letter/delete', [LetterC::class.'delete'])->name('letter.delete')->middleware('auth');
+Route::get('/letter/delete/{id}', [LetterC::class.'delete'])->name('letter.delete')->middleware('auth');
 Route::get('/letter/table', [LetterC::class, 'table'])->name('letter.table')->middleware('auth');
 Route::post('/letter/tableCopy', [LetterC::class, 'tableCopy'])->name('letter.tableCopy')->middleware('auth');
 Route::get('/letter/create', [LetterC::class, 'create'])->name('letter.create')->middleware('auth');

@@ -253,6 +253,15 @@ function searchInit() {
           '</span>' +
           'Responder' +
           '</button>' +
+          // === NUEVO: Copias ===
+        '<button class="dropdown-item" onclick="openCopy(' + object.id + ', \'' + folioSafe + '\')">' +
+        '<span style="background:#6c757d" class="icon-container-template">' +
+        '<div style="text-align:center;">' +
+        '<i class="fa fa-clone item-icon-menu"></i>' +
+        '</div>' +
+        '</span>' +
+        'Copias' +
+        '</button>' +
           // ====== MODIFICADO: botón Returnado que inyecta estatus permitido ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +

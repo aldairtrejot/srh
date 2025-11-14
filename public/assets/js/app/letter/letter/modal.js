@@ -108,14 +108,17 @@ function getSelectAreaCopy() {
         url: URL_DEFAULT.concat('/letter/collection/area'),
         type: 'POST',
         data: {
-            id: $('#id_delete').val(),
-            _token: token  // Usar el token extraído de la metaetiqueta
+            scope: 'copy_list',  // 👈 dispara el caso nuevo en collectionArea()
+            _token: token        // Token CSRF
         },
         success: function (response) {
-            foreachSelect(response.result, '#id_cat_area_copy');
+            // El backend responde: { ok, status, result: [ {id, label}, ... ] }
+            foreachSelect(response.result || [], '#id_cat_area_copy');
         },
     });
 }
+
+
 
 
 //Codigo para la seleccion de area y como cambia el valor de los demas select que dependen de ella
