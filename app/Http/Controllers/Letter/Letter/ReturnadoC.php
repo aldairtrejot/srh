@@ -118,21 +118,37 @@ class ReturnadoC extends Controller
             $letter->id_cat_tramite      = $effTra;
             $letter->id_cat_clave        = $effCla;
 
-            // Estatus (toggle 1↔8 o forzar turnado)
-            $idTurnado   = method_exists($letter, 'getTurnadoId')
-                ? (int) $letter->getTurnadoId()
-                : (int) config('letter.status.turnado_id', 1);
-            $idReturnado = (int) config('letter.status.returnado_id', 8);
+// Estatus (toggle 1↔8 o forzar turnado)
+$idTurnado   = method_exists($letter, 'getTurnadoId')
+    ? (int) $letter->getTurnadoId()
+    : (int) config('letter.status.turnado_id', 1);
+$idReturnado = (int) config('letter.status.returnado_id', 8);
 
-            if (filter_var($r->input('toggle_status'), FILTER_VALIDATE_BOOLEAN)) {
-                if ((int)$letter->id_cat_estatus === $idReturnado) {
-                    $letter->id_cat_estatus = $idTurnado;   // 8 -> 1
-                } elseif ((int)$letter->id_cat_estatus === $idTurnado) {
-                    $letter->id_cat_estatus = $idReturnado; // 1 -> 8
-                }
-            } elseif (filter_var($r->input('force_turnado'), FILTER_VALIDATE_BOOLEAN)) {
-                $letter->id_cat_estatus = $idTurnado;
-            }
+// Guardamos el estatus ANTES del cambio
+$oldStatus = (int) $letter->id_cat_estatus;
+
+if (filter_var($r->input('toggle_status'), FILTER_VALIDATE_BOOLEAN)) {
+
+    if ((int) $letter->id_cat_estatus === $idReturnado) {
+        // RE-TURNADO -> TURNADO
+        $letter->id_cat_estatus = $idTurnado;   // 8 -> 1
+
+    } elseif ((int) $letter->id_cat_estatus === $idTurnado) {
+        // TURNADO -> RE-TURNADO
+        $letter->id_cat_estatus = $idReturnado; // 1 -> 8
+    }
+
+} elseif (filter_var($r->input('force_turnado'), FILTER_VALIDATE_BOOLEAN)) {
+    $letter->id_cat_estatus = $idTurnado;
+}
+
+// 👇 AQUÍ decidimos si marcamos la banderita
+// Si ANTES estaba en RE-TURNADO y AHORA quedó en TURNADO → ya fue returnado alguna vez
+if ($oldStatus === $idReturnado && (int) $letter->id_cat_estatus === $idTurnado) {
+    $letter->was_returnado = true;
+}
+
+
 
             $letter->fecha_usuario = now();
             if (Auth::check()) {

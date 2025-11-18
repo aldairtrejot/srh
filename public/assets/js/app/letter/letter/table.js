@@ -265,6 +265,10 @@ function searchInit() {
         var isCopy = (object.es_copia === true ||
                       object.es_copia === 1 ||
                       object.es_copia === '1');
+         // NUEVO: bandera de que alguna vez fue RE-TURNADO
+        var wasReturnado = (object.was_returnado === true ||
+                            object.was_returnado === 1 ||
+                            object.was_returnado === '1');
 
         // Texto y clave de estatus
         var estatusText  = (object.estatus || '').toString();
@@ -274,6 +278,12 @@ function searchInit() {
         var estatusKey   = isCopy ? 'COPIA' : estatusUpper;
         var estatusLabel = estatusKey;
         var estatusColor = estatusColors[estatusKey] || '#6c757d';
+
+         // 👇 Ajuste: si está en TURNADO pero ya fue RE-TURNADO alguna vez,
+        // usamos el mismo color morado de RE-TURNADO, pero mantenemos el texto TURNADO
+        if (!isCopy && estatusUpper === 'TURNADO' && wasReturnado) {
+          estatusColor = estatusColors['RE-TURNADO'] || estatusColor;
+        }
 
         // UID de ENTRADA (único que se muestra en la col. Cloud)
         var uidEntrada = object.uid_entrada || object.uuid_oficio || object.uuid || object.uuid_documento || object.uid || '';

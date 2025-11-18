@@ -146,6 +146,7 @@ class LetterC extends Controller
         $select = [
             'c.id_tbl_correspondencia as id',
             'c.id_cat_estatus',
+            'c.was_returnado', // 👈👈👈 NUEVO
             DB::raw('UPPER(c.num_documento) as num_documento'),
             DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
             DB::raw('UPPER(c.asunto)         as asunto'),
