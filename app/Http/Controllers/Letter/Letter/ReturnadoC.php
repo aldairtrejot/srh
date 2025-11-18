@@ -50,7 +50,8 @@ class ReturnadoC extends Controller
             'id_cat_tramite'  => 'Trámite',
             'id_cat_clave'    => 'Clave',
         ]);
-  // 🔒 CANDADO: si el usuario SOLO tiene este folio como COPIA, no puede turnar/returnar
+
+        // 🔒 CANDADO: si el usuario SOLO tiene este folio como COPIA, no puede turnar/returnar
         $idCorr = (int) $r->input('id_tbl_correspondencia');
         $userId = (int) (Auth::id() ?? 0);
 
@@ -60,7 +61,6 @@ class ReturnadoC extends Controller
                 'message' => 'Este registro está disponible solo como copia (solo lectura). No puede cambiar el estatus TURNADO/RE-TURNADO.',
             ], 403);
         }
-
 
         try {
             DB::beginTransaction();
@@ -291,5 +291,76 @@ class ReturnadoC extends Controller
                 'claves'         => $selectClave,
             ],
         ]);
+    }
+
+    // ================== HELPERS DE COPIA (mismos que en LetterC) ==================
+
+    public function isBypassVisibility(): bool
+    {
+        $ADM_TOTAL = (int) config('custom_config.ADM_TOTAL');
+        $COR_TOTAL = (int) config('custom_config.COR_TOTAL');
+        $COR_VISTA = (int) (config('custom_config.COR_VISTA') ?? 0);
+
+        $roles = array_values(collect(session('SESSION_ROLE_USER'))->toArray());
+
+        return in_array($ADM_TOTAL, $roles, true)
+            || in_array($COR_TOTAL, $roles, true)
+            || ($COR_VISTA && in_array($COR_VISTA, $roles, true));
+    }
+
+    public function getAllowedAreasForUser(int $userId): array
+    {
+        $areas = DB::table('correspondencia.ctrl_rol_usuario_area')
+            ->where('id_usuario', $userId)->where('estatus', true)->pluck('id_cat_area');
+
+        return $areas->unique()->map(fn($v)=>(int)$v)->values()->all();
+    }
+
+    /**
+     * Devuelve true si el usuario SOLO tiene el folio como COPIA:
+     *  - Tiene al menos una copia en ctrl_transcribir_correspondencia para alguna de sus áreas
+     *  - y NO es dueño/responsable en A1/A2/A3
+     */
+    private function userHasCopyOnlyAccess(int $idCorrespondencia, int $userId): bool
+    {
+        // Roles "totales" / bypass NUNCA son solo lectura por copia
+        if ($this->isBypassVisibility()) {
+            return false;
+        }
+
+        $userAreas = $this->getAllowedAreasForUser($userId);
+        if (empty($userAreas)) {
+            return false;
+        }
+
+        $corr = DB::table('correspondencia.tbl_correspondencia as c')
+            ->select('c.id_cat_area','c.id_cat_area_1','c.id_cat_area_2')
+            ->where('c.id_tbl_correspondencia', $idCorrespondencia)
+            ->first();
+
+        if (!$corr) {
+            return false;
+        }
+
+        $areasDoc = [
+            (int) ($corr->id_cat_area   ?? 0),
+            (int) ($corr->id_cat_area_1 ?? 0),
+            (int) ($corr->id_cat_area_2 ?? 0),
+        ];
+
+        // Si el usuario es dueño/responsable en A1/A2/A3, NO es "solo copia"
+        foreach ($areasDoc as $ax) {
+            if ($ax && in_array($ax, $userAreas, true)) {
+                return false;
+            }
+        }
+
+        // Verificar si existe registro de COPIA para alguna de sus áreas
+        $hasCopy = DB::table('correspondencia.ctrl_transcribir_correspondencia as t')
+            ->where('t.id_tbl_correspondencia', $idCorrespondencia)
+            ->whereIn('t.id_cat_area', $userAreas)
+            ->exists();
+
+        return $hasCopy;
     }
 }
