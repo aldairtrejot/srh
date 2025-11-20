@@ -22,6 +22,8 @@
                                 <img src="assets/images/imss/imss-bienestar-2025.png" alt="logo"
                                     style="width: 200px; height: auto;" />
                             </div>
+                            <h3 class="text-center" style="font-weight: 700;">Sistema Integral de Recursos Humanos</h3>
+                            <br>
                             <h4>Control de Gestión</h4>
                             <h6 class="font-weight-light">Iniciar sesión</h6>
 
