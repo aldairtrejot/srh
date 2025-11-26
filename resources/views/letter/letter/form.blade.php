@@ -258,14 +258,14 @@
                   <x-template-form.template-form-input-text-area
                     grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
                     label="Asunto" name="asunto" placeholder="ASUNTO"
-                    value="{{ optional($item)->asunto ?: '' }}" />
+                    value="{{ old('asunto', optional($item)->asunto ?: '') }}" />
                 </div>
 
                 <div class="row">
                   <x-template-form.template-form-input-text-area
                     grid="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
                     label="Observaciones" name="observaciones" placeholder="OBSERVACIONES"
-                    value="{{ optional($item)->observaciones ?: '' }}" />
+                     value="{{ old('observaciones', optional($item)->observaciones ?: '') }}" />
                 </div>
 
 {{-- ===== Turnar A ===== --}}
