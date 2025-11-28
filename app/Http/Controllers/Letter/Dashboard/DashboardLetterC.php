@@ -94,8 +94,8 @@ class DashboardLetterC extends Controller
             'I' => 'C.R.H.',
             'J' => 'C.R.H.T.',
             'K' => 'Área',
-            'L' => 'Trámite',
-            'M' => 'Clave',
+            'L' => 'Clave',
+            'M' => 'Trámite',
             'N' => 'Tipo de Documento',
             'O' => 'Observaciones',
             'P' => '¿El Fólio Tiene Respuesta?',
@@ -145,8 +145,8 @@ class DashboardLetterC extends Controller
             $sheet->setCellValueExplicit('I'.$row, $data->c_r_h, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('J'.$row, $data->c_r_h_t, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('K'.$row, $data->area_zona, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('L'.$row, $data->tramite_general, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('M'.$row, $data->tramite_especifico, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L'.$row, $data->tramite_especifico, DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('M'.$row, $data->tramite_general, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('N'.$row, $data->tipo_documento, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('O'.$row, $data->observaciones, DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('P'.$row, $data->estatus_respuesta, DataType::TYPE_STRING);
