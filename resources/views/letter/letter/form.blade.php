@@ -337,7 +337,7 @@
 
                   <x-template-form.template-form-select-required
                     :selectValue="$selectClave" :selectEdit="$selectClaveEdit"
-                    name="id_cat_clave" tittle="Clave"
+                    name="id_cat_clave" tittle="Clasif. Archivística"
                     grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
                 </div>
 

@@ -97,27 +97,27 @@ class ReporteCorrespondenciaC extends Controller
         $pdf->MultiCell(0, 4, utf8_decode($data->codigo));
 
         // Remitente
-        $pdf->SetXY(46, 132);
+        $pdf->SetXY(46, 134);
         $pdf->MultiCell(0, 4, utf8_decode($data->remitente));
 
         // Puesto remitente
-        $pdf->SetXY(46, 140);
+        $pdf->SetXY(46, 142);
         $pdf->MultiCell(0, 4, utf8_decode($data->puesto_remitente));
 
         // Asunto
-        $pdf->SetXY(46, 148);
+        $pdf->SetXY(46, 149);
         $pdf->MultiCell(0, 4, utf8_decode($data->asunto));
 
         // Lugar
-        $pdf->SetXY(46, 172);
+        $pdf->SetXY(46, 173);
         $pdf->MultiCell(0, 4, utf8_decode($data->entidad));
 
         // Observaciones
-        $pdf->SetXY(46, 178);
+        $pdf->SetXY(46, 180);
         $pdf->MultiCell(0, 4, utf8_decode($data->observaciones));
 
         // Usuario
-        $pdf->SetXY(46, 200);
+        $pdf->SetXY(46, 201);
         $pdf->Write(0, utf8_decode($data->user_area));
 
         // ========================= COPIA A (nuevo renglón) =========================
@@ -125,7 +125,7 @@ class ReporteCorrespondenciaC extends Controller
         // Aquí imprimimos solo las áreas seleccionadas en ctrl_transcribir_correspondencia.
         if (!empty($copy)) {
             // Ajusta la coordenada Y si en tu PDF el texto queda desfasado.
-            $pdf->SetXY(46, 205); // <-- esta Y corresponde al recuadro gris de "Copia a"
+            $pdf->SetXY(46, 207); // <-- esta Y corresponde al recuadro gris de "Copia a"
             
             // Cada área en una línea
             $textoCopias = utf8_decode(implode("\n", $copy));

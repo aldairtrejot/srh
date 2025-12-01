@@ -60,15 +60,14 @@
                 tittle="Tramite" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
             <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]" name="id_cat_clave_copy"
-                tittle="Clave" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
+                tittle="Clasif. Archivística" grid="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4" />
 
         </div>
 
 
 
         <div class="modal-buttons custom-modal-buttons">
-            <button style="font-weight: bold;" onclick="hiddenCopy();">Cancelar</button>
-            <button style="font-weight: bold;color: #10312b" onclick="saveCopy();">Confirmar</button>
+            <button style="font-weight: bold;color: #10312b" onclick="saveCopy();">Insertar</button>
         </div>
     </div>
 
@@ -86,7 +85,7 @@
                         Tramite
                     </th>
                     <th>
-                        Clave
+                        Clasif. Archivística
                     </th>
                     <!--
                     <th>

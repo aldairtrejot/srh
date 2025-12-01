@@ -59,7 +59,7 @@
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
         name="id_cat_tramite_ret" tittle="Trámite" grid="col-12 col-sm-6 col-md-4" data-container="#modalReturnado"/>
       <x-template-form.template-form-select-required :selectValue="[]" :selectEdit="[]"
-        name="id_cat_clave_ret" tittle="Clave" grid="col-12 col-sm-6 col-md-4" data-container="#modalReturnado"/>
+        name="id_cat_clave_ret" tittle="Clasif. Archivística" grid="col-12 col-sm-6 col-md-4" data-container="#modalReturnado"/>
     </div>
   </div>
 

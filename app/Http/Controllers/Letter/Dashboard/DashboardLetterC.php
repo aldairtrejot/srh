@@ -94,7 +94,7 @@ class DashboardLetterC extends Controller
             'I' => 'C.R.H.',
             'J' => 'C.R.H.T.',
             'K' => 'Área',
-            'L' => 'Clave',
+            'L' => 'Clasif. Archivística',
             'M' => 'Trámite',
             'N' => 'Tipo de Documento',
             'O' => 'Observaciones',
