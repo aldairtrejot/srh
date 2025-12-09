@@ -8,6 +8,7 @@ use App\Models\Letter\Letter\CloudOficiosM;
 use App\Models\Letter\Collection\CollectionConfigCloudM;
 use App\Models\Letter\Letter\LetterM;
 use App\Models\Letter\Letter\CloudM;
+use App\Models\Letter\Letter\CloudAnexosSalidaM; // <-- NUEVO
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -136,52 +137,62 @@ class CloudLetterC extends Controller
     }
 
     //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
-    public function delete(Request $request)
-    {
-        $logC = new LogC;
-        $now = Carbon::now(); //Hora y fecha actual
-        $cloudAnexosM = new CloudAnexosM(); //aCTUALIACION DE ANEXO POR UID
-        $cloudOficiosM = new CloudOficiosM();
-        $estatus = false;
+   //LA funcion actualiza/elimina los registros para que no aparescan en la pantalla de vista de cloud
+public function delete(Request $request)
+{
+    $logC = new LogC;
+    $now = Carbon::now(); //Hora y fecha actual
 
-        $alfrescoC = new AlfrescoC();
+    // Modelos de entrada
+    $cloudAnexosM  = new CloudAnexosM();     // anexos de ENTRADA
+    $cloudOficiosM = new CloudOficiosM();    // oficios de ENTRADA
 
-        //Borrado de alfresco
-        $alfrescoC->delete($request->uid);
+    // Modelo de anexos de RESPUESTA (salida)
+    $cloudAnexosSalidaM = new CloudAnexosSalidaM();
 
-        $data = [
-            'estatus' => false,
-            'id_usuario_sistema' => Auth::user()->id,
-            'fecha_usuario' => $now,
-        ];
+    $estatus = false;
 
-        //update en base
-        $resultAnexos = $cloudAnexosM::where('uid', $request->uid)
-            ->update($data);
+    $alfrescoC = new AlfrescoC();
 
+    //Borrado de alfresco (físico)
+    $alfrescoC->delete($request->uid);
 
-        $resultOficio = $cloudOficiosM::where('uid', $request->uid)
-            ->update($data);
+    $data = [
+        'estatus' => false,
+        'id_usuario_sistema' => Auth::user()->id,
+        'fecha_usuario' => $now,
+    ];
 
-        //UPDATE EN LOG
-        $data['uid'] = $request->uid;
+    // ==== UPDATE EN BASE ====
+    // 1) Anexos / oficios de ENTRADA
+    $resultAnexos  = $cloudAnexosM::where('uid', $request->uid)->update($data);
+    $resultOficio  = $cloudOficiosM::where('uid', $request->uid)->update($data);
 
-        if ($resultAnexos > 0) {
-            $logC->edit('correspondencia.ctrl_correspondencia_anexo', $data);
-        } else if ($resultOficio > 0) {
-            $logC->edit('correspondencia.ctrl_correspondencia_oficio', $data);
-        }
+    // 2) Anexos de RESPUESTA (salida)
+    $resultAnexosSalida = $cloudAnexosSalidaM::where('uid', $request->uid)->update($data);
 
+    // ==== UPDATE EN LOG ====
+    $data['uid'] = $request->uid;
 
-        $estatus = ($resultAnexos > 0 || $resultOficio > 0) ? true : false;
-
-
-
-        return response()->json([
-            'messages' => $estatus,
-            'status' => true,
-        ]);
+    if ($resultAnexos > 0) {
+        $logC->edit('correspondencia.ctrl_correspondencia_anexo', $data);
+    } else if ($resultOficio > 0) {
+        $logC->edit('correspondencia.ctrl_correspondencia_oficio', $data);
     }
+    // Si quieres también log para salida, aquí podrías agregar un else if
+    // else if ($resultAnexosSalida > 0) {
+    //     $logC->edit('correspondencia.ctrl_oficio_anexo', $data);
+    // }
+
+    // Éxito si se actualizó cualquiera de las tres tablas
+    $estatus = ($resultAnexos > 0 || $resultOficio > 0 || $resultAnexosSalida > 0);
+
+    return response()->json([
+        'messages' => $estatus,
+        'status'   => true,
+    ]);
+}
+
 
 
 }

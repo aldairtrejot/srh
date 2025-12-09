@@ -116,7 +116,7 @@ function getReplySummary() {
             $('#resp_asunto').text(r.asunto || '—');
             $('#resp_observaciones').text(r.observaciones || '—');
 
-            // Oficio de salida
+            // ===== Oficio de salida (SIN eliminar) =====
             const ofiVacio = $('#container_oficio_salida_vacio');
             const ofiCont  = $('#container_oficio_salida');
             ofiCont.empty();
@@ -129,14 +129,19 @@ function getReplySummary() {
                 ofiVacio.show();
             }
 
-            // Anexos de salida
+            // ===== Anexos de salida (PUEDEN eliminarse si hay rol) =====
             const aneVacio = $('#container_anexo_salida_vacio');
             const aneCont  = $('#container_anexo_salida');
             aneCont.empty();
+
+            let bool_user_role = $('#bool_user_role').val();
+            let hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
+
             if (Array.isArray(r.anexosSalida) && r.anexosSalida.length > 0) {
                 aneVacio.hide();
                 r.anexosSalida.forEach(function (v) {
-                    aneCont.append(generateFileHTML(false, v)); // sin eliminar
+                    // hasRole => muestra u oculta botón de eliminar
+                    aneCont.append(generateFileHTML(hasRole, v));
                 });
             } else {
                 aneVacio.show();
@@ -325,7 +330,10 @@ function deleteDocumenServer(uid) {
             } else {
                 notyfEM.error("Algo inesperado ocurrió al realizar la acción.");
             }
-            getDataDocument(); //Lista de nuevo e directorio
+            // Refrescar ENTRADA
+            getDataDocument();
+            // Refrescar RESPUESTA (para que desaparezca el anexo enviado)
+            getReplySummary();
         },
     });
 }

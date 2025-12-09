@@ -148,3 +148,4 @@ function seeDocumentUid(uid) {
     //hideSpinner(); // Se oculta el spinner
 }
 
+
