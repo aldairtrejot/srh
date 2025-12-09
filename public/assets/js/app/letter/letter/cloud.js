@@ -96,6 +96,7 @@ function getDataCloud() {
 }
 
 // ========= Lado derecho: Documento de respuesta (solo lectura + subir anexos) =========
+// ========= Lado derecho: Documento de respuesta (solo lectura + subir anexos) =========
 function getReplySummary() {
     $.ajax({
         url: URL_DEFAULT.concat('/letter/cloud/reply'),
@@ -116,14 +117,21 @@ function getReplySummary() {
             $('#resp_asunto').text(r.asunto || '—');
             $('#resp_observaciones').text(r.observaciones || '—');
 
-            // ===== Oficio de salida (SIN eliminar) =====
+            // ===== Obtener rol una sola vez =====
+            let bool_user_role = $('#bool_user_role').val();
+            let hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
+
+            // ===== Oficio de salida =====
             const ofiVacio = $('#container_oficio_salida_vacio');
             const ofiCont  = $('#container_oficio_salida');
             ofiCont.empty();
+
             if (Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
                 ofiVacio.hide();
                 r.oficiosSalida.forEach(function (v) {
-                    ofiCont.append(generateFileHTML(false, v)); // sin eliminar
+                    // hasRole = true → ver / descargar / eliminar
+                    // hasRole = false → ver / descargar
+                    ofiCont.append(generateFileHTML(hasRole, v));
                 });
             } else {
                 ofiVacio.show();
@@ -133,9 +141,6 @@ function getReplySummary() {
             const aneVacio = $('#container_anexo_salida_vacio');
             const aneCont  = $('#container_anexo_salida');
             aneCont.empty();
-
-            let bool_user_role = $('#bool_user_role').val();
-            let hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
 
             if (Array.isArray(r.anexosSalida) && r.anexosSalida.length > 0) {
                 aneVacio.hide();
@@ -152,6 +157,7 @@ function getReplySummary() {
         }
     });
 }
+
 
 // ====== EVENTOS DE SUBIDA (ENTRADA) ======
 
