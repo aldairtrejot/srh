@@ -437,26 +437,45 @@ class LetterM extends Model
     }
 
     public function mailLetter($id)
-    {
-        return DB::table('correspondencia.tbl_correspondencia')
-            ->join('correspondencia.cat_area', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'correspondencia.cat_area.id_cat_area')
-            ->join('administration.users AS users_user', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'users_user.id')
-            ->join('administration.users AS users_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'users_enlace.id')
-            ->select(
-                'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
-                DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
-                DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, \'DD/MM/YYYY\') AS fecha_inicio'),
-                DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, \'DD/MM/YYYY\') AS fecha_fin'),
-                DB::raw('UPPER(correspondencia.cat_area.descripcion) AS area_descripcion'),
-                DB::raw('UPPER(users_user.name) AS usuario_area'),
-                DB::raw('UPPER(users_enlace.name) AS usuario_enlace')
-            )
-            ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
-            ->first();
-    }
+{
+    return DB::table('correspondencia.tbl_correspondencia')
+        // Áreas: principal (A3), CRH (A1), CRHTOD (A2)
+        ->leftJoin('correspondencia.cat_area as area_main', 'correspondencia.tbl_correspondencia.id_cat_area', '=', 'area_main.id_cat_area')
+        ->leftJoin('correspondencia.cat_area as area_1', 'correspondencia.tbl_correspondencia.id_cat_area_1', '=', 'area_1.id_cat_area')
+        ->leftJoin('correspondencia.cat_area as area_2', 'correspondencia.tbl_correspondencia.id_cat_area_2', '=', 'area_2.id_cat_area')
+
+        // Usuarios (pueden venir nulos también)
+        ->leftJoin('administration.users AS users_user', 'correspondencia.tbl_correspondencia.id_usuario_area', '=', 'users_user.id')
+        ->leftJoin('administration.users AS users_enlace', 'correspondencia.tbl_correspondencia.id_usuario_enlace', '=', 'users_enlace.id')
+
+        ->select(
+            'correspondencia.tbl_correspondencia.id_tbl_correspondencia',
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.asunto) AS asunto'),
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.num_turno_sistema) AS num_turno_sistema'),
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.folio_gestion) AS folio_gestion'),
+            DB::raw('UPPER(correspondencia.tbl_correspondencia.num_documento) AS num_documento'),
+            DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_inicio, \'DD/MM/YYYY\') AS fecha_inicio'),
+            DB::raw('TO_CHAR(correspondencia.tbl_correspondencia.fecha_fin, \'DD/MM/YYYY\') AS fecha_fin'),
+
+            // 👇 Aquí la magia: usa AREA, si no CRHTOD, si no CRH
+            DB::raw("
+                UPPER(
+                    COALESCE(
+                        area_main.descripcion,
+                        area_2.descripcion,
+                        area_1.descripcion
+                    )
+                ) AS area_descripcion
+            "),
+
+            // Usuarios: si no hay, ponemos '-'
+            DB::raw('UPPER(COALESCE(users_user.name, \'-\')) AS usuario_area'),
+            DB::raw('UPPER(COALESCE(users_enlace.name, \'-\')) AS usuario_enlace')
+        )
+        ->where('correspondencia.tbl_correspondencia.id_tbl_correspondencia', $id)
+        ->first();
+}
+
 
     public function getMaxNuSistem()
     {
