@@ -24,6 +24,29 @@ var token = $('meta[name="csrf-token"]').attr('content');
   const $tra = $('#id_cat_tramite_ret,[name="id_cat_tramite_ret"]');
   const $cla = $('#id_cat_clave_ret,[name="id_cat_clave_ret"]');
 
+  /* ======================== BLOQUEO (COOR/TRAM/CLAVE) ======================== */
+  // ✅ Cambia a false si en algún momento quieres permitir editar estos 3 campos
+  const LOCK_FIXED_FIELDS = true;
+  const __fixed = { coor:'', tra:'', cla:'' };
+
+  function captureFixedFields() {
+    __fixed.coor = getVal($coor);
+    __fixed.tra  = getVal($tra);
+    __fixed.cla  = getVal($cla);
+  }
+  function applyFixedFields() {
+    if (__fixed.coor) { $coor.val(__fixed.coor); spRefresh($coor); }
+    if (__fixed.tra)  { $tra.val(__fixed.tra);  spRefresh($tra); }
+    if (__fixed.cla)  { $cla.val(__fixed.cla);  spRefresh($cla); }
+  }
+  function lockFixedFieldsUI() {
+    if (!LOCK_FIXED_FIELDS) return;
+    [$coor,$tra,$cla].forEach($s => {
+      $s.prop('disabled', true).attr('disabled', 'disabled').addClass('disabled');
+      spRefresh($s);
+    });
+  }
+
   /* ======================== ENDPOINTS ======================== */
   const COLLECTION_AREA_URL =
     (window.LETTER && window.LETTER.collectionAreaUrl) ||
@@ -239,51 +262,78 @@ var token = $('meta[name="csrf-token"]').attr('content');
   }
 
   /* =================== Dependientes por Área =================== */
-// === REEMPLAZA COMPLETO ESTA FUNCIÓN ===
-async function actualizarCamposDerivadosPorAreaId(areaId, preserve = true) {
-  if (!areaId) { [$usr,$enl,$uni,$coor,$tra,$cla].forEach(setEmpty); return; }
+  // === REEMPLAZA COMPLETO ESTA FUNCIÓN ===
+  async function actualizarCamposDerivadosPorAreaId(areaId, preserve = true) {
+    if (!areaId) { [$usr,$enl,$uni,$coor,$tra,$cla].forEach(setEmpty); return; }
 
-  // guarda lo seleccionado ANTES de recargar, para intentar conservarlo
-  const prev = preserve ? {
-    usr:  getVal($usr),  enl:  getVal($enl),
-    uni:  getVal($uni),  coor: getVal($coor),
-    tra:  getVal($tra),  cla:  getVal($cla),
-  } : null;
+    // guarda lo seleccionado ANTES de recargar, para intentar conservarlo
+    const prev = preserve ? {
+      usr:  getVal($usr),  enl:  getVal($enl),
+      uni:  getVal($uni),  coor: getVal($coor),
+      tra:  getVal($tra),  cla:  getVal($cla),
+    } : null;
 
-  [$usr,$enl,$uni,$tra].forEach(setLoading); setEmpty($coor); setEmpty($cla);
+    // 👇 si están bloqueados, NO los pongas en loading/vacío
+    [$usr,$enl,$uni].forEach(setLoading);
 
-  const ctl = abortAndNew('deps');
-  try {
-    const json = await postForm(COLLECTION_AREA_URL, { id:Number(areaId) }, ctl.signal);
+    if (!LOCK_FIXED_FIELDS) {
+      setEmpty($coor); setLoading($tra); setEmpty($cla);
+    } else {
+      // solo aseguramos que sigan con su valor fijo
+      applyFixedFields();
+    }
 
-    fillPicker($usr,  json.selectUsuario || json.usuarios || [], preserve ? prev.usr  : null);
-    fillPicker($enl,  json.selectEnlace  || json.enlaces  || [], preserve ? prev.enl  : null);
-    fillPicker($uni,  json.selectUnidad  || json.unidades || [], preserve ? prev.uni  : null);
-    fillPicker($coor, json.selectCoor    || json.coordinaciones || [], preserve ? prev.coor : null);
-    fillPicker($tra,  json.selectTramite || json.tramites || [], preserve ? prev.tra  : null);
+    const ctl = abortAndNew('deps');
+    try {
+      const json = await postForm(COLLECTION_AREA_URL, { id:Number(areaId) }, ctl.signal);
 
-    [$usr,$enl,$uni,$coor,$tra].forEach(enablePicker);
+      fillPicker($usr,  json.selectUsuario || json.usuarios || [], preserve ? prev.usr  : null);
+      fillPicker($enl,  json.selectEnlace  || json.enlaces  || [], preserve ? prev.enl  : null);
+      fillPicker($uni,  json.selectUnidad  || json.unidades || [], preserve ? prev.uni  : null);
 
-    // si al conservar quedó vacío, elige el primero disponible
-    const ensureFirst = ($s) => { if (!getVal($s)) { const v = firstRealVal($s); if (v) { $s.val(v); spRefresh($s); } } };
-    ensureFirst($usr); ensureFirst($enl); ensureFirst($uni); ensureFirst($coor); ensureFirst($tra);
+      // ✅ SOLO si NO está bloqueado, recalcula COOR/TRAM/CLAVE
+      if (!LOCK_FIXED_FIELDS) {
+        fillPicker($coor, json.selectCoor    || json.coordinaciones || [], preserve ? prev.coor : null);
+        fillPicker($tra,  json.selectTramite || json.tramites || [], preserve ? prev.tra  : null);
+      }
 
-    // claves dependen de trámite
-    if (getVal($tra)) await cargarClavesPorTramite(getVal($tra), !preserve);
-    else setEmpty($cla);
+      // habilita los que sí aplican
+      [$usr,$enl,$uni].forEach(enablePicker);
+      if (!LOCK_FIXED_FIELDS) { [$coor,$tra].forEach(enablePicker); }
 
-    // coordinaciones dependen de unidad
-    if (getVal($uni)) await cargarCoordinacionesPorUnidad(getVal($uni), !preserve);
-    else setEmpty($coor);
+      // si al conservar quedó vacío, elige el primero disponible
+      const ensureFirst = ($s) => { if (!getVal($s)) { const v = firstRealVal($s); if (v) { $s.val(v); spRefresh($s); } } };
+      ensureFirst($usr); ensureFirst($enl); ensureFirst($uni);
 
-  } catch (e) {
-    logIfNotAbort('actualizarCamposDerivadosPorAreaId error', e);
-    [$usr,$enl,$uni,$coor,$tra,$cla].forEach(setEmpty);
+      if (!LOCK_FIXED_FIELDS) {
+        ensureFirst($coor); ensureFirst($tra);
+
+        // claves dependen de trámite
+        if (getVal($tra)) await cargarClavesPorTramite(getVal($tra), !preserve);
+        else setEmpty($cla);
+
+        // coordinaciones dependen de unidad
+        if (getVal($uni)) await cargarCoordinacionesPorUnidad(getVal($uni), !preserve);
+        else setEmpty($coor);
+      } else {
+        // ✅ re-aplica valores fijos y se acabó
+        applyFixedFields();
+        lockFixedFieldsUI();
+      }
+
+    } catch (e) {
+      logIfNotAbort('actualizarCamposDerivadosPorAreaId error', e);
+      [$usr,$enl,$uni].forEach(setEmpty);
+      if (!LOCK_FIXED_FIELDS) [$coor,$tra,$cla].forEach(setEmpty);
+      else { applyFixedFields(); lockFixedFieldsUI(); }
+    }
   }
-}
 
   /* ====== AJUSTE 1: Coordinaciones por Unidad (selectCoordinacion) ====== */
   async function cargarCoordinacionesPorUnidad(unidadId, resetChain = true) {
+    // ✅ si están bloqueados, no recalcular
+    if (LOCK_FIXED_FIELDS) { applyFixedFields(); lockFixedFieldsUI(); return; }
+
     if (resetChain) setEmpty($coor);
     if (!unidadId) return;
     setLoading($coor);
@@ -304,6 +354,9 @@ async function actualizarCamposDerivadosPorAreaId(areaId, preserve = true) {
 
   /* ====== AJUSTE 2: Claves por Trámite (via CollectionAreaC by=clave_by_tramite) ====== */
   async function cargarClavesPorTramite(tramiteId, resetChain = true) {
+    // ✅ si están bloqueados, no recalcular
+    if (LOCK_FIXED_FIELDS) { applyFixedFields(); lockFixedFieldsUI(); return; }
+
     if (resetChain) setEmpty($cla);
     if (!tramiteId) return;
     setLoading($cla);
@@ -373,61 +426,74 @@ async function actualizarCamposDerivadosPorAreaId(areaId, preserve = true) {
     cloneSelect('#id_cat_tramite',     '#id_cat_tramite_ret');
     cloneSelect('#id_cat_clave',       '#id_cat_clave_ret');
 
+    // ✅ capturar valores que deben quedar fijos
+    if (LOCK_FIXED_FIELDS) captureFixedFields();
+
     if (getVal($a3)) await actualizarCamposDerivadosPorAreaId(getVal($a3));
     if (getVal($uni)) await cargarCoordinacionesPorUnidad(getVal($uni), false);
     if (getVal($tra)) await cargarClavesPorTramite(getVal($tra), false);
+
+    // ✅ re-aplicar y bloquear al terminar seed
+    if (LOCK_FIXED_FIELDS) { applyFixedFields(); lockFixedFieldsUI(); }
   }
 
-async function seedFromServer(id) {
-  // Incluye include_inactive=1 para que no te falten opciones
-  const url = SEED_URL_BASE + encodeURIComponent(String(id)) + '?include_inactive=1';
-  L('seedFromServer', url);
+  async function seedFromServer(id) {
+    // Incluye include_inactive=1 para que no te falten opciones
+    const url = SEED_URL_BASE + encodeURIComponent(String(id)) + '?include_inactive=1';
+    L('seedFromServer', url);
 
-  const resp = await fetch(url, { headers:{'Accept':'application/json'} });
-  if (!resp.ok) throw new Error('HTTP '+resp.status);
-  const data = await resp.json();
-  if (!data.ok) throw new Error(data.message || 'Seed inválido');
+    const resp = await fetch(url, { headers:{'Accept':'application/json'} });
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.message || 'Seed inválido');
 
-  $('#name_folio_gestion_returnado').text(data.folio || '');
+    $('#name_folio_gestion_returnado').text(data.folio || '');
 
-  const LTR = data.letter || {};
-  const S   = data.selects || {};
+    const LTR = data.letter || {};
+    const S   = data.selects || {};
 
-  // 1) Pinta lo que venga del seed
-  fillPicker($a1,  S.area1,  LTR.id_cat_area_1);
-  fillPicker($a2,  S.area2,  LTR.id_cat_area_2);
-  fillPicker($a3,  S.area3,  LTR.id_cat_area);
-  fillPicker($usr, S.usuarios,       LTR.id_usuario_area);
-  fillPicker($enl, S.enlaces,        LTR.id_usuario_enlace);
-  fillPicker($uni, S.unidades,       LTR.id_cat_unidad);
-  fillPicker($coor,S.coordinaciones, LTR.id_cat_coordinacion);
-  fillPicker($tra, S.tramites,       LTR.id_cat_tramite);
-  fillPicker($cla, S.claves,         LTR.id_cat_clave);
+    // 1) Pinta lo que venga del seed
+    fillPicker($a1,  S.area1,  LTR.id_cat_area_1);
+    fillPicker($a2,  S.area2,  LTR.id_cat_area_2);
+    fillPicker($a3,  S.area3,  LTR.id_cat_area);
+    fillPicker($usr, S.usuarios,       LTR.id_usuario_area);
+    fillPicker($enl, S.enlaces,        LTR.id_usuario_enlace);
+    fillPicker($uni, S.unidades,       LTR.id_cat_unidad);
+    fillPicker($coor,S.coordinaciones, LTR.id_cat_coordinacion);
+    fillPicker($tra, S.tramites,       LTR.id_cat_tramite);
+    fillPicker($cla, S.claves,         LTR.id_cat_clave);
 
-  [$a1,$a2,$a3,$usr,$enl,$uni,$coor,$tra,$cla].forEach(enablePicker);
+    [$a1,$a2,$a3,$usr,$enl,$uni,$coor,$tra,$cla].forEach(enablePicker);
 
-  // 2) ⚠️ Si el seed NO trajo listas de A2/A3, fuerza la cascada con preselección
-  if (!hasRealOptions($a2) && LTR.id_cat_area_1) {
-    await cargarArea2PorArea1(LTR.id_cat_area_1, LTR.id_cat_area_2 || null);
-  }
-  if (!hasRealOptions($a3) && (LTR.id_cat_area_2 || LTR.id_cat_area_1)) {
-    const a2 = LTR.id_cat_area_2 || getVal($a2);
-    if (a2) await cargarArea3PorArea2(a2, LTR.id_cat_area || null);
-  }
+    // ✅ capturar valores que deben quedar fijos (ya sembrados)
+    if (LOCK_FIXED_FIELDS) captureFixedFields();
 
-  // 3) Completa dependientes si faltaron
-  const areaRef = getVal($a3) || LTR.id_cat_area || getVal($a2) || LTR.id_cat_area_2 || getVal($a1) || LTR.id_cat_area_1;
-  if (areaRef) {
-    // Si usuarios/trámites/unidades vinieron vacíos, rellénalos por área
-    if (!hasRealOptions($usr) || !hasRealOptions($tra) || !hasRealOptions($uni)) {
-      await actualizarCamposDerivadosPorAreaId(areaRef);
+    // 2) ⚠️ Si el seed NO trajo listas de A2/A3, fuerza la cascada con preselección
+    if (!hasRealOptions($a2) && LTR.id_cat_area_1) {
+      await cargarArea2PorArea1(LTR.id_cat_area_1, LTR.id_cat_area_2 || null);
     }
-    // Si faltan coor/clave pero ya hay unidad/trámite seleccionados, cárgalos
-    if (getVal($uni) && !hasRealOptions($coor)) await cargarCoordinacionesPorUnidad(getVal($uni), false);
-    if (getVal($tra) && !hasRealOptions($cla)) await cargarClavesPorTramite(getVal($tra), false);
-  }
-}
+    if (!hasRealOptions($a3) && (LTR.id_cat_area_2 || LTR.id_cat_area_1)) {
+      const a2 = LTR.id_cat_area_2 || getVal($a2);
+      if (a2) await cargarArea3PorArea2(a2, LTR.id_cat_area || null);
+    }
 
+    // 3) Completa dependientes si faltaron
+    const areaRef = getVal($a3) || LTR.id_cat_area || getVal($a2) || LTR.id_cat_area_2 || getVal($a1) || LTR.id_cat_area_1;
+    if (areaRef) {
+      // Si usuarios/trámites/unidades vinieron vacíos, rellénalos por área
+      if (!hasRealOptions($usr) || !hasRealOptions($uni)) {
+        await actualizarCamposDerivadosPorAreaId(areaRef);
+      }
+      // Si faltan coor/clave pero ya hay unidad/trámite seleccionados, cárgalos
+      if (!LOCK_FIXED_FIELDS) {
+        if (getVal($uni) && !hasRealOptions($coor)) await cargarCoordinacionesPorUnidad(getVal($uni), false);
+        if (getVal($tra) && !hasRealOptions($cla)) await cargarClavesPorTramite(getVal($tra), false);
+      }
+    }
+
+    // ✅ re-aplicar y bloquear (si aplica)
+    if (LOCK_FIXED_FIELDS) { applyFixedFields(); lockFixedFieldsUI(); }
+  }
 
   async function precargaInicialPorInitials() {
     const area1Inicial = window.LETTER?.initials?.area1 || null;
@@ -444,66 +510,64 @@ async function seedFromServer(id) {
     } else {
       setEmpty($a2); setEmpty($a3); [$usr,$enl,$uni,$coor,$tra,$cla].forEach(setEmpty);
     }
+
+    if (LOCK_FIXED_FIELDS) { captureFixedFields(); applyFixedFields(); lockFixedFieldsUI(); }
   }
 
-// === REEMPLAZA COMPLETO ESTA FUNCIÓN ===
-function kickStartCascadeOnce() {
-  L('kickstart: A1->A2');
-  if (getVal($a1) && !hasRealOptions($a2)) $a1.trigger('change');
-  if (getVal($a2) && !hasRealOptions($a3)) $a2.trigger('change');
+  // === REEMPLAZA COMPLETO ESTA FUNCIÓN ===
+  function kickStartCascadeOnce() {
+    L('kickstart: A1->A2');
+    if (getVal($a1) && !hasRealOptions($a2)) $a1.trigger('change');
+    if (getVal($a2) && !hasRealOptions($a3)) $a2.trigger('change');
 
-  // Solo cargar dependientes si están vacíos o sin opciones
-  const needsDeps =
-    !hasRealOptions($usr) || !hasRealOptions($tra) || !hasRealOptions($uni) ||
-    !hasRealOptions($coor) || !hasRealOptions($cla);
+    // Solo cargar dependientes si están vacíos o sin opciones
+    const needsDeps =
+      !hasRealOptions($usr) || !hasRealOptions($tra) || !hasRealOptions($uni) ||
+      !hasRealOptions($coor) || !hasRealOptions($cla);
 
-  if (needsDeps) {
-    const areaId = getVal($a3) || getVal($a2) || getVal($a1);
-    if (areaId) actualizarCamposDerivadosPorAreaId(areaId, /* preserve */ true);
+    if (needsDeps) {
+      const areaId = getVal($a3) || getVal($a2) || getVal($a1);
+      if (areaId) actualizarCamposDerivadosPorAreaId(areaId, /* preserve */ true);
+    }
+    computeAndShowNivelActual();
   }
-  computeAndShowNivelActual();
-}
-
 
   /* ===================== ABRIR / CERRAR MODAL ===================== */
-// === OPEN / CLOSE (REEMPLAZA COMPLETO) ===
-window.openReturnado = function (id, folGestion) {
-  // Guard: deja pasar TURNADO (1) y RE-TURNADO (8)
-  if (!guardReturnadoOrWarn()) return;
+  // === OPEN / CLOSE (REEMPLAZA COMPLETO) ===
+  window.openReturnado = function (id, folGestion) {
+    // Guard: deja pasar TURNADO (1) y RE-TURNADO (8)
+    if (!guardReturnadoOrWarn()) return;
 
-  $('#id_correspondencia_ret').val(id || '');
-  $('#name_folio_gestion_returnado').text(folGestion || '');
-  $('body').addClass('modal-open-returnado');
-  $m.fadeIn();
+    $('#id_correspondencia_ret').val(id || '');
+    $('#name_folio_gestion_returnado').text(folGestion || '');
+    $('body').addClass('modal-open-returnado');
+    $m.fadeIn();
 
-  spInitIn('#modalReturnado');
-  [$a1,$a2,$a3,$usr,$enl,$uni,$coor,$tra,$cla].forEach(enablePicker);
+    spInitIn('#modalReturnado');
+    [$a1,$a2,$a3,$usr,$enl,$uni,$coor,$tra,$cla].forEach(enablePicker);
 
-  __seeding = true; // evita que los listeners disparen cascadas mientras sembramos
-  const finish = () => { __seeding = false; computeAndShowNivelActual(); };
+    __seeding = true; // evita que los listeners disparen cascadas mientras sembramos
+    const finish = () => {
+      __seeding = false;
+      computeAndShowNivelActual();
+      if (LOCK_FIXED_FIELDS) { applyFixedFields(); lockFixedFieldsUI(); }
+    };
 
-  if ($('#id_cat_area').length) {
-    // Si estás en la pantalla de edición (form principal presente),
-    // solo clonamos lo que ya tiene el form. ¡Nada de cascadas extra!
-    Promise.resolve()
-      .then(() => seedFromMainForm())
-      .catch(e => logIfNotAbort('seedFromMainForm error', e))
-      .finally(finish);
-  } else {
-    // Desde la tabla: pide todo al servidor y listo (sin cascadas extra).
-    Promise.resolve()
-      .then(() => seedFromServer(id))
-      .catch(e => { logIfNotAbort('seedFromServer error', e); if (window.notyfEM) notyfEM.error('No se pudo cargar la información del turnado.'); })
-      .finally(finish);
-  }
-};
-
-window.hiddenReturnado = function () {
-  $m.stop(true, true).fadeOut(150, function(){ $(this).hide(); });
-  $('body').removeClass('modal-open-returnado');
-  Object.keys(reqCtl).forEach(k => { try { reqCtl[k]?.abort(); } catch(_){} });
-};
-
+    if ($('#id_cat_area').length) {
+      // Si estás en la pantalla de edición (form principal presente),
+      // solo clonamos lo que ya tiene el form. ¡Nada de cascadas extra!
+      Promise.resolve()
+        .then(() => seedFromMainForm())
+        .catch(e => logIfNotAbort('seedFromMainForm error', e))
+        .finally(finish);
+    } else {
+      // Desde la tabla: pide todo al servidor y listo (sin cascadas extra).
+      Promise.resolve()
+        .then(() => seedFromServer(id))
+        .catch(e => { logIfNotAbort('seedFromServer error', e); if (window.notyfEM) notyfEM.error('No se pudo cargar la información del turnado.'); })
+        .finally(finish);
+    }
+  };
 
   window.hiddenReturnado = function () {
     $m.stop(true, true).fadeOut(150, function(){ $(this).hide(); });
@@ -562,48 +626,51 @@ window.hiddenReturnado = function () {
   };
 
   /* ======================= EVENT LISTENERS ======================= */
- // A1
-$(document).on('changed.bs.select change',
-  '#id_cat_area_1_ret,[name="id_cat_area_1_ret"]',
-  async function () {
-    if (__seeding) return;
-    const area1Id = this.value || '';
-    L('change A1 =>', area1Id);
-    await cargarArea2PorArea1(area1Id, null);
-    setEmpty($a3);
-    actualizarCamposDerivadosPorAreaId(area1Id, /* preserve */ false); // <<<
-    computeAndShowNivelActual();
-});
+  // A1
+  $(document).on('changed.bs.select change',
+    '#id_cat_area_1_ret,[name="id_cat_area_1_ret"]',
+    async function () {
+      if (__seeding) return;
+      const area1Id = this.value || '';
+      L('change A1 =>', area1Id);
+      await cargarArea2PorArea1(area1Id, null);
+      setEmpty($a3);
+      actualizarCamposDerivadosPorAreaId(area1Id, /* preserve */ false); // <<<
+      computeAndShowNivelActual();
+  });
 
-// A2
-$(document).on('changed.bs.select change',
-  '#id_cat_area_2_ret,[name="id_cat_area_2_ret"]',
-  async function () {
-    if (__seeding) return;
-    const area2Id = this.value || '';
-    L('change A2 =>', area2Id);
-    await cargarArea3PorArea2(area2Id, null);
-    actualizarCamposDerivadosPorAreaId(area2Id, /* preserve */ false); // <<<
-    computeAndShowNivelActual();
-});
+  // A2
+  $(document).on('changed.bs.select change',
+    '#id_cat_area_2_ret,[name="id_cat_area_2_ret"]',
+    async function () {
+      if (__seeding) return;
+      const area2Id = this.value || '';
+      L('change A2 =>', area2Id);
+      await cargarArea3PorArea2(area2Id, null);
+      actualizarCamposDerivadosPorAreaId(area2Id, /* preserve */ false); // <<<
+      computeAndShowNivelActual();
+  });
 
-// A3
-$(document).on('changed.bs.select change',
-  '#id_cat_area_ret,[name="id_cat_area_ret"], #modalReturnado select#id_cat_area',
-  function () {
-    if (__seeding) return;
-    L('change A3 =>', $(this).val());
-    actualizarCamposDerivadosPorAreaId($(this).val(), /* preserve */ false); // <<<
-    computeAndShowNivelActual();
-});
-
+  // A3
+  $(document).on('changed.bs.select change',
+    '#id_cat_area_ret,[name="id_cat_area_ret"], #modalReturnado select#id_cat_area',
+    function () {
+      if (__seeding) return;
+      L('change A3 =>', $(this).val());
+      actualizarCamposDerivadosPorAreaId($(this).val(), /* preserve */ false); // <<<
+      computeAndShowNivelActual();
+  });
 
   // Unidad / Trámite
   $(document).on('changed.bs.select change', '#id_cat_unidad_ret,[name="id_cat_unidad_ret"]', function(){
-    if (__seeding) return; cargarCoordinacionesPorUnidad($(this).val(), true);
+    if (__seeding) return;
+    if (LOCK_FIXED_FIELDS) return; // ✅ no recalcular
+    cargarCoordinacionesPorUnidad($(this).val(), true);
   });
   $(document).on('changed.bs.select change', '#id_cat_tramite_ret,[name="id_cat_tramite_ret"]', function(){
-    if (__seeding) return; cargarClavesPorTramite($(this).val(), true);
+    if (__seeding) return;
+    if (LOCK_FIXED_FIELDS) return; // ✅ no recalcular
+    cargarClavesPorTramite($(this).val(), true);
   });
 
   // Overlay, cerrar y ESC
@@ -644,3 +711,4 @@ $(document).on('changed.bs.select change',
   };
 
 })();
+
