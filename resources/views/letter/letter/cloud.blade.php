@@ -120,7 +120,14 @@
                         <i class="fa fa-arrow-up" id="icon_oficio_entrada" style="margin-right:5px;"></i>
                         Cargar
                       </label>
-                      <input type="file" id="file_oficio_entrada" style="display:none;">
+
+                      <!-- ✅ Permitir PDF/ZIP/Excel -->
+                      <input
+                        type="file"
+                        id="file_oficio_entrada"
+                        style="display:none;"
+                        accept=".pdf,.zip,.xls,.xlsx,.csv,.xlsm,.xltx,.xltm,application/pdf,application/zip,application/x-zip-compressed,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+                      >
                     </div>
 
                     <div id="container_oficio_entrada_vacio" class="rectangulo">Sin contenido</div>
@@ -136,7 +143,14 @@
                         <i class="fa fa-arrow-up" id="icon_anexo_entrada" style="margin-right:5px;"></i>
                         Cargar
                       </label>
-                      <input type="file" id="file_anexo_entrada" style="display:none;">
+
+                      <!-- ✅ Permitir PDF/ZIP/Excel -->
+                      <input
+                        type="file"
+                        id="file_anexo_entrada"
+                        style="display:none;"
+                        accept=".pdf,.zip,.xls,.xlsx,.csv,.xlsm,.xltx,.xltm,application/pdf,application/zip,application/x-zip-compressed,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+                      >
                     </div>
 
                     <div id="container_anexo_entrada_vacio" class="rectangulo">Sin contenido</div>
@@ -171,24 +185,31 @@
                     <div id="container_oficio_salida" style="margin-top:8px;"></div>
                   </div>
 
-                 <!-- Anexos enviados (SALIDA) -->
-<div class="reply-card">
-  <div style="display:flex; align-items:center;">
-    <x-template-tittle.tittle-caption-secon tittle="Anexos enviados (Max 3)" />
-    <label for="file_anexo_salida" id="label_anexo_salida"
-           style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none; margin-left:8px;">
-      <i class="fa fa-arrow-up" id="icon_anexo_salida" style="margin-right:5px;"></i>
-      Cargar
-    </label>
-    <input type="file" id="file_anexo_salida" style="display:none;">
-  </div>
+                  <!-- Anexos enviados (SALIDA) -->
+                  <div class="reply-card">
+                    <div style="display:flex; align-items:center;">
+                      <x-template-tittle.tittle-caption-secon tittle="Anexos enviados (Max 3)" />
+                      <label for="file_anexo_salida" id="label_anexo_salida"
+                             style="background-color:white; color:red; font-weight:normal; font-size:1rem; padding:5px 15px; cursor:pointer; display:flex; align-items:center; text-decoration:none; margin-left:8px;">
+                        <i class="fa fa-arrow-up" id="icon_anexo_salida" style="margin-right:5px;"></i>
+                        Cargar
+                      </label>
 
-  <div id="container_anexo_salida_vacio" class="rectangulo" style="margin-top:8px;">Sin contenido</div>
-  <div id="container_anexo_salida" style="margin-top:8px;"></div>
-</div>
+                      <!-- ✅ Permitir PDF/ZIP/Excel -->
+                      <input
+                        type="file"
+                        id="file_anexo_salida"
+                        style="display:none;"
+                        accept=".pdf,.zip,.xls,.xlsx,.csv,.xlsm,.xltx,.xltm,application/pdf,application/zip,application/x-zip-compressed,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+                      >
+                    </div>
 
+                    <div id="container_anexo_salida_vacio" class="rectangulo" style="margin-top:8px;">Sin contenido</div>
+                    <div id="container_anexo_salida" style="margin-top:8px;"></div>
+                  </div>
 
-
+                </div>
+                <!-- /Lado derecho -->
               </div>
               <!-- /Contenedor principal -->
             </div>
@@ -201,4 +222,5 @@
     <script src="{{ asset('assets/js/app/letter/cloud/cloud.js') }}"></script>
     <script src="{{ asset('assets/js/app/letter/letter/cloud.js') }}"></script>
 </x-template-app.app-layout>
+
 

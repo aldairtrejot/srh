@@ -13,6 +13,9 @@ var replyOficioId      = null;  // id_tbl_oficio (respuesta)
 var replyAnexosCount   = 0;     // cuantos anexos de salida hay
 var MAX_ANEXOS_SALIDA  = 3;     // se sobreescribe con lo que mande el back
 
+// ===== Tipos permitidos (PDF/ZIP/Excel) =====
+var ALLOWED_EXT = ['pdf', 'zip', 'xls', 'xlsx', 'xlsm', 'csv'];
+
 //Inicio de variables
 $(document).ready(function () {
     getDataCloud();
@@ -26,10 +29,30 @@ $(document).ready(function () {
     });
 });
 
+/**
+ * Valida extensión del archivo en frontend (ayuda al usuario).
+ * NOTA: backend debe validar también (mimes).
+ */
+function isAllowedFile(file) {
+    if (!file || !file.name) return false;
+    var ext = (file.name.split('.').pop() || '').toLowerCase();
+    return ALLOWED_EXT.includes(ext);
+}
+
+function showFileNotAllowedMessage() {
+    var msg = 'Tipo de archivo no permitido. Solo: PDF, ZIP y Excel (XLS/XLSX/XLSM) / CSV.';
+    if (typeof notyfEM !== 'undefined' && notyfEM.error) notyfEM.error(msg);
+    else alert(msg);
+}
+
+/**
+ * NOTA: Ya no se usará para bloquear subida (porque quieres permisos para todos),
+ * pero lo dejo por si lo ocupas para otras cosas.
+ */
 function getRole() {
-    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
-    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
-    if (!new_variable) { //Condicion para inabilitar las opciones
+    let bool_user_role = $('#bool_user_role').val();
+    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false;
+    if (!new_variable) {
         disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
         disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
     } else {
@@ -41,8 +64,9 @@ function getRole() {
 //La funcion lista los documentos que existen en el cloud (ENTRADA)
 function getDataDocument() {
 
-    let bool_user_role = $('#bool_user_role').val(); //Se obtienen los roles de usuario
-    let new_variable = (bool_user_role && bool_user_role.trim() !== '') ? true : false; //Se validan para obtener una variable boolean
+    let bool_user_role = $('#bool_user_role').val();
+    let hasRole = !!(bool_user_role && bool_user_role.trim() !== ''); // solo para mostrar botón eliminar
+    // ✅ PERMISOS: todos pueden subir (ya no condicionamos por rol)
 
     let container_anexo_entrada_vacio = $('#container_anexo_entrada_vacio');
     let container_anexo_entrada = $('#container_anexo_entrada');
@@ -54,23 +78,24 @@ function getDataDocument() {
         type: 'POST',
         data: {
             id_tbl_oficio: id, // <- tu endpoint actual lo espera así
-            _token: token  // Usar el token extraído de la metaetiqueta
+            _token: token
         },
         success: function (response) {
-            let anexosEntrada = response.anexosEntrada;
-            let oficosEntrada = response.oficosEntrada;
+            let anexosEntrada = response.anexosEntrada || [];
+            let oficosEntrada = response.oficosEntrada || [];
 
-            //Habilita o desabilita los botones de agregar (ENTRADA)
-            response.resultOficioEntrada || !new_variable
+            // ✅ ENTRADA: habilitar/deshabilitar solo por límite (no por rol)
+            response.resultOficioEntrada
                 ? disabledInput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada')
                 : enableIput('#label_oficio_entrada', '#icon_oficio_entrada', '#file_oficio_entrada');
 
-            response.resultAnexosEntrada || !new_variable
+            response.resultAnexosEntrada
                 ? disabledInput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada')
                 : enableIput('#label_anexo_entrada', '#icon_anexo_entrada', '#file_anexo_entrada');
 
-            templateCloud(new_variable, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada);
-            templateCloud(new_variable, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada);
+            // Mostrar lista (botón eliminar se controla con hasRole)
+            templateCloud(hasRole, container_anexo_entrada, container_anexo_entrada_vacio, anexosEntrada);
+            templateCloud(hasRole, container_oficio_entrada, container_oficio_entrada_vacio, oficosEntrada);
         },
     });
 }
@@ -82,10 +107,10 @@ function getDataCloud() {
         type: 'POST',
         data: {
             id: id,
-            _token: token  // Usar el token extraído de la metaetiqueta
+            _token: token
         },
         success: function (response) {
-            let item = response.value; //Obtenemos la consulta
+            let item = response.value;
             $('#_noOficio').text(item.num_turno_sistema);
             $('#_noCorrespondencia').text(item.num_documento);
             $('#_noAnio').text(item.anio);
@@ -96,13 +121,12 @@ function getDataCloud() {
 }
 
 // ========= Lado derecho: Documento de respuesta (solo lectura + subir anexos) =========
-// ========= Lado derecho: Documento de respuesta (solo lectura + subir anexos) =========
 function getReplySummary() {
     $.ajax({
         url: URL_DEFAULT.concat('/letter/cloud/reply'),
         type: 'POST',
         data: {
-            id: id,      // id_tbl_correspondencia
+            id: id,
             _token: token
         },
         success: function (r) {
@@ -117,7 +141,7 @@ function getReplySummary() {
             $('#resp_asunto').text(r.asunto || '—');
             $('#resp_observaciones').text(r.observaciones || '—');
 
-            // ===== Obtener rol una sola vez =====
+            // Rol solo para mostrar botón eliminar
             let bool_user_role = $('#bool_user_role').val();
             let hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
 
@@ -129,15 +153,13 @@ function getReplySummary() {
             if (Array.isArray(r.oficiosSalida) && r.oficiosSalida.length > 0) {
                 ofiVacio.hide();
                 r.oficiosSalida.forEach(function (v) {
-                    // hasRole = true → ver / descargar / eliminar
-                    // hasRole = false → ver / descargar
                     ofiCont.append(generateFileHTML(hasRole, v));
                 });
             } else {
                 ofiVacio.show();
             }
 
-            // ===== Anexos de salida (PUEDEN eliminarse si hay rol) =====
+            // ===== Anexos de salida =====
             const aneVacio = $('#container_anexo_salida_vacio');
             const aneCont  = $('#container_anexo_salida');
             aneCont.empty();
@@ -145,8 +167,7 @@ function getReplySummary() {
             if (Array.isArray(r.anexosSalida) && r.anexosSalida.length > 0) {
                 aneVacio.hide();
                 r.anexosSalida.forEach(function (v) {
-                    // hasRole => muestra u oculta botón de eliminar
-                    aneCont.append(generateFileHTML(hasRole, v));
+                    aneCont.append(generateFileHTML(hasRole, v)); // eliminar solo si hasRole
                 });
             } else {
                 aneVacio.show();
@@ -162,18 +183,38 @@ function getReplySummary() {
 // ====== EVENTOS DE SUBIDA (ENTRADA) ======
 
 //La funcion sube el archivo que el usuario esta seleccionando (OFICIO ENTRADA)
-document.getElementById('file_oficio_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], id_cat_entrada, es_oficio);
-    }
-});
+var fileOficioEntradaEl = document.getElementById('file_oficio_entrada');
+if (fileOficioEntradaEl) {
+    fileOficioEntradaEl.addEventListener('change', function (event) {
+        if (event.target.files.length > 0) {
+            var f = event.target.files[0];
+            if (!isAllowedFile(f)) {
+                showFileNotAllowedMessage();
+                event.target.value = '';
+                return;
+            }
+            sendFile(f, id_cat_entrada, es_oficio);
+        }
+        event.target.value = '';
+    });
+}
 
 //La funcion sube el archivo que el usuario esta seleccionando (ANEXO ENTRADA)
-document.getElementById('file_anexo_entrada').addEventListener('change', function (event) {
-    if (event.target.files.length > 0) {
-        sendFile(event.target.files[0], id_cat_entrada, es_anexo);
-    }
-});
+var fileAnexoEntradaEl = document.getElementById('file_anexo_entrada');
+if (fileAnexoEntradaEl) {
+    fileAnexoEntradaEl.addEventListener('change', function (event) {
+        if (event.target.files.length > 0) {
+            var f = event.target.files[0];
+            if (!isAllowedFile(f)) {
+                showFileNotAllowedMessage();
+                event.target.value = '';
+                return;
+            }
+            sendFile(f, id_cat_entrada, es_anexo);
+        }
+        event.target.value = '';
+    });
+}
 
 // ====== EVENTO DE SUBIDA (ANEXO SALIDA / RESPUESTA) ======
 var fileAnexoSalidaEl = document.getElementById('file_anexo_salida');
@@ -181,7 +222,15 @@ if (fileAnexoSalidaEl) {
     fileAnexoSalidaEl.addEventListener('change', function (event) {
         var files = event.target.files || [];
         if (!files.length) return;
-        sendReplyAnexo(files[0]);
+
+        var f = files[0];
+        if (!isAllowedFile(f)) {
+            showFileNotAllowedMessage();
+            event.target.value = '';
+            return;
+        }
+
+        sendReplyAnexo(f);
         event.target.value = ''; // limpiar input
     });
 }
@@ -236,9 +285,8 @@ function sendReplyAnexo(file) {
                 if (typeof notyfEM !== 'undefined' && notyfEM.success) {
                     notyfEM.success(resp.message || 'Anexo agregado correctamente.');
                 } else {
-                    alert('Anexo agregado correctamente.');
+                    alert(resp.message || 'Anexo agregado correctamente.');
                 }
-                // Recargar panel derecho para actualizar conteo y lista
                 getReplySummary();
             } else {
                 if (typeof notyfEM !== 'undefined' && notyfEM.error) {
@@ -260,13 +308,12 @@ function sendReplyAnexo(file) {
     });
 }
 
-// ====== Habilitar / deshabilitar botón "Cargar" anexos de respuesta ======
+// ====== Habilitar / deshabilitar botón "Cargar" anexos de respuesta (TODOS pueden) ======
 function toggleReplyAnexoUpload() {
-    var bool_user_role = $('#bool_user_role').val();
-    var hasRole        = !!(bool_user_role && bool_user_role.trim() !== '');
-    var remaining      = MAX_ANEXOS_SALIDA - replyAnexosCount;
+    var remaining = MAX_ANEXOS_SALIDA - replyAnexosCount;
 
-    if (!hasRole || !replyOficioId || remaining <= 0) {
+    // Solo bloquea si no hay oficio de respuesta o si ya no hay cupo
+    if (!replyOficioId || remaining <= 0) {
         disabledInput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
     } else {
         enableIput('#label_anexo_salida', '#icon_anexo_salida', '#file_anexo_salida');
@@ -274,50 +321,57 @@ function toggleReplyAnexoUpload() {
     }
 }
 
+
 // ====== SUBIDA DE ARCHIVOS (ENTRADA) ======
 function sendFile(file, id_entrada_salida, esOficio) {
     if (file) {
-        showSpinner();// Inicio de spinner
-        let data = new FormData();// Crear el objeto FormData
+        showSpinner();
+        let data = new FormData();
         data.append('file', file);
         data.append('id_cat_tipo_oficio', id_cat_tipo_oficio);
         data.append('id_cat_area', id_cat_area);
         data.append('id', id);
         data.append('id_entrada_salida', id_entrada_salida);
         data.append('esOficio', esOficio);
+
         $.ajax({
             url: URL_DEFAULT.concat("/letter/cloud/upload"),
             type: 'POST',
-            data: data, // Enviar directamente el FormData
-            processData: false,  // No procesar los datos
-            contentType: false,  // El navegador define el boundary
+            data: data,
+            processData: false,
+            contentType: false,
             headers: {
                 'X-CSRF-TOKEN': token
             },
             success: function (response) {
-                hideSpinner(); // Se oculta el spinner
-                if (response.status) { //Validacion si es que los cambios se han agregado correctamente
+                hideSpinner();
+                if (response.status) {
                     notyfEM.success("Documento agregado correctamente.");
                 } else {
-                    notyfEM.error(response.messages);
+                    notyfEM.error(response.messages || "No fue posible subir el archivo.");
                 }
-                getDataDocument(); //Lista de nuevo el directorio (entrada)
+                getDataDocument();
+                getReplySummary(); // por si el backend refleja algo en respuesta
             },
+            error: function () {
+                hideSpinner();
+                notyfEM.error("Error al subir el archivo.");
+            }
         });
     }
 }
 
-//La funcion elimina un documento
+// ====== ELIMINAR DOCUMENTO (FIX: evita listeners duplicados) ======
 function deleteDocument(uid) {
-    $('#modalBackdrop').fadeIn();//Iniciar ventana modal
+    $('#modalBackdrop').fadeIn();
 
-    $('#cancelBtn').click(function () { //Se pulsa el boton de cancelar
-        $('#modalBackdrop').fadeOut(); // Cerrar la ventana modal
+    $('#cancelBtn').off('click').one('click', function () {
+        $('#modalBackdrop').fadeOut();
     });
 
-    $('#confirmBtn').click(function () {///Se da click al boton de confirmar y se ejecuta el evento de eliminacion
+    $('#confirmBtn').off('click').one('click', function () {
         deleteDocumenServer(uid);
-        $('#modalBackdrop').fadeOut(); // Cerrar modal después de confirmar
+        $('#modalBackdrop').fadeOut();
     });
 }
 
@@ -328,7 +382,7 @@ function deleteDocumenServer(uid) {
         type: 'POST',
         data: {
             uid: uid,
-            _token: token  // Usar el token extraído de la metaetiqueta
+            _token: token
         },
         success: function (response) {
             if (response.messages) {
@@ -338,9 +392,13 @@ function deleteDocumenServer(uid) {
             }
             // Refrescar ENTRADA
             getDataDocument();
-            // Refrescar RESPUESTA (para que desaparezca el anexo enviado)
+            // Refrescar RESPUESTA
             getReplySummary();
         },
+        error: function () {
+            notyfEM.error("Error al eliminar el archivo.");
+        }
     });
 }
+
 
