@@ -72,7 +72,7 @@ class RoundM extends Model
                 '=',
                 'correspondencia.cat_anio.id_cat_anio'
             )
-            ->leftJoin( // ✅ NUEVO
+            ->join( // ✅ NUEVO
                 'correspondencia.cat_area',
                 'correspondencia.tbl_circular.id_cat_area',
                 '=',

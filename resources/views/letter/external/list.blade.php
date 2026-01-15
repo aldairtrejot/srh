@@ -64,6 +64,9 @@
                                         Dependencia
                                     </th>
                                     <th>
+                                        Área
+                                    </th>
+                                    <th>
                                         Asunto
                                     </th>
                                 </tr>

@@ -42,18 +42,32 @@ function searchInit() {
                                     </a>
                                 </div>
                             </td>
-                            <td>${object.anio}</td>
-                            <td>${object.no_documento}</td>
-                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">${object.dependencia}</td>
-                            <td style="font-size: 12px; width: 1000px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
+
+                            <td>${object.anio ?? ''}</td>
+                            <td>${object.no_documento ?? ''}</td>
+
+                            <td style="font-size: 12px; width: 700px; word-wrap: break-word; white-space: normal;">
+                                ${object.dependencia ?? ''}
+                            </td>
+
+                            <!-- ✅ NUEVA COLUMNA: ÁREA -->
+                            <td style="font-size: 12px; width: 500px; word-wrap: break-word; white-space: normal;">
+                                ${object.area ?? ''}
+                            </td>
+
+                            <td style="font-size: 12px; width: 1000px; word-wrap: break-word; white-space: normal;">
+                                ${object.asunto ?? ''}
+                            </td>
                         </tr>
                     `;
                     tbody.append(rowHTML);
                 });
+
                 emptyContent = false;
                 talldropdown(response.value.length, 1); // Scroll en dropw
             } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                // ✅ Ahora son 6 columnas visibles
+                tbody.html('<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>');
                 emptyContent = true;
                 setValue();
             }
@@ -63,7 +77,6 @@ function searchInit() {
 
 //Funcion para que al pulsar el boton se incremente uno
 function paginatorMax1() {
-
     iterator = emptyContent ? iterator : iterator += 1;
     setValue();
     searchInit();
@@ -94,7 +107,6 @@ function paginatorMin1() {
 
 // se establan los valores de los lavel 
 function setValue() {
-
     let iteratorAux = iterator;
     document.getElementById("is_iterator").innerHTML = iteratorAux;
     document.getElementById("is_iteratorMin").innerHTML = iteratorAux -= 1;
