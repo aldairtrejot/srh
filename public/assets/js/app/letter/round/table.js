@@ -99,20 +99,31 @@ function searchInit() {
                                     </a>
                                 </div>
                             </td>
+
                             <td>${object.anio}</td>
+
+                            
+
                             <td>${object.num_turno_sistema}</td>
+
                             <!--
                             <td>${object.num_documento}</td>
                             -->
+
                             <td style="font-size: 12px; width: 1100px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
+
+                            <!-- ✅ NUEVA COLUMNA: ÁREA -->
+                            <td>${object.area ?? ''}</td>
                         </tr>
+
                     `;
                     tbody.append(rowHTML);
                 });
                 emptyContent = false;
                 talldropdown(response.value.length, 1); // Scroll en dropw
             } else {
-                tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
+                // ✅ Ahora son 5 columnas visibles (Menú, Año, Área, No. Circular, Asunto)
+                tbody.html('<tr><td colspan="5" class="text-center">No se encontraron resultados</td></tr>');
                 emptyContent = true;
                 setValue();
             }

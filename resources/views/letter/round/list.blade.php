@@ -47,30 +47,18 @@
                             </div>
                         </div>
 
-                        <!-- TEMPLATE TABLE -->
                         <x-template-table.template-table>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Menú
-                                    </th>
-                                    <th>
-                                        Año
-                                    </th>
-                                    <th>
-                                        No. Circular
-                                    </th>
-                                    <!--
-                                    <th>
-                                        No. Asoc.
-                                    </th>
-                                -->
-                                    <th>
-                                        Asunto
-                                    </th>
-                                </tr>
-                            </thead>
+                        <thead>
+                             <tr>
+                            <th>Menú</th>
+                            <th>Año</th>
+                            <th>No. Circular</th>
+                            <th>Asunto</th>
+                            <th>Área</th>
+                            </tr>
+                        </thead>
                         </x-template-table.template-table>
+
 
                         <!-- TEMPLATE PAGINATOR -->
                         <x-template-table.template-paginator />
