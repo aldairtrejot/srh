@@ -375,7 +375,7 @@ Route::get('/tablecourses/edit/{id}', [TblCoursesC::class, 'edit'])->name('table
 
 // ENVIO DE CORREO ELECTRONICO
 Route::post('/letter/email', [EmailC::class, 'emailLetter'])->middleware('auth');
-Route::post('/letter/email/data', [EmailC::class, 'main'])->middleware('auth');
+Route::post('/letter/email/data', [EmailC::class, 'main'])->middleware('auth');   
 
 // CONSULTA DE USUARIO, ENLACE Y AREA
 Route::post('/collection/areaAndUser', [CollectionAreaC::class, 'getUserArea'])->middleware('auth');

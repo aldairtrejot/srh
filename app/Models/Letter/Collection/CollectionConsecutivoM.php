@@ -8,24 +8,37 @@ class CollectionConsecutivoM extends Model
 {
     //La funcion retorna el consecutivo de las tablaspublic function noDocumento($idAnio, $idTable)
     public function noDocumento($idAnio, $idTable)
-    {
-        $query = DB::table('correspondencia.rel_anio_documento')
-            ->join('correspondencia.cat_tipo_documento', 'correspondencia.rel_anio_documento.id_cat_tipo_documento', '=', 'correspondencia.cat_tipo_documento.id_cat_tipo_documento')
-            ->join('correspondencia.cat_anio', 'correspondencia.rel_anio_documento.id_cat_anio', '=', 'correspondencia.cat_anio.id_cat_anio')
-            ->select(
-                DB::raw("
-                    UPPER(correspondencia.cat_tipo_documento.clave) || '/' || 
-                    TO_CHAR(correspondencia.rel_anio_documento.consecutivo + 1, 'FM00000') || '/' ||
-                    correspondencia.cat_anio.descripcion AS documento_id
-                ")
-            )
-            ->where('correspondencia.rel_anio_documento.id_cat_tipo_documento', $idTable)
-            ->where('correspondencia.rel_anio_documento.id_cat_anio', $idAnio)
-            ->first(); // Obtener el primer resultado
+{
+    $row = DB::table('correspondencia.rel_anio_documento as r')
+        ->join('correspondencia.cat_tipo_documento as t', 'r.id_cat_tipo_documento', '=', 't.id_cat_tipo_documento')
+        ->join('correspondencia.cat_anio as a', 'r.id_cat_anio', '=', 'a.id_cat_anio')
+        ->select(
+            't.clave',
+            'a.descripcion as anio',
+            DB::raw('(r.consecutivo + 1) as next_consecutivo')
+        )
+        ->where('r.id_cat_tipo_documento', $idTable)
+        ->where('r.id_cat_anio', $idAnio)
+        ->first();
 
-        // Verifica si el resultado tiene la propiedad 'documento_id'
-        return $query ? $query->documento_id : null;
+    if (!$row) return null;
+
+    $clave = strtoupper($row->clave);
+    $anio  = $row->anio;
+    $n     = (int) $row->next_consecutivo;
+
+    // ✅ FORMATO NUEVO para CIRCULARES
+    if ((int)$idTable === (int)config('custom_config.CP_TABLE_CIRCULAR')) {
+        // 0003 (4 dígitos)
+        $num = str_pad((string)$n, 4, '0', STR_PAD_LEFT);
+        return "IB-{$clave}-{$num}-{$anio}";
     }
+
+    // Formato viejo para otros docs
+    $num = str_pad((string)$n, 5, '0', STR_PAD_LEFT);
+    return "{$clave}/{$num}/{$anio}";
+}
+
 
     //La funcion actualiza el consecutivo
     public function iteratorConsecutivo($idYear, $idDoc)

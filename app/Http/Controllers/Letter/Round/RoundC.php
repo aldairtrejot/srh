@@ -131,97 +131,111 @@ class RoundC extends Controller
         return view('letter/round/form', compact('selectEnlaceEdit', 'selectEnlace', 'selectUserEdit', 'selectUser', 'selectAreaEditAux', 'selectAreaAux', 'noLetter', 'item'));
     }
 
-    public function save(Request $request)
-    {
-        $logC = new LogC();
-        $object = new RoundM();
-        $messagesC = new MessagesC();
-        $collectionConsecutivoM = new CollectionConsecutivoM();
-        $letterM = new LetterM();
-        $collectionAreaM = new CollectionAreaM();
-        $consecutivoC = new ConsecutivoC();
+ public function save(Request $request)
+{
+    $logC = new LogC();
+    $object = new RoundM();
+    $messagesC = new MessagesC();
+    $collectionConsecutivoM = new CollectionConsecutivoM();
+    $letterM = new LetterM();
+    $collectionAreaM = new CollectionAreaM();
+    $consecutivoC = new ConsecutivoC();
 
-        $now = Carbon::now(); //Hora y fecha actual
-        $es_por_area = isset($request->es_por_area) ? 1 : 0; //Se condiciona el valor del check
+    $now = Carbon::now(); //Hora y fecha actual
 
-        if (!isset($request->id_tbl_circular)) { // || empty($request->id_tbl_correspondencia)) { // Creación de nuevo nuevo elemento
-            //Agregar elementos
-            //Agregar elementos
-            if ($this->getMaxTurno($request->num_turno_sistema) <= $object->getMaxNuSistem()) {
-                $numTurnoSistemaAux = $this->procesarParametros($request->num_turno_sistema, $collectionConsecutivoM->noDocumento($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR')));
-                //$collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CORRESPONDENCIA'));
-            } else {
-                $numTurnoSistemaAux = $request->num_turno_sistema;
+    // OJO: como es hidden, isset casi siempre da true aunque venga vacío.
+    // Si este módulo SIEMPRE es por área, puedes dejarlo fijo en 1.
+    $es_por_area = (int) $request->input('es_por_area', 1);
+
+    if (!isset($request->id_tbl_circular)) { // CREAR
+
+        // ✅ TOMAR SIEMPRE EL NO. TURNO SISTEMA DESDE EL GENERADOR
+        // (Aquí ya debe regresar IB-UAF-CRH-0003-2026)
+        $numTurnoSistemaAux = $collectionConsecutivoM->noDocumento(
+            $request->id_cat_anio,
+            config('custom_config.CP_TABLE_CIRCULAR')
+        );
+
+        // Validación de es por área sea único, de lo contrario se concatena la variable
+        $noDocumentoAreaAux = $request->num_documento_area;
+
+        if ($es_por_area == 1) {
+            // ✅ PROTEGER max_num cuando no hay registros (null)
+            $maxNum = (int) optional($object->getOnly($request->id_cat_area_documento, $request->id_cat_anio))->max_num;
+
+            if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $maxNum) {
+                $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo(
+                    $request->num_documento_area,
+                    $collectionAreaM->noDocumentoByAux(
+                        $request->id_cat_anio,
+                        $request->id_cat_area_documento,
+                        'correspondencia.rel_consecutivo_circulares'
+                    )
+                );
             }
-
-            // Validacion de es por area sea unico, de lo contrario se concatena la la variable
-            $noDocumentoAreaAux = $request->num_documento_area;
-            if ($es_por_area == 1) {
-                if ($consecutivoC->getOnlyNo($request->num_documento_area) <= $object->getOnly($request->id_cat_area_documento, $request->id_cat_anio)->max_num) {
-                    $noDocumentoAreaAux = $consecutivoC->setNoConsecutivo($request->num_documento_area, $collectionAreaM->noDocumentoByAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_circulares'));
-                }
-            }
-
-            $data = [
-                'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
-                'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
-                'id_cat_anio' => $request->id_cat_anio,
-                'es_por_area' => $es_por_area,
-                'num_documento_area' => strtoupper($noDocumentoAreaAux),
-                'id_cat_area_documento' => $request->id_cat_area_documento,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area_documento,
-                'destinatario' => strtoupper($request->destinatario),
-
-                // DATA_SYSTEM
-                'id_usuario_sistema' => Auth::user()->id,
-                'id_usuario_captura' => Auth::user()->id,
-                'fecha_usuario' => $now,
-            ];
-
-            $object::create($data);
-            $logC->add('correspondencia.tbl_circular', $data);
-
-            //se itera el consevutivo
-            $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
-            $collectionAreaM->iteratorConsecutivoAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_circulares');
-
-            return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
-
-        } else { //modificar elemento 
-
-            $data = [
-                'fecha_inicio' => $request->fecha_inicio,
-                'fecha_fin' => $request->fecha_fin,
-                'asunto' => strtoupper($request->asunto),
-                'observaciones' => strtoupper($request->observaciones),
-                'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
-                'es_por_area' => $es_por_area,
-                'num_documento_area' => $request->num_documento_area,
-                'id_cat_area_documento' => $request->id_cat_area_documento,
-                'id_usuario_area' => $request->id_usuario_area,
-                'id_usuario_enlace' => $request->id_usuario_enlace,
-                'id_cat_area' => $request->id_cat_area_documento,
-                'id_usuario_sistema' => Auth::user()->id,
-                'fecha_usuario' => $now,
-                'destinatario' => strtoupper($request->destinatario),
-            ];
-
-            $object::where('id_tbl_circular', $request->id_tbl_circular)
-                ->update($data);
-            $data['id_tbl_circular'] = $request->id_tbl_circular;
-            $logC->edit('correspondencia.tbl_circular', $data);
-
-            return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
-
         }
+
+        $data = [
+            'num_turno_sistema' => strtoupper($numTurnoSistemaAux),
+            'fecha_captura' => Carbon::createFromFormat('d/m/Y', $request->fecha_captura)->format('Y-m-d'),
+            'fecha_inicio' => $request->fecha_inicio,
+            'fecha_fin' => $request->fecha_fin,
+            'asunto' => strtoupper($request->asunto),
+            'observaciones' => strtoupper($request->observaciones),
+            'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+            'id_cat_anio' => $request->id_cat_anio,
+            'es_por_area' => $es_por_area,
+            'num_documento_area' => strtoupper($noDocumentoAreaAux),
+            'id_cat_area_documento' => $request->id_cat_area_documento,
+            'id_usuario_area' => $request->id_usuario_area,
+            'id_usuario_enlace' => $request->id_usuario_enlace,
+            'id_cat_area' => $request->id_cat_area_documento,
+            'destinatario' => strtoupper($request->destinatario),
+
+            // DATA_SYSTEM
+            'id_usuario_sistema' => Auth::user()->id,
+            'id_usuario_captura' => Auth::user()->id,
+            'fecha_usuario' => $now,
+        ];
+
+        $object::create($data);
+        $logC->add('correspondencia.tbl_circular', $data);
+
+        // Se itera el consecutivo
+        $collectionConsecutivoM->iteratorConsecutivo($request->id_cat_anio, config('custom_config.CP_TABLE_CIRCULAR'));
+        $collectionAreaM->iteratorConsecutivoAux($request->id_cat_anio, $request->id_cat_area_documento, 'correspondencia.rel_consecutivo_circulares');
+
+        return $messagesC->messageSuccessRedirect('round.list', 'Elemento agregado con éxito.');
+
+    } else { // MODIFICAR
+
+        $data = [
+            'fecha_inicio' => $request->fecha_inicio,
+            'fecha_fin' => $request->fecha_fin,
+            'asunto' => strtoupper($request->asunto),
+            'observaciones' => strtoupper($request->observaciones),
+            'id_tbl_correspondencia' => $request->id_tbl_correspondencia,
+            'es_por_area' => $es_por_area,
+            'num_documento_area' => $request->num_documento_area,
+            'id_cat_area_documento' => $request->id_cat_area_documento,
+            'id_usuario_area' => $request->id_usuario_area,
+            'id_usuario_enlace' => $request->id_usuario_enlace,
+            'id_cat_area' => $request->id_cat_area_documento,
+            'id_usuario_sistema' => Auth::user()->id,
+            'fecha_usuario' => $now,
+            'destinatario' => strtoupper($request->destinatario),
+        ];
+
+        $object::where('id_tbl_circular', $request->id_tbl_circular)
+            ->update($data);
+
+        $data['id_tbl_circular'] = $request->id_tbl_circular;
+        $logC->edit('correspondencia.tbl_circular', $data);
+
+        return $messagesC->messageSuccessRedirect('round.list', 'Elemento modificado con éxito.');
     }
+}
+
 
     // la funcion elimina los espacios para obtener solo los numero de / ***(
     private function getMaxTurno($numTurno)
