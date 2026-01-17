@@ -33,4 +33,31 @@ class CollectionRelEnlaceM extends Model
             ->where('correspondencia.rel_enlace_usuario.estatus', true)
             ->get();
     }
+
+    public function idUsuarioByAreaNewX($idArea, $idUsuario)
+    {
+        return DB::table('administration.users')
+            ->select(DB::raw('id, UPPER(name) as descripcion'))
+            ->join('correspondencia.rel_enlace_usuario', 'administration.users.id', '=', 'correspondencia.rel_enlace_usuario.id_usuario')
+            ->where('correspondencia.rel_enlace_usuario.id_cat_area', $idArea)
+            ->where(function ($q) use ($idUsuario) {
+                $q->where('correspondencia.rel_enlace_usuario.estatus', true)
+                    ->orWhere('correspondencia.rel_enlace_usuario.id_usuario', $idUsuario);
+            })
+            ->get();
+    }
+
+
+    public function idUsuarioByAreaEdit($idUsuario)
+    {
+        $query = DB::table('administration.users')
+            ->select([
+                'administration.users.id AS id',
+                DB::raw('UPPER(administration.users.name) AS descripcion')
+            ])
+            ->where('administration.users.id', '=', $idUsuario);
+        // Usar first() para obtener un único resultado
+        $result = $query->first();
+        return $result;
+    }
 }

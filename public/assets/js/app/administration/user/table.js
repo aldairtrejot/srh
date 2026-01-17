@@ -13,7 +13,7 @@ function searchInit() {
     let searchValue = document.getElementById('searchValue').value;
     let iteradorAux = (iterator * 5) - 5;
 
-    $.get('/srh/public/user/list', {
+    $.get(URL_DEFAULT.concat('/user/list'), {
         iterator: iteradorAux,
         searchValue: searchValue
     }, function (response) {
@@ -25,7 +25,7 @@ function searchInit() {
             response.value.forEach(function (user) {
                 // Crear el menú desplegable con las opciones de cada usuario user.id
 
-                const finalUrl = '/srh/public/user/edit/' + user.id;
+                const finalUrl = URL_DEFAULT.concat('/user/edit/' + user.id);
 
                 $('#template-table tbody').append(
                     '<tr>' +

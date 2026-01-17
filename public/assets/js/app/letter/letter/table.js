@@ -10,13 +10,10 @@ function searchInit() {
     const searchValue = document.getElementById('searchValue').value;
     const iteradorAux = (iterator * 5) - 5;
 
-    $.get('/srh/public/letter/table', {
+    $.get(URL_DEFAULT.concat('/letter/table'), {
         iterator: iteradorAux,
         searchValue: searchValue
     }, function (response) {
-
-        console.log('success');
-        console.log(response);
 
 
         const tbody = $('#template-table tbody');
@@ -24,15 +21,31 @@ function searchInit() {
 
         if (response.value && response.value.length > 0) {
             response.value.forEach(function (object) {
-                const finalUrl = `/srh/public/letter/edit/${object.id}`;
+                const finalUrl = URL_DEFAULT.concat(`/letter/edit/${object.id}`);
+                const finalCloud = URL_DEFAULT.concat(`/letter/cloud/${object.id}`);
+                const urlReport = URL_DEFAULT.concat(`/letter/generate-pdf/correspondencia/${object.id}`);
 
                 // Generar el HTML con template literals
+                const estatusColors = {
+                    "TURNADO": "#FFA82E",  // Azul
+                    "CANCELADO": "#660000", // Rojo
+                    "EN PROCESO": "#0077B6", // Amarillo
+                    "CONCLUIDO": "#26874A", // Verde
+                    "VENCIDO": "#FF0000 ", // Naranja
+                    "RECHAZADO": "#b30000", // Gris
+                    "CONOCIMIENTO": "#6fc5f4ff",
+                };
+
+                // Determina el color de fondo según el estatus
+                const estatusColor = estatusColors[object.estatus] || "#6c757d"; // Si no coincide, por defecto Gris
+
+                // Crea el HTML dinámico
                 const rowHTML = `
                     <tr>
-                        <td>
+                        <td style="text-align: center;">
                             <div class="dropdown">
-                                <button class="btn btn-transparent dropdown-toggle-split icon-btn" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: transparent;" data-toggle="tooltip" data-placement="top" title="Menu">
-                                    <i class="fas fa-ellipsis-h" style="color: #9F2241; font-size: 2rem;"></i>
+                                <button class="custom-button-x custom-button btn dropdown-toggle-split" type="button" id="dropdownMenuIconButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#10312b" data-toggle="tooltip" data-placement="top" title="Menú">
+                                    <i style="color: white; font-size: 15px" class="fa fa-pencil"></i>
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1">
                                     <h6 class="dropdown-header">Acciones</h6>
@@ -44,45 +57,54 @@ function searchInit() {
                                         </span>
                                         Modificar
                                     </a>
-                                    <button class="dropdown-item" onclick="showModalTempleta(${object.id})">
-                                        <span style="background:#707070" class="icon-container-template">
+                                    <a class="dropdown-item" href="${finalCloud}">
+                                        <span style="background:#8a6f19" class="icon-container-template">
                                             <div style="text-align: center;">
-                                                <i class="fa fa-unlock item-icon-menu"></i>
+                                                <i class="fa fa-cloud item-icon-menu"></i>
                                             </div>
                                         </span>
                                         Cloud
+                                    </a>
+                                    <a class="dropdown-item" href="${urlReport}">
+                                        <span style="background:#707070" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-print item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Reporte
+                                    </a>
+                                    <button class="dropdown-item" onclick="openCopy(${object.id}, '${object.folio_gestion}')">
+                                        <span style="background:#691C32" class="icon-container-template">
+                                            <div style="text-align: center;">
+                                                <i class="fa fa-share-square item-icon-menu"></i>
+                                            </div>
+                                        </span>
+                                        Copia
                                     </button>
-                                    <a class="dropdown-item" href="#">
-                                        <span style="background:#003366" class="icon-container-template">
+                                    <button class="dropdown-item" onclick="opneEmail(${object.id}, '${object.folio_gestion}')">
+                                        <span style="background:#462c95" class="icon-container-template">
                                             <div style="text-align: center;">
-                                                <i class="fa fa-user item-icon-menu"></i>
+                                                <i class="fa fa-location-arrow item-icon-menu"></i>
                                             </div>
                                         </span>
-                                        Usuario
-                                    </a>
-                                    <a class="dropdown-item" href="#">
-                                        <span style="background:#6A1B3D" class="icon-container-template">
-                                            <div style="text-align: center;">
-                                                <i class="fa fa-trash item-icon-menu"></i>
-                                            </div>
-                                        </span>
-                                        Eliminar
-                                    </a>
+                                        Email
+                                    </button>
                                 </div>
                             </div>
                         </td>
-                        <td>${object.num_turno_sistema}</td>
+                        <td><label style="background:${estatusColor}; color:white" class="badge">${object.estatus}</label></td>
+                        <td>${object.fecha_captura}</td>
+                        <td>${object.folio_gestion}</td>
                         <td>${object.num_documento}</td>
-                        <td>${object.estatus}</td>
-                        <td>${object.tramite}</td>
-                        <td>${object.area}</td>
-                        <td>${object.fecha_inicio}</td>
-                        <td>${object.fecha_fin}</td>
+                        <td style="font-size: 12px; width: 400px; word-wrap: break-word; white-space: normal;">${object.area}</td>
+                        <td style="font-size: 12px; width: 800px; word-wrap: break-word; white-space: normal;">${object.asunto}</td>
                     </tr>
                 `;
+
                 tbody.append(rowHTML);
             });
             emptyContent = false;
+            talldropdown(response.value.length, 2); // Scroll en dropw
         } else {
             tbody.html('<tr><td colspan="8" class="text-center">No se encontraron resultados</td></tr>');
             emptyContent = true;

@@ -27,7 +27,7 @@
 
                             <form class="pt-3" method="POST" action="{{ route('login') }}">
                                 @csrf
-                               
+
                                 <div class="form-group">
                                     <input type="text" name="email" class="form-control form-control-lg"
                                         placeholder="Usuario" value="{{ old('email') }}" autocomplete="username" />
@@ -46,20 +46,45 @@
                                         </x-template-message-required>
                                     @enderror
                                 </div>
+
+                                <!--
+                                <div class="form-group">
+                                    <input type="text" name="captcha" class="form-control form-control-lg"
+                                        placeholder="Captcha" value="" autocomplete="current-password">
+                                    @error('captcha')
+    <x-template-message-required>
+                                                {{ $message }}
+                                            </x-template-message-required>
+@enderror
+                                </div>
+
+                                <div class="captcha-container">
+                                    <img src="{{ captcha_src() }}" id="captcha-img">
+
+                                    <button type="button" class="refresh-btn" title="Refresh"
+                                        onclick="document.getElementById('captcha-img').src = '{{ captcha_src() }}?' + Math.random();">
+                                        <i class="fas fa-sync-alt"></i> Refrescar
+                                    </button>
+                                </div>
+-->
+
                                 <div class="mt-3">
                                     <button type="submit" style="background-color: #6c757d"
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
                                         Ingresar
                                     </button>
                                 </div>
+                            
                                 <div class="text-center mt-4 font-weight-light">
-                                    <a href="{{ route('recover') }}" class="text-primary">
+                                    <a href="#" class="text-primary">
                                         ¿Olvidaste tu contraseña?</a>
                                 </div>
+                  <!--                  
                                 <div class="text-center mt-4 font-weight-light">
                                     ¿Aún no estás registrado? <a href="{{ route('register') }}" class="text-primary">
                                         Registro</a>
                                 </div>
+-->
                             </form>
                         </div>
                     </div>

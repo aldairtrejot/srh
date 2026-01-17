@@ -19877,7 +19877,7 @@ a.close.disabled {
 
 .bg-primary,
 .settings-panel .color-tiles .tiles.primary {
-    background-color: #4b49ac !important;
+    background-color: #4b49ac;
 }
 
 a.bg-primary:hover,
@@ -36489,8 +36489,10 @@ div.tagsinput span.tag a {
 
 /* Cambio de color */
 .content-wrapper {
-    background-image: url("../../images/imss/backgroud_imss_white.png");
-    /*   background: red; */
+    background-image: url("../../images/imss/backgroud_imss_white12.png");
+    background-attachment: fixed; /* Imagen de fondo fija */
+    background-size: cover; /* Ajusta el tamaño */
+    background-position: center; /* Centra la imagen */
     padding: 2.375rem 2.375rem;
     width: 100%;
     -webkit-flex-grow: 1;
@@ -49566,4 +49568,744 @@ div.tagsinput span.tag a {
     .contenedor {
         grid-template-columns: 1fr; /* En pantallas pequeñas, las columnas se apilan en una sola */
     }
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+    text-transform: uppercase;
+}
+
+/* Estilo para los inputs deshabilitados */
+input:disabled {
+    background-color: white;
+    /* Fondo gris claro */
+    border: 2.8px dotted #ccc;
+    /* Líneas punteadas */
+    color: #d7d8da;
+    /* Texto más tenue */
+    cursor: not-allowed;
+    /* Cursor tipo "no permitido" */
+    opacity: 0;
+    /* Opacidad para dar un aspecto más apagado */
+}
+
+textarea:disabled {
+    background-color: white; /* Fondo blanco */
+    border: 2.8px dotted #ccc; /* Líneas punteadas */
+    color: #d7d8da; /* Texto más tenue */
+    cursor: not-allowed; /* Cursor tipo "no permitido" */
+    opacity: 0.6; /* Opacidad para dar un aspecto más apagado */
+}
+
+select:disabled {
+    background-color: #cecece; /* Fondo gris claro */
+    border: 2.8px dotted #ccc; /* Líneas punteadas */
+    color: #454545; /* Texto más tenue */
+    cursor: not-allowed; /* Cursor tipo "no permitido" */
+    opacity: 0.6; /* Opacidad para dar un aspecto más apagado */
+}
+
+.form-control:disabled,
+.asColorPicker-input:disabled,
+.dataTables_wrapper select:disabled,
+.jsgrid .jsgrid-table .jsgrid-filter-row input:disabled[type="text"],
+.jsgrid .jsgrid-table .jsgrid-filter-row select:disabled,
+.jsgrid .jsgrid-table .jsgrid-filter-row input:disabled[type="number"],
+.select2-container--default .select2-selection--single:disabled,
+.select2-container--default
+    .select2-selection--single
+    .select2-search__field:disabled,
+.typeahead:disabled,
+.tt-query:disabled,
+.tt-hint:disabled,
+.form-control[readonly],
+.asColorPicker-input[readonly],
+.dataTables_wrapper select[readonly],
+.jsgrid .jsgrid-table .jsgrid-filter-row input[readonly][type="text"],
+.jsgrid .jsgrid-table .jsgrid-filter-row select[readonly],
+.jsgrid .jsgrid-table .jsgrid-filter-row input[readonly][type="number"],
+.select2-container--default .select2-selection--single[readonly],
+.select2-container--default
+    .select2-selection--single
+    .select2-search__field[readonly],
+.typeahead[readonly],
+.tt-query[readonly],
+.tt-hint[readonly] {
+    background-color: #ffffff;
+    opacity: 1;
+}
+
+.rectangulo {
+    width: 120px;
+    /* Ancho ajustable */
+    height: 150px;
+    /* Alto ajustable */
+    background-color: white;
+    border: 2px dotted gray;
+    /* Bordes punteados de color gris */
+    border-radius: 10px;
+    /* Redondea los bordes */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    /* Tamaño de la fuente ajustable */
+    color: gray;
+    text-align: center;
+    cursor: not-allowed;
+    /* Cambia el cursor alicono de inhabilitado */
+}
+
+/* Estilos generales */
+.custom-file-container {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos del icono de archivo con borde gris y fondo blanco */
+.custom-file-icon-container {
+    position: relative;
+    display: inline-block;
+    font-size: 80px;
+    color: white;
+    background-color: #f5f5f5;
+    border: 2px solid #ccc;
+    padding: 30px;
+    width: 120px;
+    height: 150px;
+    text-align: center;
+    box-sizing: border-box;
+    position: relative;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+/* Líneas como si estuviera escrito en el papel */
+.custom-file-icon-container::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        #e0e0e0 2px,
+        #e0e0e0 4px
+    );
+    z-index: 1;
+}
+
+/* Contenedor de los botones dentro del ícono */
+.custom-button-container {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    z-index: 2;
+}
+
+/* Estilos de los botones */
+.custom-button {
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Cambio de color al pasar el ratón sobre los botones */
+.custom-button:hover {
+    background-color: #0056b3;
+}
+
+/* Nombre del archivo debajo del ícono */
+.custom-file-name p {
+    font-size: 13px;
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+/* Estilo del tooltip (leyenda) que aparece al pasar el mouse */
+.custom-button[title]:hover::after {
+    content: attr(title);
+    /* Muestra el texto del atributo title */
+    position: absolute;
+    top: -30px;
+    /* Posiciona el tooltip arriba del botón */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 1;
+    z-index: 3;
+    /* Asegura que el tooltip esté por encima de los botones */
+}
+
+.archivo-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    /* Espacio entre los elementos */
+}
+
+.custom-file-container {
+    width: 18%;
+    /* Ajusta el porcentaje según el número de archivos por fila */
+    min-width: 150px;
+    box-sizing: border-box;
+}
+
+/* Aseguramos que en pantallas pequeñas se acomode adecuadamente */
+@media (max-width: 768px) {
+    .custom-file-container {
+        width: 48%;
+        /* 2 elementos por fila en pantallas pequeñas */
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-container {
+        width: 100%;
+        /* 1 elemento por fila en pantallas muy pequeñas */
+    }
+}
+
+/* Estilo para el contenedor de los anexos */
+#anexos-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se muevan a la siguiente fila cuando sea necesario */
+    gap: 20px;
+    /* Espacio entre los elementos */
+    justify-content: flex-start;
+    /* Alinea los elementos al inicio */
+}
+
+/* Aseguramos que cada contenedor de archivo tenga un ancho adecuado */
+.custom-file-container {
+    width: calc(20% - 20px);
+    /* 5 elementos por fila, teniendo en cuenta el espacio de gap */
+    min-width: 150px;
+    /* Ancho mínimo para cada contenedor */
+    margin-bottom: 20px;
+    /* Espacio inferior para cada archivo */
+    box-sizing: border-box;
+    /* Incluye padding y border en el cálculo del tamaño */
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 1200px) {
+    .custom-file-container {
+        width: calc(33.33% - 20px);
+        /* 3 elementos por fila en pantallas grandes */
+    }
+}
+
+@media (max-width: 800px) {
+    .custom-file-container {
+        width: calc(50% - 20px);
+        /* 2 elementos por fila en pantallas medianas */
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-container {
+        width: 100%;
+        /* 1 elemento por fila en pantallas pequeñas */
+    }
+}
+
+#container_anexo_entrada {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se distribuyan en varias filas */
+    gap: 15px;
+    /* Espacio entre los elementos */
+}
+
+.custom-file-container {
+    width: 200px;
+    /* Ajusta el ancho del contenedor de cada elemento */
+    margin-bottom: 20px;
+    /* Espacio entre filas */
+    flex-grow: 0;
+}
+
+/* Establecemos el contenedor principal para usar Flexbox */
+.main-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se ajusten en nuevas líneas si es necesario */
+    gap: 20px;
+    /* Espacio entre las columnas */
+    justify-content: space-between;
+}
+
+/* Lado izquierdo y derecho se comportan igual */
+.left-side,
+.right-side {
+    flex: 1;
+    /* Hace que cada lado ocupe la misma cantidad de espacio */
+    min-width: 300px;
+    /* Asegura que cada lado no se haga más pequeño que 300px */
+}
+
+/* Los títulos de las secciones tienen un estilo común */
+.card-description {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #bc955c;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+/* Estilo básico para los rectángulos donde se muestra el contenido */
+.rectangulo {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+/* Media Queries para hacerlo responsivo */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        /* En pantallas pequeñas, ponemos los elementos en una columna */
+        align-items: center;
+        /* Centramos el contenido */
+    }
+
+    .left-side,
+    .right-side {
+        min-width: 100%;
+        /* Los lados ocupan el 100% del ancho en pantallas pequeñas */
+    }
+}
+
+/* Fondo oscuro de la pantalla cuando la modal está activa */
+.modal-backdrop {
+    display: none;
+    /* Inicialmente oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Fondo oscuro */
+    z-index: 999;
+    /* Asegura que el modal esté por encima de otros contenidos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Centra la modal vertical y horizontalmente */
+}
+
+/* Estilo de la ventana modal */
+.modal-content {
+    background-color: white;
+    width: 350px;
+    /* Tamaño más grande pero aún contenido */
+    height: 130px;
+    /* Altura ajustada */
+    border-radius: 0px;
+    /* Sin bordes redondeados */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    /* Sombra en los bordes */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Centra contenido verticalmente */
+    text-align: center;
+    position: relative;
+    padding: 10px;
+    border: none;
+    /* Eliminar bordes */
+}
+
+/* Estilo del texto dentro del modal */
+.modal-content h2 {
+    font-size: 20px;
+    /* Texto más grande */
+    margin: 0;
+    padding: 10px;
+    font-weight: normal;
+}
+
+/* Estilo de los botones (Confirmar y Cancelar) */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.modal-buttons button {
+    padding: 8px 16px;
+    font-size: 16px;
+    /* Botones con texto más grande */
+    cursor: pointer;
+    border: 1px solid transparent;
+    background-color: white;
+    /* Fondo blanco para los botones */
+    color: black;
+    /* Texto en negro por defecto */
+    border-radius: 4px;
+    transition: font-size 0.3s ease;
+    /* Solo cambia el tamaño de la letra */
+}
+
+/* Eliminar botón */
+#confirmBtn {
+    color: red;
+    /* Rojo para eliminar */
+}
+
+/* Cancelar botón */
+#cancelBtn {
+    color: gray;
+    /* Gris para cancelar */
+}
+
+/* Aumentar tamaño del texto cuando se pasa el cursor (sin cambiar fondo ni color) */
+.modal-buttons button:hover {
+    font-size: 17px;
+    /* Aumenta el tamaño de la letra */
+}
+
+/* Estilo del botón para abrir la modal */
+#openModalBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Asegurarse de que el estilo tenga más especificidad */
+.form-check .form-check-input {
+    font-size: 1rem !important;
+    /* Forzar que el estilo se aplique */
+    color: #333 !important;
+    /* Forzar color con !important */
+}
+
+.form-check .form-check-label {
+    font-size: 1rem !important;
+    color: #555 !important;
+}
+
+.texto-centro {
+    text-align: center; /* Centra el texto */
+    font-size: 0.875rem; /* Hace la letra más pequeña */
+    font-style: italic; /* Aplica cursiva */
+    font-family: "Arial", sans-serif; /* Cambia el tipo de letra a Arial */
+}
+
+/* Contenedor del input */
+.custom-input-container {
+    margin-bottom: 20px;
+    /* Espaciado entre los campos */
+}
+
+/* Estilo para el label */
+.custom-input-label {
+    width: 95%;
+    font-size: 16px;
+    /* Tamaño del texto del label */
+    color: black;
+    /* Color del texto del label */
+    /*font-weight: ;*/
+    text-align: left;
+    /* Estilo de texto en negritas */
+    margin-bottom: 5px;
+    /* Espacio entre el label y el input */
+    display: block;
+    /* Asegura que el label esté arriba del input */
+}
+
+/* Estilo para el input */
+.custom-input-field {
+    width: 95%;
+    /* El input ocupará el 100% del contenedor */
+    padding: 10px;
+    /* Espaciado interno del input */
+    border: 1px solid #ccc;
+    /* Borde gris claro */
+    border-radius: 2px;
+    /* Bordes redondeados */
+    font-size: 14px;
+    /* Tamaño de fuente para el texto del input */
+}
+
+.custom-input-field:focus {
+    border-color: rgb(121, 122, 122);
+    /* Cambia el color del borde al hacer focus */
+    outline: none;
+    /* Elimina el contorno predeterminado del navegador */
+}
+
+.custom-input-height {
+    height: 80px !important;
+    /* Ajusta la altura según lo que necesites */
+    padding: 10px !important;
+    /* Ajusta el relleno para que haya más espacio dentro */
+    font-size: 1rem !important;
+    /* Ajusta el tamaño de la fuente */
+    width: 100%;
+    /* Asegura que el campo ocupe todo el ancho disponible */
+    resize: vertical;
+    /* Permite que el textarea sea redimensionable solo en la dirección vertical */
+}
+
+/* Limitar la altura del dropdown de selectpicker y agregar scroll */
+/*
+.bootstrap-select .dropdown-menu {
+    max-height: 200px; 
+    overflow-y: auto; 
+}
+*/
+
+/* cahenges */
+.toggle-switch {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background-color: grey;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s;
+}
+
+.toggle-switch:checked {
+    background-color: #10312b;
+}
+
+.toggle-switch::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s;
+}
+
+.toggle-switch:checked::before {
+    transform: translateX(20px);
+}
+
+/* Aseguramos que el botón sea completamente transparente y sin borde */
+#reporteBtn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    /* Elimina el subrayado al pasar el cursor */
+    cursor: pointer;
+    /* Cambia el cursor a puntero */
+}
+
+/* Aseguramos que el texto y el ícono estén alineados correctamente */
+#reporteBtn .ti-layout {
+    margin-left: 5px;
+    /* Ajuste para separar el ícono del texto */
+}
+
+/* Efecto de hover: agrandar texto y ícono */
+#reporteBtn:hover {
+    transform: scale(1.1);
+    /* Hace que todo el botón (texto + ícono) crezca un poco */
+    transition: transform 0.3s ease;
+    /* Animación suave */
+}
+
+/* Asegura que no haya subrayado */
+#reporteBtn:hover {
+    text-decoration: none;
+    /* Clase para centrar el botón cuando solo hay uno */
+}
+    .centered-button {
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Clase para el contenedor de los botones cuando hay varios (sin espacio entre los botones) */
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 0px;
+        /* Sin espacio entre los botones */
+    }
+
+    /* Estilos adicionales para los botones */
+    .custom-button {
+        background: #707070;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+
+    .custom-button:hover {
+        background: #555555;
+    }
+
+    .button-column {
+        text-align: center;
+    }
+
+    /* Establece un tamaño fijo para el botón */
+    .custom-button {
+        background: #707070;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        /* Centra horizontalmente */
+        align-items: center;
+        /* Centra verticalmente */
+        width: 30px;
+        /* Tamaño fijo del botón */
+        height: 30px;
+        /* Tamaño fijo del botón */
+        padding: 0;
+        /* Elimina el padding para evitar que se haga más grande */
+    }
+
+    /* Opcional: Para cuando el botón es el único y tiene un tamaño más consistente */
+    .centered-button {
+        margin: 0 auto;
+    }
+
+    /* Icono dentro del botón */
+    .custom-button i {
+        font-size: 1.2rem;
+        /* Ajusta el tamaño del icono */
+        margin: 0;
+    }
+
+    /* Estilo de los botones al pasar el cursor */
+    .btn-hover-enlarge:hover {
+        transform: scale(1.2);
+        /* Aumenta el tamaño del botón al 120% */
+        transition: transform 0.3s ease-in-out;
+        /* Suaviza el cambio */
+    }
+
+    /* Nueva clase para el contenido del modal */
+    .custom-modal-content {
+        background-color: white;
+        /* Fondo blanco */
+        border-radius: 0 !important;
+        /* Sin bordes en el modal */
+        display: flex;
+        flex-direction: column;
+        padding: 0px;
+    }
+
+    /* Nueva clase para la franja verde del título */
+    .custom-modal-header {
+        background-color: white; /* #10312b !important;*/
+        color: white;
+        padding: 6px 0 !important;
+        /* Espaciado vertical sin márgenes horizontales */
+        margin: 0 !important;
+        /* Eliminar márgenes para que ocupe todo el ancho */
+        text-align: center;
+        width: 100% !important;
+        /* Asegura que el encabezado ocupe todo el ancho */
+        box-sizing: border-box !important;
+        /* Asegura que el padding no afecte el ancho total */
+        border-bottom: 7px solid white;
+        /* Línea gris debajo del título */
+    }
+
+    /* Nueva clase para el contenido del modal */
+    .custom-modal-body {
+        padding: 20px !important;
+        /* Asegura el padding deseado */
+        flex-grow: 1;
+        overflow-y: auto;
+        /* Permite desplazamiento si el contenido es largo */
+    }
+
+    /* Nueva clase para los botones */
+    .custom-modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px;
+    }
+
+    .custom-modal-buttons button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+        /* Espacio entre los botones */
+    }
+
+
+.circle-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    /* Hace que el fondo sea circular */
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    text-align: center;
+}
+
+/* Primer icono (verde con palomita) */
+.check-circle {
+    background-color: #10312b;
+    width: 50px;
+    height: 50px;
+}
+
+/* Segundo icono (amarillo con advertencia) */
+.warning-circle {
+    background-color: #f3b733;
+    width: 50px;
+    height: 50px;
+}
+
+/* Ajusta el tamaño de los iconos */
+.large-size {
+    width: 70px;
+    height: 70px;
+    font-size: 36px;
+}
+
+.custom-button-x:hover {
+    transform: scale(1.1);
+    /* Aumenta el tamaño en un 20% */
+    transition: transform 0.2s ease-in-out;
+    /* Suaviza la animación */
 }

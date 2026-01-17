@@ -19,60 +19,22 @@
                     <div class="row">
                         <!-- item menu users-->
                         @if($adminMatch)
-                            <x-template-button-dash class="card card-administration" title="Usuarios del sistema"
-                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="4006"
-                                description="Total de usuarios" />
+                            <x-template-button-dash title="Usuarios del sistema" field="ADMINISTRACIÓN"
+                                href="{{ route('user.list') }}" icon="fas fa-cogs" description="Administración" />
                         @endif
                         <!-- item menu users-->
-                        @if($adminMatch)
-                            <x-template-button-dash class="card card-administration" title="Roles del sistema"
-                                field="ADMINISTRACIÓN" href="{{ route('user.list') }}" value="12"
-                                description="Total de roles" />
-                        @endif
-                    </div>
-
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu administracion-->
-
                         @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="correspondencia"
-                                field="CORRESPONDENCIA" href="{{ route('letter.list') }}" value="0"
-                                description="Correspondencia" />
+                            <x-template-button-dash title="Control de gestión" field="CONTROL DE GESTIÓN"
+                                href="{{ route('letter.list') }}" icon="fa fa-archive" description="Correspondencia" />
                         @endif
 
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Expedientes"
-                                field="CORRESPONDENCIA" href="" value="0" description="Expedientes" />
-
-                        @endif
-
-                        <!-- item menu administracion-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Circulares"
-                                field="CORRESPONDENCIA" href="" value="0" description="Circulares" />
+                        @if($letterCRH)
+                            <x-template-button-dash title="Coordinación de Recursos Humanos" field="COORDINACIÓN DE RECURSOS HUMANOS"
+                                href="{{ route('communication.list') }}" icon="fa fa-folder-open" description="Correspondencia" />
                         @endif
 
                     </div>
-
-                    <!-- CORRESPONDENCIA-->
-                    <div class="row">
-                        <!-- item menu Interno-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Interno"
-                                field="CORRESPONDENCIA" href="" value="0" description="Interno" />
-                        @endif
-
-                        <!-- item menu oficios-->
-                        @if($letterMatch)
-                            <x-template-button-dash class="card card-correspondencia" title="Oficios"
-                                field="CORRESPONDENCIA" href="" value="0" description="Oficios" />
-                        @endif
-                    </div>
-
                 </div>
             </div>
         </div>
-    </div>
 </x-template-app.app-layout>

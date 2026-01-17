@@ -1,4 +1,3 @@
-<!-- Template for input-->
 <div class="{{ $grid }}">
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" style="font-size: 1rem; color: #333;">{{ $label }}</label>

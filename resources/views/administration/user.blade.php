@@ -194,7 +194,6 @@
                             var closeModal = document.getElementById("closeModal");
 
                             function showModalTempleta(userID) {
-                                console.log(userID);
                                 showModal();
                             }
 
@@ -203,7 +202,6 @@
                             }
 
                             function passwordSave() {
-                                console.log('success');
                             }
 
 
