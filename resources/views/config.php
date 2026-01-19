@@ -5,19 +5,19 @@ $userRole = session('SESSION_ROLE_USER', []);
 //ARRAY DE ROLES SEGUN NECESIDAD
 //ARRAY DE ADMINISTRACION
 $adminRole = [
-    config('custom_config.ADM_TOTAL'),
+    config('custom_config.ADM_TOTAL')
 ];
 
 //ARRAY DE ADMINISTRACION DE ROLES DE CORRESPONDENCIA
 $letterRoleAdmin = [
     config('custom_config.ADM_TOTAL'),
-    config('custom_config.COR_TOTAL'),
+    config('custom_config.COR_TOTAL')
 ];
 
 //ARRAY DE CRH CORRESPONDENCIA
 $letterRoleCrh = [
     config('custom_config.ADM_TOTAL'),
-    config('custom_config.COR_CRH'),
+    config('custom_config.COR_CRH')
 ];
 
 //ARRAY GENERAL DE CORRESPONDENCIA DE ROLES
@@ -25,7 +25,7 @@ $letterRole = [
     config('custom_config.ADM_TOTAL'),
     config('custom_config.COR_TOTAL'),
     config('custom_config.COR_USUARIO'),
-    config('custom_config.COR_ENLACE'),
+    config('custom_config.COR_ENLACE')
 ];
 
 // ARRAY DE ROLES DE TITULARES POR CORRESPONDENCIA
@@ -45,7 +45,14 @@ $coursesRole = [
 $letterRoleTuaf = [
     config('custom_config.ADM_TOTAL'),
     config('custom_config.COR_TOTAL'),
-    config('custom_config.COR_TUAF'),
+    config('custom_config.COR_TUAF')
+];
+
+$letterRoleCopy = [
+    config('custom_config.ADM_TOTAL'),
+    config('custom_config.COR_TOTAL'),
+    config('custom_config.COR_USUARIO'),
+    config('custom_config.COR_ENLACE')
 ];
 
 //VALORES RESULTANTES
@@ -56,3 +63,4 @@ $letterAdminMatch = !empty(array_intersect($userRole, $letterRoleAdmin));
 $letterCRH = !empty(array_intersect($userRole, $letterRoleCrh));
 $letterUSERS = !empty(array_intersect($userRole, $letterUsuario));
 $letterTuaf = !empty(array_intersect($userRole, $letterRoleTuaf));
+$letterCopyMatch = !empty(array_intersect($userRole, $letterRoleCopy));

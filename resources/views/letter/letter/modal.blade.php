@@ -31,7 +31,7 @@
         modificar la información, ya que es únicamente con fines de conocimiento.
     </p>
 
-    @if($letterAdminMatch)
+    @if($letterCopyMatch)
         <button onclick="addCopy();"
             style="background-color: white; color: red; border: none; padding: 10px 20px; font-size: 16px; display: flex; align-items: center; justify-content: center; text-align: left; position: absolute; left: 0;">
             <i class="fa fa-arrow-up" style="margin-right: 8px;"></i> Agregar Registro
