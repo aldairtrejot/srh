@@ -265,7 +265,7 @@ function searchInit() {
         var isCopy = (object.es_copia === true ||
                       object.es_copia === 1 ||
                       object.es_copia === '1');
-         // NUEVO: bandera de que alguna vez fue RE-TURNADO
+        // NUEVO: bandera de que alguna vez fue RE-TURNADO
         var wasReturnado = (object.was_returnado === true ||
                             object.was_returnado === 1 ||
                             object.was_returnado === '1');
@@ -279,7 +279,7 @@ function searchInit() {
         var estatusLabel = estatusKey;
         var estatusColor = estatusColors[estatusKey] || '#6c757d';
 
-         // 👇 Ajuste: si está en TURNADO pero ya fue RE-TURNADO alguna vez,
+        // Ajuste: si está en TURNADO pero ya fue RE-TURNADO alguna vez,
         // usamos el mismo color morado de RE-TURNADO, pero mantenemos el texto TURNADO
         if (!isCopy && estatusUpper === 'TURNADO' && wasReturnado) {
           estatusColor = estatusColors['RE-TURNADO'] || estatusColor;
@@ -374,11 +374,20 @@ function searchInit() {
           '</span>' +
           'Rechazar' +
           '</button>' +
+          // === NUEVO: Turnar a varios ===
+          '<button class="dropdown-item" onclick="openTurnarMultiple(' + object.id + ', \'' + folioSafe + '\')">' +
+          '<span style="background:#bd6604" class="icon-container-template">' +
+          '<div style="text-align:center;">' +
+          '<i class="fa fa-random item-icon-menu"></i>' +
+          '</div>' +
+          '</span>' +
+          'Multi-Turno' +
+          '</button>' +
           '</div>' +
           '</div>' +
           '</td>' +
 
-          // 1: Estatus (si es copia, muestra "COPIA" en rojo; si no, estatus normal)
+          // 1: Estatus
           '<td><label style="background:' + estatusColor + '; color:#fff" class="badge">' + estatusLabel + '</label></td>' +
 
           // 2: Fecha de captura
@@ -468,5 +477,21 @@ function searchValue() {
   setValue();
   searchInit();
 }
+
+/* ===================== MULTI-TURNO: ABRIR MODAL (GLOBAL) ===================== */
+window.openTurnarMultiple = function (idCorr, folio) {
+  $('#mt_id_tbl_correspondencia').val(idCorr);
+  $('#mt_folio_text').text('Folio: ' + (folio || ''));
+
+  $('#mt_areas_destino').val([]);
+  $('#mt_observaciones').val('');
+
+  if ($('.selectpicker').length) {
+    $('.selectpicker').selectpicker('refresh');
+  }
+
+  $('#modalTurnarMultiple').modal('show');
+};
+
 
 
