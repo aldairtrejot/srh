@@ -52,6 +52,7 @@ use App\Http\Controllers\Letter\Inside\CloudInsideC;
 use App\Http\Controllers\Letter\Inside\InsideC;
 use App\Http\Controllers\Letter\Letter\CloudLetterC;
 use App\Http\Controllers\Letter\Letter\LetterC;
+use App\Http\Controllers\Letter\MultiTurno\MultiTurnoC;
 use App\Http\Controllers\Letter\Letter\ReturnadoC;
 use App\Http\Controllers\Letter\Letter\UploadTempC;
 use App\Http\Controllers\Letter\Office\CloudC;
@@ -119,6 +120,12 @@ Route::get('/letter/reply/data/{id}', [LetterC::class, 'replyData'])->name('lett
 
 Route::post('/letter/cloud/reply', [CloudFileC::class, 'cloudReply'])->name('letter.cloud.reply')->middleware('auth');
 Route::post('/letter/cloud/reply/upload-anexo', [CloudFileC::class, 'uploadReplyAnexo'])->name('letter.cloud.reply.upload-anexo')->middleware('auth');
+
+// MultiTurno
+Route::get('/letter/multiturno/areas', [MultiTurnoC::class, 'areas'])->name('letter.multiturno.areas')->middleware('auth');
+Route::post('/letter/multiturno/save', [MultiTurnoC::class, 'save'])->name('letter.multiturno.save')->middleware('auth');
+Route::get('/letter/multiturno/list/{idCorr}', [MultiTurnoC::class, 'list'])->name('letter.multiturno.list')->middleware('auth');
+
 
 
 // Guest
