@@ -377,7 +377,7 @@ function searchInit() {
           '</button>' +
           // === NUEVO: Turnar a varios ===
           '<button class="dropdown-item" onclick="openTurnarMultiple(' + object.id + ', \'' + folioSafe + '\')">' +
-          '<span style="background:#bd6604" class="icon-container-template">' +
+          '<span style="background:#e83e8c" class="icon-container-template">' +
           '<div style="text-align:center;">' +
           '<i class="fa fa-random item-icon-menu"></i>' +
           '</div>' +
