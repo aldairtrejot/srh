@@ -258,6 +258,7 @@ function searchInit() {
           'RECHAZADO': '#b30000',
           'CONOCIMIENTO': '#6fc5f4ff',
           'RE-TURNADO': '#872ebbff',
+          'MULTI-TURNO': '#e83e8c', // ✅ rosa
           'COPIA': '#dc3545' // rojo para copia
         };
 

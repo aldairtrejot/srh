@@ -54,7 +54,7 @@ class LetterC extends Controller
     /* =========================================================
      * TABLA
      * ========================================================= */
-   public function table(Request $request, LetterM $model)
+public function table(Request $request, LetterM $model)
 {
     try {
         $iterator    = max(0, (int)$request->get('iterator', 0));
@@ -78,6 +78,7 @@ class LetterC extends Controller
             ->leftJoin('correspondencia.cat_area as a3', 'a3.id_cat_area', '=', 'c.id_cat_area')
             ->leftJoin('correspondencia.cat_area as a1', 'a1.id_cat_area', '=', 'c.id_cat_area_1')
             ->leftJoin('correspondencia.cat_area as a2', 'a2.id_cat_area', '=', 'c.id_cat_area_2')
+
             // Join para saber si ESTE usuario lo ve como copia
             ->leftJoin('correspondencia.ctrl_transcribir_correspondencia as t_copia', function ($join) use ($userAreas, $isAdminLike) {
                 $join->on('t_copia.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia');
@@ -85,6 +86,19 @@ class LetterC extends Controller
                     $join->whereIn('t_copia.id_cat_area', $userAreas);
                 } else {
                     // Para admins (o sin áreas), evitamos que genere coincidencias
+                    $join->whereRaw('1=0');
+                }
+            })
+
+            // ✅ NUEVO: Join para saber si ESTE usuario lo ve como MULTITURNO (destino)
+            ->leftJoin('correspondencia.tbl_correspondencia_turnado as t_mt', function ($join) use ($userAreas, $isAdminLike) {
+                $join->on('t_mt.id_tbl_correspondencia', '=', 'c.id_tbl_correspondencia');
+
+                if (! $isAdminLike && !empty($userAreas)) {
+                    $join->whereIn('t_mt.id_cat_area_destino', $userAreas);
+                    // opcional: solo activos
+                    // $join->where('t_mt.estatus', true);
+                } else {
                     $join->whereRaw('1=0');
                 }
             });
@@ -123,6 +137,16 @@ class LetterC extends Controller
                             ->whereIn('t.id_cat_area', $userAreas);
                     });
                 }
+
+                // ✅ 3) O aparece como MULTITURNO (destino)
+                if (!empty($userAreas)) {
+                    $w->orWhereExists(function ($ex) use ($userAreas) {
+                        $ex->from('correspondencia.tbl_correspondencia_turnado as mt')
+                            ->whereColumn('mt.id_tbl_correspondencia', 'c.id_tbl_correspondencia')
+                            ->whereIn('mt.id_cat_area_destino', $userAreas);
+                            // opcional: ->where('mt.estatus', true);
+                    });
+                }
             });
         }
 
@@ -146,7 +170,7 @@ class LetterC extends Controller
         $select = [
             'c.id_tbl_correspondencia as id',
             'c.id_cat_estatus',
-            'c.was_returnado', // 👈👈👈 NUEVO
+            'c.was_returnado', // 👈👈👈 NUEVO (lo conservé)
             DB::raw('UPPER(c.num_documento) as num_documento'),
             DB::raw('UPPER(c.folio_gestion)  as folio_gestion'),
             DB::raw('UPPER(c.asunto)         as asunto'),
@@ -1165,48 +1189,60 @@ class LetterC extends Controller
      *  - Tiene al menos una copia en ctrl_transcribir_correspondencia para alguna de sus áreas
      *  - y NO es dueño/responsable en A1/A2/A3
      */
-    private function userHasCopyOnlyAccess(int $idCorrespondencia, int $userId): bool
-    {
-        // Roles "totales" / bypass NUNCA son solo lectura por copia
-        if ($this->isBypassVisibility()) {
-            return false;
-        }
-
-        $userAreas = $this->getAllowedAreasForUser($userId);
-        if (empty($userAreas)) {
-            return false;
-        }
-
-        $corr = DB::table('correspondencia.tbl_correspondencia as c')
-            ->select('c.id_cat_area','c.id_cat_area_1','c.id_cat_area_2')
-            ->where('c.id_tbl_correspondencia', $idCorrespondencia)
-            ->first();
-
-        if (!$corr) {
-            return false;
-        }
-
-        $areasDoc = [
-            (int) ($corr->id_cat_area   ?? 0),
-            (int) ($corr->id_cat_area_1 ?? 0),
-            (int) ($corr->id_cat_area_2 ?? 0),
-        ];
-
-        // Si el usuario es dueño/responsable en A1/A2/A3, NO es "solo copia"
-        foreach ($areasDoc as $ax) {
-            if ($ax && in_array($ax, $userAreas, true)) {
-                return false;
-            }
-        }
-
-        // Verificar si existe registro de COPIA para alguna de sus áreas
-        $hasCopy = DB::table('correspondencia.ctrl_transcribir_correspondencia as t')
-            ->where('t.id_tbl_correspondencia', $idCorrespondencia)
-            ->whereIn('t.id_cat_area', $userAreas)
-            ->exists();
-
-        return $hasCopy;
+   private function userHasCopyOnlyAccess(int $idCorrespondencia, int $userId): bool
+{
+    // Roles "totales" / bypass NUNCA son solo lectura por copia
+    if ($this->isBypassVisibility()) {
+        return false;
     }
+
+    $userAreas = $this->getAllowedAreasForUser($userId);
+    if (empty($userAreas)) {
+        return false;
+    }
+
+    $corr = DB::table('correspondencia.tbl_correspondencia as c')
+        ->select('c.id_cat_area','c.id_cat_area_1','c.id_cat_area_2')
+        ->where('c.id_tbl_correspondencia', $idCorrespondencia)
+        ->first();
+
+    if (!$corr) {
+        return false;
+    }
+
+    $areasDoc = [
+        (int) ($corr->id_cat_area   ?? 0),
+        (int) ($corr->id_cat_area_1 ?? 0),
+        (int) ($corr->id_cat_area_2 ?? 0),
+    ];
+
+    // Si el usuario es dueño/responsable en A1/A2/A3, NO es "solo copia"
+    foreach ($areasDoc as $ax) {
+        if ($ax && in_array($ax, $userAreas, true)) {
+            return false;
+        }
+    }
+
+    // ✅ NUEVO: si el usuario está como destino en MULTITURNO, NO es "solo copia"
+    $hasMultiTurno = DB::table('correspondencia.tbl_correspondencia_turnado as mt')
+        ->where('mt.id_tbl_correspondencia', $idCorrespondencia)
+        ->whereIn('mt.id_cat_area_destino', $userAreas)
+        // opcional: ->where('mt.estatus', true)
+        ->exists();
+
+    if ($hasMultiTurno) {
+        return false;
+    }
+
+    // Verificar si existe registro de COPIA para alguna de sus áreas
+    $hasCopy = DB::table('correspondencia.ctrl_transcribir_correspondencia as t')
+        ->where('t.id_tbl_correspondencia', $idCorrespondencia)
+        ->whereIn('t.id_cat_area', $userAreas)
+        ->exists();
+
+    return $hasCopy;
+}
+
 
     public function resolveAreaColumnVisibility(): array
     {

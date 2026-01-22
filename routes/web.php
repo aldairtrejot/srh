@@ -125,6 +125,8 @@ Route::post('/letter/cloud/reply/upload-anexo', [CloudFileC::class, 'uploadReply
 Route::get('/letter/multiturno/areas', [MultiTurnoC::class, 'areas'])->name('letter.multiturno.areas')->middleware('auth');
 Route::post('/letter/multiturno/save', [MultiTurnoC::class, 'save'])->name('letter.multiturno.save')->middleware('auth');
 Route::get('/letter/multiturno/list/{idCorr}', [MultiTurnoC::class, 'list'])->name('letter.multiturno.list')->middleware('auth');
+Route::post('/letter/multiturno/delete/{idTurnado}', [MultiTurnoC::class, 'delete'])->name('letter.multiturno.delete')->middleware('auth');
+
 
 
 
