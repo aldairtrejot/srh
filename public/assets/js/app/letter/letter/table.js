@@ -479,20 +479,7 @@ function searchValue() {
   searchInit();
 }
 
-/* ===================== MULTI-TURNO: ABRIR MODAL (GLOBAL) ===================== */
-window.openTurnarMultiple = function (idCorr, folio) {
-  $('#mt_id_tbl_correspondencia').val(idCorr);
-  $('#mt_folio_text').text('Folio: ' + (folio || ''));
 
-  $('#mt_areas_destino').val([]);
-  $('#mt_observaciones').val('');
-
-  if ($('.selectpicker').length) {
-    $('.selectpicker').selectpicker('refresh');
-  }
-
-  $('#modalTurnarMultiple').modal('show');
-};
 
 
 

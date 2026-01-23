@@ -178,7 +178,19 @@ public function table(Request $request, LetterM $model)
             DB::raw('UPPER(e.descripcion)    as estatus'),
             DB::raw('UPPER(coalesce(a3.descripcion, \'\')) as area'),
             DB::raw('UPPER(coalesce(a1.descripcion, \'\')) as area_1'),
-            DB::raw('UPPER(coalesce(a2.descripcion, \'\')) as area_2'),
+
+            // ✅ CAMBIO: si es MULTI-TURNO (id_cat_estatus=9), muestra TODAS las CLAVES turnadas en CRHT (area_2)
+            DB::raw("CASE
+                WHEN c.id_cat_estatus = 9 THEN (
+                    SELECT STRING_AGG(UPPER(COALESCE(ca.clave,'')), ', ' ORDER BY t.consecutivo)
+                    FROM correspondencia.tbl_correspondencia_turnado t
+                    JOIN correspondencia.cat_area ca
+                      ON ca.id_cat_area = t.id_cat_area_destino
+                    WHERE t.id_tbl_correspondencia = c.id_tbl_correspondencia
+                )
+                ELSE UPPER(COALESCE(a2.descripcion, ''))
+            END AS area_2"),
+
             DB::raw("(
                 SELECT co.uid
                 FROM correspondencia.ctrl_correspondencia_oficio co
@@ -220,9 +232,6 @@ public function table(Request $request, LetterM $model)
         ], 500);
     }
 }
-
-
-
     /* =========================================================
      * FORM CREATE
      * ========================================================= */
