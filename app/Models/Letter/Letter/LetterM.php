@@ -512,9 +512,6 @@ class LetterM extends Model
             ->get();
     }
 
-    /* =========================================================
-     *  NUEVO — helpers para "RETORNADO"
-     * ========================================================= */
     public function getReturnadoId(): int
     {
         // Resuelve por nombre; si no encuentra, usa 8 como fallback
