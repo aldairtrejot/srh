@@ -8,6 +8,8 @@
    - Cloud: SOLO botón "ojo" (entrada)
    - Rep. Oficio: SOLO "ojo" si existe documento de respuesta
    - Avce. Oficio: SOLO "ojo" del PRIMER anexo de oficio (si existe)
+   - ✅ NUEVO: Re-Turnado → si estatus es MULTI-TURNO abre openMultiReturnado()
+              si NO, se queda openReturnado() normal (SIN CAMBIOS)
    ========================================================================= */
 
 var iterator = 1;            // Se comienza el iterador en 1
@@ -226,6 +228,31 @@ function openReplyGuard(idCorr, folio, statusId, statusText) {
   }
 }
 
+/* ===== ✅ NUEVO: Re-Turnado MULTIPLE solo si es MULTI-TURNO =====
+   - MULTI-TURNO: id_cat_estatus = 9 o texto "MULTI-TURNO" -> openMultiReturnado()
+   - OTROS: openReturnado() normal (SIN CAMBIOS)
+*/
+function openReturnadoGuard(idCorr, folio, statusId, statusText) {
+  statusId   = Number(statusId || 0);
+  statusText = (statusText || '').toString().toUpperCase();
+
+  // MULTI-TURNO
+  if (statusId === 9 || statusText === 'MULTI-TURNO') {
+    if (typeof openMultiReturnado === 'function') {
+      openMultiReturnado(idCorr, folio);
+      return;
+    }
+    if (window.Swal) Swal.fire('Falta configuración', 'No se detectó openMultiReturnado().', 'warning');
+    else alert('No se detectó openMultiReturnado().');
+    return;
+  }
+
+  // Normal (sin cambios)
+  if (typeof openReturnado === 'function') {
+    openReturnado(idCorr, folio);
+  }
+}
+
 /* ===================== BÚSQUEDA Y RENDER FILAS ===================== */
 function searchInit() {
   mostrarBarra();
@@ -316,6 +343,9 @@ function searchInit() {
             '</button>';
         }
 
+        // ✅ usado para inyectar texto a openReturnadoGuard (evita comillas)
+        var statusTextEsc2 = estatusUpper.replace(/'/g, "\\'");
+
         var rowHTML =
           '<tr>' +
           // 0: Menú
@@ -354,19 +384,21 @@ function searchInit() {
           '</span>' +
           'Copias' +
           '</button>' +
-          // ====== MODIFICADO: botón Re-Turnado que inyecta estatus permitido ======
+
+          // ====== ✅ MODIFICADO: Re-Turnado -> abre MULTI RETURNADO solo si es MULTI-TURNO ======
           '<button class="dropdown-item" data-status="' + __statusId + '" ' +
           'onclick="(function(btn){' +
           'window.LETTER = window.LETTER || {};' +
-          'window.LETTER.statusAllowedReturnado = [1,8];' +
+          'window.LETTER.statusAllowedReturnado = [1,8,9];' +
           'window.LETTER.statusReturnadoId = Number(btn.dataset.status||0);' +
           'window.LETTER.currentStatusId   = Number(btn.dataset.status||0);' +
-          'openReturnado(' + object.id + ', \'' + folioSafe + '\');' +
+          'openReturnadoGuard(' + object.id + ', \'' + folioSafe + '\',' + __statusId + ', \'' + statusTextEsc2 + '\');' +
           '})(this)">' +
           '<span style="background:#2a848c" class="icon-container-template">' +
           '<div style="text-align:center;"><i class="fa fa-undo item-icon-menu"></i></div>' +
           '</span>Re-Turnado' +
           '</button>' +
+
           '<button class="dropdown-item" onclick="opneEmail(' + object.id + ', \'' + object.folio_gestion + '\')">' +
           '<span style="background:#462c95" class="icon-container-template">' +
           '<div style="text-align: center;">' +
@@ -478,6 +510,7 @@ function searchValue() {
   setValue();
   searchInit();
 }
+
 
 
 

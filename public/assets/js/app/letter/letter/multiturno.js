@@ -242,7 +242,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
       tr.appendChild(tdMenu);
       tr.appendChild(tdArea);
       tr.appendChild(tdFolio);
-      tr.appendChild(tdEst);
 
       $tbody[0].appendChild(tr);
     });

@@ -86,6 +86,8 @@
             @include('letter.letter.returnedmodal')
             @include('letter.letter.replymodal')
             @include('letter.letter.multiturno')
+            @include('letter.letter.multireturnado')
+
 
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card custom-card">
@@ -193,6 +195,8 @@
     <script src="{{ asset('assets/js/app/letter/letter/returnado.js') }}"></script>
 
     <script src="{{ asset('assets/js/app/letter/letter/multiturno.js') }}"></script>
+    <script src="{{ asset('assets/js/app/letter/letter/multireturnado.js') }}"></script> {{-- 👈 NUEVO --}}
+
 
     {{-- === IMPORTANTE: URL de la ruta + CSRF para reply.js === --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">

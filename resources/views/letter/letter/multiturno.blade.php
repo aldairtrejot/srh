@@ -120,7 +120,6 @@
             <th style="width:80px;">Menú</th>
             <th>Área</th>
             <th style="width:260px;">Folio turnado</th>
-            <th style="width:140px;">Estatus</th>
           </tr>
         </thead>
         <tbody id="mt_tbody"></tbody>

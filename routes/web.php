@@ -53,6 +53,7 @@ use App\Http\Controllers\Letter\Inside\InsideC;
 use App\Http\Controllers\Letter\Letter\CloudLetterC;
 use App\Http\Controllers\Letter\Letter\LetterC;
 use App\Http\Controllers\Letter\MultiTurno\MultiTurnoC;
+use App\Http\Controllers\Letter\MultiReturnado\MultiReturnadoC;
 use App\Http\Controllers\Letter\Letter\ReturnadoC;
 use App\Http\Controllers\Letter\Letter\UploadTempC;
 use App\Http\Controllers\Letter\Office\CloudC;
@@ -127,10 +128,13 @@ Route::post('/letter/multiturno/save', [MultiTurnoC::class, 'save'])->name('lett
 Route::get('/letter/multiturno/list/{idCorr}', [MultiTurnoC::class, 'list'])->name('letter.multiturno.list')->middleware('auth');
 Route::post('/letter/multiturno/delete/{idTurnado}', [MultiTurnoC::class, 'delete'])->name('letter.multiturno.delete')->middleware('auth');
 
+// ===================== MULTI-RETURNADO (solo para MULTI-TURNO) =====================
+Route::get('/letter/multireturnado/areas', [MultiReturnadoC::class, 'areas'])->name('letter.multireturnado.areas')->middleware('auth');
+Route::get('/letter/multireturnado/list/{idCorr}', [MultiReturnadoC::class, 'list'])->name('letter.multireturnado.list')->middleware('auth');
+Route::post('/letter/multireturnado/save', [MultiReturnadoC::class, 'save'])->name('letter.multireturnado.save')->middleware('auth');
+Route::post('/letter/multireturnado/delete/{idTurnado}', [MultiReturnadoC::class, 'delete'])->name('letter.multireturnado.delete')->middleware('auth');
 
 
-
-// Guest
 // Guest
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
 Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
