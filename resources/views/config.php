@@ -28,7 +28,7 @@ $letterRole = [
     config('custom_config.COR_ENLACE')
 ];
 
-// ARRAY DE ROLES DE TITULARES POR CORRESPONDENCIA
+// ARRAY DE ROLES DE TITULARES POR CORRESPONDENCIA (Externa + Lineamientos)
 $letterUsuario = [
     config('custom_config.ADM_TOTAL'),
     config('custom_config.COR_TOTAL'),
@@ -55,12 +55,31 @@ $letterRoleCopy = [
     config('custom_config.COR_ENLACE')
 ];
 
+// ✅ Roles que pueden ver SOLO Circular Interna
+$letterInterna = [
+    config('custom_config.ADM_TOTAL'),
+    config('custom_config.COR_TOTAL'),
+    config('custom_config.COR_USUARIO'),
+    config('custom_config.COR_ENLACE') // 👈 aquí sí entra enlace
+];
+// ✅ Roles que pueden EDITAR Circular Interna (sin COR_ENLACE)
+$letterInternaEdit = [
+    config('custom_config.ADM_TOTAL'),
+    config('custom_config.COR_TOTAL'),
+    config('custom_config.COR_USUARIO')
+];
+
+
+
 //VALORES RESULTANTES
-$adminMatch = !empty(array_intersect($userRole, $adminRole));
-$letterMatch = !empty(array_intersect($userRole, $letterRole));
-$coursesMatch = !empty(array_intersect($userRole, $coursesRole));
-$letterAdminMatch = !empty(array_intersect($userRole, $letterRoleAdmin));
-$letterCRH = !empty(array_intersect($userRole, $letterRoleCrh));
-$letterUSERS = !empty(array_intersect($userRole, $letterUsuario));
-$letterTuaf = !empty(array_intersect($userRole, $letterRoleTuaf));
-$letterCopyMatch = !empty(array_intersect($userRole, $letterRoleCopy));
+$adminMatch        = !empty(array_intersect($userRole, $adminRole));
+$letterMatch       = !empty(array_intersect($userRole, $letterRole));
+$coursesMatch      = !empty(array_intersect($userRole, $coursesRole));
+$letterAdminMatch  = !empty(array_intersect($userRole, $letterRoleAdmin));
+$letterCRH         = !empty(array_intersect($userRole, $letterRoleCrh));
+$letterUSERS       = !empty(array_intersect($userRole, $letterUsuario));  // Externa + Lineamientos
+$letterTuaf        = !empty(array_intersect($userRole, $letterRoleTuaf));
+$letterCopyMatch   = !empty(array_intersect($userRole, $letterRoleCopy));
+$letterINTERNA     = !empty(array_intersect($userRole, $letterInterna));  // 👈 Interna
+$letterINTERNA_EDIT = !empty(array_intersect($userRole, $letterInternaEdit));
+

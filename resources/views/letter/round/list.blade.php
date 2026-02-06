@@ -72,6 +72,7 @@
     <script>
         const catalogosURL = "{{ route('roundoffice.catalogos') }}";
         const reporteURL = "{{ route('roundoffice.generate') }}";
+        const canEditRound = @json($letterINTERNA_EDIT ?? false);
     </script>
 
     <!-- SCRIPTS -->

@@ -55,14 +55,27 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('inside.list') }}">Interno</a></li>
                          --}}
                         @endif
+                       {{-- Circ. Externa (solo totales + directores) --}}
                         @if ($letterUSERS)
-                            <li class="nav-item"><a class="nav-link" href="{{ route(name: 'external.list') }}">Circ.
-                                    Externa</a>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a>
+                            <li class="nav-item">
+                            <a class="nav-link" href="{{ route(name: 'external.list') }}">Circ. Externa</a>
                             </li>
-                            <li class="nav-item"><a class="nav-link"
-                                    href="{{ route(name: 'file.list') }}">Lineamientos</a></li>
                         @endif
+
+                        {{-- Circ. Interna (totales + directores + enlace) --}}
+                        @if ($letterINTERNA)
+                        <li class="nav-item">
+                        <a class="nav-link" href="{{ route('round.list') }}">Circ. Interna</a>
+                        </li>
+                        @endif
+
+                        {{-- Lineamientos (solo totales + directores) --}}
+                        @if ($letterUSERS)
+                        <li class="nav-item">
+                        <a class="nav-link" href="{{ route(name: 'file.list') }}">Lineamientos</a>
+                        </li>
+                        @endif
+
                         @if ($letterTuaf)
                             <li class="nav-item"><a class="nav-link" href="{{ route(name: 'guest') }}">TUAF</a>
                         @endif
