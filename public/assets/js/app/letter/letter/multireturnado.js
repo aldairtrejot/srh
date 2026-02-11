@@ -16,10 +16,10 @@ var token = $('meta[name="csrf-token"]').attr('content');
   }
 
   /* ======================== ENDPOINTS ======================== */
-  var AREAS_URL_BASE = prefix() + '/letter/multireturnado/areas'; // + /{idCorr}
-  var LIST_URL       = prefix() + '/letter/multireturnado/list';  // /{idCorr}
-  var SAVE_URL       = prefix() + '/letter/multireturnado/save';
-  var DELETE_URL     = prefix() + '/letter/multireturnado/delete'; // /{idTurnado}
+  var AREAS_URL  = prefix() + '/letter/multireturnado/areas';      // ✅ SIN /{idCorr}
+  var LIST_URL   = prefix() + '/letter/multireturnado/list';       // /{idCorr}
+  var SAVE_URL   = prefix() + '/letter/multireturnado/save';
+  var DELETE_URL = prefix() + '/letter/multireturnado/delete';     // /{idTurnado}
 
   // mismos endpoints que Returnado.js (para reglas)
   var COLLECTION_AREA_URL =
@@ -38,13 +38,15 @@ var token = $('meta[name="csrf-token"]').attr('content');
   // Área destino (A3)
   var $area = $('#mr_area_destino');
 
-  // Dependientes
-  var $usr  = $('#mr_id_usuario_destino,[name="mr_id_usuario_destino"]');
+  // Dependientes (✅ como tu blade)
+  var $usr  = $('#mr_id_usuario_area,[name="mr_id_usuario_area"]');
   var $enl  = $('#mr_id_usuario_enlace,[name="mr_id_usuario_enlace"]');
-  var $uni  = $('#mr_id_cat_unidad,[name="mr_id_cat_unidad"]');
-  var $coor = $('#mr_id_cat_coordinacion,[name="mr_id_cat_coordinacion"]');
   var $tra  = $('#mr_id_cat_tramite,[name="mr_id_cat_tramite"]');
   var $cla  = $('#mr_id_cat_clave,[name="mr_id_cat_clave"]');
+  var $uni  = $('#mr_id_cat_unidad,[name="mr_id_cat_unidad"]');
+  var $coor = $('#mr_id_cat_coordinacion,[name="mr_id_cat_coordinacion"]');
+
+  var $restWrap = $('#mr_rest_wrap');
 
   /* ==================== selectpicker helpers ==================== */
   function getJQ () {
@@ -146,16 +148,10 @@ var token = $('meta[name="csrf-token"]').attr('content');
   var __areasCache  = [];
   var __areasById   = {};
 
-  // filas ya guardadas (desde DB)
   var __dbRows = [];
+  var __items  = [];
 
-  // filas nuevas (a guardar al confirmar)
-  // cada item trae detalle completo (opción A con tabla detalle)
-  var __items = [];
-
-  // control de carrera (abort)
   var reqCtl = { deps:null, coor:null, clave:null };
-
   function abortAndNew(key){
     try{ reqCtl[key]?.abort(); }catch(_){}
     reqCtl[key] = new AbortController();
@@ -163,11 +159,10 @@ var token = $('meta[name="csrf-token"]').attr('content');
   }
 
   /* ====================== load áreas ====================== */
-  async function loadAreasDestino(idCorr){
+  async function loadAreasDestino(){
     if (__areasLoaded) return __areasCache;
 
-    const url = AREAS_URL_BASE + '/' + encodeURIComponent(String(idCorr || ''));
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(AREAS_URL, { headers: { 'Accept': 'application/json' } });
     const data = await res.json().catch(function(){ return {}; });
 
     if (!res.ok || !data.ok) {
@@ -245,7 +240,8 @@ var token = $('meta[name="csrf-token"]').attr('content');
       return;
     }
 
-    // carga usuarios/enlace/unidad/tramite desde collectionArea (id)
+    if ($restWrap.length) $restWrap.show();
+
     setLoading($usr); setLoading($enl); setLoading($uni);
     setLoading($tra); setEmpty($coor); setEmpty($cla);
 
@@ -257,13 +253,10 @@ var token = $('meta[name="csrf-token"]').attr('content');
       fillPicker($usr, json.selectUsuario || json.usuarios || [], null);
       fillPicker($enl, json.selectEnlace  || json.enlaces  || [], null);
       fillPicker($uni, json.selectUnidad  || json.unidades || [], null);
-
-      // trámite (para que “se vea” como Turnar A)
       fillPicker($tra, json.selectTramite || json.tramites || [], null);
 
       [$usr,$enl,$uni,$tra].forEach(enablePicker);
 
-      // autoselección si solo hay 1 opción
       function ensureFirst($s){
         if (!getVal($s)) {
           var v = firstRealVal($s);
@@ -275,11 +268,9 @@ var token = $('meta[name="csrf-token"]').attr('content');
       ensureFirst($uni);
       ensureFirst($tra);
 
-      // coordinación por unidad (collectionUnidad)
       var unidadId = getVal($uni);
       if (unidadId) await cargarCoordinacionesPorUnidad(unidadId);
 
-      // clave por trámite
       var tramiteId = getVal($tra);
       if (tramiteId) await cargarClavesPorTramite(tramiteId);
 
@@ -302,7 +293,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
       fillPicker($coor, rows, null);
       enablePicker($coor);
 
-      // autoselección si solo hay 1
       if (!getVal($coor)) {
         var v = firstRealVal($coor);
         if (v) { $coor.val(v); spRefresh($coor); }
@@ -350,55 +340,30 @@ var token = $('meta[name="csrf-token"]').attr('content');
 
   window.mrInsertarDestino = function(){
     var areaId = getVal($area);
-    if (!areaId) {
-      if (window.Swal) Swal.fire('Faltan datos','Selecciona un área.','warning');
-      else alert('Selecciona un área.');
-      return;
-    }
+    if (!areaId) { if (window.Swal) Swal.fire('Faltan datos','Selecciona un área.','warning'); else alert('Selecciona un área.'); return; }
+    if (existsInDB(areaId)) { if (window.Swal) Swal.fire('Aviso','Esa área ya está registrada en BD.','info'); else alert('Esa área ya está registrada en BD.'); return; }
+    if (existsInNew(areaId)) { if (window.Swal) Swal.fire('Aviso','Esa área ya fue agregada a la lista.','info'); else alert('Esa área ya fue agregada a la lista.'); return; }
 
-    if (existsInDB(areaId)) {
-      if (window.Swal) Swal.fire('Aviso','Esa área ya está registrada en BD.','info');
-      else alert('Esa área ya está registrada en BD.');
-      return;
-    }
-    if (existsInNew(areaId)) {
-      if (window.Swal) Swal.fire('Aviso','Esa área ya fue agregada a la lista.','info');
-      else alert('Esa área ya fue agregada a la lista.');
-      return;
-    }
+    if (!getVal($usr)) { if (window.Swal) Swal.fire('Faltan datos','Selecciona Usuario.','warning'); else alert('Selecciona Usuario.'); return; }
+    if (!getVal($tra)) { if (window.Swal) Swal.fire('Faltan datos','Selecciona Trámite.','warning'); else alert('Selecciona Trámite.'); return; }
+    if (!getVal($cla)) { if (window.Swal) Swal.fire('Faltan datos','Selecciona Clasif. Archivística.','warning'); else alert('Selecciona Clasif. Archivística.'); return; }
 
-    // valida mínimos como Turnar A (usuario, trámite, clave)
-    if (!getVal($usr)) {
-      if (window.Swal) Swal.fire('Faltan datos','Selecciona Usuario.','warning');
-      else alert('Selecciona Usuario.');
-      return;
-    }
-    if (!getVal($tra)) {
-      if (window.Swal) Swal.fire('Faltan datos','Selecciona Trámite.','warning');
-      else alert('Selecciona Trámite.');
-      return;
-    }
-    if (!getVal($cla)) {
-      if (window.Swal) Swal.fire('Faltan datos','Selecciona Clasif. Archivística.','warning');
-      else alert('Selecciona Clasif. Archivística.');
-      return;
-    }
-
-    // item completo (para tbl_turnado_detalle)
     __items.push({
       id_cat_area_destino: Number(areaId),
-
       id_usuario_area: getVal($usr) ? Number(getVal($usr)) : null,
       id_usuario_enlace: getVal($enl) ? Number(getVal($enl)) : null,
-      id_cat_unidad: getVal($uni) ? Number(getVal($uni)) : null,
-      id_cat_coordinacion: getVal($coor) ? Number(getVal($coor)) : null,
       id_cat_tramite: getVal($tra) ? Number(getVal($tra)) : null,
       id_cat_clave: getVal($cla) ? Number(getVal($cla)) : null,
+      id_cat_unidad: getVal($uni) ? Number(getVal($uni)) : null,
+      id_cat_coordinacion: getVal($coor) ? Number(getVal($coor)) : null,
 
-      // textos para render
-      __txt_area: optionText($area) || (String((__areasById[String(areaId)]||{}).descripcion||'') || areaId),
+      __txt_area: optionText($area) || areaId,
+      __txt_usuario: optionText($usr) || '—',
+      __txt_enlace: optionText($enl) || '—',
       __txt_tramite: optionText($tra) || '—',
-      __txt_clave: optionText($cla) || '—'
+      __txt_clave: optionText($cla) || '—',
+      __txt_unidad: optionText($uni) || '—',
+      __txt_coor: optionText($coor) || '—'
     });
 
     renderTable();
@@ -413,7 +378,8 @@ var token = $('meta[name="csrf-token"]').attr('content');
     if (!$tbody.length) return;
     $tbody.empty();
 
-    // 1) filas BD (ya guardadas)
+    function td(txt){ var t=document.createElement('td'); t.textContent = txt || '—'; return t; }
+
     (__dbRows || []).forEach(function(r){
       var tr = document.createElement('tr');
 
@@ -450,24 +416,18 @@ var token = $('meta[name="csrf-token"]').attr('content');
 
       tdMenu.appendChild(btn);
 
-      var tdArea = document.createElement('td');
-      tdArea.textContent = r.area || '—';
-
-      var tdTra = document.createElement('td');
-      tdTra.textContent = r.tramite || '—';
-
-      var tdCla = document.createElement('td');
-      tdCla.textContent = r.clasif || r.clave || '—';
-
       tr.appendChild(tdMenu);
-      tr.appendChild(tdArea);
-      tr.appendChild(tdTra);
-      tr.appendChild(tdCla);
+      tr.appendChild(td(r.area));
+      tr.appendChild(td(r.usuario_area));
+      tr.appendChild(td(r.usuario_enlace));
+      tr.appendChild(td(r.tramite));
+      tr.appendChild(td(r.clave));
+      tr.appendChild(td(r.unidad));
+      tr.appendChild(td(r.coordinacion));
 
       $tbody[0].appendChild(tr);
     });
 
-    // 2) filas nuevas (aún no guardadas)
     (__items || []).forEach(function(it){
       var tr = document.createElement('tr');
 
@@ -482,19 +442,14 @@ var token = $('meta[name="csrf-token"]').attr('content');
       });
       tdMenu.appendChild(btn);
 
-      var tdArea = document.createElement('td');
-      tdArea.textContent = it.__txt_area || '—';
-
-      var tdTra = document.createElement('td');
-      tdTra.textContent = it.__txt_tramite || '—';
-
-      var tdCla = document.createElement('td');
-      tdCla.textContent = it.__txt_clave || '—';
-
       tr.appendChild(tdMenu);
-      tr.appendChild(tdArea);
-      tr.appendChild(tdTra);
-      tr.appendChild(tdCla);
+      tr.appendChild(td(it.__txt_area));
+      tr.appendChild(td(it.__txt_usuario));
+      tr.appendChild(td(it.__txt_enlace));
+      tr.appendChild(td(it.__txt_tramite));
+      tr.appendChild(td(it.__txt_clave));
+      tr.appendChild(td(it.__txt_unidad));
+      tr.appendChild(td(it.__txt_coor));
 
       $tbody[0].appendChild(tr);
     });
@@ -502,7 +457,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
 
   /* ====================== eventos ====================== */
   function bindRules(){
-    // al seleccionar área => aplicar reglas (como returnado)
     $(document).off('changed.bs.select.mrArea change.mrArea')
       .on('changed.bs.select.mrArea change.mrArea', '#mr_area_destino', function(){
         var v = $(this).val();
@@ -510,7 +464,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
         actualizarCamposDerivadosPorAreaId(v);
       });
 
-    // unidad => recalcular coordinación
     $(document).off('changed.bs.select.mrUni change.mrUni')
       .on('changed.bs.select.mrUni change.mrUni', '#mr_id_cat_unidad,[name="mr_id_cat_unidad"]', function(){
         var u = $(this).val();
@@ -518,7 +471,6 @@ var token = $('meta[name="csrf-token"]').attr('content');
         cargarCoordinacionesPorUnidad(u);
       });
 
-    // trámite => recalcular claves
     $(document).off('changed.bs.select.mrTra change.mrTra')
       .on('changed.bs.select.mrTra change.mrTra', '#mr_id_cat_tramite,[name="mr_id_cat_tramite"]', function(){
         var t = $(this).val();
@@ -536,16 +488,17 @@ var token = $('meta[name="csrf-token"]').attr('content');
     __items = [];
     __dbRows = [];
 
+    if ($restWrap.length) $restWrap.hide();
+
     spInitIn('#modalMultiReturnado');
 
-    // limpia dependientes al abrir
     [$usr,$enl,$uni,$coor,$tra,$cla].forEach(setEmpty);
 
     $('body').addClass('modal-open-multireturnado');
     $('#modalMultiReturnado').fadeIn();
 
     try{
-      var rows = await loadAreasDestino(idCorr);
+      var rows = await loadAreasDestino();  // ✅ sin idCorr
       paintAreasSelect(rows);
       bindRules();
       await refreshFromDB();
@@ -562,12 +515,10 @@ var token = $('meta[name="csrf-token"]').attr('content');
     Object.keys(reqCtl).forEach(k => { try { reqCtl[k]?.abort(); } catch(_){} });
   };
 
-  // Cancelar
   $(document).off('click.mrCancel').on('click.mrCancel', '#mr_cancel', function(e){
     e.preventDefault(); hiddenMultiReturnado();
   });
 
-  // ESC
   $(document).off('keydown.mrEsc').on('keydown.mrEsc', function(e){
     if (e.key === 'Escape' && $('#modalMultiReturnado').is(':visible')) hiddenMultiReturnado();
   });
@@ -600,7 +551,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
         body: JSON.stringify({
           id_tbl_correspondencia: Number(idCorr),
           observaciones: obs,
-          items: __items // <- requiere backend (MultiReturnadoC@save) para insertar en turnado + detalle
+          items: __items
         })
       });
 
@@ -623,6 +574,7 @@ var token = $('meta[name="csrf-token"]').attr('content');
   };
 
 })();
+
 
 
 

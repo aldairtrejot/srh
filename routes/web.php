@@ -139,7 +139,7 @@ Route::post('/letter/multireturnado/delete/{idTurnado}', [MultiReturnadoC::class
 Route::get('/guest', GuestC::class)->name('guest')->middleware('auth');
 Route::get('/guest/table', [GuestC::class, 'table'])->name('guest.table')->middleware('auth');
 Route::get('/guest/edit/{id}', [GuestC::class, 'edit'])->name('guest.edit')->middleware('auth');
-Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->middleware('auth');
+Route::get('/guest/cloud/{id}', [GuestC::class, 'cloud'])->name('guest.cloud')->middleware('auth');  
 Route::post('/guest/generate', [GuestReportC::class, 'generate'])->name('guest.generate')->middleware('auth');
 
 // //Cloud
