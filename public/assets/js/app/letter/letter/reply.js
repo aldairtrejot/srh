@@ -15,6 +15,9 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   var replyAnexosFiles  = [];     // NUEVOS anexos a subir (máx 3 - guardados)
   var replyAnexosPrev   = [];     // Anexos ya guardados en el servidor (solo vista)
 
+  // ✅ NUEVO: si true, este folio se ve como COPIA para el usuario → solo AVANCE
+  var replyCopyOnly = false;
+
   // ✅ Tipos permitidos para Reply (oficio + anexos)
   // PDF, ZIP, Excel, CSV, Word, Imágenes
   var REPLY_ALLOWED_RE = /\.(pdf|zip|xls|xlsx|xlsm|csv|doc|docx|jpg|jpeg|png)$/i;
@@ -85,6 +88,27 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
   function allowedHint(){
     return 'Permitidos: PDF, ZIP, Excel (XLS/XLSX/XLSM), CSV, Word (DOC/DOCX), JPG/PNG.';
+  }
+
+  // ✅ NUEVO: reconstruye opciones del select según COPIA
+  function setTipoRespuestaOptions(copyOnly){
+    var $sel = $('#reply_tipo_respuesta');
+    if (!$sel.length) return;
+
+    $sel.empty();
+
+    if (copyOnly) {
+      // Solo AVANCE (sin "Selecciona...")
+      $sel.append('<option value="AVANCE">Avance de Respuesta</option>');
+      $sel.val('AVANCE');
+      $sel.prop('disabled', true);
+    } else {
+      $sel.append('<option value="">Selecciona tipo de respuesta…</option>');
+      $sel.append('<option value="FINAL">Respuesta Final</option>');
+      $sel.append('<option value="AVANCE">Avance de Respuesta</option>');
+      $sel.val('');
+      $sel.prop('disabled', false);
+    }
   }
 
   // ===== Render Oficio (1) =====
@@ -311,12 +335,28 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
     }
   }
 
+  // ✅ NUEVO: reglas COPIA → solo AVANCE (con select reconstruido)
+  function applyCopyOnlyRules(){
+    if (!replyCopyOnly) {
+      setTipoRespuestaOptions(false);
+      return;
+    }
+    setTipoRespuestaOptions(true);
+    applyTipoRespuestaRules();
+  }
+
   // ===== Rellenar modal desde el servidor (última respuesta) =====
   function fillReplyFromServer(data){
     if (!data || !data.ok) return;
 
-    // Tipo de respuesta según estatus
-    if (data.tipo_respuesta) {
+    // ✅ leer flag COPIA desde el servidor
+    replyCopyOnly = !!data.copy_only;
+
+    // ✅ aplicar restricciones si es COPIA (forzará AVANCE y ocultará placeholder/FINAL)
+    applyCopyOnlyRules();
+
+    // Tipo de respuesta según estatus (solo si NO es copia)
+    if (!replyCopyOnly && data.tipo_respuesta) {
       $('#reply_tipo_respuesta').val(data.tipo_respuesta);
       applyTipoRespuestaRules();
     }
@@ -383,7 +423,11 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
       $('[name="fecha_fin"]').val('');
       $('#reply_observacion').val('').prop('disabled', false).attr('placeholder', 'Observaciones…');
       $('#reply_asunto').val('');
-      $('#reply_tipo_respuesta').val('');
+
+      // reset tipo (mientras carga)
+      replyCopyOnly = false;
+      setTipoRespuestaOptions(false);     // placeholder + FINAL + AVANCE
+      $('#reply_tipo_respuesta').prop('disabled', true); // se habilita al cargar si no es copia
       $('#reply_msg_oficio_req').hide();
 
       // Asegurar que los grupos estén visibles al inicio
@@ -438,7 +482,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
           applyTipoRespuestaRules();
         });
 
-      // Aplicar reglas iniciales (quedará todo bloqueado hasta elegir tipo)
+      // Aplicar reglas iniciales (si está placeholder, bloqueará todo)
       applyTipoRespuestaRules();
 
       // Cargar datos de última respuesta (si existen)
@@ -447,6 +491,12 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
           .then(function(res){ return res.ok ? res.json() : null; })
           .then(function(data){
             if (!data) return;
+
+            // Si NO es copia, habilitar select (si es copia, setTipoRespuestaOptions(true) ya lo dejó disabled)
+            if (!data.copy_only) {
+              $('#reply_tipo_respuesta').prop('disabled', false);
+            }
+
             fillReplyFromServer(data);
           })
           .catch(function(err){
@@ -470,6 +520,12 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
 
     if (!tipoRespuesta) {
       Swal.fire('Campo requerido','Selecciona el tipo de respuesta.','warning');
+      return;
+    }
+
+    // ✅ UX: si es COPIA, solo AVANCE
+    if (replyCopyOnly && tipoRespuesta !== 'AVANCE') {
+      Swal.fire('Sin permiso', 'Este folio te aparece como COPIA; solo puedes registrar AVANCE de respuesta.', 'warning');
       return;
     }
 
@@ -565,6 +621,7 @@ var BASE  = (typeof URL_DEFAULT !== 'undefined' && URL_DEFAULT) ? URL_DEFAULT : 
   });
 
 })();
+
 
 
 
