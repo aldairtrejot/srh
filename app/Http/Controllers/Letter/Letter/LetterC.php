@@ -1160,47 +1160,59 @@ class LetterC extends Controller
      *  - y NO es dueño/responsable en A1/A2/A3
      */
     private function userHasCopyOnlyAccess(int $idCorrespondencia, int $userId): bool
-    {
-        // Roles "totales" / bypass NUNCA son solo lectura por copia
-        if ($this->isBypassVisibility()) {
-            return false;
-        }
-
-        $userAreas = $this->getAllowedAreasForUser($userId);
-        if (empty($userAreas)) {
-            return false;
-        }
-
-        $corr = DB::table('correspondencia.tbl_correspondencia as c')
-            ->select('c.id_cat_area','c.id_cat_area_1','c.id_cat_area_2')
-            ->where('c.id_tbl_correspondencia', $idCorrespondencia)
-            ->first();
-
-        if (!$corr) {
-            return false;
-        }
-
-        $areasDoc = [
-            (int) ($corr->id_cat_area   ?? 0),
-            (int) ($corr->id_cat_area_1 ?? 0),
-            (int) ($corr->id_cat_area_2 ?? 0),
-        ];
-
-        // Si el usuario es dueño/responsable en A1/A2/A3, NO es "solo copia"
-        foreach ($areasDoc as $ax) {
-            if ($ax && in_array($ax, $userAreas, true)) {
-                return false;
-            }
-        }
-
-        // Verificar si existe registro de COPIA para alguna de sus áreas
-        $hasCopy = DB::table('correspondencia.ctrl_transcribir_correspondencia as t')
-            ->where('t.id_tbl_correspondencia', $idCorrespondencia)
-            ->whereIn('t.id_cat_area', $userAreas)
-            ->exists();
-
-        return $hasCopy;
+{
+    // Roles "totales" / bypass NUNCA son solo lectura por copia
+    if ($this->isBypassVisibility()) {
+        return false;
     }
+
+    $userAreas = $this->getAllowedAreasForUser($userId);
+    if (empty($userAreas)) {
+        return false;
+    }
+
+    $corr = DB::table('correspondencia.tbl_correspondencia as c')
+        ->select(
+            'c.id_cat_area',
+            'c.id_cat_area_1',
+            'c.id_cat_area_2',
+            'c.id_usuario_area',
+            'c.id_usuario_enlace'
+        )
+        ->where('c.id_tbl_correspondencia', $idCorrespondencia)
+        ->first();
+
+    if (!$corr) {
+        return false;
+    }
+
+    // ✅ Si el usuario es el responsable/enlace asignado, NO es "solo copia"
+    if ((int)($corr->id_usuario_area ?? 0) === $userId || (int)($corr->id_usuario_enlace ?? 0) === $userId) {
+        return false;
+    }
+
+    $areasDoc = [
+        (int) ($corr->id_cat_area   ?? 0),
+        (int) ($corr->id_cat_area_1 ?? 0),
+        (int) ($corr->id_cat_area_2 ?? 0),
+    ];
+
+    // Si el usuario es dueño/responsable en A1/A2/A3 (por área), NO es "solo copia"
+    foreach ($areasDoc as $ax) {
+        if ($ax && in_array($ax, $userAreas, true)) {
+            return false;
+        }
+    }
+
+    // Verificar si existe registro de COPIA para alguna de sus áreas
+    $hasCopy = DB::table('correspondencia.ctrl_transcribir_correspondencia as t')
+        ->where('t.id_tbl_correspondencia', $idCorrespondencia)
+        ->whereIn('t.id_cat_area', $userAreas)
+        ->exists();
+
+    return $hasCopy;
+}
+
 
     public function resolveAreaColumnVisibility(): array
     {

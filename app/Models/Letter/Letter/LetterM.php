@@ -252,16 +252,24 @@ class LetterM extends Model
             ->get();
     }
 
-    public function getArea1OptionsByArea(int $miAreaId)
-    {
-        return DB::table('correspondencia.rel_cat_area_jerarquia_1 as r')
-            ->join('correspondencia.cat_area as a', 'r.id_cat_area_1', '=', 'a.id_cat_area')
-            ->select('a.id_cat_area as id', DB::raw('UPPER(a.descripcion) as descripcion'))
-            ->where('r.id_cat_area', $miAreaId)
-            ->distinct()
-            ->orderBy('descripcion')
-            ->get();
-    }
+   public function getArea1OptionsByArea(int $miAreaId)
+{
+    // $miAreaId = Área final (A3)
+    return DB::table('correspondencia.rel_cat_area_jerarquia_2 as r2')
+        // r2: A2 -> A3
+        ->join('correspondencia.rel_cat_area_jerarquia_1 as r1', 'r2.id_cat_area_1', '=', 'r1.id_cat_area_2')
+        // r1: A1 -> A2
+        ->join('correspondencia.cat_area as a1', 'r1.id_cat_area_1', '=', 'a1.id_cat_area')
+        ->select(
+            'a1.id_cat_area as id',
+            DB::raw('UPPER(a1.descripcion) as descripcion')
+        )
+        ->where('r2.id_cat_area_2', $miAreaId) // ✅ aquí sí existe
+        ->distinct()
+        ->orderBy('descripcion')
+        ->get();
+}
+
 
     public function getArea1EditObj($id = null)
     {
