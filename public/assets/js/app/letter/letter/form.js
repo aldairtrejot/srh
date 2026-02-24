@@ -44,8 +44,8 @@ $(document).ready(function () {
       });
 
     // === PATCH: Config Asunto (máximo 300) y Observaciones (máximo 250) ===
-    const ASUNTO_MAX = 300;
-    const OBS_MAX    = 250;
+    const ASUNTO_MAX = 400;
+    const OBS_MAX    = 350;
 
     // Atributos maxlength en HTML
     $('#asunto').attr('maxlength', ASUNTO_MAX);
@@ -70,7 +70,7 @@ $(document).ready(function () {
 
       if ((val.length >= ASUNTO_MAX) && !asuntoToastGuard) {
         asuntoToastGuard = true;
-        toastError('Máximo 300 caracteres para Asunto.');
+        toastError('Máximo 400 caracteres para Asunto.');
         setTimeout(() => asuntoToastGuard = false, 1500);
       }
     });
@@ -83,7 +83,7 @@ $(document).ready(function () {
       }
       if ((val.length >= OBS_MAX) && !obsToastGuard) {
         obsToastGuard = true;
-        toastError('Máximo 250 caracteres para Observaciones.');
+        toastError('Máximo 350 caracteres para Observaciones.');
         setTimeout(() => obsToastGuard = false, 1500);
       }
     });

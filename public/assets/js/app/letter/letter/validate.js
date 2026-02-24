@@ -40,7 +40,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             isExceedingLength($('#puesto_remitente').val(), 'Puesto remitente', 100) ||
             isExceedingLength($('#num_documento').val(), 'No. Documento', 50) ||
             isExceedingLength($('#asunto').val(), 'Asunto', 400) ||
-            isExceedingLength($('#observaciones').val(), 'Observaciones', 140)
+            isExceedingLength($('#observaciones').val(), 'Observaciones', 350)
         ) {
             event.preventDefault();
             return;
